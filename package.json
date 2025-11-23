@@ -44,6 +44,7 @@
 		"docx": "^9.5.1",
 		"docxtemplater": "^3.67.5",
 		"file-saver": "^2.0.5",
+		"firebase": "^12.6.0",
 		"lucide-svelte": "^0.554.0",
 		"pizzip": "^3.2.0",
 		"zod": "^4.1.12"
