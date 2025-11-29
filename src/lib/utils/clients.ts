@@ -18,8 +18,10 @@ import { z } from 'zod';
  */
 export type ClientData = {
 	name: string;
+	email: string;
 	phone: string;
 	address: string;
+	idDocument: string; // Passport Number (foreigners) or ID Card Number (Vietnamese)
 	taxId: string | null;
 	bankName: string;
 	accountNumber: string;
@@ -28,8 +30,10 @@ export type ClientData = {
 const clientSchema = z.object({
 	ownerUid: z.string().min(1),
 	name: z.string().min(1),
+	email: z.string().email(),
 	phone: z.string().min(1),
 	address: z.string().min(1),
+	idDocument: z.string().min(1), // Passport or ID Card Number
 	taxId: z.string().nullable().optional(),
 	bankName: z.string().min(1),
 	accountNumber: z.string().min(1),
@@ -68,12 +72,51 @@ export async function getClient(
 	return {
 		id: snap.id,
 		name: parsed.data.name,
+		email: parsed.data.email,
 		phone: parsed.data.phone,
 		address: parsed.data.address,
+		idDocument: parsed.data.idDocument,
 		taxId: parsed.data.taxId ?? null,
 		bankName: parsed.data.bankName,
 		accountNumber: parsed.data.accountNumber
 	};
+}
+
+/**
+ * Check for duplicate email or ID document
+ * Returns error message if duplicate found, null otherwise
+ */
+async function checkDuplicates(
+	ownerUid: string,
+	email: string,
+	idDocument: string,
+	excludeId?: string
+): Promise<string | null> {
+	// Check for duplicate email
+	const emailQuery = query(
+		collection(db, 'clients'),
+		where('ownerUid', '==', ownerUid),
+		where('email', '==', email.trim().toLowerCase())
+	);
+	const emailSnap = await getDocs(emailQuery);
+	const duplicateEmail = emailSnap.docs.find(doc => doc.id !== excludeId);
+	if (duplicateEmail) {
+		return `A client with email "${email}" already exists.`;
+	}
+
+	// Check for duplicate ID document
+	const idQuery = query(
+		collection(db, 'clients'),
+		where('ownerUid', '==', ownerUid),
+		where('idDocument', '==', idDocument.trim().toUpperCase())
+	);
+	const idSnap = await getDocs(idQuery);
+	const duplicateId = idSnap.docs.find(doc => doc.id !== excludeId);
+	if (duplicateId) {
+		return `A client with ID/Passport number "${idDocument}" already exists.`;
+	}
+
+	return null;
 }
 
 /**
@@ -86,9 +129,27 @@ export async function upsertClient(
 	data: ClientData,
 	id?: string
 ): Promise<string> {
+	// Normalize email and ID document for consistency
+	const normalizedData = {
+		...data,
+		email: data.email.trim().toLowerCase(),
+		idDocument: data.idDocument.trim().toUpperCase()
+	};
+
+	// Check for duplicates
+	const duplicateError = await checkDuplicates(
+		ownerUid,
+		normalizedData.email,
+		normalizedData.idDocument,
+		id
+	);
+	if (duplicateError) {
+		throw new Error(duplicateError);
+	}
+
 	const toWrite = {
 		ownerUid,
-		...data,
+		...normalizedData,
 		updatedAt: serverTimestamp()
 	};
 	// runtime validation before write

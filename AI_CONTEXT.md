@@ -56,9 +56,11 @@
 {
   ownerUid: string,        // User who owns this client
   name: string,
+  email: string,           // Required, unique per owner
   phone: string,
   address: string,
-  taxId: string | null,
+  idDocument: string,      // ID Card / Passport Number, unique per owner
+  taxId: string | null,    // Optional tax ID
   bankName: string,
   accountNumber: string,
   createdAt: Timestamp,
@@ -66,10 +68,17 @@
 }
 ```
 
+**Uniqueness Validation:**
+- Email addresses are normalized (lowercase, trimmed) and enforced as unique per owner
+- ID documents are normalized (uppercase, trimmed) and enforced as unique per owner
+- Validation happens client-side before writes with helpful error messages
+- Firestore security rules provide server-side validation for all required fields
+
 **Reusable Components:**
 - **[ClientForm.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/ClientForm.svelte)**: Reusable client management component
   - Client selector dropdown with auto-population
-  - All client fields (name, phone, address, tax ID, bank details)
+  - All client fields (name, email, phone, address, ID document, tax ID, bank details)
+  - Required field validation with HTML5 form validation
   - Optional save/delete actions via `showActions` prop
   - Emits `onClientChange` callback for parent components
   - Used in both `/clients` route and contract form
@@ -77,8 +86,13 @@
 **Routes:**
 - **[/clients](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/clients/+page.svelte)**: Standalone client management page
   - Add/edit/delete client profiles independently
+  - Duplicate prevention for email and ID document fields
   - Protected route (requires authentication)
   - Accessible via header navigation
+
+- **[/login](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/login/+page.svelte)**: Login page
+  - Redirects to `/contracts` if user is already authenticated
+  - Prevents authenticated users from accessing login page
 
 - **[ContractForm.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/ContractForm.svelte)**:
   - Integrates `ClientForm` component

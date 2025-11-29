@@ -26,8 +26,10 @@
 
 	let formData = $state<ClientData>({
 		name: initialData?.name || '',
+		email: initialData?.email || '',
 		phone: initialData?.phone || '',
 		address: initialData?.address || '',
+		idDocument: initialData?.idDocument || '',
 		taxId: initialData?.taxId || null,
 		bankName: initialData?.bankName || '',
 		accountNumber: initialData?.accountNumber || ''
@@ -57,8 +59,10 @@
 			const profile = await getClient(authStore.user.uid, id);
 			if (profile) {
 				formData.name = profile.name;
+				formData.email = profile.email;
 				formData.phone = profile.phone;
 				formData.address = profile.address;
+				formData.idDocument = profile.idDocument;
 				formData.taxId = profile.taxId || null;
 				formData.bankName = profile.bankName;
 				formData.accountNumber = profile.accountNumber;
@@ -99,8 +103,10 @@
 				selectedClientId = '';
 				formData = {
 					name: '',
+					email: '',
 					phone: '',
 					address: '',
+					idDocument: '',
 					taxId: null,
 					bankName: '',
 					accountNumber: ''
@@ -148,25 +154,40 @@
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<!-- Client Name -->
 		<div class="space-y-2">
-			<Label for="clientName">Client Name</Label>
-			<Input id="clientName" type="text" bind:value={formData.name} placeholder="John Doe" />
+			<Label for="clientName">Client Name *</Label>
+			<Input id="clientName" type="text" bind:value={formData.name} placeholder="John Doe" required />
 		</div>
 
+		<!-- Email -->
+		<div class="space-y-2">
+			<Label for="clientEmail">Email Address *</Label>
+			<Input id="clientEmail" type="email" bind:value={formData.email} placeholder="john@example.com" required />
+		</div>
+	</div>
+
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<!-- Client Phone -->
 		<div class="space-y-2">
-			<Label for="clientPhone">Phone Number</Label>
-			<Input id="clientPhone" type="tel" bind:value={formData.phone} placeholder="+1 234 567 890" />
+			<Label for="clientPhone">Phone Number *</Label>
+			<Input id="clientPhone" type="tel" bind:value={formData.phone} placeholder="+1 234 567 890" required />
+		</div>
+
+		<!-- ID Document -->
+		<div class="space-y-2">
+			<Label for="idDocument">ID Card / Passport Number *</Label>
+			<Input id="idDocument" type="text" bind:value={formData.idDocument} placeholder="ID or Passport Number" required />
 		</div>
 	</div>
 
 	<!-- Client Address -->
 	<div class="space-y-2">
-		<Label for="clientAddress">Address</Label>
+		<Label for="clientAddress">Address *</Label>
 		<Input
 			id="clientAddress"
 			type="text"
 			bind:value={formData.address}
 			placeholder="123 Main St, City, Country"
+			required
 		/>
 	</div>
 
@@ -179,18 +200,19 @@
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<!-- Bank Name -->
 		<div class="space-y-2">
-			<Label for="bankName">Bank Name</Label>
-			<Input id="bankName" type="text" bind:value={formData.bankName} placeholder="e.g., Vietcombank" />
+			<Label for="bankName">Bank Name *</Label>
+			<Input id="bankName" type="text" bind:value={formData.bankName} placeholder="e.g., Vietcombank" required />
 		</div>
 
 		<!-- Account Number -->
 		<div class="space-y-2">
-			<Label for="accountNumber">Account Number</Label>
+			<Label for="accountNumber">Account Number *</Label>
 			<Input
 				id="accountNumber"
 				type="text"
 				bind:value={formData.accountNumber}
 				placeholder="Account number"
+				required
 			/>
 		</div>
 	</div>

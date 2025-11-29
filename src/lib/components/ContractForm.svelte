@@ -44,6 +44,7 @@ function handleClientChange(clientData: ClientProfile | null) {
 		formData.clientTaxId = clientData.taxId || '';
 		formData.bankName = clientData.bankName;
 		formData.accountNumber = clientData.accountNumber;
+		// Email and idDocument are stored in client profile but not needed in contract
 	}
 }
 
