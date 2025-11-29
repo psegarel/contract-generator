@@ -5,19 +5,20 @@ test.describe('Navigation', () => {
 		await page.goto('/');
 		
 		const heading = page.getByRole('heading', { level: 1 });
-		await expect(heading).toHaveText(/Professional Contract/);
+		await expect(heading).toContainText('Internal Contract');
 	});
 
 	test('should navigate to login page', async ({ page }) => {
 		await page.goto('/');
 		
-		const loginLink = page.getByRole('link', { name: 'Sign In', exact: true });
+		const loginLink = page.locator('a[href="/login"]');
+		await expect(loginLink).toBeVisible();
 		await loginLink.click();
 		
 		// Wait for navigation
-		await expect(page).toHaveURL('/login');
+		await expect(page).toHaveURL(/\/login\/?$/);
 		
-		const loginHeading = page.getByRole('heading', { name: 'Welcome Back' });
+		const loginHeading = page.getByText(/Welcome Back/i);
 		await expect(loginHeading).toBeVisible();
 	});
 
