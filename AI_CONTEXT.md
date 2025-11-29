@@ -66,12 +66,24 @@
 }
 ```
 
-**Form Integration:**
+**Reusable Components:**
+- **[ClientForm.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/ClientForm.svelte)**: Reusable client management component
+  - Client selector dropdown with auto-population
+  - All client fields (name, phone, address, tax ID, bank details)
+  - Optional save/delete actions via `showActions` prop
+  - Emits `onClientChange` callback for parent components
+  - Used in both `/clients` route and contract form
+
+**Routes:**
+- **[/clients](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/clients/+page.svelte)**: Standalone client management page
+  - Add/edit/delete client profiles independently
+  - Protected route (requires authentication)
+  - Accessible via header navigation
+
 - **[ContractForm.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/ContractForm.svelte)**:
-  - Client selector dropdown loads saved clients on mount
-  - Auto-populates form fields when client selected
-  - "Save Client" button creates/updates client profiles
-  - Integrates with authentication store for user context
+  - Integrates `ClientForm` component
+  - Client data syncs with contract form fields
+  - Streamlined client selection for contracts
 
 ### Walkthrough - Added Unit & E2E Tests
 

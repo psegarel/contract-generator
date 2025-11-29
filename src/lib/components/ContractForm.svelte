@@ -9,9 +9,8 @@ import { Textarea } from '$lib/components/ui/textarea';
 import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
 import { Card } from '$lib/components/ui/card';
 import { Button } from '$lib/components/ui/button';
-import { onMount } from 'svelte';
-import { authStore } from '$lib/stores/auth.svelte';
-import { listClients, getClient, upsertClient, deleteClient, type ClientData as ClientProfile } from '$lib/utils/clients';
+import ClientForm from '$lib/components/ClientForm.svelte';
+import type { ClientData as ClientProfile } from '$lib/utils/clients';
 
 	let formData: ContractData = $state({
 		clientName: '',
@@ -37,100 +36,16 @@ import { listClients, getClient, upsertClient, deleteClient, type ClientData as 
 let taxRateStr = $state(String(formData.taxRate));
 $effect(() => { formData.taxRate = Number(taxRateStr); });
 
-let clients = $state<{ id: string; name: string }[]>([]);
-let selectedClientId = $state('');
-let saveLoading = $state(false);
-let saveMessage = $state('');
-let deleteLoading = $state(false);
-
-onMount(async () => {
-	if (authStore.isAuthenticated && authStore.user) {
-		try {
-			clients = await listClients(authStore.user.uid);
-		} catch (e) {
-			console.error('Load clients error:', e);
-		}
-	}
-});
-
-async function handleClientSelect(id: string) {
-	if (!id || !authStore.user) return;
-	try {
-		const profile = await getClient(authStore.user.uid, id);
-		if (profile) {
-			formData.clientName = profile.name;
-			formData.clientPhone = profile.phone;
-			formData.clientAddress = profile.address;
-			formData.clientTaxId = profile.taxId || '';
-			formData.bankName = profile.bankName;
-			formData.accountNumber = profile.accountNumber;
-		}
-	} catch (e) {
-		console.error('Fetch client error:', e);
+function handleClientChange(clientData: ClientProfile | null) {
+	if (clientData) {
+		formData.clientName = clientData.name;
+		formData.clientPhone = clientData.phone;
+		formData.clientAddress = clientData.address;
+		formData.clientTaxId = clientData.taxId || '';
+		formData.bankName = clientData.bankName;
+		formData.accountNumber = clientData.accountNumber;
 	}
 }
-
-async function saveClientProfile() {
-	if (!authStore.user) {
-		alert('You must be signed in to save clients.');
-		return;
-	}
-	saveLoading = true;
-	saveMessage = '';
-	try {
-		const profile: ClientProfile = {
-			name: formData.clientName,
-			phone: formData.clientPhone,
-			address: formData.clientAddress,
-			taxId: formData.clientTaxId || null,
-			bankName: formData.bankName,
-			accountNumber: formData.accountNumber
-		};
-		const id = await upsertClient(authStore.user.uid, profile, selectedClientId || undefined);
-		saveMessage = 'Client saved';
-		clients = await listClients(authStore.user.uid);
-		selectedClientId = id;
-	} catch (e) {
-		console.error('Save client error:', e);
-		alert('Failed to save client.');
-	} finally {
-		saveLoading = false;
-	}
-}
-
-async function handleDeleteClient() {
-	if (!authStore.user || !selectedClientId) return;
-	if (!confirm('Are you sure you want to delete this client?')) return;
-
-	deleteLoading = true;
-	try {
-		const success = await deleteClient(authStore.user.uid, selectedClientId);
-		if (success) {
-			// Clear form and reload client list
-			selectedClientId = '';
-			formData.clientName = '';
-			formData.clientPhone = '';
-			formData.clientAddress = '';
-			formData.clientTaxId = '';
-			formData.bankName = '';
-			formData.accountNumber = '';
-			clients = await listClients(authStore.user.uid);
-		} else {
-			alert('Failed to delete client.');
-		}
-	} catch (e) {
-		console.error('Delete client error:', e);
-		alert('Failed to delete client.');
-	} finally {
-		deleteLoading = false;
-	}
-}
-
-$effect(() => {
-	if (selectedClientId) {
-		handleClientSelect(selectedClientId);
-	}
-});
 
 	// Derived values for display
 	let grossFee = $derived(formData.netFee && formData.taxRate ? Math.round(formData.netFee / (1 - formData.taxRate / 100)) : 0);
@@ -214,81 +129,10 @@ $effect(() => {
 		<!-- Client Information Section -->
 		<div class="space-y-4">
 			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">Client Information</h3>
-			<div class="space-y-2">
-				<Label for="clientSelect">Client</Label>
-				<Select type="single" bind:value={selectedClientId}>
-					<SelectTrigger class="w-full">
-						<span data-slot="select-value">{selectedClientId ? clients.find((c) => c.id === selectedClientId)?.name : 'Choose client'}</span>
-					</SelectTrigger>
-					<SelectContent>
-						{#each clients as c}
-							<SelectItem value={c.id}>{c.name}</SelectItem>
-						{/each}
-					</SelectContent>
-				</Select>
-			</div>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<!-- Client Name -->
-				<div class="space-y-2">
-					<Label for="clientName">Client Name</Label>
-					<Input id="clientName" type="text" bind:value={formData.clientName} placeholder="John Doe" />
-					{#if errors.clientName}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
-					{/if}
-				</div>
-
-				<!-- Client Phone -->
-				<div class="space-y-2">
-					<Label for="clientPhone">Phone Number</Label>
-					<Input id="clientPhone" type="tel" bind:value={formData.clientPhone} placeholder="+1 234 567 890" />
-					{#if errors.clientPhone}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientPhone}</p>
-					{/if}
-				</div>
-			</div>
-
-			<!-- Client Address -->
-			<div class="space-y-2">
-				<label for="clientAddress" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
-				<input
-					type="text"
-					id="clientAddress"
-					bind:value={formData.clientAddress}
-					class="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#2a2a2a] rounded-md text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] focus:border-[#5E6AD2] transition-colors"
-					placeholder="123 Main St, City, Country"
-				/>
-				{#if errors.clientAddress}
-					<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientAddress}</p>
-				{/if}
-			</div>
-
-			<!-- Tax ID -->
-			<div class="space-y-2">
-				<label for="clientTaxId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tax ID (Optional)</label>
-				<input
-					type="text"
-					id="clientTaxId"
-					bind:value={formData.clientTaxId}
-					class="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#2a2a2a] rounded-md text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] focus:border-[#5E6AD2] transition-colors"
-					placeholder="Tax Code"
-				/>
-				{#if errors.clientTaxId}
-					<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientTaxId}</p>
-				{/if}
-			</div>
-			<div class="pt-2 flex gap-3 items-center">
-				<Button type="button" variant="secondary" onclick={saveClientProfile} disabled={saveLoading}>
-					{#if saveLoading}Saving...{:else}Save Client{/if}
-				</Button>
-				{#if selectedClientId}
-					<Button type="button" variant="destructive" onclick={handleDeleteClient} disabled={deleteLoading}>
-						{#if deleteLoading}Deleting...{:else}Delete Client{/if}
-					</Button>
-				{/if}
-				{#if saveMessage}
-					<span class="text-sm text-muted-foreground">{saveMessage}</span>
-				{/if}
-			</div>
+			<ClientForm showActions={true} onClientChange={handleClientChange} />
+			{#if errors.clientName}
+				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
+			{/if}
 		</div>
 
 		<!-- Event Details Section -->
@@ -384,30 +228,6 @@ $effect(() => {
 				{#if errors.jobContent}
 					<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.jobContent}</p>
 				{/if}
-			</div>
-		</div>
-
-		<!-- Bank Details Section -->
-		<div class="space-y-4">
-			<h3 class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-[#2a2a2a] pb-3">Bank Details</h3>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<!-- Bank Name -->
-				<div class="space-y-2">
-					<Label for="bankName">Bank Name</Label>
-					<Input id="bankName" type="text" bind:value={formData.bankName} placeholder="e.g., Vietcombank" />
-					{#if errors.bankName}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.bankName}</p>
-					{/if}
-				</div>
-				
-				<!-- Account Number -->
-				<div class="space-y-2">
-					<Label for="accountNumber">Account Number</Label>
-					<Input id="accountNumber" type="text" bind:value={formData.accountNumber} placeholder="Account number" />
-					{#if errors.accountNumber}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.accountNumber}</p>
-					{/if}
-				</div>
 			</div>
 		</div>
 

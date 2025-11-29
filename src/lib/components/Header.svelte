@@ -24,8 +24,14 @@
 
 			<nav class="flex items-center space-x-6">
 				{#if authStore.isAuthenticated}
-					<a 
-						href="/contracts" 
+					<a
+						href="/clients"
+						class="text-muted-foreground hover:text-foreground transition-colors text-sm"
+					>
+						Clients
+					</a>
+					<a
+						href="/contracts"
 						class="text-muted-foreground hover:text-foreground transition-colors text-sm"
 					>
 						Contracts
