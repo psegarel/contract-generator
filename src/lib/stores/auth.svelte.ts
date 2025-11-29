@@ -1,7 +1,7 @@
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '$lib/config/firebase';
 
-class AuthStore {
+export class AuthStore {
 	user = $state<User | null>(null);
 	loading = $state(true);
 	initialized = $state(false);
