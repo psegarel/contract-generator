@@ -37,6 +37,14 @@
   - Respects system preference on initial load
   - Applies theme via `.dark` class on `<html>` element
 
+**Mobile-Responsive Navigation:**
+- **[Header.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/Header.svelte)**: Responsive header with hamburger menu
+  - Desktop: Horizontal navigation with inline items (≥ md breakpoint)
+  - Mobile: Collapsible hamburger menu (< md breakpoint)
+  - Theme toggle accessible on all screen sizes
+  - Auto-closes menu on navigation for better UX
+  - Touch-friendly targets and smooth transitions
+
 ### Firestore Integration - Client Profiles
 
 **Database Setup:**
@@ -98,6 +106,25 @@
   - Integrates `ClientForm` component
   - Client data syncs with contract form fields
   - Streamlined client selection for contracts
+
+### Latest Session Summary (2025-11-29)
+
+**Firestore Client Management Implementation:**
+- Added comprehensive client CRUD operations with Firestore integration
+- Implemented email and ID document fields with uniqueness validation
+- Created reusable `ClientForm` component for DRY principles
+- Added dedicated `/clients` route for standalone client management
+- Normalized data: email (lowercase), ID document (uppercase)
+- Client-side duplicate detection with clear error messages
+- Updated Firestore security rules for new required fields
+- Fixed login page redirect when already authenticated
+- Improved mobile navigation with responsive hamburger menu
+
+**Key Features:**
+- Full client management system with duplicate prevention
+- Reusable components across app (clients page + contract form)
+- Mobile-first responsive design
+- Type-safe with Zod validation throughout
 
 ### Walkthrough - Added Unit & E2E Tests
 
