@@ -2,13 +2,16 @@
 	import { contractSchema, type ContractData } from '$lib/schemas/contract';
 	import { generateContract } from '$lib/utils/generator';
 	import { companyConfig } from '$lib/config/company';
-	import { Loader2 } from 'lucide-svelte';
+	import { LoaderCircle } from 'lucide-svelte';
 import { Input } from '$lib/components/ui/input';
 import { Label } from '$lib/components/ui/label';
 import { Textarea } from '$lib/components/ui/textarea';
 import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
 import { Card } from '$lib/components/ui/card';
 import { Button } from '$lib/components/ui/button';
+import { onMount } from 'svelte';
+import { authStore } from '$lib/stores/auth.svelte';
+import { listClients, getClient, upsertClient, deleteClient, type ClientData as ClientProfile } from '$lib/utils/clients';
 
 	let formData: ContractData = $state({
 		clientName: '',
@@ -33,6 +36,101 @@ import { Button } from '$lib/components/ui/button';
 	let isGenerating = $state(false);
 let taxRateStr = $state(String(formData.taxRate));
 $effect(() => { formData.taxRate = Number(taxRateStr); });
+
+let clients = $state<{ id: string; name: string }[]>([]);
+let selectedClientId = $state('');
+let saveLoading = $state(false);
+let saveMessage = $state('');
+let deleteLoading = $state(false);
+
+onMount(async () => {
+	if (authStore.isAuthenticated && authStore.user) {
+		try {
+			clients = await listClients(authStore.user.uid);
+		} catch (e) {
+			console.error('Load clients error:', e);
+		}
+	}
+});
+
+async function handleClientSelect(id: string) {
+	if (!id || !authStore.user) return;
+	try {
+		const profile = await getClient(authStore.user.uid, id);
+		if (profile) {
+			formData.clientName = profile.name;
+			formData.clientPhone = profile.phone;
+			formData.clientAddress = profile.address;
+			formData.clientTaxId = profile.taxId || '';
+			formData.bankName = profile.bankName;
+			formData.accountNumber = profile.accountNumber;
+		}
+	} catch (e) {
+		console.error('Fetch client error:', e);
+	}
+}
+
+async function saveClientProfile() {
+	if (!authStore.user) {
+		alert('You must be signed in to save clients.');
+		return;
+	}
+	saveLoading = true;
+	saveMessage = '';
+	try {
+		const profile: ClientProfile = {
+			name: formData.clientName,
+			phone: formData.clientPhone,
+			address: formData.clientAddress,
+			taxId: formData.clientTaxId || null,
+			bankName: formData.bankName,
+			accountNumber: formData.accountNumber
+		};
+		const id = await upsertClient(authStore.user.uid, profile, selectedClientId || undefined);
+		saveMessage = 'Client saved';
+		clients = await listClients(authStore.user.uid);
+		selectedClientId = id;
+	} catch (e) {
+		console.error('Save client error:', e);
+		alert('Failed to save client.');
+	} finally {
+		saveLoading = false;
+	}
+}
+
+async function handleDeleteClient() {
+	if (!authStore.user || !selectedClientId) return;
+	if (!confirm('Are you sure you want to delete this client?')) return;
+
+	deleteLoading = true;
+	try {
+		const success = await deleteClient(authStore.user.uid, selectedClientId);
+		if (success) {
+			// Clear form and reload client list
+			selectedClientId = '';
+			formData.clientName = '';
+			formData.clientPhone = '';
+			formData.clientAddress = '';
+			formData.clientTaxId = '';
+			formData.bankName = '';
+			formData.accountNumber = '';
+			clients = await listClients(authStore.user.uid);
+		} else {
+			alert('Failed to delete client.');
+		}
+	} catch (e) {
+		console.error('Delete client error:', e);
+		alert('Failed to delete client.');
+	} finally {
+		deleteLoading = false;
+	}
+}
+
+$effect(() => {
+	if (selectedClientId) {
+		handleClientSelect(selectedClientId);
+	}
+});
 
 	// Derived values for display
 	let grossFee = $derived(formData.netFee && formData.taxRate ? Math.round(formData.netFee / (1 - formData.taxRate / 100)) : 0);
@@ -116,6 +214,19 @@ $effect(() => { formData.taxRate = Number(taxRateStr); });
 		<!-- Client Information Section -->
 		<div class="space-y-4">
 			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">Client Information</h3>
+			<div class="space-y-2">
+				<Label for="clientSelect">Client</Label>
+				<Select type="single" bind:value={selectedClientId}>
+					<SelectTrigger class="w-full">
+						<span data-slot="select-value">{selectedClientId ? clients.find((c) => c.id === selectedClientId)?.name : 'Choose client'}</span>
+					</SelectTrigger>
+					<SelectContent>
+						{#each clients as c}
+							<SelectItem value={c.id}>{c.name}</SelectItem>
+						{/each}
+					</SelectContent>
+				</Select>
+			</div>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<!-- Client Name -->
 				<div class="space-y-2">
@@ -163,6 +274,19 @@ $effect(() => { formData.taxRate = Number(taxRateStr); });
 				/>
 				{#if errors.clientTaxId}
 					<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientTaxId}</p>
+				{/if}
+			</div>
+			<div class="pt-2 flex gap-3 items-center">
+				<Button type="button" variant="secondary" onclick={saveClientProfile} disabled={saveLoading}>
+					{#if saveLoading}Saving...{:else}Save Client{/if}
+				</Button>
+				{#if selectedClientId}
+					<Button type="button" variant="destructive" onclick={handleDeleteClient} disabled={deleteLoading}>
+						{#if deleteLoading}Deleting...{:else}Delete Client{/if}
+					</Button>
+				{/if}
+				{#if saveMessage}
+					<span class="text-sm text-muted-foreground">{saveMessage}</span>
 				{/if}
 			</div>
 		</div>
@@ -362,7 +486,7 @@ $effect(() => { formData.taxRate = Number(taxRateStr); });
 
 		<Button type="submit" disabled={isGenerating} class="w-full" size="lg">
 			{#if isGenerating}
-				<Loader2 class="w-5 h-5 mr-2 animate-spin" />
+				<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
 				Generating Contract...
 			{:else}
 				Generate Contract

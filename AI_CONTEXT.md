@@ -22,6 +22,57 @@
 
 ## Recent Updates
 
+### UI Redesign with shadcn-svelte & Theme Support
+
+**shadcn-svelte Integration:**
+- Installed and configured [shadcn-svelte](https://www.shadcn-svelte.com/) for a minimalist, accessible component system
+- Added UI components: Button, Input, Label, Textarea, Select, Card, Alert, Separator
+- Uses `bits-ui` as the headless component foundation
+- Styled with TailwindCSS 4 and design tokens
+
+**Theme Toggler:**
+- **[theme.svelte.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/stores/theme.svelte.ts)**: Theme store using Svelte 5 runes
+  - Supports light/dark mode toggle
+  - Persists theme preference in localStorage
+  - Respects system preference on initial load
+  - Applies theme via `.dark` class on `<html>` element
+
+### Firestore Integration - Client Profiles
+
+**Database Setup:**
+- Connected to Firestore with a `clients` collection
+- **[firebase.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/config/firebase.ts)**: Firebase app initialization with Firestore SDK
+- **[clients.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/clients.ts)**: Client data utilities with Zod validation
+
+**Client Management Features:**
+- `listClients(ownerUid)`: Returns minimal client list for dropdown selection
+- `getClient(ownerUid, id)`: Fetches full client profile with validation
+- `upsertClient(ownerUid, data, id?)`: Creates or updates client profiles
+- All read/write operations validated with Zod schema
+- Client data scoped to authenticated user (`ownerUid`)
+
+**Data Model:**
+```typescript
+{
+  ownerUid: string,        // User who owns this client
+  name: string,
+  phone: string,
+  address: string,
+  taxId: string | null,
+  bankName: string,
+  accountNumber: string,
+  createdAt: Timestamp,
+  updatedAt: Timestamp
+}
+```
+
+**Form Integration:**
+- **[ContractForm.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/ContractForm.svelte)**:
+  - Client selector dropdown loads saved clients on mount
+  - Auto-populates form fields when client selected
+  - "Save Client" button creates/updates client profiles
+  - Integrates with authentication store for user context
+
 ### Walkthrough - Added Unit & E2E Tests
 
 I have successfully added unit tests for the `AuthStore` and E2E tests for the critical navigation and authentication flows.
