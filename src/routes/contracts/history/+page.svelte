@@ -5,7 +5,7 @@
 	import { getUserContracts, type SavedContract } from '$lib/utils/contracts';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import { Download, Pencil, FileText } from 'lucide-svelte';
-	import { Card, CardTitle, CardContent } from '$lib/components/ui/card';
+	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 
 	let contracts = $state<SavedContract[]>([]);
@@ -127,58 +127,55 @@
 					<Button href="/contracts">Create Contract</Button>
 				</Card>
 			{:else}
-				<div class="grid gap-4">
+				<div>
 					{#each contracts as contract (contract.id)}
-						<Card class="hover:shadow-md transition-shadow">
-							<CardContent class="p-6">
-								<div class="flex items-start justify-between">
-									<div class="flex-1">
-										<h3 class="text-lg font-semibold">
-											{contract.contractData.eventName}
-										</h3>
-										<div class="text-lg text-muted-foreground mb-2">
-											{formatDateString(contract.contractData.startDate)}
-										</div>
-
-										<div class="space-y-1 text-sm text-muted-foreground">
-											<div>{contract.contractData.eventLocation}</div>
-											<div>{contract.contractData.clientName}</div>
-										</div>
+						<div class="py-6 border-b border-dotted border-border">
+							<div class="flex items-start justify-between">
+								<div class="flex-1">
+									<h3 class="text-lg font-semibold">
+										{contract.contractData.eventName}
+									</h3>
+									<div class="text-lg text-muted-foreground mb-2">
+										{formatDateString(contract.contractData.startDate)}
 									</div>
 
-									<div class="flex gap-2 ml-4">
-										<Button
-											variant="success"
-											size="sm"
-											href="/contracts/service-contract?edit={contract.id}"
-										>
-											<span class="flex items-center space-x-2">
-												<Pencil class="h-4 w-4" />
-												<span>Edit</span>
-											</span>
-										</Button>
-										<Button
-											variant="outline"
-											size="sm"
-											onclick={() => handleDownload(contract)}
-											disabled={downloadingIds.has(contract.id)}
-										>
-											{#if downloadingIds.has(contract.id)}
-												<span class="flex items-center space-x-2">
-													<span class="animate-spin">⏳</span>
-													<span>Downloading...</span>
-												</span>
-											{:else}
-												<span class="flex items-center space-x-2">
-													<Download class="h-4 w-4" />
-													<span>Download</span>
-												</span>
-											{/if}
-										</Button>
+									<div class="space-y-1 text-sm text-muted-foreground">
+										<div>{contract.contractData.eventLocation}</div>
+										<div>{contract.contractData.clientName}</div>
 									</div>
 								</div>
-							</CardContent>
-						</Card>
+
+								<div class="flex gap-2 ml-4">
+									<Button
+										size="sm"
+										href="/contracts/service-contract?edit={contract.id}"
+									>
+										<span class="flex items-center space-x-2">
+											<Pencil class="h-4 w-4" />
+											<span>Edit</span>
+										</span>
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										onclick={() => handleDownload(contract)}
+										disabled={downloadingIds.has(contract.id)}
+									>
+										{#if downloadingIds.has(contract.id)}
+											<span class="flex items-center space-x-2">
+												<span class="animate-spin">⏳</span>
+												<span>Downloading...</span>
+											</span>
+										{:else}
+											<span class="flex items-center space-x-2">
+												<Download class="h-4 w-4" />
+												<span>Download</span>
+											</span>
+										{/if}
+									</Button>
+								</div>
+							</div>
+						</div>
 					{/each}
 				</div>
 			{/if}
