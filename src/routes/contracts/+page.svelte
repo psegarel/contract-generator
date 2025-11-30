@@ -20,7 +20,7 @@
 			</div>
 
 			<div class="grid gap-4">
-				<a href={resolve('/service-contract')} class="group">
+				<a href={resolve('/contracts/service-contract')} class="group">
 					<Card class="p-6">
 						<CardHeader class="p-0 mb-3">
 							<div class="flex items-center justify-between">

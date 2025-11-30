@@ -4,22 +4,26 @@
 	import { signOut } from '$lib/utils/auth';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { LogOut, User, Sun, Moon, Menu, X } from 'lucide-svelte';
-
-	let mobileMenuOpen = $state(false);
+	import { LogOut, Sun, Moon, Users, FileText } from 'lucide-svelte';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import * as Avatar from '$lib/components/ui/avatar';
 
 	async function handleSignOut() {
 		try {
 			await signOut();
 			goto(resolve('/'));
-			mobileMenuOpen = false;
 		} catch (error) {
 			console.error('Error signing out:', error);
 		}
 	}
 
-	function closeMobileMenu() {
-		mobileMenuOpen = false;
+	function getInitials(email: string | null | undefined): string {
+		if (!email) return 'U';
+		const parts = email.split('@')[0].split('.');
+		if (parts.length >= 2) {
+			return (parts[0][0] + parts[1][0]).toUpperCase();
+		}
+		return email.substring(0, 2).toUpperCase();
 	}
 </script>
 
@@ -33,32 +37,54 @@
 				Contract Generator
 			</a>
 
-			<!-- Desktop Navigation -->
-			<nav class="hidden md:flex items-center space-x-6">
+			<!-- Navigation -->
+			<nav class="flex items-center space-x-4">
 				{#if authStore.isAuthenticated}
-					<a
-						href={resolve('/clients')}
-						class="text-muted-foreground hover:text-foreground transition-colors text-sm"
-					>
-						Clients
-					</a>
-					<a
-						href={resolve('/contracts')}
-						class="text-muted-foreground hover:text-foreground transition-colors text-sm"
-					>
-						Contracts
-					</a>
-					<div class="flex items-center space-x-2 text-muted-foreground text-sm">
-						<User class="h-4 w-4" />
-						<span class="hidden lg:inline">{authStore.user?.email}</span>
-					</div>
-					<button
-						onclick={handleSignOut}
-						class="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-					>
-						<LogOut class="h-4 w-4" />
-						<span>Sign Out</span>
-					</button>
+					<!-- User Menu -->
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger
+							class="flex items-center space-x-2 p-1.5 hover:bg-muted rounded-md transition-colors"
+						>
+							<Avatar.Root class="h-8 w-8">
+								<Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
+									{getInitials(authStore.user?.email)}
+								</Avatar.Fallback>
+							</Avatar.Root>
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="end" class="w-56">
+							<DropdownMenu.Label class="font-normal">
+								<div class="flex flex-col space-y-1">
+									<p class="text-xs text-muted-foreground truncate">
+										{authStore.user?.email}
+									</p>
+								</div>
+							</DropdownMenu.Label>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item onSelect={() => goto(resolve('/clients'))} class="cursor-pointer">
+								<Users class="mr-2 h-4 w-4" />
+								<span>Clients</span>
+							</DropdownMenu.Item>
+							<DropdownMenu.Sub>
+								<DropdownMenu.SubTrigger class="cursor-pointer">
+									<FileText class="h-4 w-4" />
+									<span>Contracts</span>
+								</DropdownMenu.SubTrigger>
+								<DropdownMenu.SubContent class="min-w-[180px]">
+									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/service-contract'))} class="cursor-pointer">
+										<span>Service Contract</span>
+									</DropdownMenu.Item>
+									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts'))} class="cursor-pointer">
+										<span>View All Contracts</span>
+									</DropdownMenu.Item>
+								</DropdownMenu.SubContent>
+							</DropdownMenu.Sub>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item onSelect={handleSignOut} class="cursor-pointer">
+								<LogOut class="mr-2 h-4 w-4" />
+								<span>Sign Out</span>
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
 				{/if}
 
 				<!-- Theme Toggle -->
@@ -74,67 +100,6 @@
 					{/if}
 				</button>
 			</nav>
-
-			<!-- Mobile Menu Button -->
-			<div class="flex md:hidden items-center space-x-2">
-				<!-- Theme Toggle (Mobile) -->
-				<button
-					onclick={() => themeStore.toggle()}
-					class="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-					aria-label="Toggle theme"
-				>
-					{#if themeStore.theme === 'dark'}
-						<Sun class="h-4 w-4" />
-					{:else}
-						<Moon class="h-4 w-4" />
-					{/if}
-				</button>
-
-				{#if authStore.isAuthenticated}
-					<button
-						onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
-						class="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-						aria-label="Toggle menu"
-					>
-						{#if mobileMenuOpen}
-							<X class="h-5 w-5" />
-						{:else}
-							<Menu class="h-5 w-5" />
-						{/if}
-					</button>
-				{/if}
-			</div>
 		</div>
-
-		<!-- Mobile Menu -->
-		{#if mobileMenuOpen && authStore.isAuthenticated}
-			<div class="md:hidden py-4 space-y-3 border-t border-border">
-				<a
-					href={resolve('/clients')}
-					onclick={closeMobileMenu}
-					class="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-				>
-					Clients
-				</a>
-				<a
-					href={resolve('/contracts')}
-					onclick={closeMobileMenu}
-					class="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-				>
-					Contracts
-				</a>
-				<div class="px-3 py-2 text-sm text-muted-foreground flex items-center space-x-2">
-					<User class="h-4 w-4" />
-					<span class="truncate">{authStore.user?.email}</span>
-				</div>
-				<button
-					onclick={handleSignOut}
-					class="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors flex items-center space-x-2"
-				>
-					<LogOut class="h-4 w-4" />
-					<span>Sign Out</span>
-				</button>
-			</div>
-		{/if}
 	</div>
 </header>
