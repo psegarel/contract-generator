@@ -53,5 +53,27 @@ service cloud.firestore {
       // Delete: owner only
       allow delete: if isOwner(resource.data);
     }
+
+    match /contracts/{contractId} {
+      // Only the owner can read
+      allow read: if isOwner(resource.data);
+
+      // Create: must be signed-in owner and fields must be valid
+      allow create: if isSignedIn()
+        && ('ownerUid' in request.resource.data)
+        && request.resource.data.ownerUid == request.auth.uid
+        && ('type' in request.resource.data && request.resource.data.type is string)
+        && ('contractData' in request.resource.data && request.resource.data.contractData is map)
+        && ('contractNumber' in request.resource.data && request.resource.data.contractNumber is string)
+        && ('createdAt' in request.resource.data);
+
+      // Update: owner only (contracts are typically not updated, but allow it)
+      allow update: if isOwner(resource.data)
+        && ('ownerUid' in request.resource.data)
+        && request.resource.data.ownerUid == resource.data.ownerUid;
+
+      // Delete: owner only
+      allow delete: if isOwner(resource.data);
+    }
   }
 }

@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { contractSchema, type ContractData } from '$lib/schemas/contract';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
+	import { saveContract } from '$lib/utils/contracts';
 	import { companyConfig } from '$lib/config/company';
+	import { authStore } from '$lib/stores/auth.svelte';
 	import { LoaderCircle } from 'lucide-svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -84,6 +86,26 @@
 		try {
 			const blob = await generateServiceContract(formData);
 			const filename = `Contract_${formData.clientName.replace(/\s+/g, '_')}.docx`;
+
+			// Generate contract number (same logic as in serviceContractGenerator)
+			const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+			const initials = formData.clientName
+				.split(' ')
+				.map((n) => n[0])
+				.join('')
+				.toUpperCase();
+			const timestamp = Date.now().toString().slice(-3);
+			const contractNumber = `${dateStr}-${initials}-${timestamp}`;
+
+			// Save contract to Firebase
+			if (authStore.user?.uid) {
+				try {
+					await saveContract(authStore.user.uid, 'service', formData, contractNumber);
+				} catch (saveError) {
+					console.error('Error saving contract to database:', saveError);
+					// Continue with download even if save fails
+				}
+			}
 
 			// Try File System Access API (Chrome, Edge, Opera)
 			if ('showSaveFilePicker' in window) {
