@@ -33,9 +33,9 @@
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 	<div class="mb-6">
-		<h1 class="text-3xl font-bold text-foreground">Client Management</h1>
+		<h1 class="text-3xl font-bold text-foreground">Contact Management</h1>
 		<p class="text-muted-foreground mt-2">
-			Manage your client profiles for quick contract generation
+			Manage your business contacts (clients and service providers) for quick contract generation
 		</p>
 	</div>
 
@@ -44,11 +44,11 @@
 	</Card>
 
 	{#if loading}
-		<p class="text-center text-muted-foreground mt-6">Loading clients...</p>
+		<p class="text-center text-muted-foreground mt-6">Loading contacts...</p>
 	{:else if clients.length > 0}
 		<div class="mt-6">
 			<p class="text-sm text-muted-foreground">
-				You have {clients.length} client{clients.length === 1 ? '' : 's'} saved.
+				You have {clients.length} contact{clients.length === 1 ? '' : 's'} saved.
 			</p>
 		</div>
 	{/if}

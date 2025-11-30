@@ -60,9 +60,9 @@
 								</div>
 							</DropdownMenu.Label>
 							<DropdownMenu.Separator />
-							<DropdownMenu.Item onSelect={() => goto(resolve('/clients'))} class="cursor-pointer">
-								<Users class="mr-2 h-4 w-4" />
-								<span>Clients</span>
+							<DropdownMenu.Item onSelect={() => goto(resolve('/contacts'))} class="cursor-pointer">
+								<Users class="h-4 w-4" />
+								<span>Contacts</span>
 							</DropdownMenu.Item>
 							<DropdownMenu.Sub>
 								<DropdownMenu.SubTrigger class="cursor-pointer">
@@ -83,7 +83,7 @@
 							</DropdownMenu.Sub>
 							<DropdownMenu.Separator />
 							<DropdownMenu.Item onSelect={handleSignOut} class="cursor-pointer">
-								<LogOut class="mr-2 h-4 w-4" />
+								<LogOut class="h-4 w-4" />
 								<span>Sign Out</span>
 							</DropdownMenu.Item>
 						</DropdownMenu.Content>

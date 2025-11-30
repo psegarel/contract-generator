@@ -164,14 +164,14 @@
 		}}
 		class="space-y-8"
 	>
-		<!-- Client Information Section -->
+		<!-- Contact Information Section -->
 		<div class="space-y-4">
 			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">
-				Service Provider Information
+				Contact Information
 			</h3>
 			<ClientForm
 				showActions={true}
-				entityTitle="Service Provider"
+				entityTitle="Contact"
 				onClientChange={handleClientChange}
 			/>
 			{#if errors.clientName}
