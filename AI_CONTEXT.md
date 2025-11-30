@@ -119,7 +119,79 @@
   - Client data syncs with contract form fields
   - Streamlined client selection for contracts
 
-### Latest Session Summary (2025-11-29)
+### Latest Session Summary (2025-11-30)
+
+**Navigation Redesign - User Menu with Dropdown:**
+
+- Replaced navbar icon, email, and logout button with user avatar dropdown menu
+- Installed shadcn-svelte `dropdown-menu` and `avatar` components
+- User menu shows:
+  - Avatar with user initials (generated from email)
+  - Email address at top
+  - Contacts menu item
+  - Contracts submenu (Service Contract, Contract History, Templates)
+  - Sign Out option
+- Removed separate mobile menu implementation
+- Single responsive dropdown works across all screen sizes
+- Moved service contract route from `/service-contract` to `/contracts/service-contract`
+- Updated all route references and tests
+- Fixed menu alignment issues (consistent `gap-2` spacing)
+
+**Contract History Feature:**
+
+- **[contracts.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/contracts.ts)**: Contract storage utilities
+  - `saveContract(ownerUid, type, contractData, contractNumber)`: Saves contracts to Firestore
+  - `getUserContracts(ownerUid)`: Retrieves all user contracts ordered by creation date
+  - Uses `ownerUid` for consistency with clients collection
+- **[/contracts/history](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/history/+page.svelte)**: Contract history page
+  - Lists all previously generated contracts
+  - Shows contract number, client name, job name, creation date
+  - Download button to regenerate and download any contract
+  - Empty state with helpful messaging
+- **Auto-save on Generation**: Contracts automatically saved when generated
+  - Unique contract number format: `YYYYMMDD-INITIALS-TIMESTAMP`
+  - Saves full contract data with metadata
+  - Continues download even if save fails
+- **Firestore Setup**:
+  - Added `contracts` collection security rules
+  - Created composite index (ownerUid + createdAt DESC)
+  - Deployed rules and indexes via Firebase CLI
+  - Added Firebase config files (firebase.json, .firebaserc)
+  - Installed firebase-tools as dev dependency
+
+**Terminology Update - Clients to Contacts:**
+
+- Renamed "Clients" to "Contacts" throughout app
+- Route changed from `/clients` to `/contacts`
+- Updated navigation menu and page titles
+- Description clarifies: "manage clients and service providers"
+- ContractForm section: "Contact Information"
+- Reflects multiple contract types:
+  - AV Equipment Rental (clients)
+  - Event Consulting/Promotion (clients)
+  - Service Contracts (service providers)
+
+**Data Models:**
+
+Contracts Collection:
+```typescript
+{
+  ownerUid: string,
+  type: 'service',
+  contractData: ContractData,  // Full form data
+  contractNumber: string,       // e.g., "20251130-PS-123"
+  createdAt: Timestamp
+}
+```
+
+**Routes:**
+
+- **[/contacts](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/contacts/+page.svelte)**: Contact management (renamed from /clients)
+- **[/contracts](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/+page.svelte)**: Contract templates selection
+- **[/contracts/service-contract](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/service-contract/+page.svelte)**: Service contract form (moved from /service-contract)
+- **[/contracts/history](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/history/+page.svelte)**: View and download past contracts
+
+### Previous Session Summary (2025-11-29)
 
 **Firestore Client Management Implementation:**
 
