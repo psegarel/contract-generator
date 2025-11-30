@@ -3,6 +3,7 @@
 	import { themeStore } from '$lib/stores/theme.svelte';
 	import { signOut } from '$lib/utils/auth';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { LogOut, User, Sun, Moon, Menu, X } from 'lucide-svelte';
 
 	let mobileMenuOpen = $state(false);
@@ -10,7 +11,7 @@
 	async function handleSignOut() {
 		try {
 			await signOut();
-			goto('/');
+			goto(resolve('/'));
 			mobileMenuOpen = false;
 		} catch (error) {
 			console.error('Error signing out:', error);
@@ -25,7 +26,10 @@
 <header class="bg-background border-b border-border">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="flex justify-between items-center h-14">
-			<a href="/" class="text-foreground hover:text-foreground/80 transition-colors font-medium">
+			<a
+				href={resolve('/')}
+				class="text-foreground hover:text-foreground/80 transition-colors font-medium"
+			>
 				Contract Generator
 			</a>
 
@@ -33,13 +37,13 @@
 			<nav class="hidden md:flex items-center space-x-6">
 				{#if authStore.isAuthenticated}
 					<a
-						href="/clients"
+						href={resolve('/clients')}
 						class="text-muted-foreground hover:text-foreground transition-colors text-sm"
 					>
 						Clients
 					</a>
 					<a
-						href="/contracts"
+						href={resolve('/contracts')}
 						class="text-muted-foreground hover:text-foreground transition-colors text-sm"
 					>
 						Contracts
@@ -106,14 +110,14 @@
 		{#if mobileMenuOpen && authStore.isAuthenticated}
 			<div class="md:hidden py-4 space-y-3 border-t border-border">
 				<a
-					href="/clients"
+					href={resolve('/clients')}
 					onclick={closeMobileMenu}
 					class="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
 				>
 					Clients
 				</a>
 				<a
-					href="/contracts"
+					href={resolve('/contracts')}
 					onclick={closeMobileMenu}
 					class="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
 				>

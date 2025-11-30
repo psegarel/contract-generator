@@ -3,19 +3,20 @@
 	import { generateContract } from '$lib/utils/generator';
 	import { companyConfig } from '$lib/config/company';
 	import { LoaderCircle } from 'lucide-svelte';
-import { Input } from '$lib/components/ui/input';
-import { Label } from '$lib/components/ui/label';
-import { Textarea } from '$lib/components/ui/textarea';
-import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
-import { Card } from '$lib/components/ui/card';
-import { Button } from '$lib/components/ui/button';
-import ClientForm from '$lib/components/ClientForm.svelte';
-import type { ClientData as ClientProfile } from '$lib/utils/clients';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
+	import { Card } from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
+	import ClientForm from '$lib/components/ClientForm.svelte';
+	import type { ClientData as ClientProfile } from '$lib/utils/clients';
 
 	let formData: ContractData = $state({
 		clientName: '',
+		clientEmail: '',
 		clientAddress: '',
 		clientPhone: '',
+		clientIdDocument: '',
 		clientTaxId: '',
 		jobName: '',
 		eventName: '',
@@ -33,23 +34,30 @@ import type { ClientData as ClientProfile } from '$lib/utils/clients';
 
 	let errors: Partial<Record<keyof ContractData, string>> = $state({});
 	let isGenerating = $state(false);
-let taxRateStr = $state(String(formData.taxRate));
-$effect(() => { formData.taxRate = Number(taxRateStr); });
+	let taxRateStr = $state(String(formData.taxRate));
+	$effect(() => {
+		formData.taxRate = Number(taxRateStr);
+	});
 
-function handleClientChange(clientData: ClientProfile | null) {
-	if (clientData) {
-		formData.clientName = clientData.name;
-		formData.clientPhone = clientData.phone;
-		formData.clientAddress = clientData.address;
-		formData.clientTaxId = clientData.taxId || '';
-		formData.bankName = clientData.bankName;
-		formData.accountNumber = clientData.accountNumber;
-		// Email and idDocument are stored in client profile but not needed in contract
+	function handleClientChange(clientData: ClientProfile | null) {
+		if (clientData) {
+			formData.clientName = clientData.name;
+			formData.clientEmail = clientData.email;
+			formData.clientPhone = clientData.phone;
+			formData.clientAddress = clientData.address;
+			formData.clientIdDocument = clientData.idDocument;
+			formData.clientTaxId = clientData.taxId || '';
+			formData.bankName = clientData.bankName || '';
+			formData.accountNumber = clientData.accountNumber || '';
+		}
 	}
-}
 
 	// Derived values for display
-	let grossFee = $derived(formData.netFee && formData.taxRate ? Math.round(formData.netFee / (1 - formData.taxRate / 100)) : 0);
+	let grossFee = $derived(
+		formData.netFee && formData.taxRate
+			? Math.round(formData.netFee / (1 - formData.taxRate / 100))
+			: 0
+	);
 	let taxAmount = $derived(grossFee - formData.netFee);
 
 	const formatCurrency = (amount: number) => {
@@ -80,14 +88,16 @@ function handleClientChange(clientData: ClientProfile | null) {
 			// Try File System Access API (Chrome, Edge, Opera)
 			if ('showSaveFilePicker' in window) {
 				try {
-					// @ts-ignore - showSaveFilePicker is not yet in standard TS lib
+					// @ts-expect-error - showSaveFilePicker is not yet in standard TS lib
 					const handle = await window.showSaveFilePicker({
 						suggestedName: filename,
 						types: [
 							{
 								description: 'Word Document',
 								accept: {
-									'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+									'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
+										'.docx'
+									]
 								}
 							}
 						]
@@ -96,16 +106,16 @@ function handleClientChange(clientData: ClientProfile | null) {
 					await writable.write(blob);
 					await writable.close();
 					return;
-				} catch (err: any) {
+				} catch (err) {
 					// User cancelled or API failed, fall back if not cancelled
-					if (err.name !== 'AbortError') {
+					if (err instanceof Error && err.name !== 'AbortError') {
 						console.error('File Picker Error:', err);
-					} else {
+					} else if (err && typeof err === 'object' && 'name' in err && err.name === 'AbortError') {
 						return; // User cancelled, don't fallback
 					}
 				}
 			}
-			
+
 			// Fallback: Native download method
 			const url = window.URL.createObjectURL(blob);
 			const a = document.createElement('a');
@@ -115,7 +125,6 @@ function handleClientChange(clientData: ClientProfile | null) {
 			a.click();
 			window.URL.revokeObjectURL(url);
 			document.body.removeChild(a);
-			
 		} catch (error) {
 			console.error('Error generating contract:', error);
 			alert('Failed to generate contract. Please try again.');
@@ -126,11 +135,23 @@ function handleClientChange(clientData: ClientProfile | null) {
 </script>
 
 <div class="max-w-4xl mx-auto">
-	<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-8">
+	<form
+		onsubmit={(e) => {
+			e.preventDefault();
+			handleSubmit();
+		}}
+		class="space-y-8"
+	>
 		<!-- Client Information Section -->
 		<div class="space-y-4">
-			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">Client Information</h3>
-			<ClientForm showActions={true} onClientChange={handleClientChange} />
+			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">
+				Service Provider Information
+			</h3>
+			<ClientForm
+				showActions={true}
+				entityTitle="Service Provider"
+				onClientChange={handleClientChange}
+			/>
 			{#if errors.clientName}
 				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
 			{/if}
@@ -138,11 +159,17 @@ function handleClientChange(clientData: ClientProfile | null) {
 
 		<!-- Event Details Section -->
 		<div class="space-y-4">
-			<h3 class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-[#2a2a2a] pb-3">Event Details</h3>
+			<h3
+				class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-[#2a2a2a] pb-3"
+			>
+				Event Details
+			</h3>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<!-- Job Name -->
 				<div class="space-y-2">
-					<label for="jobName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Job Name</label>
+					<label for="jobName" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+						>Job Name</label
+					>
 					<input
 						type="text"
 						id="jobName"
@@ -157,7 +184,9 @@ function handleClientChange(clientData: ClientProfile | null) {
 
 				<!-- Event Name -->
 				<div class="space-y-2">
-					<label for="eventName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Event Name</label>
+					<label for="eventName" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+						>Event Name</label
+					>
 					<input
 						type="text"
 						id="eventName"
@@ -172,7 +201,11 @@ function handleClientChange(clientData: ClientProfile | null) {
 
 				<!-- Number of Performances -->
 				<div class="space-y-2">
-					<label for="numberOfPerformances" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Number of Performances</label>
+					<label
+						for="numberOfPerformances"
+						class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+						>Number of Performances</label
+					>
 					<input
 						type="number"
 						id="numberOfPerformances"
@@ -187,7 +220,10 @@ function handleClientChange(clientData: ClientProfile | null) {
 
 				<!-- Event Location -->
 				<div class="space-y-2">
-					<label for="eventLocation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Event Location</label>
+					<label
+						for="eventLocation"
+						class="block text-sm font-medium text-gray-700 dark:text-gray-300">Event Location</label
+					>
 					<input
 						type="text"
 						id="eventLocation"
@@ -202,7 +238,11 @@ function handleClientChange(clientData: ClientProfile | null) {
 
 				<!-- First Performance Time -->
 				<div class="space-y-2">
-					<label for="firstPerformanceTime" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Performance Time</label>
+					<label
+						for="firstPerformanceTime"
+						class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+						>Performance Time</label
+					>
 					<input
 						type="text"
 						id="firstPerformanceTime"
@@ -218,7 +258,9 @@ function handleClientChange(clientData: ClientProfile | null) {
 
 			<!-- Job Content -->
 			<div class="space-y-2">
-				<label for="jobContent" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Job Content</label>
+				<label for="jobContent" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+					>Job Content</label
+				>
 				<textarea
 					id="jobContent"
 					bind:value={formData.jobContent}
@@ -234,7 +276,9 @@ function handleClientChange(clientData: ClientProfile | null) {
 
 		<!-- Financial Details Section -->
 		<div class="space-y-4">
-			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">Financial Details</h3>
+			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">
+				Financial Details
+			</h3>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<!-- Net Fee -->
 				<div class="space-y-2">
@@ -253,7 +297,7 @@ function handleClientChange(clientData: ClientProfile | null) {
 							<span data-slot="select-value">{taxRateStr ? `${taxRateStr}%` : 'Select rate'}</span>
 						</SelectTrigger>
 						<SelectContent>
-							{#each companyConfig.taxRates as rate}
+							{#each companyConfig.taxRates as rate (rate)}
 								<SelectItem value={String(rate)}>{rate}%</SelectItem>
 							{/each}
 						</SelectContent>
@@ -283,7 +327,11 @@ function handleClientChange(clientData: ClientProfile | null) {
 
 		<!-- Contract Period Section -->
 		<div class="space-y-4">
-			<h3 class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-[#2a2a2a] pb-3">Contract Period</h3>
+			<h3
+				class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-[#2a2a2a] pb-3"
+			>
+				Contract Period
+			</h3>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<!-- Start Date -->
 				<div class="space-y-2">

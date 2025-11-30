@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { listClients } from '$lib/utils/clients';
-	import { Button } from '$lib/components/ui/button';
 	import { Card } from '$lib/components/ui/card';
 	import ClientForm from '$lib/components/ClientForm.svelte';
 
@@ -12,7 +12,7 @@
 
 	onMount(async () => {
 		if (!authStore.isAuthenticated) {
-			goto('/login');
+			goto(resolve('/login'));
 			return;
 		}
 		await loadClients();

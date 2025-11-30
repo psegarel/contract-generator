@@ -19,7 +19,7 @@ export const generateContract = async (data: ContractData): Promise<Blob> => {
 		const zip = new PizZip(templateArrayBuffer);
 		const doc = new Docxtemplater(zip, {
 			paragraphLoop: true,
-			linebreaks: true,
+			linebreaks: true
 		});
 
 		// Calculations
@@ -63,8 +63,10 @@ export const generateContract = async (data: ContractData): Promise<Blob> => {
 			companyRepresentativePhone: companyConfig.representativePhone,
 			companyRepresentativeEmail: companyConfig.representativeEmail,
 			clientName: data.clientName,
+			clientEmail: data.clientEmail,
 			clientAddress: data.clientAddress,
 			clientPhone: data.clientPhone,
+			clientIdDocument: data.clientIdDocument,
 			clientTaxId: data.clientTaxId || 'N/A',
 			bankName: data.bankName,
 			accountNumber: data.accountNumber,
@@ -81,12 +83,12 @@ export const generateContract = async (data: ContractData): Promise<Blob> => {
 			taxAmount: formatCurrency(taxAmount),
 			grossFee: formatCurrency(grossFee),
 			startDate: data.startDate,
-			endDate: data.endDate,
+			endDate: data.endDate
 		});
 
 		const blob = doc.getZip().generate({
 			type: 'blob',
-			mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 		});
 
 		return blob;

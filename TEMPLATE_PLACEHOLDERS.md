@@ -3,6 +3,7 @@
 This document lists all available placeholders you can use in `static/contract-template.docx`.
 
 ## How to Use
+
 1. Open `static/contract-template.docx` in Microsoft Word
 2. Insert any of these placeholders where you want dynamic content
 3. Format the document as desired (fonts, spacing, tables, etc.)
@@ -11,9 +12,11 @@ This document lists all available placeholders you can use in `static/contract-t
 ## Available Placeholders
 
 ### Contract Information
+
 - `{contractNumber}` - Auto-generated contract number (format: YYYYMMDD-INITIALS-XXX)
 
 ### Company Information (Party A)
+
 - `{companyName}` - Company name
 - `{companyAddressLine1}` - Address line 1 (e.g., "7th Floor")
 - `{companyAddressLine2}` - Address line 2 (e.g., "60 Nguyen Van Thu")
@@ -26,16 +29,21 @@ This document lists all available placeholders you can use in `static/contract-t
 - `{companyRepresentativeEmail}` - Representative email address
 
 ### Client Information (Party B)
+
 - `{clientName}` - Client/Staff name
+- `{clientEmail}` - Client email address
 - `{clientAddress}` - Client address
 - `{clientPhone}` - Client phone number
+- `{clientIdDocument}` - Client ID card or passport number
 - `{clientTaxId}` - Client tax ID (shows "N/A" if not provided)
 
 ### Bank Details
+
 - `{bankName}` - Bank name
 - `{accountNumber}` - Account number
 
 ### Event Details
+
 - `{jobName}` - Job name/role in English (e.g., "MC", "Performer")
 - `{jobNameVN}` - Job name/role in Vietnamese (auto-translated)
 - `{eventName}` - Event/program name
@@ -46,16 +54,19 @@ This document lists all available placeholders you can use in `static/contract-t
 - `{jobContentVN}` - Job content/responsibilities in Vietnamese (auto-translated)
 
 ### Financial Information
+
 - `{netFee}` - Net fee paid to staff (formatted as Vietnamese currency)
 - `{taxRate}` - Tax rate percentage (e.g., "10")
 - `{taxAmount}` - Calculated tax amount (formatted as Vietnamese currency)
 - `{grossFee}` - Total gross fee including tax (formatted as Vietnamese currency)
 
 ### Contract Period
+
 - `{startDate}` - Contract start date
 - `{endDate}` - Contract end date
 
 ## Notes
+
 - Currency values are automatically formatted with Vietnamese number formatting (e.g., "10.000.000")
 - All placeholders must use curly braces: `{placeholderName}`
 - Placeholders are case-sensitive

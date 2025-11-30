@@ -1,13 +1,13 @@
 // Theme store using Svelte 5 runes
 class ThemeStore {
 	theme = $state<'light' | 'dark'>('dark');
-	
+
 	constructor() {
 		if (typeof window !== 'undefined') {
 			this.initTheme();
 		}
 	}
-	
+
 	private initTheme() {
 		// Check localStorage first, then system preference
 		const stored = localStorage.getItem('theme') as 'light' | 'dark' | null;
@@ -18,7 +18,7 @@ class ThemeStore {
 		}
 		this.applyTheme();
 	}
-	
+
 	private applyTheme() {
 		if (this.theme === 'dark') {
 			document.documentElement.classList.add('dark');
@@ -26,7 +26,7 @@ class ThemeStore {
 			document.documentElement.classList.remove('dark');
 		}
 	}
-	
+
 	toggle() {
 		this.theme = this.theme === 'dark' ? 'light' : 'dark';
 		localStorage.setItem('theme', this.theme);

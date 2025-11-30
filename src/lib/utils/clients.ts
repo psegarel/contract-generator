@@ -23,8 +23,8 @@ export type ClientData = {
 	address: string;
 	idDocument: string; // Passport Number (foreigners) or ID Card Number (Vietnamese)
 	taxId: string | null;
-	bankName: string;
-	accountNumber: string;
+	bankName: string | null;
+	accountNumber: string | null;
 };
 
 const clientSchema = z.object({
@@ -35,10 +35,10 @@ const clientSchema = z.object({
 	address: z.string().min(1),
 	idDocument: z.string().min(1), // Passport or ID Card Number
 	taxId: z.string().nullable().optional(),
-	bankName: z.string().min(1),
-	accountNumber: z.string().min(1),
+	bankName: z.string().nullable().optional(),
+	accountNumber: z.string().nullable().optional(),
 	createdAt: z.unknown().optional(), // Firestore Timestamp
-	updatedAt: z.unknown().optional()  // Firestore Timestamp
+	updatedAt: z.unknown().optional() // Firestore Timestamp
 });
 
 /**
@@ -77,8 +77,8 @@ export async function getClient(
 		address: parsed.data.address,
 		idDocument: parsed.data.idDocument,
 		taxId: parsed.data.taxId ?? null,
-		bankName: parsed.data.bankName,
-		accountNumber: parsed.data.accountNumber
+		bankName: parsed.data.bankName ?? null,
+		accountNumber: parsed.data.accountNumber ?? null
 	};
 }
 
@@ -99,7 +99,7 @@ async function checkDuplicates(
 		where('email', '==', email.trim().toLowerCase())
 	);
 	const emailSnap = await getDocs(emailQuery);
-	const duplicateEmail = emailSnap.docs.find(doc => doc.id !== excludeId);
+	const duplicateEmail = emailSnap.docs.find((doc) => doc.id !== excludeId);
 	if (duplicateEmail) {
 		return `A client with email "${email}" already exists.`;
 	}
@@ -111,7 +111,7 @@ async function checkDuplicates(
 		where('idDocument', '==', idDocument.trim().toUpperCase())
 	);
 	const idSnap = await getDocs(idQuery);
-	const duplicateId = idSnap.docs.find(doc => doc.id !== excludeId);
+	const duplicateId = idSnap.docs.find((doc) => doc.id !== excludeId);
 	if (duplicateId) {
 		return `A client with ID/Passport number "${idDocument}" already exists.`;
 	}

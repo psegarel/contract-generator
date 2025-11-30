@@ -1,9 +1,11 @@
 # Project Context: Contract Generator
 
 ## Project Overview
+
 **Contract Generator** is a web application designed to create professional, bilingual (English & Vietnamese) service contracts. It simplifies the legal process for freelancers and businesses by generating Word documents (`.docx`) from user input.
 
 ## Technology Stack
+
 - **Framework:** [SvelteKit](https://kit.svelte.dev/) (Svelte 5)
 - **Styling:** [TailwindCSS](https://tailwindcss.com/)
 - **Authentication:** [Firebase Auth](https://firebase.google.com/docs/auth)
@@ -11,10 +13,11 @@
 - **Document Generation:** `docx`, `docxtemplater`, `pizzip`
 - **Package Manager:** [pnpm](https://pnpm.io/)
 - **Testing:**
-    - **Unit:** [Vitest](https://vitest.dev/)
-    - **E2E:** [Playwright](https://playwright.dev/)
+  - **Unit:** [Vitest](https://vitest.dev/)
+  - **E2E:** [Playwright](https://playwright.dev/)
 
 ## Key Features
+
 - **Landing Page:** Professional introduction to the service.
 - **Authentication:** Secure login/signup flow using Firebase.
 - **Contract Generation:** Protected route (`/service-contract`) to input details and download generated contracts.
@@ -25,12 +28,14 @@
 ### UI Redesign with shadcn-svelte & Theme Support
 
 **shadcn-svelte Integration:**
+
 - Installed and configured [shadcn-svelte](https://www.shadcn-svelte.com/) for a minimalist, accessible component system
 - Added UI components: Button, Input, Label, Textarea, Select, Card, Alert, Separator
 - Uses `bits-ui` as the headless component foundation
 - Styled with TailwindCSS 4 and design tokens
 
 **Theme Toggler:**
+
 - **[theme.svelte.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/stores/theme.svelte.ts)**: Theme store using Svelte 5 runes
   - Supports light/dark mode toggle
   - Persists theme preference in localStorage
@@ -38,6 +43,7 @@
   - Applies theme via `.dark` class on `<html>` element
 
 **Mobile-Responsive Navigation:**
+
 - **[Header.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/Header.svelte)**: Responsive header with hamburger menu
   - Desktop: Horizontal navigation with inline items (≥ md breakpoint)
   - Mobile: Collapsible hamburger menu (< md breakpoint)
@@ -48,11 +54,13 @@
 ### Firestore Integration - Client Profiles
 
 **Database Setup:**
+
 - Connected to Firestore with a `clients` collection
 - **[firebase.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/config/firebase.ts)**: Firebase app initialization with Firestore SDK
 - **[clients.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/clients.ts)**: Client data utilities with Zod validation
 
 **Client Management Features:**
+
 - `listClients(ownerUid)`: Returns minimal client list for dropdown selection
 - `getClient(ownerUid, id)`: Fetches full client profile with validation
 - `upsertClient(ownerUid, data, id?)`: Creates or updates client profiles
@@ -60,6 +68,7 @@
 - Client data scoped to authenticated user (`ownerUid`)
 
 **Data Model:**
+
 ```typescript
 {
   ownerUid: string,        // User who owns this client
@@ -77,12 +86,14 @@
 ```
 
 **Uniqueness Validation:**
+
 - Email addresses are normalized (lowercase, trimmed) and enforced as unique per owner
 - ID documents are normalized (uppercase, trimmed) and enforced as unique per owner
 - Validation happens client-side before writes with helpful error messages
 - Firestore security rules provide server-side validation for all required fields
 
 **Reusable Components:**
+
 - **[ClientForm.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/ClientForm.svelte)**: Reusable client management component
   - Client selector dropdown with auto-population
   - All client fields (name, email, phone, address, ID document, tax ID, bank details)
@@ -92,6 +103,7 @@
   - Used in both `/clients` route and contract form
 
 **Routes:**
+
 - **[/clients](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/clients/+page.svelte)**: Standalone client management page
   - Add/edit/delete client profiles independently
   - Duplicate prevention for email and ID document fields
@@ -110,6 +122,7 @@
 ### Latest Session Summary (2025-11-29)
 
 **Firestore Client Management Implementation:**
+
 - Added comprehensive client CRUD operations with Firestore integration
 - Implemented email and ID document fields with uniqueness validation
 - Created reusable `ClientForm` component for DRY principles
@@ -121,6 +134,7 @@
 - Improved mobile navigation with responsive hamburger menu
 
 **Key Features:**
+
 - Full client management system with duplicate prevention
 - Reusable components across app (clients page + contract form)
 - Mobile-first responsive design
@@ -133,20 +147,23 @@ I have successfully added unit tests for the `AuthStore` and E2E tests for the c
 #### Changes
 
 **Unit Tests**
+
 - **[auth.svelte.test.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/stores/auth.svelte.test.ts)**: Added comprehensive tests for the `AuthStore` singleton.
-    - Verified initialization state.
-    - Verified state updates on login/logout using mocked Firebase Auth.
-    - Refactored `AuthStore` to export the class for better testability.
+  - Verified initialization state.
+  - Verified state updates on login/logout using mocked Firebase Auth.
+  - Refactored `AuthStore` to export the class for better testability.
 
 **E2E Tests**
+
 - **[navigation.e2e.spec.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/e2e/navigation.e2e.spec.ts)**:
-    - Verified landing page loads correctly.
-    - Verified navigation to the Login page.
-    - Verified redirection from protected routes (`/service-contract`) to login.
+  - Verified landing page loads correctly.
+  - Verified navigation to the Login page.
+  - Verified redirection from protected routes (`/service-contract`) to login.
 - **[auth.e2e.spec.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/e2e/auth.e2e.spec.ts)**:
-    - Verified Login form elements are visible.
+  - Verified Login form elements are visible.
 
 **Configuration**
+
 - **[vite.config.ts](file:///Users/mac/Documents/WebDev/contract-generator/vite.config.ts)**: Updated to exclude E2E tests from unit test runs.
 - **[playwright.config.ts](file:///Users/mac/Documents/WebDev/contract-generator/playwright.config.ts)**: Added Playwright configuration.
 - **[package.json](file:///Users/mac/Documents/WebDev/contract-generator/package.json)**: Added `test:e2e` script and updated `test` script to run both.
@@ -163,7 +180,7 @@ Ran `pnpm test` which executes both unit and E2E tests.
  ✓  server  src/demo.spec.ts (1 test)
  ✓  client (chromium)  src/lib/stores/auth.svelte.test.ts (3 tests)
  ✓  client (chromium)  src/routes/page.svelte.spec.ts (1 test)
-                                                         
+
  Test Files  3 passed (3)
       Tests  5 passed (5)
 

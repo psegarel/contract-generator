@@ -2,9 +2,14 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
-	import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
 	import { authStore } from '$lib/stores/auth.svelte';
-	import { listClients, getClient, upsertClient, deleteClient, type ClientData } from '$lib/utils/clients';
+	import {
+		listClients,
+		getClient,
+		upsertClient,
+		deleteClient,
+		type ClientData
+	} from '$lib/utils/clients';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -14,15 +19,31 @@
 		showActions?: boolean;
 		/** Initial client data to populate the form */
 		initialData?: ClientData;
+		/** Custom title for the entity (e.g., 'Client', 'Service Provider') */
+		entityTitle?: string;
 	}
 
-	let { onClientChange, showActions = false, initialData }: Props = $props();
+	let {
+		onClientChange,
+		showActions = false,
+		initialData,
+		entityTitle = 'Client'
+	}: Props = $props();
 
 	let clients = $state<{ id: string; name: string }[]>([]);
 	let selectedClientId = $state('');
 	let saveLoading = $state(false);
 	let deleteLoading = $state(false);
 	let saveMessage = $state('');
+	let searchQuery = $state('');
+	let showDropdown = $state(false);
+
+	// Filtered clients based on search query
+	let filteredClients = $derived(
+		searchQuery
+			? clients.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+			: clients
+	);
 
 	let formData = $state<ClientData>({
 		name: initialData?.name || '',
@@ -31,8 +52,8 @@
 		address: initialData?.address || '',
 		idDocument: initialData?.idDocument || '',
 		taxId: initialData?.taxId || null,
-		bankName: initialData?.bankName || '',
-		accountNumber: initialData?.accountNumber || ''
+		bankName: initialData?.bankName || null,
+		accountNumber: initialData?.accountNumber || null
 	});
 
 	// Watch for form data changes and notify parent
@@ -55,6 +76,9 @@
 	async function handleClientSelect(id: string) {
 		if (!id || !authStore.user) return;
 		selectedClientId = id;
+		const selectedClient = clients.find((c) => c.id === id);
+		searchQuery = selectedClient?.name || '';
+		showDropdown = false;
 		try {
 			const profile = await getClient(authStore.user.uid, id);
 			if (profile) {
@@ -64,12 +88,29 @@
 				formData.address = profile.address;
 				formData.idDocument = profile.idDocument;
 				formData.taxId = profile.taxId || null;
-				formData.bankName = profile.bankName;
-				formData.accountNumber = profile.accountNumber;
+				formData.bankName = profile.bankName || null;
+				formData.accountNumber = profile.accountNumber || null;
 			}
 		} catch (e) {
 			console.error('Fetch client error:', e);
 		}
+	}
+
+	function handleSearchFocus() {
+		showDropdown = true;
+	}
+
+	function handleSearchBlur() {
+		// Delay to allow click events on dropdown items
+		setTimeout(() => {
+			showDropdown = false;
+		}, 200);
+	}
+
+	function handleClearSearch() {
+		searchQuery = '';
+		selectedClientId = '';
+		showDropdown = false;
 	}
 
 	async function saveClientProfile() {
@@ -108,8 +149,8 @@
 					address: '',
 					idDocument: '',
 					taxId: null,
-					bankName: '',
-					accountNumber: ''
+					bankName: null,
+					accountNumber: null
 				};
 				clients = await listClients(authStore.user.uid);
 				saveMessage = 'Client deleted';
@@ -132,36 +173,75 @@
 </script>
 
 <div class="space-y-4">
-	<!-- Client Selector -->
+	<!-- Client Selector with Search -->
 	<div class="space-y-2">
-		<Label for="clientSelect">Client</Label>
-		<Select type="single" bind:value={selectedClientId}>
-			<SelectTrigger class="w-full">
-				<span data-slot="select-value"
-					>{selectedClientId
-						? clients.find((c) => c.id === selectedClientId)?.name
-						: 'Choose client'}</span
+		<Label for="clientSearch">{entityTitle}</Label>
+		<div class="relative">
+			<Input
+				id="clientSearch"
+				type="text"
+				bind:value={searchQuery}
+				onfocus={handleSearchFocus}
+				onblur={handleSearchBlur}
+				placeholder="Search or select a {entityTitle.toLowerCase()}..."
+				class="w-full"
+			/>
+			{#if searchQuery && !showDropdown}
+				<button
+					type="button"
+					onclick={handleClearSearch}
+					class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
 				>
-			</SelectTrigger>
-			<SelectContent>
-				{#each clients as c}
-					<SelectItem value={c.id}>{c.name}</SelectItem>
-				{/each}
-			</SelectContent>
-		</Select>
+					×
+				</button>
+			{/if}
+			{#if showDropdown && filteredClients.length > 0}
+				<div
+					class="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto"
+				>
+					{#each filteredClients as client (client.id)}
+						<button
+							type="button"
+							onclick={() => handleClientSelect(client.id)}
+							class="w-full text-left px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+						>
+							{client.name}
+						</button>
+					{/each}
+				</div>
+			{:else if showDropdown && searchQuery && filteredClients.length === 0}
+				<div
+					class="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg px-4 py-2 text-muted-foreground text-sm"
+				>
+					No {entityTitle.toLowerCase()}s found
+				</div>
+			{/if}
+		</div>
 	</div>
 
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<!-- Client Name -->
 		<div class="space-y-2">
-			<Label for="clientName">Client Name *</Label>
-			<Input id="clientName" type="text" bind:value={formData.name} placeholder="John Doe" required />
+			<Label for="clientName">{entityTitle} Name *</Label>
+			<Input
+				id="clientName"
+				type="text"
+				bind:value={formData.name}
+				placeholder="John Doe"
+				required
+			/>
 		</div>
 
 		<!-- Email -->
 		<div class="space-y-2">
 			<Label for="clientEmail">Email Address *</Label>
-			<Input id="clientEmail" type="email" bind:value={formData.email} placeholder="john@example.com" required />
+			<Input
+				id="clientEmail"
+				type="email"
+				bind:value={formData.email}
+				placeholder="john@example.com"
+				required
+			/>
 		</div>
 	</div>
 
@@ -169,13 +249,25 @@
 		<!-- Client Phone -->
 		<div class="space-y-2">
 			<Label for="clientPhone">Phone Number *</Label>
-			<Input id="clientPhone" type="tel" bind:value={formData.phone} placeholder="+1 234 567 890" required />
+			<Input
+				id="clientPhone"
+				type="tel"
+				bind:value={formData.phone}
+				placeholder="+1 234 567 890"
+				required
+			/>
 		</div>
 
 		<!-- ID Document -->
 		<div class="space-y-2">
 			<Label for="idDocument">ID Card / Passport Number *</Label>
-			<Input id="idDocument" type="text" bind:value={formData.idDocument} placeholder="ID or Passport Number" required />
+			<Input
+				id="idDocument"
+				type="text"
+				bind:value={formData.idDocument}
+				placeholder="ID or Passport Number"
+				required
+			/>
 		</div>
 	</div>
 
@@ -200,19 +292,23 @@
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<!-- Bank Name -->
 		<div class="space-y-2">
-			<Label for="bankName">Bank Name *</Label>
-			<Input id="bankName" type="text" bind:value={formData.bankName} placeholder="e.g., Vietcombank" required />
+			<Label for="bankName">Bank Name (Optional)</Label>
+			<Input
+				id="bankName"
+				type="text"
+				bind:value={formData.bankName}
+				placeholder="e.g., Vietcombank"
+			/>
 		</div>
 
 		<!-- Account Number -->
 		<div class="space-y-2">
-			<Label for="accountNumber">Account Number *</Label>
+			<Label for="accountNumber">Account Number (Optional)</Label>
 			<Input
 				id="accountNumber"
 				type="text"
 				bind:value={formData.accountNumber}
 				placeholder="Account number"
-				required
 			/>
 		</div>
 	</div>
@@ -221,7 +317,7 @@
 	{#if showActions}
 		<div class="pt-2 flex gap-3 items-center">
 			<Button type="button" variant="secondary" onclick={saveClientProfile} disabled={saveLoading}>
-				{#if saveLoading}Saving...{:else}Save Client{/if}
+				{#if saveLoading}Saving...{:else}Save {entityTitle}{/if}
 			</Button>
 			{#if selectedClientId}
 				<Button
@@ -230,7 +326,7 @@
 					onclick={handleDeleteClient}
 					disabled={deleteLoading}
 				>
-					{#if deleteLoading}Deleting...{:else}Delete Client{/if}
+					{#if deleteLoading}Deleting...{:else}Delete {entityTitle}{/if}
 				</Button>
 			{/if}
 			{#if saveMessage}

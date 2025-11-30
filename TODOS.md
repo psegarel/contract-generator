@@ -1,0 +1,7 @@
+- Still able to navigate to /login when authenticated
+- The Existing client menu should be a filtering Search, where typing would help narrow down the list
+- Let's add some properties to the ClientForm, the title may differ depending on the contract type. For a Service Contract we're dealing with service providers, not clients.
+- Let's not make the financial information a required field, we won't need it for Rental contracts clients for instance, unless there's a way to make it required only when necessary, meaning it shouldn't be required at the database level
+- We need to add placeholders for the newly created fields
+  - email address
+  - passport/id number

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 
 	let { children } = $props();
@@ -11,7 +12,7 @@
 			if (authStore.initialized) {
 				clearInterval(checkAuth);
 				if (!authStore.isAuthenticated) {
-					goto('/login');
+					goto(resolve('/login'));
 				}
 			}
 		}, 100);
