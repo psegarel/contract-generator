@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { contractSchema, type ContractData } from '$lib/schemas/contract';
-	import { generateContract } from '$lib/utils/generator';
+	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import { companyConfig } from '$lib/config/company';
 	import { LoaderCircle } from 'lucide-svelte';
 	import { Input } from '$lib/components/ui/input';
@@ -82,7 +82,7 @@
 
 		isGenerating = true;
 		try {
-			const blob = await generateContract(formData);
+			const blob = await generateServiceContract(formData);
 			const filename = `Contract_${formData.clientName.replace(/\s+/g, '_')}.docx`;
 
 			// Try File System Access API (Chrome, Edge, Opera)

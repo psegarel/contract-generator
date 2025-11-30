@@ -4,7 +4,7 @@ import type { ContractData } from '../schemas/contract';
 import { companyConfig } from '../config/company';
 import { translateToVietnamese } from './translate';
 
-export const generateContract = async (data: ContractData): Promise<Blob> => {
+export const generateServiceContract = async (data: ContractData): Promise<Blob> => {
 	try {
 		// Load the service contract template
 		const response = await fetch('/service-contract-template.docx');
