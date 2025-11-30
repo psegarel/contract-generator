@@ -119,7 +119,152 @@
   - Client data syncs with contract form fields
   - Streamlined client selection for contracts
 
-### Latest Session Summary (2025-11-30)
+## Coding Guidelines
+
+**CRITICAL: Read and follow these guidelines strictly to avoid introducing bugs.**
+
+### Svelte 5 Reactivity - Understanding $effect vs onMount
+
+**When to use `$effect()`:**
+- When you need to react to changes in reactive state
+- When dealing with authentication state that loads asynchronously
+- When you need to re-run logic whenever dependencies change
+- Example: Fetching data based on `authStore.user?.uid`
+
+**When to use `onMount()`:**
+- For one-time initialization that doesn't depend on reactive state
+- For setting up event listeners or subscriptions
+- For operations that should only run once when component mounts
+- Example: Initializing a map, starting an animation
+
+**Common Pitfall - Authentication Timing:**
+```typescript
+// ❌ BAD - onMount runs once, may miss auth state
+onMount(async () => {
+  if (!authStore.user?.uid) return; // Auth might not be ready yet!
+  const data = await fetchData(authStore.user.uid);
+});
+
+// ✅ GOOD - $effect reacts to auth changes
+$effect(() => {
+  const userId = authStore.user?.uid;
+  if (!userId) return;
+
+  fetchData(userId).then(data => {
+    // Handle data
+  });
+});
+```
+
+### Testing Requirements
+
+**MANDATORY: Run ALL checks before committing:**
+
+1. **Type checking:**
+   ```bash
+   pnpm check
+   ```
+   - Must pass with zero TypeScript errors
+   - Fix all type issues before proceeding
+
+2. **Unit tests:**
+   ```bash
+   pnpm test:unit -- --run
+   ```
+   - Must pass all tests
+   - Add tests for new features and bug fixes
+
+3. **E2E tests:**
+   ```bash
+   pnpm test:e2e
+   ```
+   - Must pass all tests
+   - Verify critical user flows still work
+
+4. **Full test suite (recommended):**
+   ```bash
+   pnpm test
+   ```
+   - Runs type check, unit tests, and e2e tests
+   - Use this before committing
+
+5. **Browser testing:**
+   - Manually verify functionality works as expected
+   - Check browser console for errors
+   - Test both authenticated and unauthenticated states
+   - Test on different screen sizes (mobile, tablet, desktop)
+
+6. **Write tests for changes:**
+   - Unit tests for utilities and stores
+   - Component tests for UI interactions
+   - E2E tests for critical user flows
+   - Mock external dependencies (Firestore, Auth)
+
+### Code Quality Standards
+
+1. **Don't break working code:**
+   - If something works, don't refactor it without a good reason
+   - Understand the code before changing it
+   - Consider edge cases (auth timing, loading states, error states)
+
+2. **Be explicit about async operations:**
+   - Always handle loading states
+   - Always handle error states
+   - Consider race conditions
+   - Don't assume auth is ready on mount
+
+3. **Follow the principle of least surprise:**
+   - Don't change behavior unexpectedly
+   - Keep UI/UX consistent
+   - Maintain existing patterns
+
+4. **Type safety:**
+   - Use TypeScript strictly
+   - Don't use `any` unless absolutely necessary
+   - Validate data with Zod schemas
+
+### Debugging Workflow
+
+When investigating bugs:
+1. Add diagnostic logging to identify the issue
+2. Verify assumptions with console.log or debugger
+3. Test in the browser to see actual behavior
+4. Remove diagnostic logging after fixing
+5. Verify the fix works before committing
+
+### Latest Session Summary (2025-11-30 - Evening)
+
+**Bug Fix - Contract History Auth Timing Issue:**
+
+**Problem:**
+- Contract history page showed "No contracts found" even when contracts existed in database
+- Tests were passing but didn't catch the real-world bug
+- Issue was introduced in a previous session
+
+**Root Cause:**
+- Page used `onMount()` which runs once when component loads
+- Firebase authentication hadn't completed when component mounted
+- `authStore.user` was `null`, so contract fetch was skipped
+- Component never retried even after user became authenticated
+
+**Solution:**
+- Replaced `onMount()` with `$effect()` in [/contracts/history](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/history/+page.svelte)
+- `$effect()` reactively watches `authStore.user?.uid`
+- Automatically fetches contracts when user becomes authenticated
+- Properly handles loading and error states
+
+**Files Changed:**
+- **[+page.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/history/+page.svelte)**: Fixed auth timing with $effect
+- **[contracts.test.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/contracts.test.ts)**: Added unit tests with proper mocking
+- **[+layout.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/routes/+layout.svelte)**: Updated Toaster position to top-center
+
+**Key Learnings:**
+- Always consider authentication timing in protected routes
+- Use `$effect()` for reactive data fetching based on auth state
+- Write tests but also verify in browser (mocked tests can miss timing issues)
+- This bug demonstrates why the coding guidelines above are critical
+
+### Latest Session Summary (2025-11-30 - Afternoon)
 
 **Navigation Redesign - User Menu with Dropdown:**
 
