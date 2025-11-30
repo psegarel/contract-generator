@@ -6,8 +6,8 @@ import { translateToVietnamese } from './translate';
 
 export const generateContract = async (data: ContractData): Promise<Blob> => {
 	try {
-		// Load the template
-		const response = await fetch('/contract-template.docx');
+		// Load the service contract template
+		const response = await fetch('/service-contract-template.docx');
 		if (!response.ok) {
 			throw new Error(`Failed to load template: ${response.statusText}`);
 		}
