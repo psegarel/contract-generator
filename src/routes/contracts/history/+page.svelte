@@ -165,7 +165,7 @@
 
 									<div class="flex gap-2 ml-4">
 										<Button
-											variant="outline"
+											variant="success"
 											size="sm"
 											href="/contracts/service-contract?edit={contract.id}"
 										>
