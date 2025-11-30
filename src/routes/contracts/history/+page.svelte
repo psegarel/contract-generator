@@ -4,7 +4,7 @@
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { getUserContracts, type SavedContract } from '$lib/utils/contracts';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { Download, FileText, Calendar, User, Pencil } from 'lucide-svelte';
+	import { Download, Pencil, FileText } from 'lucide-svelte';
 	import { Card, CardTitle, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 
@@ -94,15 +94,13 @@
 		}
 	}
 
-	function formatDate(timestamp: any): string {
-		if (!timestamp) return 'N/A';
-		const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+	function formatDateString(dateString: string): string {
+		if (!dateString) return 'N/A';
+		const date = new Date(dateString);
 		return new Intl.DateTimeFormat('en-US', {
 			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit'
+			month: 'long',
+			day: 'numeric'
 		}).format(date);
 	}
 </script>
@@ -135,32 +133,17 @@
 							<CardContent class="p-6">
 								<div class="flex items-start justify-between">
 									<div class="flex-1">
-										<div class="flex items-center space-x-3 mb-3">
-											<FileText class="h-5 w-5 text-primary" />
-											<CardTitle class="text-lg">
-												{contract.type === 'service' ? 'Service Contract' : 'Contract'}
-											</CardTitle>
-											<span class="text-xs font-mono text-muted-foreground px-2 py-1 bg-muted rounded">
-												{contract.contractNumber}
-											</span>
+										<h3 class="text-lg font-semibold">
+											{contract.contractData.eventName}
+										</h3>
+										<div class="text-lg text-muted-foreground mb-2">
+											{formatDateString(contract.contractData.startDate)}
 										</div>
 
-										<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-											<div class="flex items-center space-x-2 text-muted-foreground">
-												<User class="h-4 w-4" />
-												<span>Client: {contract.contractData.clientName}</span>
-											</div>
-											<div class="flex items-center space-x-2 text-muted-foreground">
-												<Calendar class="h-4 w-4" />
-												<span>Created: {formatDate(contract.createdAt)}</span>
-											</div>
+										<div class="space-y-1 text-sm text-muted-foreground">
+											<div>{contract.contractData.eventLocation}</div>
+											<div>{contract.contractData.clientName}</div>
 										</div>
-
-										{#if contract.contractData.jobName}
-											<div class="mt-2 text-sm text-muted-foreground">
-												Job: {contract.contractData.jobName}
-											</div>
-										{/if}
 									</div>
 
 									<div class="flex gap-2 ml-4">
