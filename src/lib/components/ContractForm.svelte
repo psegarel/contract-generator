@@ -1,7 +1,11 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 	import { contractSchema, type ContractData } from '$lib/schemas/contract';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { saveContract } from '$lib/utils/contracts';
+	import { saveContract, getContract, updateContract } from '$lib/utils/contracts';
 	import { companyConfig } from '$lib/config/company';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { LoaderCircle } from 'lucide-svelte';
@@ -36,9 +40,41 @@
 
 	let errors: Partial<Record<keyof ContractData, string>> = $state({});
 	let isGenerating = $state(false);
-	let taxRateStr = $state(String(formData.taxRate));
+	let taxRateStr = $state('10');
+	let editContractId = $state<string | null>(null);
+	let isLoadingContract = $state(false);
+
+	// Keep taxRateStr in sync with formData.taxRate
+	$effect(() => {
+		taxRateStr = String(formData.taxRate);
+	});
+
+	// Keep formData.taxRate in sync with taxRateStr
 	$effect(() => {
 		formData.taxRate = Number(taxRateStr);
+	});
+
+	onMount(async () => {
+		const editId = $page.url.searchParams.get('edit');
+		if (editId && authStore.user?.uid) {
+			editContractId = editId;
+			isLoadingContract = true;
+			try {
+				const contract = await getContract(authStore.user.uid, editId);
+				if (contract) {
+					formData = { ...contract.contractData };
+				} else {
+					toast.error('Contract not found');
+					goto('/contracts/service-contract');
+				}
+			} catch (error) {
+				console.error('Error loading contract:', error);
+				toast.error('Failed to load contract');
+				goto('/contracts/service-contract');
+			} finally {
+				isLoadingContract = false;
+			}
+		}
 	});
 
 	function handleClientChange(clientData: ClientProfile | null) {
@@ -84,6 +120,23 @@
 
 		isGenerating = true;
 		try {
+			// If editing, update the contract instead of creating a new one
+			if (editContractId && authStore.user?.uid) {
+				try {
+					await updateContract(authStore.user.uid, editContractId, formData);
+					toast.success('Contract updated successfully!');
+					goto('/contracts/history');
+					return;
+				} catch (updateError) {
+					console.error('Error updating contract:', updateError);
+					toast.error('Failed to update contract. Please try again.');
+					return;
+				} finally {
+					isGenerating = false;
+				}
+			}
+
+			// Generate new contract
 			const blob = await generateServiceContract(formData);
 			const filename = `Contract_${formData.clientName.replace(/\s+/g, '_')}.docx`;
 
@@ -149,7 +202,7 @@
 			document.body.removeChild(a);
 		} catch (error) {
 			console.error('Error generating contract:', error);
-			alert('Failed to generate contract. Please try again.');
+			toast.error('Failed to generate contract. Please try again.');
 		} finally {
 			isGenerating = false;
 		}
@@ -157,13 +210,27 @@
 </script>
 
 <div class="max-w-4xl mx-auto">
-	<form
-		onsubmit={(e) => {
-			e.preventDefault();
-			handleSubmit();
-		}}
-		class="space-y-8"
-	>
+	{#if isLoadingContract}
+		<div class="flex justify-center items-center py-12">
+			<LoaderCircle class="w-8 h-8 animate-spin text-primary" />
+			<span class="ml-3 text-muted-foreground">Loading contract...</span>
+		</div>
+	{:else}
+		{#if editContractId}
+			<div class="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+				<p class="text-sm text-blue-800 dark:text-blue-200">
+					You are editing an existing contract. Click "Update Contract" to save your changes.
+				</p>
+			</div>
+		{/if}
+
+		<form
+			onsubmit={(e) => {
+				e.preventDefault();
+				handleSubmit();
+			}}
+			class="space-y-8"
+		>
 		<!-- Contact Information Section -->
 		<div class="space-y-4">
 			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">
@@ -375,13 +442,14 @@
 			</div>
 		</div>
 
-		<Button type="submit" disabled={isGenerating} class="w-full" size="lg">
-			{#if isGenerating}
-				<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
-				Generating Contract...
-			{:else}
-				Generate Contract
-			{/if}
-		</Button>
-	</form>
+			<Button type="submit" disabled={isGenerating} class="w-full" size="lg">
+				{#if isGenerating}
+					<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
+					{editContractId ? 'Updating Contract...' : 'Generating Contract...'}
+				{:else}
+					{editContractId ? 'Update Contract' : 'Generate Contract'}
+				{/if}
+			</Button>
+		</form>
+	{/if}
 </div>

@@ -2,6 +2,9 @@ import {
 	collection,
 	addDoc,
 	getDocs,
+	getDoc,
+	doc,
+	updateDoc,
 	query,
 	where,
 	orderBy,
@@ -69,5 +72,66 @@ export async function getUserContracts(ownerUid: string): Promise<SavedContract[
 	} catch (error) {
 		console.error('Error fetching contracts:', error);
 		throw new Error('Failed to fetch contracts');
+	}
+}
+
+/**
+ * Get a single contract by ID
+ */
+export async function getContract(ownerUid: string, contractId: string): Promise<SavedContract | null> {
+	try {
+		const docRef = doc(db, 'contracts', contractId);
+		const docSnap = await getDoc(docRef);
+
+		if (!docSnap.exists()) {
+			return null;
+		}
+
+		const data = docSnap.data();
+
+		// Verify ownership
+		if (data.ownerUid !== ownerUid) {
+			throw new Error('Unauthorized access to contract');
+		}
+
+		return {
+			id: docSnap.id,
+			...data
+		} as SavedContract;
+	} catch (error) {
+		console.error('Error fetching contract:', error);
+		throw new Error('Failed to fetch contract');
+	}
+}
+
+/**
+ * Update an existing contract
+ */
+export async function updateContract(
+	ownerUid: string,
+	contractId: string,
+	contractData: ContractData
+): Promise<void> {
+	try {
+		const docRef = doc(db, 'contracts', contractId);
+
+		// Verify the contract exists and belongs to the user
+		const docSnap = await getDoc(docRef);
+		if (!docSnap.exists()) {
+			throw new Error('Contract not found');
+		}
+
+		const existingData = docSnap.data();
+		if (existingData.ownerUid !== ownerUid) {
+			throw new Error('Unauthorized access to contract');
+		}
+
+		await updateDoc(docRef, {
+			contractData,
+			updatedAt: serverTimestamp()
+		});
+	} catch (error) {
+		console.error('Error updating contract:', error);
+		throw new Error('Failed to update contract');
 	}
 }

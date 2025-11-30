@@ -2,6 +2,7 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	let { children } = $props();
 </script>
@@ -13,4 +14,5 @@
 <div class="min-h-screen bg-background">
 	<Header />
 	{@render children()}
+	<Toaster richColors />
 </div>

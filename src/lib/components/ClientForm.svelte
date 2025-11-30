@@ -3,6 +3,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
 	import { authStore } from '$lib/stores/auth.svelte';
+	import { toast } from 'svelte-sonner';
 	import {
 		listClients,
 		getClient,
@@ -115,19 +116,19 @@
 
 	async function saveClientProfile() {
 		if (!authStore.user) {
-			alert('You must be signed in to save clients.');
+			toast.error('You must be signed in to save clients.');
 			return;
 		}
 		saveLoading = true;
 		saveMessage = '';
 		try {
 			const id = await upsertClient(authStore.user.uid, formData, selectedClientId || undefined);
-			saveMessage = 'Client saved';
+			toast.success('Client saved successfully!');
 			clients = await listClients(authStore.user.uid);
 			selectedClientId = id;
 		} catch (e) {
 			console.error('Save client error:', e);
-			alert('Failed to save client.');
+			toast.error('Failed to save client.');
 		} finally {
 			saveLoading = false;
 		}
@@ -153,13 +154,13 @@
 					accountNumber: null
 				};
 				clients = await listClients(authStore.user.uid);
-				saveMessage = 'Client deleted';
+				toast.success('Client deleted successfully!');
 			} else {
-				alert('Failed to delete client.');
+				toast.error('Failed to delete client.');
 			}
 		} catch (e) {
 			console.error('Delete client error:', e);
-			alert('Failed to delete client.');
+			toast.error('Failed to delete client.');
 		} finally {
 			deleteLoading = false;
 		}

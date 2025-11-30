@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { getUserContracts, type SavedContract } from '$lib/utils/contracts';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { Download, FileText, Calendar, User } from 'lucide-svelte';
+	import { Download, FileText, Calendar, User, Pencil } from 'lucide-svelte';
 	import { Card, CardHeader, CardTitle, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 
@@ -13,14 +14,18 @@
 	let downloadingIds = $state<Set<string>>(new Set());
 
 	onMount(async () => {
-		if (authStore.user?.uid) {
-			try {
-				contracts = await getUserContracts(authStore.user.uid);
-			} catch (error) {
-				console.error('Error loading contracts:', error);
-			} finally {
-				isLoading = false;
-			}
+		if (!authStore.user?.uid) {
+			isLoading = false;
+			return;
+		}
+
+		try {
+			contracts = await getUserContracts(authStore.user.uid);
+		} catch (error) {
+			console.error('Error loading contracts:', error);
+			toast.error('Failed to load contracts');
+		} finally {
+			isLoading = false;
 		}
 	});
 
@@ -69,9 +74,10 @@
 			a.click();
 			window.URL.revokeObjectURL(url);
 			document.body.removeChild(a);
+			toast.success('Contract downloaded successfully!');
 		} catch (error) {
 			console.error('Error downloading contract:', error);
-			alert('Failed to download contract. Please try again.');
+			toast.error('Failed to download contract. Please try again.');
 		} finally {
 			downloadingIds.delete(contract.id);
 			downloadingIds = downloadingIds;
@@ -147,25 +153,36 @@
 										{/if}
 									</div>
 
-									<Button
-										variant="outline"
-										size="sm"
-										onclick={() => handleDownload(contract)}
-										disabled={downloadingIds.has(contract.id)}
-										class="ml-4"
-									>
-										{#if downloadingIds.has(contract.id)}
+									<div class="flex gap-2 ml-4">
+										<Button
+											variant="outline"
+											size="sm"
+											href="/contracts/service-contract?edit={contract.id}"
+										>
 											<span class="flex items-center space-x-2">
-												<span class="animate-spin">⏳</span>
-												<span>Downloading...</span>
+												<Pencil class="h-4 w-4" />
+												<span>Edit</span>
 											</span>
-										{:else}
-											<span class="flex items-center space-x-2">
-												<Download class="h-4 w-4" />
-												<span>Download</span>
-											</span>
-										{/if}
-									</Button>
+										</Button>
+										<Button
+											variant="outline"
+											size="sm"
+											onclick={() => handleDownload(contract)}
+											disabled={downloadingIds.has(contract.id)}
+										>
+											{#if downloadingIds.has(contract.id)}
+												<span class="flex items-center space-x-2">
+													<span class="animate-spin">⏳</span>
+													<span>Downloading...</span>
+												</span>
+											{:else}
+												<span class="flex items-center space-x-2">
+													<Download class="h-4 w-4" />
+													<span>Download</span>
+												</span>
+											{/if}
+										</Button>
+									</div>
 								</div>
 							</CardContent>
 						</Card>
