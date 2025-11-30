@@ -14,5 +14,5 @@
 <div class="min-h-screen bg-background">
 	<Header />
 	{@render children()}
-	<Toaster richColors />
+	<Toaster richColors position="top-center" />
 </div>

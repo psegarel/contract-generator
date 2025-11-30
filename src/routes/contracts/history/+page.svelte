@@ -1,32 +1,42 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { getUserContracts, type SavedContract } from '$lib/utils/contracts';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import { Download, FileText, Calendar, User, Pencil } from 'lucide-svelte';
-	import { Card, CardHeader, CardTitle, CardContent } from '$lib/components/ui/card';
+	import { Card, CardTitle, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 
 	let contracts = $state<SavedContract[]>([]);
 	let isLoading = $state(true);
 	let downloadingIds = $state<Set<string>>(new Set());
 
-	onMount(async () => {
-		if (!authStore.user?.uid) {
+	// Reactively fetch contracts when user authentication state changes
+	$effect(() => {
+		const userId = authStore.user?.uid;
+
+		if (!userId) {
 			isLoading = false;
+			contracts = [];
 			return;
 		}
 
-		try {
-			contracts = await getUserContracts(authStore.user.uid);
-		} catch (error) {
-			console.error('Error loading contracts:', error);
-			toast.error('Failed to load contracts');
-		} finally {
-			isLoading = false;
-		}
+		// Fetch contracts when user is authenticated
+		isLoading = true;
+
+		getUserContracts(userId)
+			.then((fetchedContracts) => {
+				contracts = fetchedContracts;
+			})
+			.catch((error) => {
+				console.error('Error loading contracts:', error);
+				toast.error('Failed to load contracts');
+				contracts = [];
+			})
+			.finally(() => {
+				isLoading = false;
+			});
 	});
 
 	async function handleDownload(contract: SavedContract) {
