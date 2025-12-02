@@ -19,8 +19,14 @@
 		disabled?: boolean;
 	}
 
-	let { label, document, onFileSelect, onFileDelete, uploading = false, disabled = false }: Props =
-		$props();
+	let {
+		label,
+		document,
+		onFileSelect,
+		onFileDelete,
+		uploading = false,
+		disabled = false
+	}: Props = $props();
 
 	let fileInput = $state<HTMLInputElement>();
 
@@ -76,9 +82,9 @@
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3 flex-1 min-w-0">
 					{#if isPdf(document.fileName)}
-						<FileText class="h-5 w-5 text-muted-foreground flex-shrink-0" />
+						<FileText class="h-5 w-5 text-muted-foreground shrink-0" />
 					{:else}
-						<ImageIcon class="h-5 w-5 text-muted-foreground flex-shrink-0" />
+						<ImageIcon class="h-5 w-5 text-muted-foreground shrink-0" />
 					{/if}
 					<div class="flex-1 min-w-0">
 						<p class="text-sm font-medium text-foreground truncate">
@@ -143,8 +149,6 @@
 				{/if}
 			</Button>
 		</div>
-		<p class="text-xs text-muted-foreground">
-			JPG, PNG, or PDF. Max 500KB.
-		</p>
+		<p class="text-xs text-muted-foreground">JPG, PNG, or PDF. Max 500KB.</p>
 	{/if}
 </div>
