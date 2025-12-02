@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Client documents
+    match /client-documents/{clientId}/{fileName} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Any authenticated user can write with size and type restrictions
+      allow write: if isSignedIn()
+        && request.resource.size < 500 * 1024  // 500KB limit
+        && request.resource.contentType.matches('image/.*|application/pdf');
+
+      // Any authenticated user can delete
+      allow delete: if isSignedIn();
+    }
+  }
+}

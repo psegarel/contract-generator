@@ -11,6 +11,8 @@
 		deleteClient,
 		type ClientData
 	} from '$lib/utils/clients';
+	import { uploadClientDocument, deleteClientDocument } from '$lib/utils/clientDocuments';
+	import FileUpload from '$lib/components/FileUpload.svelte';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -38,6 +40,8 @@
 	let saveMessage = $state('');
 	let searchQuery = $state('');
 	let showDropdown = $state(false);
+	let uploadingImage1 = $state(false);
+	let uploadingImage2 = $state(false);
 
 	// Filtered clients based on search query
 	let filteredClients = $derived(
@@ -163,6 +167,96 @@
 			toast.error('Failed to delete client.');
 		} finally {
 			deleteLoading = false;
+		}
+	}
+
+	async function handleImage1Upload(file: File) {
+		if (!authStore.user || !selectedClientId) {
+			toast.error('Please save the client first before uploading documents');
+			return;
+		}
+
+		uploadingImage1 = true;
+		try {
+			const doc = await uploadClientDocument(selectedClientId, file, 1, authStore.user.uid);
+			if (!formData.documents) {
+				formData.documents = {};
+			}
+			formData.documents.image1 = doc;
+			toast.success('Image 1 uploaded successfully');
+
+			// Save to Firestore
+			await upsertClient(authStore.user.uid, formData, selectedClientId);
+		} catch (error) {
+			console.error('Upload error:', error);
+			toast.error(error instanceof Error ? error.message : 'Failed to upload image');
+		} finally {
+			uploadingImage1 = false;
+		}
+	}
+
+	async function handleImage1Delete() {
+		if (!selectedClientId) return;
+
+		try {
+			await deleteClientDocument(selectedClientId, 1);
+			if (formData.documents) {
+				formData.documents.image1 = undefined;
+			}
+			toast.success('Image 1 deleted');
+
+			// Update Firestore
+			if (authStore.user) {
+				await upsertClient(authStore.user.uid, formData, selectedClientId);
+			}
+		} catch (error) {
+			console.error('Delete error:', error);
+			toast.error('Failed to delete image');
+		}
+	}
+
+	async function handleImage2Upload(file: File) {
+		if (!authStore.user || !selectedClientId) {
+			toast.error('Please save the client first before uploading documents');
+			return;
+		}
+
+		uploadingImage2 = true;
+		try {
+			const doc = await uploadClientDocument(selectedClientId, file, 2, authStore.user.uid);
+			if (!formData.documents) {
+				formData.documents = {};
+			}
+			formData.documents.image2 = doc;
+			toast.success('Image 2 uploaded successfully');
+
+			// Save to Firestore
+			await upsertClient(authStore.user.uid, formData, selectedClientId);
+		} catch (error) {
+			console.error('Upload error:', error);
+			toast.error(error instanceof Error ? error.message : 'Failed to upload image');
+		} finally {
+			uploadingImage2 = false;
+		}
+	}
+
+	async function handleImage2Delete() {
+		if (!selectedClientId) return;
+
+		try {
+			await deleteClientDocument(selectedClientId, 2);
+			if (formData.documents) {
+				formData.documents.image2 = undefined;
+			}
+			toast.success('Image 2 deleted');
+
+			// Update Firestore
+			if (authStore.user) {
+				await upsertClient(authStore.user.uid, formData, selectedClientId);
+			}
+		} catch (error) {
+			console.error('Delete error:', error);
+			toast.error('Failed to delete image');
 		}
 	}
 
@@ -313,6 +407,28 @@
 			/>
 		</div>
 	</div>
+
+	<!-- Document Uploads -->
+	{#if selectedClientId}
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border">
+			<FileUpload
+				label="ID Document - Image 1"
+				document={formData.documents?.image1}
+				onFileSelect={handleImage1Upload}
+				onFileDelete={handleImage1Delete}
+				uploading={uploadingImage1}
+				disabled={saveLoading || deleteLoading}
+			/>
+			<FileUpload
+				label="ID Document - Image 2"
+				document={formData.documents?.image2}
+				onFileSelect={handleImage2Upload}
+				onFileDelete={handleImage2Delete}
+				uploading={uploadingImage2}
+				disabled={saveLoading || deleteLoading}
+			/>
+		</div>
+	{/if}
 
 	<!-- Action Buttons (only shown if showActions is true) -->
 	{#if showActions}

@@ -12,6 +12,18 @@ import {
 	serverTimestamp
 } from 'firebase/firestore';
 import { z } from 'zod';
+import { deleteAllClientDocuments } from './clientDocuments';
+
+/**
+ * Document metadata for uploaded images
+ */
+export type DocumentMetadata = {
+	url: string;
+	fileName: string;
+	uploadedAt: Date;
+	uploadedBy: string;
+	size: number;
+};
 
 /**
  * Client profile data stored in Firestore
@@ -25,7 +37,19 @@ export type ClientData = {
 	taxId: string | null;
 	bankName: string | null;
 	accountNumber: string | null;
+	documents?: {
+		image1?: DocumentMetadata;
+		image2?: DocumentMetadata;
+	};
 };
+
+const documentMetadataSchema = z.object({
+	url: z.string(),
+	fileName: z.string(),
+	uploadedAt: z.unknown(), // Firestore Timestamp or Date
+	uploadedBy: z.string(),
+	size: z.number()
+});
 
 const clientSchema = z.object({
 	ownerUid: z.string().min(1),
@@ -37,6 +61,12 @@ const clientSchema = z.object({
 	taxId: z.string().nullable().optional(),
 	bankName: z.string().nullable().optional(),
 	accountNumber: z.string().nullable().optional(),
+	documents: z
+		.object({
+			image1: documentMetadataSchema.optional(),
+			image2: documentMetadataSchema.optional()
+		})
+		.optional(),
 	createdAt: z.unknown().optional(), // Firestore Timestamp
 	updatedAt: z.unknown().optional() // Firestore Timestamp
 });
@@ -64,6 +94,32 @@ export async function getClient(id: string): Promise<(ClientData & { id: string 
 		console.warn('Invalid client data shape, skipping:', parsed.error?.message);
 		return null;
 	}
+	// Convert Firestore Timestamps to Dates for documents
+	const documents = parsed.data.documents
+		? {
+				image1: parsed.data.documents.image1
+					? {
+							...parsed.data.documents.image1,
+							uploadedAt:
+								parsed.data.documents.image1.uploadedAt instanceof Date
+									? parsed.data.documents.image1.uploadedAt
+									: (parsed.data.documents.image1.uploadedAt as any)?.toDate?.() ||
+										new Date()
+						}
+					: undefined,
+				image2: parsed.data.documents.image2
+					? {
+							...parsed.data.documents.image2,
+							uploadedAt:
+								parsed.data.documents.image2.uploadedAt instanceof Date
+									? parsed.data.documents.image2.uploadedAt
+									: (parsed.data.documents.image2.uploadedAt as any)?.toDate?.() ||
+										new Date()
+						}
+					: undefined
+			}
+		: undefined;
+
 	return {
 		id: snap.id,
 		name: parsed.data.name,
@@ -73,7 +129,8 @@ export async function getClient(id: string): Promise<(ClientData & { id: string 
 		idDocument: parsed.data.idDocument,
 		taxId: parsed.data.taxId ?? null,
 		bankName: parsed.data.bankName ?? null,
-		accountNumber: parsed.data.accountNumber ?? null
+		accountNumber: parsed.data.accountNumber ?? null,
+		documents
 	};
 }
 
@@ -166,6 +223,15 @@ export async function deleteClient(id: string): Promise<boolean> {
 	if (!client) {
 		return false;
 	}
+
+	// Delete associated documents from storage
+	try {
+		await deleteAllClientDocuments(id);
+	} catch (error) {
+		console.warn('Error deleting client documents:', error);
+		// Continue with client deletion even if document deletion fails
+	}
+
 	const ref = doc(db, 'clients', id);
 	await deleteDoc(ref);
 	return true;
