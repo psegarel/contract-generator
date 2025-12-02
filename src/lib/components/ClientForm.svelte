@@ -17,7 +17,7 @@
 
 	interface Props {
 		/** Callback when client data changes */
-		onClientChange?: (data: ClientData | null) => void;
+		onClientChange?: (data: ClientData | null, clientId?: string) => void;
 		/** Show save/delete buttons (for standalone client management) */
 		showActions?: boolean;
 		/** Initial client data to populate the form */
@@ -66,7 +66,8 @@
 	// Watch for form data changes and notify parent
 	$effect(() => {
 		if (onClientChange) {
-			onClientChange(formData);
+			// Pass both form data and client ID (use selectedClientId if available, otherwise clientId)
+			onClientChange(formData, selectedClientId || clientId);
 		}
 	});
 

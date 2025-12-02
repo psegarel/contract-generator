@@ -13,9 +13,22 @@ export async function saveContract(
 	ownerUid: string,
 	contractType: 'service',
 	contractData: ContractData,
-	contractNumber: string
+	contractNumber: string,
+	clientId: string
 ): Promise<string> {
-	return repository.save(ownerUid, contractType, contractData, contractNumber);
+	return repository.save(ownerUid, contractType, contractData, contractNumber, clientId);
+}
+
+export async function updatePaymentStatus(
+	contractId: string,
+	status: 'unpaid' | 'paid',
+	adminUid: string
+): Promise<void> {
+	return repository.updatePaymentStatus(contractId, status, adminUid);
+}
+
+export async function getContractsByClientId(clientId: string): Promise<SavedContract[]> {
+	return repository.getByClientId(clientId);
 }
 
 export async function getAllContracts(): Promise<SavedContract[]> {

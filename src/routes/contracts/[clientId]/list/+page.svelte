@@ -1,38 +1,48 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { toast } from 'svelte-sonner';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
-	import { getAllContracts, updatePaymentStatus, type SavedContract } from '$lib/utils/contracts';
+	import { getContractsByClientId, updatePaymentStatus, type SavedContract } from '$lib/utils/contracts';
+	import { getClient } from '$lib/utils/clients';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { Download, Pencil, FileText, DollarSign } from 'lucide-svelte';
+	import { Download, Pencil, FileText, DollarSign, ArrowLeft } from 'lucide-svelte';
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 
 	let contracts = $state<SavedContract[]>([]);
+	let clientName = $state<string>('');
 	let isLoading = $state(true);
 	let downloadingIds = $state<Set<string>>(new Set());
 	let updatingPaymentIds = $state<Set<string>>(new Set());
 
-	// Reactively fetch contracts when user authentication state changes
+	// Get clientId from URL params
+	const clientId = $derived($page.params.clientId);
+
+	// Reactively fetch contracts and client info when params or auth changes
 	$effect(() => {
 		const userId = authStore.user?.uid;
 
-		if (!userId) {
+		if (!userId || !clientId) {
 			isLoading = false;
 			contracts = [];
 			return;
 		}
 
-		// Fetch all contracts when user is authenticated
+		// Fetch client info and contracts
 		isLoading = true;
 
-		getAllContracts()
-			.then((fetchedContracts) => {
+		Promise.all([
+			getClient(clientId),
+			getContractsByClientId(clientId)
+		])
+			.then(([client, fetchedContracts]) => {
+				clientName = client?.name || 'Unknown Client';
 				contracts = fetchedContracts;
 			})
 			.catch((error) => {
-				console.error('Error loading contracts:', error);
+				console.error('Error loading data:', error);
 				toast.error('Failed to load contracts');
 				contracts = [];
 			})
@@ -141,8 +151,14 @@
 	<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
 		<div class="max-w-6xl mx-auto">
 			<div class="mb-8">
-				<h1 class="text-3xl font-medium text-foreground mb-3">Contract History</h1>
-				<p class="text-muted-foreground">View and download previously generated contracts</p>
+				<Button href="/contracts/history" variant="ghost" size="sm" class="mb-4">
+					<ArrowLeft class="h-4 w-4 mr-2" />
+					Back to All Contracts
+				</Button>
+				<h1 class="text-3xl font-medium text-foreground mb-3">
+					Contracts for {clientName}
+				</h1>
+				<p class="text-muted-foreground">View all contracts for this client</p>
 			</div>
 
 			{#if isLoading}
@@ -154,7 +170,7 @@
 					<FileText class="h-12 w-12 text-muted-foreground mx-auto mb-4" />
 					<h3 class="text-lg font-medium text-foreground mb-2">No contracts found</h3>
 					<p class="text-muted-foreground mb-6">
-						You haven't generated any contracts yet. Create your first contract to see it here.
+						No contracts have been created for this client yet.
 					</p>
 					<Button href="/contracts">Create Contract</Button>
 				</Card>
@@ -181,13 +197,6 @@
 									<div class="space-y-1 text-sm text-muted-foreground">
 										<div>{contract.contractData.eventLocation}</div>
 										<div>{contract.contractData.clientName}</div>
-										{#if contract.clientId}
-											<div>
-												<a href="/contracts/{contract.clientId}/list" class="text-primary hover:underline text-sm">
-													View all contracts for {contract.contractData.clientName}
-												</a>
-											</div>
-										{/if}
 									</div>
 								</div>
 

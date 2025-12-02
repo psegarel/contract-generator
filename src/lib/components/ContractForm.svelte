@@ -43,6 +43,7 @@
 	let taxRateStr = $state('10');
 	let editContractId = $state<string | null>(null);
 	let isLoadingContract = $state(false);
+	let selectedClientId = $state<string>('');
 
 	// Keep taxRateStr in sync with formData.taxRate
 	$effect(() => {
@@ -77,7 +78,7 @@
 		}
 	});
 
-	function handleClientChange(clientData: ClientProfile | null) {
+	function handleClientChange(clientData: ClientProfile | null, clientId?: string) {
 		if (clientData) {
 			formData.clientName = clientData.name;
 			formData.clientEmail = clientData.email;
@@ -87,6 +88,8 @@
 			formData.clientTaxId = clientData.taxId || '';
 			formData.bankName = clientData.bankName || '';
 			formData.accountNumber = clientData.accountNumber || '';
+			// Store the client ID for when we save the contract
+			selectedClientId = clientId || '';
 		}
 	}
 
@@ -151,13 +154,15 @@
 			const contractNumber = `${dateStr}-${initials}-${timestamp}`;
 
 			// Save contract to Firebase
-			if (authStore.user?.uid) {
+			if (authStore.user?.uid && selectedClientId) {
 				try {
-					await saveContract(authStore.user.uid, 'service', formData, contractNumber);
+					await saveContract(authStore.user.uid, 'service', formData, contractNumber, selectedClientId);
 				} catch (saveError) {
 					console.error('Error saving contract to database:', saveError);
 					// Continue with download even if save fails
 				}
+			} else if (!selectedClientId) {
+				console.warn('Cannot save contract: no client selected');
 			}
 
 			// Try File System Access API (Chrome, Edge, Opera)
