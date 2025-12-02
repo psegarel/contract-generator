@@ -25,6 +25,118 @@
 
 ## Planned Features
 
+### Contract Version History & Rollback
+
+**Objective:** Track contract changes and enable rollback to previous versions for mistake recovery
+
+**Why This is Needed:**
+- Multiple team members can edit the same contract
+- Need ability to see who changed what and when
+- Ability to restore previous versions if mistakes are made
+- Audit trail for important contract modifications
+
+**Implementation Plan:**
+
+1. **Data Structure:**
+   ```typescript
+   // Main contract document (contracts/{contractId})
+   Contract {
+     // ... existing fields
+     currentVersion: number;
+     lastModifiedBy: string;
+     lastModifiedAt: Timestamp;
+   }
+
+   // Version history subcollection (contracts/{contractId}/versions/{versionId})
+   ContractVersion {
+     versionNumber: number;
+     contractData: ContractData;  // Full snapshot
+     modifiedBy: string;           // User UID
+     modifiedByEmail: string;      // For display
+     modifiedAt: Timestamp;
+     changeDescription?: string;   // Optional user note
+     previousVersion?: number;     // Link to previous version
+   }
+   ```
+
+2. **Versioning Strategy:**
+   - **Auto-versioning:** Create new version on every update
+   - **Manual versioning:** User decides when to create a version (with description)
+   - **Hybrid:** Auto-save on update + manual snapshots with descriptions
+
+3. **UI Components:**
+   - Version history panel in contract edit view
+   - Timeline showing all versions with:
+     - Version number
+     - Timestamp
+     - Who made the change
+     - Optional change description
+   - "View" button to see previous version (read-only)
+   - "Restore" button to rollback to a version
+   - Diff view to compare versions (optional enhancement)
+
+4. **Version Management:**
+   - Store last N versions (e.g., 10-20) to control storage costs
+   - OR keep all versions but archive old ones
+   - Option to manually delete old versions
+   - Automatic cleanup of versions when contract is deleted
+
+5. **Firestore Structure:**
+   ```
+   /contracts/
+     /{contractId}/
+       - contract document (current state)
+       /versions/
+         /{versionId}/
+           - version snapshot
+   ```
+
+6. **Security Rules:**
+   ```javascript
+   match /contracts/{contractId}/versions/{versionId} {
+     // Any authenticated user can read versions
+     allow read: if isSignedIn();
+     // Only system can write (via Cloud Functions or app logic)
+     allow create: if isSignedIn();
+     // Prevent modification of historical versions
+     allow update, delete: if false;
+   }
+   ```
+
+7. **Key Features:**
+   - **View History:** See list of all versions
+   - **Compare:** Visual diff between two versions
+   - **Restore:** One-click rollback to previous version
+   - **Metadata:** Track who, when, and optionally why
+   - **Search:** Filter versions by date range or user
+
+8. **Additional Considerations:**
+   - Notification when someone else edits a contract you're viewing
+   - Lock mechanism to prevent simultaneous edits (optional)
+   - Version retention policy (keep versions for X months)
+   - Export version history for compliance/audit
+   - Performance: Use pagination for contracts with many versions
+
+9. **Implementation Options:**
+
+   **Option A: Client-side versioning**
+   - App creates version before updating contract
+   - Simpler, no Cloud Functions needed
+   - Version created on every save
+
+   **Option B: Cloud Functions**
+   - Firestore trigger automatically creates version on update
+   - Centralized logic, can't be bypassed
+   - More robust but requires Cloud Functions setup
+
+   **Recommended:** Start with Option A, migrate to B if needed
+
+10. **Cost Considerations:**
+    - Each version = additional Firestore document (storage cost)
+    - Limit versions or archive strategy recommended
+    - Example: 100 contracts × 10 versions each = 1000 docs
+    - Consider compression for very large contract data
+
 ### Document Upload for Client ID Documents
 
 **Objective:** Add ability to upload and store client ID documents (e.g., passport, ID card - front/back)
