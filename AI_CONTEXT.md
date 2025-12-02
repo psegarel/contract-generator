@@ -23,7 +23,115 @@
 - **Contract Generation:** Protected route (`/service-contract`) to input details and download generated contracts.
 - **Bilingual Support:** Contracts are generated in both English and Vietnamese.
 
+## Planned Features
+
+### Document Upload for Client ID Documents
+
+**Objective:** Add ability to upload and store client ID documents (e.g., passport, ID card - front/back)
+
+**Implementation Plan:**
+
+1. **Firebase Storage Integration:**
+   - Enable Firebase Storage in Firebase Console
+   - Add Firebase Storage SDK to project
+   - Configure storage security rules
+
+2. **Storage Structure:**
+   ```
+   /client-documents/
+     /{clientId}/
+       /id-front.{jpg|png|pdf}
+       /id-back.{jpg|png|pdf}
+   ```
+
+3. **Data Model Changes:**
+   ```typescript
+   ClientData {
+     // ... existing fields
+     documents?: {
+       front?: {
+         url: string;        // Firebase Storage download URL
+         fileName: string;
+         uploadedAt: Timestamp;
+         uploadedBy: string; // User UID who uploaded
+         size: number;       // File size in bytes
+       };
+       back?: {
+         url: string;
+         fileName: string;
+         uploadedAt: Timestamp;
+         uploadedBy: string;
+         size: number;
+       };
+     }
+   }
+   ```
+
+4. **UI Components:**
+   - File upload input in ClientForm (drag & drop or click)
+   - Image/PDF preview
+   - Delete/replace functionality
+   - Upload progress indicator
+   - File validation (type, size)
+
+5. **Constraints:**
+   - Maximum 2 documents per client
+   - Allowed file types: JPG, PNG, PDF
+   - Maximum file size: 5MB per document
+   - Only authenticated users can upload/delete
+
+6. **Storage Security Rules:**
+   ```
+   rules_version = '2';
+   service firebase.storage {
+     match /b/{bucket}/o {
+       match /client-documents/{clientId}/{fileName} {
+         allow read: if request.auth != null;
+         allow write: if request.auth != null
+           && request.resource.size < 5 * 1024 * 1024  // 5MB limit
+           && request.resource.contentType.matches('image/.*|application/pdf');
+         allow delete: if request.auth != null;
+       }
+     }
+   }
+   ```
+
+7. **Additional Considerations:**
+   - Handle file deletion when client is deleted
+   - Add loading states during upload
+   - Error handling for upload failures
+   - Compress images before upload (optional optimization)
+
 ## Recent Updates
+
+### Team-Shared Application (2025-12-02)
+
+**Migration to Shared Internal Application:**
+
+- Converted from user-owned data model to team-shared model for internal collaboration
+- All authenticated users can now view and edit all contacts and contracts
+- **[firestore.rules](file:///Users/mac/Documents/WebDev/contract-generator/firestore.rules)**: Updated security rules
+  - Removed owner-only access restrictions
+  - Any authenticated user can read/write clients and contracts
+  - Removed unused `isOwner()` function
+- **[clients.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/clients.ts)**: Updated client utilities
+  - `listClients()`: No longer filters by ownerUid
+  - `getClient(id)`: Removed ownership verification
+  - `deleteClient(id)`: Removed ownership verification
+  - Duplicate checking now global across all team members
+- **[contracts.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/contracts.ts)**: Updated contract utilities
+  - `getUserContracts()` renamed to `getAllContracts()`
+  - `getContract(id)`: Removed ownership verification
+  - `updateContract(id, data)`: Removed ownership verification
+- Updated all components to use new shared data model
+- Still stores `ownerUid` for audit trail purposes
+- Net code reduction: 40 lines removed (simplified architecture)
+
+**Benefits:**
+- No duplicate contacts across team members
+- Full transparency of all contracts
+- Simplified codebase
+- Better suited for internal team collaboration
 
 ### UI Redesign with shadcn-svelte & Theme Support
 
