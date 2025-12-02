@@ -14,9 +14,9 @@ export async function saveContract(
 	contractType: 'service',
 	contractData: ContractData,
 	contractNumber: string,
-	clientId: string
+	locationId: string
 ): Promise<string> {
-	return repository.save(ownerUid, contractType, contractData, contractNumber, clientId);
+	return repository.save(ownerUid, contractType, contractData, contractNumber, locationId);
 }
 
 export async function updatePaymentStatus(
@@ -27,8 +27,8 @@ export async function updatePaymentStatus(
 	return repository.updatePaymentStatus(contractId, status, adminUid);
 }
 
-export async function getContractsByClientId(clientId: string): Promise<SavedContract[]> {
-	return repository.getByClientId(clientId);
+export async function getContractsByLocationId(locationId: string): Promise<SavedContract[]> {
+	return repository.getByLocationId(locationId);
 }
 
 export async function getAllContracts(): Promise<SavedContract[]> {

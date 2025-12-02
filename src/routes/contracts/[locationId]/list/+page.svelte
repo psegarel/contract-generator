@@ -3,8 +3,8 @@
 	import { toast } from 'svelte-sonner';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
-	import { getContractsByClientId, updatePaymentStatus, type SavedContract } from '$lib/utils/contracts';
-	import { getClient } from '$lib/utils/clients';
+	import { getContractsByLocationId, updatePaymentStatus, type SavedContract } from '$lib/utils/contracts';
+	import { getLocation } from '$lib/utils/locations';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import { Download, Pencil, FileText, DollarSign, ArrowLeft } from 'lucide-svelte';
 	import { Card } from '$lib/components/ui/card';
@@ -12,33 +12,33 @@
 	import { Badge } from '$lib/components/ui/badge';
 
 	let contracts = $state<SavedContract[]>([]);
-	let clientName = $state<string>('');
+	let locationName = $state<string>('');
 	let isLoading = $state(true);
 	let downloadingIds = $state<Set<string>>(new Set());
 	let updatingPaymentIds = $state<Set<string>>(new Set());
 
-	// Get clientId from URL params
-	const clientId = $derived($page.params.clientId);
+	// Get locationId from URL params
+	const locationId = $derived($page.params.locationId);
 
-	// Reactively fetch contracts and client info when params or auth changes
+	// Reactively fetch contracts and location info when params or auth changes
 	$effect(() => {
 		const userId = authStore.user?.uid;
 
-		if (!userId || !clientId) {
+		if (!userId || !locationId) {
 			isLoading = false;
 			contracts = [];
 			return;
 		}
 
-		// Fetch client info and contracts
+		// Fetch location info and contracts
 		isLoading = true;
 
 		Promise.all([
-			getClient(clientId),
-			getContractsByClientId(clientId)
+			getLocation(locationId),
+			getContractsByLocationId(locationId)
 		])
-			.then(([client, fetchedContracts]) => {
-				clientName = client?.name || 'Unknown Client';
+			.then(([location, fetchedContracts]) => {
+				locationName = location?.name || 'Unknown Location';
 				contracts = fetchedContracts;
 			})
 			.catch((error) => {
@@ -156,9 +156,9 @@
 					Back to All Contracts
 				</Button>
 				<h1 class="text-3xl font-medium text-foreground mb-3">
-					Contracts for {clientName}
+					Contracts for {locationName}
 				</h1>
-				<p class="text-muted-foreground">View all contracts for this client</p>
+				<p class="text-muted-foreground">View all contracts for this location</p>
 			</div>
 
 			{#if isLoading}
@@ -170,7 +170,7 @@
 					<FileText class="h-12 w-12 text-muted-foreground mx-auto mb-4" />
 					<h3 class="text-lg font-medium text-foreground mb-2">No contracts found</h3>
 					<p class="text-muted-foreground mb-6">
-						No contracts have been created for this client yet.
+						No contracts have been created for this location yet.
 					</p>
 					<Button href="/contracts">Create Contract</Button>
 				</Card>

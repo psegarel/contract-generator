@@ -181,10 +181,10 @@
 									<div class="space-y-1 text-sm text-muted-foreground">
 										<div>{contract.contractData.eventLocation}</div>
 										<div>{contract.contractData.clientName}</div>
-										{#if contract.clientId}
+										{#if contract.locationId}
 											<div>
-												<a href="/contracts/{contract.clientId}/list" class="text-primary hover:underline text-sm">
-													View all contracts for {contract.contractData.clientName}
+												<a href="/contracts/{contract.locationId}/list" class="text-primary hover:underline text-sm">
+													View all contracts at {contract.contractData.eventLocation}
 												</a>
 											</div>
 										{/if}

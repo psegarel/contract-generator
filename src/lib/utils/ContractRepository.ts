@@ -21,7 +21,7 @@ export interface SavedContract {
 	contractNumber: string;
 	createdAt: Timestamp;
 	ownerUid: string;
-	clientId: string; // Reference to client in clients collection
+	locationId: string; // Reference to location in locations collection
 	paymentStatus: 'unpaid' | 'paid'; // Payment tracking
 	paidAt: Timestamp | null; // When payment was marked as paid
 	paidBy: string | null; // UID of admin who marked as paid
@@ -45,7 +45,7 @@ export class ContractRepository {
 		contractType: 'service',
 		contractData: ContractData,
 		contractNumber: string,
-		clientId: string
+		locationId: string
 	): Promise<string> {
 		try {
 			const contractInput: SavedContractInput = {
@@ -53,7 +53,7 @@ export class ContractRepository {
 				contractData,
 				contractNumber,
 				ownerUid,
-				clientId,
+				locationId,
 				paymentStatus: 'unpaid', // Default to unpaid
 				paidAt: null,
 				paidBy: null,
@@ -85,7 +85,7 @@ export class ContractRepository {
 					id: doc.id,
 					...data,
 					// Provide defaults for lazy migration
-					clientId: data.clientId || '',
+					locationId: data.locationId || '',
 					paymentStatus: data.paymentStatus || 'unpaid',
 					paidAt: data.paidAt || null,
 					paidBy: data.paidBy || null
@@ -115,7 +115,7 @@ export class ContractRepository {
 				id: docSnap.id,
 				...data,
 				// Provide defaults for lazy migration
-				clientId: data.clientId || '',
+				locationId: data.locationId || '',
 				paymentStatus: data.paymentStatus || 'unpaid',
 				paidAt: data.paidAt || null,
 				paidBy: data.paidBy || null
@@ -186,13 +186,13 @@ export class ContractRepository {
 	}
 
 	/**
-	 * Get all contracts for a specific client
+	 * Get all contracts for a specific location
 	 */
-	async getByClientId(clientId: string): Promise<SavedContract[]> {
+	async getByLocationId(locationId: string): Promise<SavedContract[]> {
 		try {
 			const q = query(
 				collection(db, ContractRepository.COLLECTION_NAME),
-				where('clientId', '==', clientId),
+				where('locationId', '==', locationId),
 				orderBy('createdAt', 'desc')
 			);
 
@@ -203,14 +203,14 @@ export class ContractRepository {
 					id: doc.id,
 					...data,
 					// Provide defaults for lazy migration
-					clientId: data.clientId || '',
+					locationId: data.locationId || '',
 					paymentStatus: data.paymentStatus || 'unpaid',
 					paidAt: data.paidAt || null,
 					paidBy: data.paidBy || null
 				} as SavedContract;
 			});
 		} catch (error) {
-			console.error('Error fetching contracts by client:', error);
+			console.error('Error fetching contracts by location:', error);
 			throw new Error('Failed to fetch contracts');
 		}
 	}

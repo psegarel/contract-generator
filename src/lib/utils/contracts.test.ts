@@ -125,7 +125,7 @@ describe('contracts utility functions', () => {
 			vi.mocked(firestore.collection).mockReturnValue('mockCollection' as any);
 
 			// Act
-			const result = await saveContract('user-123', 'service', mockContractData, 'NUM-001', 'client-123');
+			const result = await saveContract('user-123', 'service', mockContractData, 'NUM-001', 'location-123');
 
 			// Assert
 			expect(firestore.addDoc).toHaveBeenCalled();

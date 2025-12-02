@@ -15,7 +15,9 @@
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import ClientForm from '$lib/components/ClientForm.svelte';
+	import LocationForm from '$lib/components/LocationForm.svelte';
 	import type { ClientData as ClientProfile } from '$lib/utils/clients';
+	import type { Location } from '$lib/utils/locations';
 
 	let formData: ContractData = $state({
 		clientName: '',
@@ -44,6 +46,7 @@
 	let editContractId = $state<string | null>(null);
 	let isLoadingContract = $state(false);
 	let selectedClientId = $state<string>('');
+	let selectedLocationId = $state<string>('');
 
 	// Keep taxRateStr in sync with formData.taxRate
 	$effect(() => {
@@ -90,6 +93,14 @@
 			formData.accountNumber = clientData.accountNumber || '';
 			// Store the client ID for when we save the contract
 			selectedClientId = clientId || '';
+		}
+	}
+
+	function handleLocationChange(locationData: Location | null, locationId?: string) {
+		if (locationData) {
+			formData.eventLocation = locationData.name;
+			// Store the location ID for when we save the contract
+			selectedLocationId = locationId || '';
 		}
 	}
 
@@ -154,15 +165,15 @@
 			const contractNumber = `${dateStr}-${initials}-${timestamp}`;
 
 			// Save contract to Firebase
-			if (authStore.user?.uid && selectedClientId) {
+			if (authStore.user?.uid && selectedLocationId) {
 				try {
-					await saveContract(authStore.user.uid, 'service', formData, contractNumber, selectedClientId);
+					await saveContract(authStore.user.uid, 'service', formData, contractNumber, selectedLocationId);
 				} catch (saveError) {
 					console.error('Error saving contract to database:', saveError);
 					// Continue with download even if save fails
 				}
-			} else if (!selectedClientId) {
-				console.warn('Cannot save contract: no client selected');
+			} else if (!selectedLocationId) {
+				console.warn('Cannot save contract: no location selected');
 			}
 
 			// Try File System Access API (Chrome, Edge, Opera)
@@ -248,6 +259,20 @@
 			/>
 			{#if errors.clientName}
 				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
+			{/if}
+		</div>
+
+		<!-- Location Information Section -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">
+				Location Information
+			</h3>
+			<LocationForm
+				showActions={true}
+				onLocationChange={handleLocationChange}
+			/>
+			{#if errors.eventLocation}
+				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.eventLocation}</p>
 			{/if}
 		</div>
 

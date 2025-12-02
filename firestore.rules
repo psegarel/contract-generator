@@ -68,6 +68,44 @@ service cloud.firestore {
       allow delete: if isSignedIn();
     }
 
+    match /locations/{locationId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in and fields must be valid
+      allow create: if isSignedIn()
+        && ('ownerUid' in request.resource.data)
+        && ('name' in request.resource.data && request.resource.data.name is string)
+        && ('address' in request.resource.data && request.resource.data.address is string)
+        && (!('contactPerson' in request.resource.data)
+            || request.resource.data.contactPerson is string
+            || request.resource.data.contactPerson == null)
+        && (!('contactEmail' in request.resource.data)
+            || request.resource.data.contactEmail is string
+            || request.resource.data.contactEmail == null)
+        && (!('contactPhone' in request.resource.data)
+            || request.resource.data.contactPhone is string
+            || request.resource.data.contactPhone == null);
+
+      // Update: any authenticated user can update, fields remain valid
+      allow update: if isSignedIn()
+        && ('ownerUid' in request.resource.data)
+        && ('name' in request.resource.data ? request.resource.data.name is string : true)
+        && ('address' in request.resource.data ? request.resource.data.address is string : true)
+        && ('contactPerson' in request.resource.data
+            ? (request.resource.data.contactPerson is string || request.resource.data.contactPerson == null)
+            : true)
+        && ('contactEmail' in request.resource.data
+            ? (request.resource.data.contactEmail is string || request.resource.data.contactEmail == null)
+            : true)
+        && ('contactPhone' in request.resource.data
+            ? (request.resource.data.contactPhone is string || request.resource.data.contactPhone == null)
+            : true);
+
+      // Delete: any authenticated user can delete
+      allow delete: if isSignedIn();
+    }
+
     match /contracts/{contractId} {
       // Any authenticated user can read
       allow read: if isSignedIn();
@@ -78,7 +116,7 @@ service cloud.firestore {
         && ('type' in request.resource.data && request.resource.data.type is string)
         && ('contractData' in request.resource.data && request.resource.data.contractData is map)
         && ('contractNumber' in request.resource.data && request.resource.data.contractNumber is string)
-        && ('clientId' in request.resource.data && request.resource.data.clientId is string)
+        && ('locationId' in request.resource.data && request.resource.data.locationId is string)
         && ('paymentStatus' in request.resource.data && request.resource.data.paymentStatus is string)
         && ('createdAt' in request.resource.data);
 
