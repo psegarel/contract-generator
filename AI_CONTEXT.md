@@ -25,6 +25,8 @@
 
 ## Planned Features
 
+> **Note:** Document upload for client ID documents has been implemented. See "Document Upload Implementation" in Recent Updates.
+
 ### Contract Version History & Rollback
 
 **Objective:** Track contract changes and enable rollback to previous versions for mistake recovery
@@ -193,84 +195,164 @@
     - Example: 100 contracts × 10 versions each = 1000 docs
     - Consider compression for very large contract data
 
-### Document Upload for Client ID Documents
-
-**Objective:** Add ability to upload and store client ID documents (e.g., passport, ID card - front/back)
-
-**Implementation Plan:**
-
-1. **Firebase Storage Integration:**
-   - Enable Firebase Storage in Firebase Console
-   - Add Firebase Storage SDK to project
-   - Configure storage security rules
-
-2. **Storage Structure:**
-   ```
-   /client-documents/
-     /{clientId}/
-       /id-front.{jpg|png|pdf}
-       /id-back.{jpg|png|pdf}
-   ```
-
-3. **Data Model Changes:**
-   ```typescript
-   ClientData {
-     // ... existing fields
-     documents?: {
-       front?: {
-         url: string;        // Firebase Storage download URL
-         fileName: string;
-         uploadedAt: Timestamp;
-         uploadedBy: string; // User UID who uploaded
-         size: number;       // File size in bytes
-       };
-       back?: {
-         url: string;
-         fileName: string;
-         uploadedAt: Timestamp;
-         uploadedBy: string;
-         size: number;
-       };
-     }
-   }
-   ```
-
-4. **UI Components:**
-   - File upload input in ClientForm (drag & drop or click)
-   - Image/PDF preview
-   - Delete/replace functionality
-   - Upload progress indicator
-   - File validation (type, size)
-
-5. **Constraints:**
-   - Maximum 2 documents per client
-   - Allowed file types: JPG, PNG, PDF
-   - Maximum file size: 5MB per document
-   - Only authenticated users can upload/delete
-
-6. **Storage Security Rules:**
-   ```
-   rules_version = '2';
-   service firebase.storage {
-     match /b/{bucket}/o {
-       match /client-documents/{clientId}/{fileName} {
-         allow read: if request.auth != null;
-         allow write: if request.auth != null
-           && request.resource.size < 5 * 1024 * 1024  // 5MB limit
-           && request.resource.contentType.matches('image/.*|application/pdf');
-         allow delete: if request.auth != null;
-       }
-     }
-   }
-   ```
-
-7. **Additional Considerations:**
-   - Handle file deletion when client is deleted
-   - Add loading states during upload
-   - Error handling for upload failures
-   - Compress images before upload (optional optimization)
-
 ## Recent Updates
+
+### Class-Based Architecture (2025-12-02)
+
+**Migration to OOP Architecture:**
+
+- Refactored utilities from functional exports to class-based architecture for better encapsulation
+- Implemented Repository pattern for data access and Manager pattern for operations
+- Three core classes created:
+  - **ClientDocumentManager** (clientDocuments.ts): Manages document uploads/deletions
+  - **ClientRepository** (ClientRepository.ts): Manages client CRUD operations
+  - **ContractRepository** (ContractRepository.ts): Manages contract CRUD operations
+
+**Architecture Benefits:**
+
+- **Encapsulation:** Private methods prevent misuse and hide implementation details
+- **Configuration:** Static constants for limits and validation rules
+- **Separation of Concerns:** Clear boundaries between data access, business logic, and operations
+- **Testability:** Classes easier to test with dependency injection
+- **Maintainability:** Related functionality grouped together logically
+
+**Implementation Details:**
+
+```typescript
+// Repository Pattern Example
+export class ClientRepository {
+  private static readonly COLLECTION_NAME = 'clients';
+
+  // Public API
+  async list(): Promise<Array<{ id: string; name: string }>>
+  async getById(id: string): Promise<(ClientData & { id: string }) | null>
+  async upsert(ownerUid: string, data: ClientData, id?: string): Promise<string>
+  async delete(id: string): Promise<boolean>
+
+  // Private helpers for encapsulation
+  private convertTimestamps(documents?: {...}): {...}
+  private toDate(timestamp: unknown): Date
+  private async checkDuplicates(...): Promise<string | null>
+  private normalizeData(data: ClientData): ClientData
+}
+
+// Manager Pattern Example
+export class ClientDocumentManager {
+  private static readonly MAX_FILE_SIZE = 500 * 1024; // 500KB
+  private static readonly ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+
+  constructor(private readonly clientId: string) {}
+
+  async uploadDocument(file: File, imageNumber: 1 | 2, userId: string): Promise<ClientDocument>
+  async deleteDocument(imageNumber: 1 | 2): Promise<void>
+  async deleteAllDocuments(): Promise<void>
+
+  // Private helpers
+  private validateFile(file: File): { valid: boolean; error?: string }
+  private getStoragePath(fileName: string): string
+}
+```
+
+**Backward Compatibility:**
+
+- All existing function exports maintained
+- Functions now delegate to repository/manager instances
+- Singleton instances created for backward compatibility
+- Zero breaking changes to existing code
+
+```typescript
+// Legacy function exports still work
+const repository = new ClientRepository();
+
+export async function listClients() {
+  return repository.list();
+}
+```
+
+**Files Updated:**
+
+- **[clientDocuments.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/clientDocuments.ts)**: Refactored to ClientDocumentManager class
+- **[ClientRepository.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/ClientRepository.ts)**: New repository for client data
+- **[clients.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/clients.ts)**: Updated to delegate to ClientRepository
+- **[ContractRepository.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/ContractRepository.ts)**: New repository for contract data
+- **[contracts.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/utils/contracts.ts)**: Updated to delegate to ContractRepository
+
+### Document Upload Implementation (2025-12-02)
+
+**Client ID Document Upload:**
+
+- ✅ Implemented Firebase Storage integration for client ID documents
+- Two documents per client: image 1 and image 2
+- File constraints: 500KB max, JPG/PNG/PDF only
+- Pre-generated client IDs using `crypto.randomUUID()` for seamless upload workflow
+
+**Storage Structure:**
+
+```
+/client-documents/
+  /{clientId}/
+    /image-1.{jpg|png|pdf}
+    /image-2.{jpg|png|pdf}
+```
+
+**Data Model:**
+
+```typescript
+ClientData {
+  // ... existing fields
+  documents?: {
+    image1?: {
+      url: string;        // Firebase Storage CDN URL
+      fileName: string;   // Original filename
+      uploadedAt: Date;   // Upload timestamp
+      uploadedBy: string; // User UID who uploaded
+      size: number;       // File size in bytes
+    };
+    image2?: {
+      // Same structure
+    };
+  }
+}
+```
+
+**Components Created:**
+
+- **[FileUpload.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/FileUpload.svelte)**: Reusable file upload component
+  - File validation (size, type)
+  - Upload progress indicator
+  - Preview with file metadata (name, size, icon)
+  - View and delete functionality
+  - Disabled states during upload
+
+**Integration:**
+
+- **[ClientForm.svelte](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/components/ClientForm.svelte)**: Integrated two FileUpload instances
+  - Pre-generated clientId for immediate upload capability
+  - Upload fields always visible (no need to save first)
+  - Documents persist to Firestore on client save
+  - ClientDocumentManager handles all storage operations
+
+**Firebase Configuration:**
+
+- **[firebase.ts](file:///Users/mac/Documents/WebDev/contract-generator/src/lib/config/firebase.ts)**: Added Firebase Storage initialization
+- **[storage.rules](file:///Users/mac/Documents/WebDev/contract-generator/storage.rules)**: Security rules for document storage
+  ```javascript
+  match /client-documents/{clientId}/{fileName} {
+    allow read: if isSignedIn();
+    allow write: if isSignedIn()
+      && request.resource.size < 500 * 1024  // 500KB limit
+      && request.resource.contentType.matches('image/.*|application/pdf');
+    allow delete: if isSignedIn();
+  }
+  ```
+
+**Key Features:**
+
+- Validation on both client and server side
+- Automatic cleanup when client is deleted
+- Error handling with user-friendly messages
+- Loading states during upload operations
+- Document metadata tracking (who uploaded, when, size)
 
 ### Team-Shared Application (2025-12-02)
 
