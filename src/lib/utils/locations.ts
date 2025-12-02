@@ -1,5 +1,5 @@
 import { LocationRepository } from './LocationRepository';
-import type { Location, SavedLocation } from '$lib/types/1';
+import type { Location, SavedLocation } from '$lib/types/location';
 
 // Singleton instance for backward compatibility
 const repository = new LocationRepository();

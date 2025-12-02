@@ -13,7 +13,7 @@ import {
 	type Timestamp
 } from 'firebase/firestore';
 import { z } from 'zod';
-import type { Location, SavedLocation } from '$lib/types/1';
+import type { Location, SavedLocation } from '$lib/types/location';
 
 const locationSchema = z.object({
 	ownerUid: z.string().min(1),
