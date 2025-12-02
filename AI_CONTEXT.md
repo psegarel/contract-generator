@@ -56,6 +56,8 @@
      modifiedAt: Timestamp;
      changeDescription?: string;   // Optional user note
      previousVersion?: number;     // Link to previous version
+     isImportant?: boolean;        // Tagged to prevent auto-cleanup
+     taggedBy?: string;            // User who tagged it as important
    }
    ```
 
@@ -75,11 +77,65 @@
    - "Restore" button to rollback to a version
    - Diff view to compare versions (optional enhancement)
 
-4. **Version Management:**
-   - Store last N versions (e.g., 10-20) to control storage costs
-   - OR keep all versions but archive old ones
-   - Option to manually delete old versions
-   - Automatic cleanup of versions when contract is deleted
+4. **Version Management & Cleanup:**
+
+   **Retention Policies (choose one or combine):**
+   - **Count-based:** Keep only last N versions (e.g., 10-20)
+   - **Time-based:** Delete versions older than X days/months (e.g., 90 days)
+   - **Hybrid:** Keep last 5 versions + any within 30 days
+   - **Selective:** Always keep first version + manually tagged versions
+
+   **Cleanup Strategies:**
+
+   a. **Automatic Cleanup (Client-side):**
+   ```typescript
+   async function cleanupOldVersions(contractId: string, keepCount: number = 10) {
+     const versionsRef = collection(db, `contracts/${contractId}/versions`);
+     const q = query(versionsRef, orderBy('versionNumber', 'desc'));
+     const snapshot = await getDocs(q);
+
+     // Keep most recent N versions, delete the rest
+     const toDelete = snapshot.docs.slice(keepCount);
+
+     for (const doc of toDelete) {
+       await deleteDoc(doc.ref);
+     }
+   }
+   ```
+
+   b. **Manual Cleanup (UI):**
+   - "Clean up old versions" button in version history panel
+   - Show how much storage will be freed
+   - Confirmation dialog before deletion
+   - Option to select which versions to keep
+
+   c. **Scheduled Cleanup (Cloud Functions - optional):**
+   ```typescript
+   // Cloud Function runs daily
+   export const cleanupOldVersions = onSchedule('every day 02:00', async () => {
+     // Find all contracts
+     const contracts = await getDocs(collection(db, 'contracts'));
+
+     for (const contract of contracts.docs) {
+       // Apply retention policy per contract
+       await cleanupVersionsForContract(contract.id, retentionPolicy);
+     }
+   });
+   ```
+
+   **Cleanup Rules:**
+   - Never delete the original (first) version
+   - Never delete versions tagged as "important" by users
+   - Warn user before deleting any version less than 7 days old
+   - Cleanup triggered automatically after creating new version
+   - Option to disable auto-cleanup per contract (for critical contracts)
+
+   **UI for Cleanup:**
+   - Settings page with retention policy configuration
+   - Per-contract override for retention
+   - Manual cleanup button with preview of what will be deleted
+   - Version tagging: mark versions as "important" to prevent deletion
+   - Storage usage indicator showing space used by versions
 
 5. **Firestore Structure:**
    ```
