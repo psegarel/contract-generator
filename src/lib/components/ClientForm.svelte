@@ -42,6 +42,8 @@
 	let showDropdown = $state(false);
 	let uploadingImage1 = $state(false);
 	let uploadingImage2 = $state(false);
+	// Pre-generate ID for new clients (will be used for uploads and document creation)
+	let clientId = $state<string>(crypto.randomUUID());
 
 	// Filtered clients based on search query
 	let filteredClients = $derived(
@@ -81,6 +83,7 @@
 	async function handleClientSelect(id: string) {
 		if (!id) return;
 		selectedClientId = id;
+		clientId = id; // Use existing client's ID
 		const selectedClient = clients.find((c) => c.id === id);
 		searchQuery = selectedClient?.name || '';
 		showDropdown = false;
@@ -115,6 +118,7 @@
 	function handleClearSearch() {
 		searchQuery = '';
 		selectedClientId = '';
+		clientId = crypto.randomUUID(); // Generate new ID for new client
 		showDropdown = false;
 	}
 
@@ -126,10 +130,17 @@
 		saveLoading = true;
 		saveMessage = '';
 		try {
-			const id = await upsertClient(authStore.user.uid, formData, selectedClientId || undefined);
+			// Use pre-generated clientId for new clients, or selectedClientId for updates
+			const idToUse = selectedClientId || clientId;
+			const id = await upsertClient(authStore.user.uid, formData, idToUse);
 			toast.success('Client saved successfully!');
 			clients = await listClients();
 			selectedClientId = id;
+			clientId = id; // Update clientId to the saved ID
+			// Generate new ID for next client
+			if (!selectedClientId) {
+				clientId = crypto.randomUUID();
+			}
 		} catch (e) {
 			console.error('Save client error:', e);
 			toast.error('Failed to save client.');
@@ -147,6 +158,7 @@
 			const success = await deleteClient(selectedClientId);
 			if (success) {
 				selectedClientId = '';
+				clientId = crypto.randomUUID(); // Generate new ID for next client
 				formData = {
 					name: '',
 					email: '',
@@ -171,22 +183,24 @@
 	}
 
 	async function handleImage1Upload(file: File) {
-		if (!authStore.user || !selectedClientId) {
-			toast.error('Please save the client first before uploading documents');
+		if (!authStore.user) {
+			toast.error('You must be signed in to upload documents');
 			return;
 		}
 
 		uploadingImage1 = true;
 		try {
-			const doc = await uploadClientDocument(selectedClientId, file, 1, authStore.user.uid);
+			const doc = await uploadClientDocument(clientId, file, 1, authStore.user.uid);
 			if (!formData.documents) {
 				formData.documents = {};
 			}
 			formData.documents.image1 = doc;
 			toast.success('Image 1 uploaded successfully');
 
-			// Save to Firestore
-			await upsertClient(authStore.user.uid, formData, selectedClientId);
+			// Save to Firestore if client already exists
+			if (selectedClientId) {
+				await upsertClient(authStore.user.uid, formData, selectedClientId);
+			}
 		} catch (error) {
 			console.error('Upload error:', error);
 			toast.error(error instanceof Error ? error.message : 'Failed to upload image');
@@ -196,17 +210,15 @@
 	}
 
 	async function handleImage1Delete() {
-		if (!selectedClientId) return;
-
 		try {
-			await deleteClientDocument(selectedClientId, 1);
+			await deleteClientDocument(clientId, 1);
 			if (formData.documents) {
 				formData.documents.image1 = undefined;
 			}
 			toast.success('Image 1 deleted');
 
-			// Update Firestore
-			if (authStore.user) {
+			// Update Firestore if client already exists
+			if (authStore.user && selectedClientId) {
 				await upsertClient(authStore.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
@@ -216,22 +228,24 @@
 	}
 
 	async function handleImage2Upload(file: File) {
-		if (!authStore.user || !selectedClientId) {
-			toast.error('Please save the client first before uploading documents');
+		if (!authStore.user) {
+			toast.error('You must be signed in to upload documents');
 			return;
 		}
 
 		uploadingImage2 = true;
 		try {
-			const doc = await uploadClientDocument(selectedClientId, file, 2, authStore.user.uid);
+			const doc = await uploadClientDocument(clientId, file, 2, authStore.user.uid);
 			if (!formData.documents) {
 				formData.documents = {};
 			}
 			formData.documents.image2 = doc;
 			toast.success('Image 2 uploaded successfully');
 
-			// Save to Firestore
-			await upsertClient(authStore.user.uid, formData, selectedClientId);
+			// Save to Firestore if client already exists
+			if (selectedClientId) {
+				await upsertClient(authStore.user.uid, formData, selectedClientId);
+			}
 		} catch (error) {
 			console.error('Upload error:', error);
 			toast.error(error instanceof Error ? error.message : 'Failed to upload image');
@@ -241,17 +255,15 @@
 	}
 
 	async function handleImage2Delete() {
-		if (!selectedClientId) return;
-
 		try {
-			await deleteClientDocument(selectedClientId, 2);
+			await deleteClientDocument(clientId, 2);
 			if (formData.documents) {
 				formData.documents.image2 = undefined;
 			}
 			toast.success('Image 2 deleted');
 
-			// Update Firestore
-			if (authStore.user) {
+			// Update Firestore if client already exists
+			if (authStore.user && selectedClientId) {
 				await upsertClient(authStore.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
@@ -409,26 +421,24 @@
 	</div>
 
 	<!-- Document Uploads -->
-	{#if selectedClientId}
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border">
-			<FileUpload
-				label="ID Document - Image 1"
-				document={formData.documents?.image1}
-				onFileSelect={handleImage1Upload}
-				onFileDelete={handleImage1Delete}
-				uploading={uploadingImage1}
-				disabled={saveLoading || deleteLoading}
-			/>
-			<FileUpload
-				label="ID Document - Image 2"
-				document={formData.documents?.image2}
-				onFileSelect={handleImage2Upload}
-				onFileDelete={handleImage2Delete}
-				uploading={uploadingImage2}
-				disabled={saveLoading || deleteLoading}
-			/>
-		</div>
-	{/if}
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border">
+		<FileUpload
+			label="ID Document - Image 1"
+			document={formData.documents?.image1}
+			onFileSelect={handleImage1Upload}
+			onFileDelete={handleImage1Delete}
+			uploading={uploadingImage1}
+			disabled={saveLoading || deleteLoading}
+		/>
+		<FileUpload
+			label="ID Document - Image 2"
+			document={formData.documents?.image2}
+			onFileSelect={handleImage2Upload}
+			onFileDelete={handleImage2Delete}
+			uploading={uploadingImage2}
+			disabled={saveLoading || deleteLoading}
+		/>
+	</div>
 
 	<!-- Action Buttons (only shown if showActions is true) -->
 	{#if showActions}
