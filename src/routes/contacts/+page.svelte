@@ -19,10 +19,9 @@
 	});
 
 	async function loadClients() {
-		if (!authStore.user) return;
 		loading = true;
 		try {
-			clients = await listClients(authStore.user.uid);
+			clients = await listClients();
 		} catch (e) {
 			console.error('Load clients error:', e);
 		} finally {

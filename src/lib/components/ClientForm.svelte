@@ -65,9 +65,9 @@
 	});
 
 	onMount(async () => {
-		if (authStore.isAuthenticated && authStore.user) {
+		if (authStore.isAuthenticated) {
 			try {
-				clients = await listClients(authStore.user.uid);
+				clients = await listClients();
 			} catch (e) {
 				console.error('Load clients error:', e);
 			}
@@ -75,13 +75,13 @@
 	});
 
 	async function handleClientSelect(id: string) {
-		if (!id || !authStore.user) return;
+		if (!id) return;
 		selectedClientId = id;
 		const selectedClient = clients.find((c) => c.id === id);
 		searchQuery = selectedClient?.name || '';
 		showDropdown = false;
 		try {
-			const profile = await getClient(authStore.user.uid, id);
+			const profile = await getClient(id);
 			if (profile) {
 				formData.name = profile.name;
 				formData.email = profile.email;
@@ -124,7 +124,7 @@
 		try {
 			const id = await upsertClient(authStore.user.uid, formData, selectedClientId || undefined);
 			toast.success('Client saved successfully!');
-			clients = await listClients(authStore.user.uid);
+			clients = await listClients();
 			selectedClientId = id;
 		} catch (e) {
 			console.error('Save client error:', e);
@@ -135,12 +135,12 @@
 	}
 
 	async function handleDeleteClient() {
-		if (!authStore.user || !selectedClientId) return;
+		if (!selectedClientId) return;
 		if (!confirm('Are you sure you want to delete this client?')) return;
 
 		deleteLoading = true;
 		try {
-			const success = await deleteClient(authStore.user.uid, selectedClientId);
+			const success = await deleteClient(selectedClientId);
 			if (success) {
 				selectedClientId = '';
 				formData = {
@@ -153,7 +153,7 @@
 					bankName: null,
 					accountNumber: null
 				};
-				clients = await listClients(authStore.user.uid);
+				clients = await listClients();
 				toast.success('Client deleted successfully!');
 			} else {
 				toast.error('Failed to delete client.');

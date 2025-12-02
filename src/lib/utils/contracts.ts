@@ -54,15 +54,11 @@ export async function saveContract(
 }
 
 /**
- * Get all contracts for a user
+ * Get all contracts for all authenticated users
  */
-export async function getUserContracts(ownerUid: string): Promise<SavedContract[]> {
+export async function getAllContracts(): Promise<SavedContract[]> {
 	try {
-		const q = query(
-			collection(db, 'contracts'),
-			where('ownerUid', '==', ownerUid),
-			orderBy('createdAt', 'desc')
-		);
+		const q = query(collection(db, 'contracts'), orderBy('createdAt', 'desc'));
 
 		const querySnapshot = await getDocs(q);
 		return querySnapshot.docs.map((doc) => ({
@@ -78,7 +74,7 @@ export async function getUserContracts(ownerUid: string): Promise<SavedContract[
 /**
  * Get a single contract by ID
  */
-export async function getContract(ownerUid: string, contractId: string): Promise<SavedContract | null> {
+export async function getContract(contractId: string): Promise<SavedContract | null> {
 	try {
 		const docRef = doc(db, 'contracts', contractId);
 		const docSnap = await getDoc(docRef);
@@ -88,11 +84,6 @@ export async function getContract(ownerUid: string, contractId: string): Promise
 		}
 
 		const data = docSnap.data();
-
-		// Verify ownership
-		if (data.ownerUid !== ownerUid) {
-			throw new Error('Unauthorized access to contract');
-		}
 
 		return {
 			id: docSnap.id,
@@ -108,22 +99,16 @@ export async function getContract(ownerUid: string, contractId: string): Promise
  * Update an existing contract
  */
 export async function updateContract(
-	ownerUid: string,
 	contractId: string,
 	contractData: ContractData
 ): Promise<void> {
 	try {
 		const docRef = doc(db, 'contracts', contractId);
 
-		// Verify the contract exists and belongs to the user
+		// Verify the contract exists
 		const docSnap = await getDoc(docRef);
 		if (!docSnap.exists()) {
 			throw new Error('Contract not found');
-		}
-
-		const existingData = docSnap.data();
-		if (existingData.ownerUid !== ownerUid) {
-			throw new Error('Unauthorized access to contract');
 		}
 
 		await updateDoc(docRef, {

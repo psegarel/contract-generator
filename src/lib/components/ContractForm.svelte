@@ -56,11 +56,11 @@
 
 	onMount(async () => {
 		const editId = $page.url.searchParams.get('edit');
-		if (editId && authStore.user?.uid) {
+		if (editId) {
 			editContractId = editId;
 			isLoadingContract = true;
 			try {
-				const contract = await getContract(authStore.user.uid, editId);
+				const contract = await getContract(editId);
 				if (contract) {
 					formData = { ...contract.contractData };
 				} else {
@@ -121,9 +121,9 @@
 		isGenerating = true;
 		try {
 			// If editing, update the contract instead of creating a new one
-			if (editContractId && authStore.user?.uid) {
+			if (editContractId) {
 				try {
-					await updateContract(authStore.user.uid, editContractId, formData);
+					await updateContract(editContractId, formData);
 					toast.success('Contract updated successfully!');
 					goto('/contracts/history');
 					return;

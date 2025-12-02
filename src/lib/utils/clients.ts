@@ -43,27 +43,22 @@ const clientSchema = z.object({
 
 /**
  * List minimal client summaries for selection
- * Returns clients owned by `ownerUid` with id and name
+ * Returns all clients for authenticated users
  */
-export async function listClients(ownerUid: string): Promise<Array<{ id: string; name: string }>> {
-	const q = query(collection(db, 'clients'), where('ownerUid', '==', ownerUid));
-	const snap = await getDocs(q);
+export async function listClients(): Promise<Array<{ id: string; name: string }>> {
+	const snap = await getDocs(collection(db, 'clients'));
 	return snap.docs.map((d) => ({ id: d.id, name: (d.data().name as string) || '' }));
 }
 
 /**
- * Get a full client profile by id for the given owner
- * Returns null if not found or owner mismatch
+ * Get a full client profile by id
+ * Returns null if not found
  */
-export async function getClient(
-	ownerUid: string,
-	id: string
-): Promise<(ClientData & { id: string }) | null> {
+export async function getClient(id: string): Promise<(ClientData & { id: string }) | null> {
 	const ref = doc(db, 'clients', id);
 	const snap = await getDoc(ref);
 	if (!snap.exists()) return null;
 	const data = snap.data();
-	if (data.ownerUid !== ownerUid) return null;
 	const parsed = clientSchema.safeParse({ ...data });
 	if (!parsed.success) {
 		console.warn('Invalid client data shape, skipping:', parsed.error?.message);
@@ -83,11 +78,10 @@ export async function getClient(
 }
 
 /**
- * Check for duplicate email or ID document
+ * Check for duplicate email or ID document across all clients
  * Returns error message if duplicate found, null otherwise
  */
 async function checkDuplicates(
-	ownerUid: string,
 	email: string,
 	idDocument: string,
 	excludeId?: string
@@ -95,7 +89,6 @@ async function checkDuplicates(
 	// Check for duplicate email
 	const emailQuery = query(
 		collection(db, 'clients'),
-		where('ownerUid', '==', ownerUid),
 		where('email', '==', email.trim().toLowerCase())
 	);
 	const emailSnap = await getDocs(emailQuery);
@@ -107,7 +100,6 @@ async function checkDuplicates(
 	// Check for duplicate ID document
 	const idQuery = query(
 		collection(db, 'clients'),
-		where('ownerUid', '==', ownerUid),
 		where('idDocument', '==', idDocument.trim().toUpperCase())
 	);
 	const idSnap = await getDocs(idQuery);
@@ -137,12 +129,7 @@ export async function upsertClient(
 	};
 
 	// Check for duplicates
-	const duplicateError = await checkDuplicates(
-		ownerUid,
-		normalizedData.email,
-		normalizedData.idDocument,
-		id
-	);
+	const duplicateError = await checkDuplicates(normalizedData.email, normalizedData.idDocument, id);
 	if (duplicateError) {
 		throw new Error(duplicateError);
 	}
@@ -171,11 +158,11 @@ export async function upsertClient(
 
 /**
  * Delete a client profile
- * Only deletes if the client belongs to the specified owner
+ * Any authenticated user can delete clients
  */
-export async function deleteClient(ownerUid: string, id: string): Promise<boolean> {
-	// Verify ownership before deleting
-	const client = await getClient(ownerUid, id);
+export async function deleteClient(id: string): Promise<boolean> {
+	// Verify client exists before deleting
+	const client = await getClient(id);
 	if (!client) {
 		return false;
 	}

@@ -2,7 +2,7 @@
 	import { toast } from 'svelte-sonner';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
-	import { getUserContracts, type SavedContract } from '$lib/utils/contracts';
+	import { getAllContracts, type SavedContract } from '$lib/utils/contracts';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import { Download, Pencil, FileText } from 'lucide-svelte';
 	import { Card } from '$lib/components/ui/card';
@@ -22,10 +22,10 @@
 			return;
 		}
 
-		// Fetch contracts when user is authenticated
+		// Fetch all contracts when user is authenticated
 		isLoading = true;
 
-		getUserContracts(userId)
+		getAllContracts()
 			.then((fetchedContracts) => {
 				contracts = fetchedContracts;
 			})

@@ -4,18 +4,14 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-    function isOwner(data) {
-      return isSignedIn() && data.ownerUid == request.auth.uid;
-    }
 
     match /clients/{clientId} {
-      // Only the owner can read
-      allow read: if isOwner(resource.data);
+      // Any authenticated user can read
+      allow read: if isSignedIn();
 
-      // Create: must be signed-in owner and fields must be valid
+      // Create: must be signed-in and fields must be valid
       allow create: if isSignedIn()
         && ('ownerUid' in request.resource.data)
-        && request.resource.data.ownerUid == request.auth.uid
         && ('name' in request.resource.data && request.resource.data.name is string)
         && ('email' in request.resource.data && request.resource.data.email is string)
         && ('phone' in request.resource.data && request.resource.data.phone is string)
@@ -31,10 +27,9 @@ service cloud.firestore {
             || request.resource.data.accountNumber is string
             || request.resource.data.accountNumber == null);
 
-      // Update: owner only, ownerUid cannot change, fields remain valid
-      allow update: if isOwner(resource.data)
+      // Update: any authenticated user can update, fields remain valid
+      allow update: if isSignedIn()
         && ('ownerUid' in request.resource.data)
-        && request.resource.data.ownerUid == resource.data.ownerUid
         && ('name' in request.resource.data ? request.resource.data.name is string : true)
         && ('email' in request.resource.data ? request.resource.data.email is string : true)
         && ('phone' in request.resource.data ? request.resource.data.phone is string : true)
@@ -50,30 +45,28 @@ service cloud.firestore {
             ? (request.resource.data.accountNumber is string || request.resource.data.accountNumber == null)
             : true);
 
-      // Delete: owner only
-      allow delete: if isOwner(resource.data);
+      // Delete: any authenticated user can delete
+      allow delete: if isSignedIn();
     }
 
     match /contracts/{contractId} {
-      // Only the owner can read
-      allow read: if isOwner(resource.data);
+      // Any authenticated user can read
+      allow read: if isSignedIn();
 
-      // Create: must be signed-in owner and fields must be valid
+      // Create: must be signed-in and fields must be valid
       allow create: if isSignedIn()
         && ('ownerUid' in request.resource.data)
-        && request.resource.data.ownerUid == request.auth.uid
         && ('type' in request.resource.data && request.resource.data.type is string)
         && ('contractData' in request.resource.data && request.resource.data.contractData is map)
         && ('contractNumber' in request.resource.data && request.resource.data.contractNumber is string)
         && ('createdAt' in request.resource.data);
 
-      // Update: owner only (contracts are typically not updated, but allow it)
-      allow update: if isOwner(resource.data)
-        && ('ownerUid' in request.resource.data)
-        && request.resource.data.ownerUid == resource.data.ownerUid;
+      // Update: any authenticated user can update
+      allow update: if isSignedIn()
+        && ('ownerUid' in request.resource.data);
 
-      // Delete: owner only
-      allow delete: if isOwner(resource.data);
+      // Delete: any authenticated user can delete
+      allow delete: if isSignedIn();
     }
   }
 }

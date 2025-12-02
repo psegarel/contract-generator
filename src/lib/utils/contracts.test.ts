@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getUserContracts, saveContract } from './contracts';
+import { getAllContracts, saveContract } from './contracts';
 import * as firestore from 'firebase/firestore';
 
 // Mock Firebase Firestore
@@ -29,7 +29,7 @@ describe('contracts utility functions', () => {
 		vi.clearAllMocks();
 	});
 
-	describe('getUserContracts', () => {
+	describe('getAllContracts', () => {
 		it('should query Firestore with correct parameters', async () => {
 			// Arrange
 			const mockUserId = 'user-123';
@@ -51,15 +51,13 @@ describe('contracts utility functions', () => {
 			vi.mocked(firestore.getDocs).mockResolvedValue(mockQuerySnapshot as any);
 			vi.mocked(firestore.collection).mockReturnValue('mockCollection' as any);
 			vi.mocked(firestore.query).mockReturnValue('mockQuery' as any);
-			vi.mocked(firestore.where).mockReturnValue('mockWhere' as any);
 			vi.mocked(firestore.orderBy).mockReturnValue('mockOrderBy' as any);
 
 			// Act
-			const result = await getUserContracts(mockUserId);
+			const result = await getAllContracts();
 
 			// Assert - Check that query was called with correct parameters
 			expect(firestore.collection).toHaveBeenCalled();
-			expect(firestore.where).toHaveBeenCalledWith('ownerUid', '==', mockUserId);
 			expect(firestore.orderBy).toHaveBeenCalledWith('createdAt', 'desc');
 			expect(firestore.getDocs).toHaveBeenCalled();
 
@@ -78,11 +76,10 @@ describe('contracts utility functions', () => {
 			vi.mocked(firestore.getDocs).mockResolvedValue(mockQuerySnapshot as any);
 			vi.mocked(firestore.collection).mockReturnValue('mockCollection' as any);
 			vi.mocked(firestore.query).mockReturnValue('mockQuery' as any);
-			vi.mocked(firestore.where).mockReturnValue('mockWhere' as any);
 			vi.mocked(firestore.orderBy).mockReturnValue('mockOrderBy' as any);
 
 			// Act
-			const result = await getUserContracts('user-123');
+			const result = await getAllContracts();
 
 			// Assert
 			expect(result).toEqual([]);
@@ -93,11 +90,10 @@ describe('contracts utility functions', () => {
 			vi.mocked(firestore.getDocs).mockRejectedValue(new Error('Firestore error'));
 			vi.mocked(firestore.collection).mockReturnValue('mockCollection' as any);
 			vi.mocked(firestore.query).mockReturnValue('mockQuery' as any);
-			vi.mocked(firestore.where).mockReturnValue('mockWhere' as any);
 			vi.mocked(firestore.orderBy).mockReturnValue('mockOrderBy' as any);
 
 			// Act & Assert
-			await expect(getUserContracts('user-123')).rejects.toThrow('Failed to fetch contracts');
+			await expect(getAllContracts()).rejects.toThrow('Failed to fetch contracts');
 		});
 	});
 
