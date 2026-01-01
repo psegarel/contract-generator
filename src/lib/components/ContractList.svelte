@@ -30,7 +30,6 @@
 
 	async function handleDownload(contract: SavedContract) {
 		downloadingIds.add(contract.id);
-		downloadingIds = downloadingIds;
 
 		try {
 			const blob = await generateServiceContract(contract.contractData);
@@ -79,7 +78,6 @@
 			toast.error('Failed to download contract. Please try again.');
 		} finally {
 			downloadingIds.delete(contract.id);
-			downloadingIds = downloadingIds;
 		}
 	}
 
@@ -90,10 +88,9 @@
 		}
 
 		updatingPaymentIds.add(contract.id);
-		updatingPaymentIds = updatingPaymentIds;
 
 		try {
-			const newStatus = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
+			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
 			await updatePaymentStatus(contract.id, newStatus, authStore.user.uid);
 
 			// Update local state and notify parent
@@ -118,7 +115,6 @@
 			toast.error('Failed to update payment status');
 		} finally {
 			updatingPaymentIds.delete(contract.id);
-			updatingPaymentIds = updatingPaymentIds;
 		}
 	}
 </script>

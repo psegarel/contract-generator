@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import ContractList from '$lib/components/ContractList.svelte';
@@ -11,31 +12,28 @@
 	let contracts = $state<SavedContract[]>([]);
 	let isLoading = $state(true);
 
-	// Reactively fetch contracts when user authentication state changes
-	$effect(() => {
-		const userId = authStore.user?.uid;
-
-		if (!userId) {
+	async function loadContracts() {
+		if (!authStore.user?.uid) {
 			isLoading = false;
 			contracts = [];
 			return;
 		}
 
-		// Fetch all contracts when user is authenticated
 		isLoading = true;
 
-		getAllContracts()
-			.then((fetchedContracts) => {
-				contracts = fetchedContracts;
-			})
-			.catch((error) => {
-				console.error('Error loading contracts:', error);
-				toast.error('Failed to load contracts');
-				contracts = [];
-			})
-			.finally(() => {
-				isLoading = false;
-			});
+		try {
+			contracts = await getAllContracts();
+		} catch (error) {
+			console.error('Error loading contracts:', error);
+			toast.error('Failed to load contracts');
+			contracts = [];
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	onMount(() => {
+		loadContracts();
 	});
 
 	function handleContractsUpdate(updatedContracts: SavedContract[]) {

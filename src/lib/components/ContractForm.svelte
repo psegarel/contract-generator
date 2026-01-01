@@ -48,15 +48,8 @@
 	let selectedClientId = $state<string>('');
 	let selectedLocationId = $state<string>('');
 
-	// Keep taxRateStr in sync with formData.taxRate
-	$effect(() => {
-		taxRateStr = String(formData.taxRate);
-	});
-
-	// Keep formData.taxRate in sync with taxRateStr
-	$effect(() => {
-		formData.taxRate = Number(taxRateStr);
-	});
+	// Derive formData.taxRate from taxRateStr (read-only computed property)
+	let derivedTaxRate = $derived(Number(taxRateStr));
 
 	onMount(async () => {
 		const editId = $page.url.searchParams.get('edit');
@@ -67,6 +60,7 @@
 				const contract = await getContract(editId);
 				if (contract) {
 					formData = { ...contract.contractData };
+					taxRateStr = String(contract.contractData.taxRate);
 				} else {
 					toast.error('Contract not found');
 					goto('/contracts/service-contract');
@@ -106,8 +100,8 @@
 
 	// Derived values for display
 	let grossFee = $derived(
-		formData.netFee && formData.taxRate
-			? Math.round(formData.netFee / (1 - formData.taxRate / 100))
+		formData.netFee && derivedTaxRate
+			? Math.round(formData.netFee / (1 - derivedTaxRate / 100))
 			: 0
 	);
 	let taxAmount = $derived(grossFee - formData.netFee);
@@ -132,8 +126,11 @@
 	const handleSubmit = async () => {
 		if (!validate()) return;
 
+		// Sync formData.taxRate from derivedTaxRate before saving
+		formData.taxRate = derivedTaxRate;
+
 		isGenerating = true;
-		try {
+		try{
 			// If editing, update the contract instead of creating a new one
 			if (editContractId) {
 				try {
@@ -434,7 +431,7 @@
 					<span class="font-medium text-foreground">{formatCurrency(formData.netFee)}</span>
 				</div>
 				<div class="flex justify-between text-muted-foreground">
-					<span>Tax Amount ({formData.taxRate}%):</span>
+					<span>Tax Amount ({derivedTaxRate}%):</span>
 					<span class="font-medium text-foreground">{formatCurrency(taxAmount)}</span>
 				</div>
 				<div class="flex justify-between pt-2 border-t border-border font-medium text-foreground">

@@ -1,13 +1,13 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import LoginForm from '$lib/components/LoginForm.svelte';
 
-	// Reactive effect that redirects authenticated users
-	$effect(() => {
-		if (authStore.initialized && authStore.isAuthenticated) {
-			goto(resolve('/contracts'), { replaceState: true });
+	// Redirect authenticated users on mount
+	onMount(() => {
+		if (authStore.isAuthenticated) {
+			goto('/contracts', { replaceState: true });
 		}
 	});
 </script>

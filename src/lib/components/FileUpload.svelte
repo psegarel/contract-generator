@@ -28,7 +28,17 @@
 		disabled = false
 	}: Props = $props();
 
-	let fileInput = $state<HTMLInputElement>();
+	let fileInput = $state<HTMLInputElement | undefined>();
+
+	// Action to capture the file input element reference
+	function captureFileInput(node: HTMLInputElement) {
+		fileInput = node;
+		return {
+			destroy() {
+				fileInput = undefined;
+			}
+		};
+	}
 
 	function handleFileChange(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -122,7 +132,7 @@
 		<div class="relative">
 			<input
 				type="file"
-				bind:this={fileInput}
+				use:captureFileInput
 				onchange={handleFileChange}
 				accept="image/jpeg,image/png,image/jpg,application/pdf"
 				disabled={disabled || uploading}

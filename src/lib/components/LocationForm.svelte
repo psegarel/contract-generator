@@ -53,7 +53,9 @@
 		contactPhone: initialData?.contactPhone || null
 	});
 
-	// Watch for form data changes and notify parent
+	// Watch for form data changes and notify parent component
+	// Note: onLocationChange callback may mutate parent state, which is intentional.
+	// This allows parent (ContractForm) to sync location data into contract form fields.
 	$effect(() => {
 		if (onLocationChange) {
 			// Pass both form data and location ID
@@ -168,11 +170,8 @@
 		}
 	}
 
-	$effect(() => {
-		if (selectedLocationId) {
-			handleLocationSelect(selectedLocationId);
-		}
-	});
+	// Removed problematic $effect that called handleLocationSelect
+	// Selection is handled via user interaction in the dropdown
 </script>
 
 <div class="space-y-4">

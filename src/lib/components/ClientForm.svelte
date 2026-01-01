@@ -63,7 +63,9 @@
 		accountNumber: initialData?.accountNumber || null
 	});
 
-	// Watch for form data changes and notify parent
+	// Watch for form data changes and notify parent component
+	// Note: onClientChange callback may mutate parent state, which is intentional.
+	// This allows parent (ContractForm) to sync client data into contract form fields.
 	$effect(() => {
 		if (onClientChange) {
 			// Pass both form data and client ID (use selectedClientId if available, otherwise clientId)
@@ -273,11 +275,8 @@
 		}
 	}
 
-	$effect(() => {
-		if (selectedClientId) {
-			handleClientSelect(selectedClientId);
-		}
-	});
+	// Removed problematic $effect that called handleClientSelect
+	// Selection is handled via user interaction in the dropdown
 </script>
 
 <div class="space-y-4">
