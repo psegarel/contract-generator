@@ -481,38 +481,95 @@ ClientData {
 
 **CRITICAL: Read and follow these guidelines strictly to avoid introducing bugs.**
 
-### Svelte 5 Reactivity - Understanding $effect vs onMount
+### Svelte 5 + SvelteKit Data Loading Patterns
 
-**When to use `$effect()`:**
-- When you need to react to changes in reactive state
-- When dealing with authentication state that loads asynchronously
-- When you need to re-run logic whenever dependencies change
-- Example: Fetching data based on `authStore.user?.uid`
+**For Route-Based Data (URL Parameters):**
 
-**When to use `onMount()`:**
-- For one-time initialization that doesn't depend on reactive state
-- For setting up event listeners or subscriptions
-- For operations that should only run once when component mounts
-- Example: Initializing a map, starting an animation
+Use SvelteKit's `load` functions - the proper way to handle route params:
 
-**Common Pitfall - Authentication Timing:**
 ```typescript
-// ❌ BAD - onMount runs once, may miss auth state
+// +page.ts (client-side, has access to Firebase SDK)
+import type { PageLoad } from './$types';
+import { getAllContracts } from '$lib/utils/contracts';
+
+export const load: PageLoad = async ({ params }) => {
+  // Automatically re-runs when params change
+  // Has access to Firebase client SDK
+  const contracts = await getAllContracts();
+  return { contracts };
+};
+```
+
+```typescript
+// +page.svelte (dead simple)
+<script lang="ts">
+  import type { PageData } from './$types';
+  let { data }: { data: PageData } = $props();
+  // No $effect, no onMount - SvelteKit handles everything
+</script>
+
+{#each data.contracts as contract}
+  <!-- render -->
+{/each}
+```
+
+**Benefits:**
+- Zero reactive code in component
+- Automatic reloading when params change
+- Built-in loading states
+- SSR-friendly
+- No autofixer warnings
+
+**For One-Time Initialization:**
+
+```typescript
+// ✅ GOOD - onMount for one-time setup
 onMount(async () => {
-  if (!authStore.user?.uid) return; // Auth might not be ready yet!
-  const data = await fetchData(authStore.user.uid);
-});
-
-// ✅ GOOD - $effect reacts to auth changes
-$effect(() => {
-  const userId = authStore.user?.uid;
-  if (!userId) return;
-
-  fetchData(userId).then(data => {
-    // Handle data
-  });
+  const data = await loadInitialData();
+  myState = data;
 });
 ```
+
+**For Navigation-Based Reloading:**
+
+```typescript
+// ✅ GOOD - afterNavigate for navigation triggers
+import { afterNavigate } from '$app/navigation';
+
+afterNavigate(() => {
+  refreshData();
+});
+```
+
+**When to use `$effect()`:**
+
+Use ONLY for true side effects (no state mutations):
+
+```typescript
+// ✅ GOOD - DOM manipulation
+$effect(() => {
+  document.title = `${pageTitle} - App`;
+});
+
+// ✅ GOOD - Analytics tracking
+$effect(() => {
+  trackPageView(currentRoute);
+});
+
+// ❌ BAD - Data fetching with state mutation
+$effect(() => {
+  fetchData().then(data => {
+    myData = data; // State mutation in $effect
+  });
+});
+
+// ❌ BAD - Calling functions that mutate state
+$effect(() => {
+  loadUserData(userId); // Function mutates state
+});
+```
+
+**Key Rule**: If your $effect mutates state or calls functions that mutate state, you're doing it wrong. Use load functions, onMount, or event-based patterns instead.
 
 ### Testing Requirements
 

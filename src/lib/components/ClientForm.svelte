@@ -63,15 +63,10 @@
 		accountNumber: initialData?.accountNumber || null
 	});
 
-	// Watch for form data changes and notify parent component
-	// Note: onClientChange callback may mutate parent state, which is intentional.
-	// This allows parent (ContractForm) to sync client data into contract form fields.
-	$effect(() => {
-		if (onClientChange) {
-			// Pass both form data and client ID (use selectedClientId if available, otherwise clientId)
-			onClientChange(formData, selectedClientId || clientId);
-		}
-	});
+	// Helper to notify parent component of changes (event-based, not reactive)
+	function notifyParent() {
+		onClientChange?.(formData, selectedClientId || clientId);
+	}
 
 	onMount(async () => {
 		if (authStore.isAuthenticated) {
@@ -101,6 +96,9 @@
 				formData.taxId = profile.taxId || null;
 				formData.bankName = profile.bankName || null;
 				formData.accountNumber = profile.accountNumber || null;
+
+				// Notify parent after client selection
+				notifyParent();
 			}
 		} catch (e) {
 			console.error('Fetch client error:', e);
@@ -123,6 +121,9 @@
 		selectedClientId = '';
 		clientId = crypto.randomUUID(); // Generate new ID for new client
 		showDropdown = false;
+
+		// Notify parent that client selection was cleared
+		onClientChange?.(null, '');
 	}
 
 	async function saveClientProfile() {
@@ -140,6 +141,10 @@
 			clients = await listClients();
 			selectedClientId = id;
 			clientId = id; // Update clientId to the saved ID
+
+			// Notify parent after successful save
+			notifyParent();
+
 			// Generate new ID for next client
 			if (!selectedClientId) {
 				clientId = crypto.randomUUID();
@@ -174,6 +179,9 @@
 				};
 				clients = await listClients();
 				toast.success('Client deleted successfully!');
+
+				// Notify parent that client was deleted
+				onClientChange?.(null, '');
 			} else {
 				toast.error('Failed to delete client.');
 			}

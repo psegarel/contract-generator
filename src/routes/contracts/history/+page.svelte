@@ -1,43 +1,16 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { toast } from 'svelte-sonner';
+	import type { PageData } from './$types';
+	import type { SavedContract } from '$lib/utils/contracts';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import ContractList from '$lib/components/ContractList.svelte';
-	import { authStore } from '$lib/stores/auth.svelte';
-	import { getAllContracts, type SavedContract } from '$lib/utils/contracts';
 	import { FileText } from 'lucide-svelte';
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 
-	let contracts = $state<SavedContract[]>([]);
-	let isLoading = $state(true);
-
-	async function loadContracts() {
-		if (!authStore.user?.uid) {
-			isLoading = false;
-			contracts = [];
-			return;
-		}
-
-		isLoading = true;
-
-		try {
-			contracts = await getAllContracts();
-		} catch (error) {
-			console.error('Error loading contracts:', error);
-			toast.error('Failed to load contracts');
-			contracts = [];
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	onMount(() => {
-		loadContracts();
-	});
+	let { data }: { data: PageData } = $props();
 
 	function handleContractsUpdate(updatedContracts: SavedContract[]) {
-		contracts = updatedContracts;
+		data.contracts = updatedContracts;
 	}
 </script>
 
@@ -49,11 +22,7 @@
 				<p class="text-muted-foreground">View and download previously generated contracts</p>
 			</div>
 
-			{#if isLoading}
-				<div class="flex justify-center items-center py-12">
-					<div class="text-muted-foreground">Loading contracts...</div>
-				</div>
-			{:else if contracts.length === 0}
+			{#if data.contracts.length === 0}
 				<Card class="p-12 text-center">
 					<FileText class="h-12 w-12 text-muted-foreground mx-auto mb-4" />
 					<h3 class="text-lg font-medium text-foreground mb-2">No contracts found</h3>
@@ -63,7 +32,11 @@
 					<Button href="/contracts">Create Contract</Button>
 				</Card>
 			{:else}
-				<ContractList {contracts} showLocationLink={true} onContractsUpdate={handleContractsUpdate} />
+				<ContractList
+					contracts={data.contracts}
+					showLocationLink={true}
+					onContractsUpdate={handleContractsUpdate}
+				/>
 			{/if}
 		</div>
 	</div>

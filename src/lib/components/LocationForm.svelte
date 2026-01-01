@@ -53,15 +53,10 @@
 		contactPhone: initialData?.contactPhone || null
 	});
 
-	// Watch for form data changes and notify parent component
-	// Note: onLocationChange callback may mutate parent state, which is intentional.
-	// This allows parent (ContractForm) to sync location data into contract form fields.
-	$effect(() => {
-		if (onLocationChange) {
-			// Pass both form data and location ID
-			onLocationChange(formData, selectedLocationId || locationId);
-		}
-	});
+	// Helper to notify parent component of changes (event-based, not reactive)
+	function notifyParent() {
+		onLocationChange?.(formData, selectedLocationId || locationId);
+	}
 
 	onMount(async () => {
 		if (authStore.isAuthenticated) {
@@ -88,6 +83,9 @@
 				formData.contactPerson = profile.contactPerson || null;
 				formData.contactEmail = profile.contactEmail || null;
 				formData.contactPhone = profile.contactPhone || null;
+
+				// Notify parent after location selection
+				notifyParent();
 			}
 		} catch (e) {
 			console.error('Fetch location error:', e);
@@ -110,6 +108,9 @@
 		selectedLocationId = '';
 		locationId = crypto.randomUUID(); // Generate new ID for new location
 		showDropdown = false;
+
+		// Notify parent that location selection was cleared
+		onLocationChange?.(null, '');
 	}
 
 	async function saveLocationProfile() {
@@ -127,6 +128,10 @@
 			locations = await listLocations();
 			selectedLocationId = id;
 			locationId = id; // Update locationId to the saved ID
+
+			// Notify parent after successful save
+			notifyParent();
+
 			// Generate new ID for next location
 			if (!selectedLocationId) {
 				locationId = crypto.randomUUID();
@@ -159,6 +164,9 @@
 				};
 				locations = await listLocations();
 				toast.success('Location deleted successfully!');
+
+				// Notify parent that location was deleted
+				onLocationChange?.(null, '');
 			} else {
 				toast.error('Failed to delete location.');
 			}
