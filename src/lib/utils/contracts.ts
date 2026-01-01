@@ -1,5 +1,6 @@
 import { ContractRepository } from './ContractRepository';
 import type { ContractData } from '$lib/schemas/contract';
+import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContract';
 import type { SavedContract } from './ContractRepository';
 
 // Re-export types for backward compatibility
@@ -17,6 +18,18 @@ export async function saveContract(
 	locationId: string
 ): Promise<string> {
 	return repository.save(ownerUid, contractType, contractData, contractNumber, locationId);
+}
+
+/**
+ * Type-safe wrapper for saving event planning contracts
+ */
+export async function saveEventPlanningContract(
+	ownerUid: string,
+	contractData: EventPlanningContractData,
+	contractNumber: string,
+	locationId: string
+): Promise<string> {
+	return repository.save(ownerUid, 'event-planning', contractData, contractNumber, locationId);
 }
 
 export async function updatePaymentStatus(
@@ -41,7 +54,7 @@ export async function getContract(contractId: string): Promise<SavedContract | n
 
 export async function updateContract(
 	contractId: string,
-	contractData: ContractData
+	contractData: ContractData | EventPlanningContractData
 ): Promise<void> {
 	return repository.update(contractId, contractData);
 }

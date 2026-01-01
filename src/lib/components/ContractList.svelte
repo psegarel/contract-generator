@@ -2,6 +2,7 @@
 	import { toast } from 'svelte-sonner';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
+	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
 	import { updatePaymentStatus, type SavedContract } from '$lib/utils/contracts';
 	import { Download, Pencil, DollarSign, MapPin, User, Calendar } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -18,6 +19,18 @@
 	let downloadingIds = $state<Set<string>>(new Set());
 	let updatingPaymentIds = $state<Set<string>>(new Set());
 
+	// Type guards for discriminated union
+	type ServiceContract = SavedContract & { type: 'service' };
+	type EventPlanningContract = SavedContract & { type: 'event-planning' };
+
+	function isServiceContract(contract: SavedContract): contract is ServiceContract {
+		return contract.type === 'service';
+	}
+
+	function isEventPlanningContract(contract: SavedContract): contract is EventPlanningContract {
+		return contract.type === 'event-planning';
+	}
+
 	function formatDateString(dateString: string): string {
 		if (!dateString) return 'N/A';
 		const date = new Date(dateString);
@@ -28,12 +41,54 @@
 		}).format(date);
 	}
 
+	// Helper functions to get display data based on contract type
+	function getContractTitle(contract: SavedContract): string {
+		return contract.contractData.eventName;
+	}
+
+	function getContractDate(contract: SavedContract): string {
+		if (isServiceContract(contract)) {
+			return contract.contractData.startDate;
+		}
+		return contract.contractData.eventDate;
+	}
+
+	function getContractLocation(contract: SavedContract): string {
+		if (isServiceContract(contract)) {
+			return contract.contractData.eventLocation;
+		}
+		return contract.contractData.eventVenue;
+	}
+
+	function getContractClient(contract: SavedContract): string {
+		if (isServiceContract(contract)) {
+			return contract.contractData.clientName;
+		}
+		return contract.contractData.clientCompany;
+	}
+
+	function getEditUrl(contract: SavedContract): string {
+		if (isServiceContract(contract)) {
+			return `/contracts/service-contract?edit=${contract.id}`;
+		}
+		return `/contracts/event-planning?edit=${contract.id}`;
+	}
+
 	async function handleDownload(contract: SavedContract) {
 		downloadingIds.add(contract.id);
 
 		try {
-			const blob = await generateServiceContract(contract.contractData);
-			const filename = `Contract_${contract.contractData.clientName.replace(/\s+/g, '_')}.docx`;
+			// Generate contract based on type
+			let blob: Blob;
+			let filename: string;
+
+			if (isServiceContract(contract)) {
+				blob = await generateServiceContract(contract.contractData);
+				filename = `Contract_${contract.contractData.clientName.replace(/\s+/g, '_')}.docx`;
+			} else {
+				blob = await generateEventPlanningContract(contract.contractData);
+				filename = `EventPlanning_${contract.contractData.clientCompany.replace(/\s+/g, '_')}.docx`;
+			}
 
 			// Try File System Access API
 			if ('showSaveFilePicker' in window) {
@@ -127,7 +182,7 @@
 				<!-- Title and Badge -->
 				<div class="flex items-start justify-between gap-2">
 					<h3 class="text-lg font-semibold leading-tight flex-1">
-						{contract.contractData.eventName}
+						{getContractTitle(contract)}
 					</h3>
 					{#if contract.paymentStatus === 'paid'}
 						<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600 shrink-0"
@@ -142,15 +197,15 @@
 				<div class="space-y-1.5 text-sm text-muted-foreground">
 					<div class="flex items-center gap-2">
 						<Calendar class="h-3.5 w-3.5 shrink-0" />
-						<span>{formatDateString(contract.contractData.startDate)}</span>
+						<span>{formatDateString(getContractDate(contract))}</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<MapPin class="h-3.5 w-3.5 shrink-0" />
-						<span>{contract.contractData.eventLocation}</span>
+						<span>{getContractLocation(contract)}</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<User class="h-3.5 w-3.5 shrink-0" />
-						<span>{contract.contractData.clientName}</span>
+						<span>{getContractClient(contract)}</span>
 					</div>
 					{#if showLocationLink && contract.locationId}
 						<div class="pt-1">
@@ -166,11 +221,7 @@
 
 				<!-- Actions -->
 				<div class="flex flex-wrap gap-2 pt-1">
-					<Button
-						size="sm"
-						href="/contracts/service-contract?edit={contract.id}"
-						class="flex-1 min-w-[100px]"
-					>
+					<Button size="sm" href={getEditUrl(contract)} class="flex-1 min-w-[100px]">
 						<Pencil class="h-3.5 w-3.5 mr-1.5" />
 						Edit
 					</Button>
@@ -214,7 +265,7 @@
 				<div class="flex-1 min-w-0">
 					<div class="flex items-center gap-3 mb-2">
 						<h3 class="text-lg font-semibold">
-							{contract.contractData.eventName}
+							{getContractTitle(contract)}
 						</h3>
 						{#if contract.paymentStatus === 'paid'}
 							<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
@@ -223,18 +274,18 @@
 						{/if}
 					</div>
 					<div class="text-lg text-muted-foreground mb-2">
-						{formatDateString(contract.contractData.startDate)}
+						{formatDateString(getContractDate(contract))}
 					</div>
 					<div class="space-y-1 text-sm text-muted-foreground">
-						<div>{contract.contractData.eventLocation}</div>
-						<div>{contract.contractData.clientName}</div>
+						<div>{getContractLocation(contract)}</div>
+						<div>{getContractClient(contract)}</div>
 						{#if showLocationLink && contract.locationId}
 							<div>
 								<a
 									href="/contracts/{contract.locationId}/list"
 									class="text-primary hover:underline"
 								>
-									View all contracts at {contract.contractData.eventLocation}
+									View all contracts at {getContractLocation(contract)}
 								</a>
 							</div>
 						{/if}
@@ -262,7 +313,7 @@
 							{/if}
 						</Button>
 					{/if}
-					<Button size="sm" href="/contracts/service-contract?edit={contract.id}">
+					<Button size="sm" href={getEditUrl(contract)}>
 						<span class="flex items-center space-x-2">
 							<Pencil class="h-4 w-4" />
 							<span>Edit</span>

@@ -52,7 +52,11 @@
 	let derivedTaxRate = $derived(Number(taxRateStr));
 
 	onMount(async () => {
-		const editId = $page.url.searchParams.get('edit');
+		// TODO: Re-enable after refactor to separate collections
+		// Edit functionality temporarily disabled during architecture refactor
+		// See: docs/architecture-refactor-plan.md
+
+		/* const editId = $page.url.searchParams.get('edit');
 		if (editId) {
 			editContractId = editId;
 			isLoadingContract = true;
@@ -72,7 +76,7 @@
 			} finally {
 				isLoadingContract = false;
 			}
-		}
+		} */
 	});
 
 	function handleClientChange(clientData: ClientProfile | null, clientId?: string) {
@@ -131,8 +135,9 @@
 
 		isGenerating = true;
 		try{
-			// If editing, update the contract instead of creating a new one
-			if (editContractId) {
+			// TODO: Re-enable after refactor to separate collections
+			// Edit functionality temporarily disabled during architecture refactor
+			/* if (editContractId) {
 				try {
 					await updateContract(editContractId, formData);
 					toast.success('Contract updated successfully!');
@@ -145,7 +150,7 @@
 				} finally {
 					isGenerating = false;
 				}
-			}
+			} */
 
 			// Generate new contract
 			const blob = await generateServiceContract(formData);

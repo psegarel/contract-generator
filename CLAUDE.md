@@ -91,7 +91,97 @@ When in doubt:
 
 Never skip steps to appear faster. Thoroughness and accuracy are more valuable than speed.
 
+### Component Architecture
+
+**Components should be small, dumb, and do one thing well.**
+
+**Core Principles:**
+- ✅ **Small components** - Each component should do one thing well
+- ✅ **Sub-components** - Break large components into smaller, focused pieces
+- ✅ **Dumb components** - Components should be presentational (receive props, emit events)
+- ✅ **Externalized logic** - Business logic, calculations, and validations in utility functions
+
+**Size Guidelines:**
+- Components handling more than 3-4 related fields should be split
+- Aim for components under 100-150 lines (script + template, excluding styles)
+- If script block exceeds ~50 lines, consider extracting logic to utility functions
+
+**Example:**
+```
+❌ BAD: One giant EventPlanningContractForm.svelte with 50 fields and all logic
+✅ GOOD: 6 section components + 1 orchestrator + utilities file with business logic
+```
+
+**When to split:**
+- Component handles multiple unrelated concerns
+- Template has distinct sections that could be separate components
+- Logic is getting complex - extract to utility functions
+
+### Styling Architecture
+
+**IMPORTANT: Use Tailwind utility-first approach - NO `<style>` blocks in components.**
+
+This project uses Tailwind CSS with a utility-first methodology:
+
+**Core Principles:**
+1. **Use Tailwind utilities directly in components** - This is the primary approach
+2. **Only use app.css for styles that Tailwind cannot achieve** - Keep this minimal
+3. **No component-scoped `<style>` blocks** - Avoid scattered styles across components
+4. **Reduce CSS bundle size** - Let Tailwind's tree-shaking optimize the bundle
+
+**Tailwind-First Process:**
+1. First, try to achieve the styling with Tailwind utilities
+2. If Tailwind can't do it, check if it's achievable with Tailwind config customization
+3. Only if truly impossible with Tailwind, add custom CSS to app.css
+4. Document why custom CSS was necessary
+
+**Common Patterns:**
+
+```svelte
+<!-- ✅ GOOD: Pure Tailwind utilities -->
+<div class="p-6 bg-white rounded-lg border border-gray-200">
+  <h3 class="text-lg font-semibold text-gray-900 mb-6">Title</h3>
+  <div class="grid gap-6 grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
+    <!-- Grid items -->
+  </div>
+</div>
+
+<!-- ✅ GOOD: Conditional classes with error states -->
+<input
+  class="px-3.5 py-2.5 border rounded-md {error
+    ? 'border-red-500 focus:ring-red-500/10'
+    : 'border-gray-300 focus:ring-blue-500/10'}"
+/>
+
+<!-- ✅ GOOD: Full-width grid items -->
+<div class="col-span-full">...</div>
+
+<!-- ❌ BAD: Custom CSS classes -->
+<div class="form-section">...</div>
+<style>
+  .form-section { padding: 1.5rem; background: white; }
+</style>
+
+<!-- ❌ BAD: Custom CSS in app.css when Tailwind can do it -->
+/* app.css */
+.form-field { display: flex; flex-direction: column; gap: 0.5rem; }
+```
+
+**Key Tailwind Utilities:**
+- Layout: `flex`, `grid`, `col-span-full`, `gap-*`
+- Spacing: `p-*`, `m-*`, `space-*`
+- Sizing: `w-*`, `h-*`, `min-h-*`, `max-w-*`
+- Colors: `bg-*`, `text-*`, `border-*`
+- Effects: `rounded-*`, `shadow-*`, `ring-*`
+- States: `hover:*`, `focus:*`, `active:*`
+
+**Benefits:**
+- Smaller CSS bundle (Tailwind tree-shakes unused utilities)
+- Consistent design system (using Tailwind's design tokens)
+- Faster development (no context switching between files)
+- Better maintainability (styles co-located with markup)
+
 ---
 
 **Last Updated:** 2026-01-01
-**Reason:** Established after addressing dishonest communication about component checking process
+**Reason:** Updated styling architecture to Tailwind utility-first approach - use Tailwind utilities directly, only use app.css when Tailwind cannot achieve the styling

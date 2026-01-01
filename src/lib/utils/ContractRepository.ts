@@ -13,19 +13,37 @@ import {
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { ContractData } from '$lib/schemas/contract';
+import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContract';
 
-export interface SavedContract {
-	id: string;
-	type: 'service';
-	contractData: ContractData;
-	contractNumber: string;
-	createdAt: Timestamp;
-	ownerUid: string;
-	locationId: string; // Reference to location in locations collection
-	paymentStatus: 'unpaid' | 'paid'; // Payment tracking
-	paidAt: Timestamp | null; // When payment was marked as paid
-	paidBy: string | null; // UID of admin who marked as paid
-}
+/**
+ * Discriminated union for contract types
+ * Allows type-safe handling of different contract data structures
+ */
+export type SavedContract =
+	| {
+			id: string;
+			type: 'service';
+			contractData: ContractData;
+			contractNumber: string;
+			createdAt: Timestamp;
+			ownerUid: string;
+			locationId: string;
+			paymentStatus: 'unpaid' | 'paid';
+			paidAt: Timestamp | null;
+			paidBy: string | null;
+	  }
+	| {
+			id: string;
+			type: 'event-planning';
+			contractData: EventPlanningContractData;
+			contractNumber: string;
+			createdAt: Timestamp;
+			ownerUid: string;
+			locationId: string;
+			paymentStatus: 'unpaid' | 'paid';
+			paidAt: Timestamp | null;
+			paidBy: string | null;
+	  };
 
 export interface SavedContractInput extends Omit<SavedContract, 'id' | 'createdAt'> {
 	createdAt?: ReturnType<typeof serverTimestamp>;
@@ -38,12 +56,12 @@ export class ContractRepository {
 	private static readonly COLLECTION_NAME = 'contracts';
 
 	/**
-	 * Save a new contract
+	 * Save a new contract (supports service and event-planning types)
 	 */
 	async save(
 		ownerUid: string,
-		contractType: 'service',
-		contractData: ContractData,
+		contractType: 'service' | 'event-planning',
+		contractData: ContractData | EventPlanningContractData,
 		contractNumber: string,
 		locationId: string
 	): Promise<string> {
@@ -127,9 +145,12 @@ export class ContractRepository {
 	}
 
 	/**
-	 * Update an existing contract's data
+	 * Update an existing contract's data (supports service and event-planning types)
 	 */
-	async update(contractId: string, contractData: ContractData): Promise<void> {
+	async update(
+		contractId: string,
+		contractData: ContractData | EventPlanningContractData
+	): Promise<void> {
 		try {
 			const docRef = doc(db, ContractRepository.COLLECTION_NAME, contractId);
 
