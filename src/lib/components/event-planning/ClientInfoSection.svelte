@@ -80,59 +80,5 @@
 			error={errors.clientRepresentativePosition}
 			onInput={(value) => handleChange('clientRepresentativePosition', value)}
 		/>
-
-		<TextField
-			id="clientNationality"
-			label="Nationality"
-			value={data.clientNationality}
-			required={true}
-			placeholder="e.g., Vietnamese, American"
-			error={errors.clientNationality}
-			onInput={(value) => handleChange('clientNationality', value)}
-		/>
-
-		<TextField
-			id="clientPassportNumber"
-			label="Passport Number"
-			value={data.clientPassportNumber}
-			required={true}
-			placeholder="Passport or ID number"
-			error={errors.clientPassportNumber}
-			onInput={(value) => handleChange('clientPassportNumber', value)}
-		/>
-
-		<TextField
-			id="clientPassportIssuedDate"
-			label="Passport Issued Date"
-			type="date"
-			value={data.clientPassportIssuedDate}
-			required={true}
-			error={errors.clientPassportIssuedDate}
-			onInput={(value) => handleChange('clientPassportIssuedDate', value)}
-		/>
-
-		<TextField
-			id="clientPassportIssuedPlace"
-			label="Passport Issued Place"
-			value={data.clientPassportIssuedPlace}
-			required={true}
-			placeholder="e.g., Hanoi, Vietnam"
-			error={errors.clientPassportIssuedPlace}
-			onInput={(value) => handleChange('clientPassportIssuedPlace', value)}
-		/>
-
-		<div class="col-span-full">
-			<TextareaField
-				id="clientAuthority"
-				label="Authority Basis"
-				value={data.clientAuthority}
-				required={true}
-				rows={2}
-				placeholder="Legal basis for representative's authority (e.g., company charter, board resolution)"
-				helperText="Document or legal basis granting representative authority"
-				error={errors.clientAuthority}
-				onInput={(value) => handleChange('clientAuthority', value)}
-			/>
-		</div>
 	</div>
 </div>

@@ -5,10 +5,11 @@
 	import { toast } from 'svelte-sonner';
 	import { contractSchema, type ContractData } from '$lib/schemas/contract';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { saveContract, getContract, updateContract } from '$lib/utils/contracts';
+	import { saveContract } from '$lib/utils/contracts';
+	import { getServiceContractById, updateServiceContract } from '$lib/utils/serviceContracts';
 	import { companyConfig } from '$lib/config/company';
-	import { authStore } from '$lib/stores/auth.svelte';
-	import { LoaderCircle } from 'lucide-svelte';
+	import { authState } from '$lib/state/auth.svelte';
+	import { LoaderCircle, Save, FileText } from 'lucide-svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
@@ -17,7 +18,7 @@
 	import ClientForm from '$lib/components/ClientForm.svelte';
 	import LocationForm from '$lib/components/LocationForm.svelte';
 	import type { ClientData as ClientProfile } from '$lib/utils/clients';
-	import type { Location } from '$lib/utils/locations';
+	import { getLocation, type Location } from '$lib/utils/locations';
 
 	let formData: ContractData = $state({
 		clientName: '',
@@ -42,41 +43,54 @@
 
 	let errors: Partial<Record<keyof ContractData, string>> = $state({});
 	let isGenerating = $state(false);
+	let isSavingDraft = $state(false);
 	let taxRateStr = $state('10');
 	let editContractId = $state<string | null>(null);
 	let isLoadingContract = $state(false);
 	let selectedClientId = $state<string>('');
 	let selectedLocationId = $state<string>('');
+	let loadedLocationData = $state<Location | null>(null);
 
 	// Derive formData.taxRate from taxRateStr (read-only computed property)
 	let derivedTaxRate = $derived(Number(taxRateStr));
 
 	onMount(async () => {
-		// TODO: Re-enable after refactor to separate collections
-		// Edit functionality temporarily disabled during architecture refactor
-		// See: docs/architecture-refactor-plan.md
-
-		/* const editId = $page.url.searchParams.get('edit');
+		const editId = $page.url.searchParams.get('edit');
 		if (editId) {
 			editContractId = editId;
 			isLoadingContract = true;
 			try {
-				const contract = await getContract(editId);
+				const contract = await getServiceContractById(editId);
 				if (contract) {
 					formData = { ...contract.contractData };
 					taxRateStr = String(contract.contractData.taxRate);
+					selectedLocationId = contract.locationId;
+
+					// Load full location data
+					if (contract.locationId) {
+						const location = await getLocation(contract.locationId);
+						if (location) {
+							loadedLocationData = {
+								name: location.name,
+								address: location.address,
+								contactPerson: location.contactPerson || null,
+								contactEmail: location.contactEmail || null,
+								contactPhone: location.contactPhone || null
+							};
+						}
+					}
 				} else {
 					toast.error('Contract not found');
-					goto('/contracts/service-contract');
+					goto('/contracts/service');
 				}
 			} catch (error) {
 				console.error('Error loading contract:', error);
 				toast.error('Failed to load contract');
-				goto('/contracts/service-contract');
+				goto('/contracts/service');
 			} finally {
 				isLoadingContract = false;
 			}
-		} */
+		}
 	});
 
 	function handleClientChange(clientData: ClientProfile | null, clientId?: string) {
@@ -127,6 +141,62 @@
 		return true;
 	};
 
+	const handleSaveDraft = async () => {
+		// Skip validation for drafts - they can be incomplete
+
+		// Sync formData.taxRate from derivedTaxRate before saving
+		formData.taxRate = derivedTaxRate;
+
+		isSavingDraft = true;
+		try {
+			// Update existing contract
+			if (editContractId) {
+				await updateServiceContract(editContractId, formData);
+				toast.success('Draft updated successfully!');
+				goto('/contracts/service/list');
+				return;
+			}
+
+			// Save new contract as draft (without generating DOCX)
+			if (!authState.user?.uid) {
+				toast.error('You must be signed in to save drafts');
+				return;
+			}
+
+			if (!selectedLocationId) {
+				toast.error('Please select a location before saving');
+				return;
+			}
+
+			// Generate contract number
+			const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+			const initials = formData.clientName
+				.split(' ')
+				.map((n) => n[0])
+				.join('')
+				.toUpperCase();
+			const timestamp = Date.now().toString().slice(-3);
+			const contractNumber = `${dateStr}-${initials}-${timestamp}`;
+
+			await saveContract(
+				authState.user.uid,
+				'service',
+				formData,
+				contractNumber,
+				selectedLocationId,
+				'draft'
+			);
+
+			toast.success('Draft saved successfully!');
+			goto('/contracts/service/list');
+		} catch (error) {
+			console.error('Error saving draft:', error);
+			toast.error('Failed to save draft. Please try again.');
+		} finally {
+			isSavingDraft = false;
+		}
+	};
+
 	const handleSubmit = async () => {
 		if (!validate()) return;
 
@@ -135,13 +205,12 @@
 
 		isGenerating = true;
 		try{
-			// TODO: Re-enable after refactor to separate collections
-			// Edit functionality temporarily disabled during architecture refactor
-			/* if (editContractId) {
+			// Update existing contract
+			if (editContractId) {
 				try {
-					await updateContract(editContractId, formData);
+					await updateServiceContract(editContractId, formData);
 					toast.success('Contract updated successfully!');
-					goto('/contracts/history');
+					goto('/contracts/service/list');
 					return;
 				} catch (updateError) {
 					console.error('Error updating contract:', updateError);
@@ -150,7 +219,7 @@
 				} finally {
 					isGenerating = false;
 				}
-			} */
+			}
 
 			// Generate new contract
 			const blob = await generateServiceContract(formData);
@@ -167,9 +236,16 @@
 			const contractNumber = `${dateStr}-${initials}-${timestamp}`;
 
 			// Save contract to Firebase
-			if (authStore.user?.uid && selectedLocationId) {
+			if (authState.user?.uid && selectedLocationId) {
 				try {
-					await saveContract(authStore.user.uid, 'service', formData, contractNumber, selectedLocationId);
+					await saveContract(
+					authState.user.uid,
+					'service',
+					formData,
+					contractNumber,
+					selectedLocationId,
+					'generated'
+				);
 				} catch (saveError) {
 					console.error('Error saving contract to database:', saveError);
 					// Continue with download even if save fails
@@ -234,14 +310,6 @@
 			<span class="ml-3 text-muted-foreground">Loading contract...</span>
 		</div>
 	{:else}
-		{#if editContractId}
-			<div class="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-				<p class="text-sm text-blue-800 dark:text-blue-200">
-					You are editing an existing contract. Click "Update Contract" to save your changes.
-				</p>
-			</div>
-		{/if}
-
 		<form
 			onsubmit={(e) => {
 				e.preventDefault();
@@ -258,6 +326,18 @@
 				showActions={true}
 				entityTitle="Contact"
 				onClientChange={handleClientChange}
+				initialData={editContractId
+					? {
+							name: formData.clientName,
+							email: formData.clientEmail,
+							phone: formData.clientPhone,
+							address: formData.clientAddress,
+							idDocument: formData.clientIdDocument,
+							taxId: formData.clientTaxId || null,
+							bankName: formData.bankName || null,
+							accountNumber: formData.accountNumber || null
+						}
+					: undefined}
 			/>
 			{#if errors.clientName}
 				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
@@ -272,6 +352,7 @@
 			<LocationForm
 				showActions={true}
 				onLocationChange={handleLocationChange}
+				initialData={editContractId && loadedLocationData ? loadedLocationData : undefined}
 			/>
 			{#if errors.eventLocation}
 				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.eventLocation}</p>
@@ -474,11 +555,42 @@
 			</div>
 		</div>
 
+			<!-- TODO: Re-enable "Save as Draft" after fixing location requirement -->
+			<!-- <div class="flex gap-3">
+				<Button
+					type="button"
+					variant="outline"
+					disabled={isSavingDraft || isGenerating}
+					onclick={handleSaveDraft}
+					class="flex-1"
+					size="lg"
+				>
+					{#if isSavingDraft}
+						<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
+						Saving Draft...
+					{:else}
+						<Save class="w-5 h-5 mr-2" />
+						Save as Draft
+					{/if}
+				</Button>
+
+				<Button type="submit" disabled={isGenerating || isSavingDraft} class="flex-1" size="lg">
+					{#if isGenerating}
+						<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
+						{editContractId ? 'Updating...' : 'Generating...'}
+					{:else}
+						<FileText class="w-5 h-5 mr-2" />
+						{editContractId ? 'Update Contract' : 'Generate Contract'}
+					{/if}
+				</Button>
+			</div> -->
+
 			<Button type="submit" disabled={isGenerating} class="w-full" size="lg">
 				{#if isGenerating}
 					<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
-					{editContractId ? 'Updating Contract...' : 'Generating Contract...'}
+					{editContractId ? 'Updating...' : 'Generating...'}
 				{:else}
+					<FileText class="w-5 h-5 mr-2" />
 					{editContractId ? 'Update Contract' : 'Generate Contract'}
 				{/if}
 			</Button>

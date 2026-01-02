@@ -18,7 +18,7 @@
 	}: {
 		id: string;
 		label: string;
-		value?: string;
+		value?: string | null;
 		required?: boolean;
 		placeholder?: string;
 		rows?: number;

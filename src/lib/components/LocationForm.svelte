@@ -2,7 +2,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { toast } from 'svelte-sonner';
 	import {
 		listLocations,
@@ -22,11 +22,27 @@
 		initialData?: Location;
 	}
 
-	let {
-		onLocationChange,
-		showActions = false,
-		initialData
-	}: Props = $props();
+	const props: Props = $props();
+
+	// Helper to get initial form data without capturing reactive prop reference
+	function createInitialFormData(data: Location | undefined): Location {
+		if (!data) {
+			return {
+				name: '',
+				address: '',
+				contactPerson: null,
+				contactEmail: null,
+				contactPhone: null
+			};
+		}
+		return {
+			name: data.name || '',
+			address: data.address || '',
+			contactPerson: data.contactPerson || null,
+			contactEmail: data.contactEmail || null,
+			contactPhone: data.contactPhone || null
+		};
+	}
 
 	let locations = $state<{ id: string; name: string }[]>([]);
 	let selectedLocationId = $state('');
@@ -45,21 +61,16 @@
 			: locations
 	);
 
-	let formData = $state<Location>({
-		name: initialData?.name || '',
-		address: initialData?.address || '',
-		contactPerson: initialData?.contactPerson || null,
-		contactEmail: initialData?.contactEmail || null,
-		contactPhone: initialData?.contactPhone || null
-	});
+	// Initialize formData from initialData (one-time initialization via function)
+	let formData = $state<Location>(createInitialFormData(props.initialData));
 
 	// Helper to notify parent component of changes (event-based, not reactive)
 	function notifyParent() {
-		onLocationChange?.(formData, selectedLocationId || locationId);
+		props.onLocationChange?.(formData, selectedLocationId || locationId);
 	}
 
 	onMount(async () => {
-		if (authStore.isAuthenticated) {
+		if (authState.isAuthenticated) {
 			try {
 				locations = await listLocations();
 			} catch (e) {
@@ -110,11 +121,11 @@
 		showDropdown = false;
 
 		// Notify parent that location selection was cleared
-		onLocationChange?.(null, '');
+		props.onLocationChange?.(null, '');
 	}
 
 	async function saveLocationProfile() {
-		if (!authStore.user) {
+		if (!authState.user) {
 			toast.error('You must be signed in to save locations.');
 			return;
 		}
@@ -123,7 +134,7 @@
 		try {
 			// Use pre-generated locationId for new locations, or selectedLocationId for updates
 			const idToUse = selectedLocationId || locationId;
-			const id = await upsertLocation(authStore.user.uid, formData, idToUse);
+			const id = await upsertLocation(authState.user.uid, formData, idToUse);
 			toast.success('Location saved successfully!');
 			locations = await listLocations();
 			selectedLocationId = id;
@@ -166,7 +177,7 @@
 				toast.success('Location deleted successfully!');
 
 				// Notify parent that location was deleted
-				onLocationChange?.(null, '');
+				props.onLocationChange?.(null, '');
 			} else {
 				toast.error('Failed to delete location.');
 			}
@@ -291,7 +302,7 @@
 	</div>
 
 	<!-- Action Buttons (only shown if showActions is true) -->
-	{#if showActions}
+	{#if props.showActions}
 		<div class="pt-2 flex gap-3 items-center">
 			<Button type="button" variant="secondary" onclick={saveLocationProfile} disabled={saveLoading}>
 				{#if saveLoading}Saving...{:else}Save Location{/if}

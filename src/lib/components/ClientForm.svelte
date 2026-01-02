@@ -2,7 +2,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { toast } from 'svelte-sonner';
 	import {
 		listClients,
@@ -24,14 +24,37 @@
 		initialData?: ClientData;
 		/** Custom title for the entity (e.g., 'Client', 'Service Provider') */
 		entityTitle?: string;
+		/** Pre-select client by ID */
+		clientId?: string;
 	}
 
-	let {
-		onClientChange,
-		showActions = false,
-		initialData,
-		entityTitle = 'Client'
-	}: Props = $props();
+	const props: Props = $props();
+
+	// Helper to get initial form data without capturing reactive prop reference
+	function createInitialFormData(data: ClientData | undefined): ClientData {
+		if (!data) {
+			return {
+				name: '',
+				email: '',
+				phone: '',
+				address: '',
+				idDocument: '',
+				taxId: null,
+				bankName: null,
+				accountNumber: null
+			};
+		}
+		return {
+			name: data.name || '',
+			email: data.email || '',
+			phone: data.phone || '',
+			address: data.address || '',
+			idDocument: data.idDocument || '',
+			taxId: data.taxId || null,
+			bankName: data.bankName || null,
+			accountNumber: data.accountNumber || null
+		};
+	}
 
 	let clients = $state<{ id: string; name: string }[]>([]);
 	let selectedClientId = $state('');
@@ -52,26 +75,22 @@
 			: clients
 	);
 
-	let formData = $state<ClientData>({
-		name: initialData?.name || '',
-		email: initialData?.email || '',
-		phone: initialData?.phone || '',
-		address: initialData?.address || '',
-		idDocument: initialData?.idDocument || '',
-		taxId: initialData?.taxId || null,
-		bankName: initialData?.bankName || null,
-		accountNumber: initialData?.accountNumber || null
-	});
+	// Initialize formData from initialData (one-time initialization via function)
+	let formData = $state<ClientData>(createInitialFormData(props.initialData));
 
 	// Helper to notify parent component of changes (event-based, not reactive)
 	function notifyParent() {
-		onClientChange?.(formData, selectedClientId || clientId);
+		props.onClientChange?.(formData, selectedClientId || clientId);
 	}
 
 	onMount(async () => {
-		if (authStore.isAuthenticated) {
+		if (authState.isAuthenticated) {
 			try {
 				clients = await listClients();
+				// If a clientId was passed from outside, select it
+				if (props.clientId) {
+					await handleClientSelect(props.clientId);
+				}
 			} catch (e) {
 				console.error('Load clients error:', e);
 			}
@@ -123,11 +142,11 @@
 		showDropdown = false;
 
 		// Notify parent that client selection was cleared
-		onClientChange?.(null, '');
+		props.onClientChange?.(null, '');
 	}
 
 	async function saveClientProfile() {
-		if (!authStore.user) {
+		if (!authState.user) {
 			toast.error('You must be signed in to save clients.');
 			return;
 		}
@@ -136,7 +155,7 @@
 		try {
 			// Use pre-generated clientId for new clients, or selectedClientId for updates
 			const idToUse = selectedClientId || clientId;
-			const id = await upsertClient(authStore.user.uid, formData, idToUse);
+			const id = await upsertClient(authState.user.uid, formData, idToUse);
 			toast.success('Client saved successfully!');
 			clients = await listClients();
 			selectedClientId = id;
@@ -181,7 +200,7 @@
 				toast.success('Client deleted successfully!');
 
 				// Notify parent that client was deleted
-				onClientChange?.(null, '');
+				props.onClientChange?.(null, '');
 			} else {
 				toast.error('Failed to delete client.');
 			}
@@ -194,14 +213,14 @@
 	}
 
 	async function handleImage1Upload(file: File) {
-		if (!authStore.user) {
+		if (!authState.user) {
 			toast.error('You must be signed in to upload documents');
 			return;
 		}
 
 		uploadingImage1 = true;
 		try {
-			const doc = await uploadClientDocument(clientId, file, 1, authStore.user.uid);
+			const doc = await uploadClientDocument(clientId, file, 1, authState.user.uid);
 			if (!formData.documents) {
 				formData.documents = {};
 			}
@@ -210,7 +229,7 @@
 
 			// Save to Firestore if client already exists
 			if (selectedClientId) {
-				await upsertClient(authStore.user.uid, formData, selectedClientId);
+				await upsertClient(authState.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
 			console.error('Upload error:', error);
@@ -229,8 +248,8 @@
 			toast.success('Image 1 deleted');
 
 			// Update Firestore if client already exists
-			if (authStore.user && selectedClientId) {
-				await upsertClient(authStore.user.uid, formData, selectedClientId);
+			if (authState.user && selectedClientId) {
+				await upsertClient(authState.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
 			console.error('Delete error:', error);
@@ -239,14 +258,14 @@
 	}
 
 	async function handleImage2Upload(file: File) {
-		if (!authStore.user) {
+		if (!authState.user) {
 			toast.error('You must be signed in to upload documents');
 			return;
 		}
 
 		uploadingImage2 = true;
 		try {
-			const doc = await uploadClientDocument(clientId, file, 2, authStore.user.uid);
+			const doc = await uploadClientDocument(clientId, file, 2, authState.user.uid);
 			if (!formData.documents) {
 				formData.documents = {};
 			}
@@ -255,7 +274,7 @@
 
 			// Save to Firestore if client already exists
 			if (selectedClientId) {
-				await upsertClient(authStore.user.uid, formData, selectedClientId);
+				await upsertClient(authState.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
 			console.error('Upload error:', error);
@@ -274,8 +293,8 @@
 			toast.success('Image 2 deleted');
 
 			// Update Firestore if client already exists
-			if (authStore.user && selectedClientId) {
-				await upsertClient(authStore.user.uid, formData, selectedClientId);
+			if (authState.user && selectedClientId) {
+				await upsertClient(authState.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
 			console.error('Delete error:', error);
@@ -290,7 +309,7 @@
 <div class="space-y-4">
 	<!-- Client Selector with Search -->
 	<div class="space-y-2">
-		<Label for="clientSearch">{entityTitle}</Label>
+		<Label for="clientSearch">{props.entityTitle || 'Client'}</Label>
 		<div class="relative">
 			<Input
 				id="clientSearch"
@@ -298,7 +317,7 @@
 				bind:value={searchQuery}
 				onfocus={handleSearchFocus}
 				onblur={handleSearchBlur}
-				placeholder="Search or select a {entityTitle.toLowerCase()}..."
+				placeholder="Search or select a {(props.entityTitle || 'Client').toLowerCase()}..."
 				class="w-full"
 			/>
 			{#if searchQuery && !showDropdown}
@@ -328,7 +347,7 @@
 				<div
 					class="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg px-4 py-2 text-muted-foreground text-sm"
 				>
-					No {entityTitle.toLowerCase()}s found
+					No {(props.entityTitle || 'Client').toLowerCase()}s found
 				</div>
 			{/if}
 		</div>
@@ -337,7 +356,7 @@
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<!-- Client Name -->
 		<div class="space-y-2">
-			<Label for="clientName">{entityTitle} Name *</Label>
+			<Label for="clientName">{props.entityTitle || 'Client'} Name *</Label>
 			<Input
 				id="clientName"
 				type="text"
@@ -449,10 +468,10 @@
 	</div>
 
 	<!-- Action Buttons (only shown if showActions is true) -->
-	{#if showActions}
+	{#if props.showActions}
 		<div class="pt-2 flex gap-3 items-center">
 			<Button type="button" variant="secondary" onclick={saveClientProfile} disabled={saveLoading}>
-				{#if saveLoading}Saving...{:else}Save {entityTitle}{/if}
+				{#if saveLoading}Saving...{:else}Save {props.entityTitle || 'Client'}{/if}
 			</Button>
 			{#if selectedClientId}
 				<Button
@@ -461,7 +480,7 @@
 					onclick={handleDeleteClient}
 					disabled={deleteLoading}
 				>
-					{#if deleteLoading}Deleting...{:else}Delete {entityTitle}{/if}
+					{#if deleteLoading}Deleting...{:else}Delete {props.entityTitle || 'Client'}{/if}
 				</Button>
 			{/if}
 			{#if saveMessage}

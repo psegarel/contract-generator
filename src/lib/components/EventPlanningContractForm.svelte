@@ -17,14 +17,19 @@
 
 	let {
 		onSubmit,
-		initialData
+		initialData = null
 	}: {
 		onSubmit: (data: EventPlanningContractData) => void | Promise<void>;
-		initialData?: EventPlanningContractData;
+		initialData?: EventPlanningContractData | null;
 	} = $props();
 
-	// Form data state - use provided initial data or defaults
-	let formData = $state<EventPlanningContractData>(initialData || getInitialFormData());
+	// Helper to get initial form data (avoids state_referenced_locally warning)
+	function getFormData() {
+		return initialData ?? getInitialFormData();
+	}
+
+	// Form data state - initialized with provided data or defaults
+	let formData = $state(getFormData());
 
 	// Validation errors for each section
 	let contractInfoErrors = $state<Record<string, string>>({});
@@ -63,12 +68,7 @@
 			clientAddress: string;
 			clientTaxCode: string;
 			clientRepresentativeName: string;
-			clientNationality: string;
-			clientPassportNumber: string;
-			clientPassportIssuedDate: string;
-			clientPassportIssuedPlace: string;
 			clientRepresentativePosition: string;
-			clientAuthority: string;
 		},
 		errors: Record<string, string>
 	) {
@@ -78,14 +78,14 @@
 
 	function handleEventInfoChange(
 		data: {
-			eventTheme?: string;
+			eventTheme: string | null;
 			eventName: string;
-			eventType?: string;
-			eventDescription?: string;
+			eventType: string | null;
+			eventDescription: string | null;
 			eventVenue: string;
 			eventDate: string;
-			eventDuration?: string;
-			expectedAttendance?: string;
+			eventDuration: string | null;
+			expectedAttendance: string | null;
 		},
 		errors: Record<string, string>
 	) {
@@ -171,12 +171,7 @@
 				clientAddress: formData.clientAddress,
 				clientTaxCode: formData.clientTaxCode,
 				clientRepresentativeName: formData.clientRepresentativeName,
-				clientNationality: formData.clientNationality,
-				clientPassportNumber: formData.clientPassportNumber,
-				clientPassportIssuedDate: formData.clientPassportIssuedDate,
-				clientPassportIssuedPlace: formData.clientPassportIssuedPlace,
-				clientRepresentativePosition: formData.clientRepresentativePosition,
-				clientAuthority: formData.clientAuthority
+				clientRepresentativePosition: formData.clientRepresentativePosition
 			}}
 			onChange={handleClientInfoChange}
 		/>
