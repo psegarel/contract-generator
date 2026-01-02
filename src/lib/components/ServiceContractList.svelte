@@ -2,18 +2,20 @@
 	import { toast } from 'svelte-sonner';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { updatePaymentStatus, type SavedContract } from '$lib/utils/contracts';
+	import {
+		updateServiceContractPaymentStatus,
+		type SavedServiceContract
+	} from '$lib/utils/serviceContracts';
 	import { Download, Pencil, DollarSign, MapPin, User, Calendar } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 
 	interface Props {
-		contracts: SavedContract[];
-		showLocationLink?: boolean;
-		onContractsUpdate?: (contracts: SavedContract[]) => void;
+		contracts: SavedServiceContract[];
+		onContractsUpdate?: (contracts: SavedServiceContract[]) => void;
 	}
 
-	let { contracts = [], showLocationLink = false, onContractsUpdate }: Props = $props();
+	let { contracts = [], onContractsUpdate }: Props = $props();
 
 	let downloadingIds = $state<Set<string>>(new Set());
 	let updatingPaymentIds = $state<Set<string>>(new Set());
@@ -28,7 +30,7 @@
 		}).format(date);
 	}
 
-	async function handleDownload(contract: SavedContract) {
+	async function handleDownload(contract: SavedServiceContract) {
 		downloadingIds.add(contract.id);
 
 		try {
@@ -81,7 +83,7 @@
 		}
 	}
 
-	async function togglePaymentStatus(contract: SavedContract) {
+	async function togglePaymentStatus(contract: SavedServiceContract) {
 		if (!authStore.user?.uid || !authStore.isAdmin) {
 			toast.error('Only admins can update payment status');
 			return;
@@ -91,7 +93,7 @@
 
 		try {
 			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
-			await updatePaymentStatus(contract.id, newStatus, authStore.user.uid);
+			await updateServiceContractPaymentStatus(contract.id, newStatus, authStore.user.uid);
 
 			// Update local state and notify parent
 			const updatedContracts = contracts.map((c) =>
@@ -152,16 +154,6 @@
 						<User class="h-3.5 w-3.5 shrink-0" />
 						<span>{contract.contractData.clientName}</span>
 					</div>
-					{#if showLocationLink && contract.locationId}
-						<div class="pt-1">
-							<a
-								href="/contracts/{contract.locationId}/list"
-								class="text-primary hover:underline text-sm"
-							>
-								View all at this location →
-							</a>
-						</div>
-					{/if}
 				</div>
 
 				<!-- Actions -->
@@ -228,16 +220,6 @@
 					<div class="space-y-1 text-sm text-muted-foreground">
 						<div>{contract.contractData.eventLocation}</div>
 						<div>{contract.contractData.clientName}</div>
-						{#if showLocationLink && contract.locationId}
-							<div>
-								<a
-									href="/contracts/{contract.locationId}/list"
-									class="text-primary hover:underline"
-								>
-									View all contracts at {contract.contractData.eventLocation}
-								</a>
-							</div>
-						{/if}
 					</div>
 				</div>
 

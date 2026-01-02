@@ -53,14 +53,28 @@
 	);
 
 	let formData = $state<ClientData>({
-		name: initialData?.name || '',
-		email: initialData?.email || '',
-		phone: initialData?.phone || '',
-		address: initialData?.address || '',
-		idDocument: initialData?.idDocument || '',
-		taxId: initialData?.taxId || null,
-		bankName: initialData?.bankName || null,
-		accountNumber: initialData?.accountNumber || null
+		name: '',
+		email: '',
+		phone: '',
+		address: '',
+		idDocument: '',
+		taxId: null,
+		bankName: null,
+		accountNumber: null
+	});
+
+	// Update formData when initialData changes
+	$effect(() => {
+		if (initialData) {
+			formData.name = initialData.name || '';
+			formData.email = initialData.email || '';
+			formData.phone = initialData.phone || '';
+			formData.address = initialData.address || '';
+			formData.idDocument = initialData.idDocument || '';
+			formData.taxId = initialData.taxId || null;
+			formData.bankName = initialData.bankName || null;
+			formData.accountNumber = initialData.accountNumber || null;
+		}
 	});
 
 	// Helper to notify parent component of changes (event-based, not reactive)

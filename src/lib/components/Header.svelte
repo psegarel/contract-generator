@@ -73,8 +73,8 @@
 									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/service-contract'))} class="cursor-pointer">
 										<span>Service Contract</span>
 									</DropdownMenu.Item>
-									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/history'))} class="cursor-pointer">
-										<span>Contract History</span>
+									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/service/list'))} class="cursor-pointer">
+										<span>Service Contracts</span>
 									</DropdownMenu.Item>
 									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts'))} class="cursor-pointer">
 										<span>Templates</span>

@@ -136,7 +136,7 @@
 				try {
 					await updateContract(editContractId, formData);
 					toast.success('Contract updated successfully!');
-					goto('/contracts/history');
+					goto('/contracts/service/list');
 					return;
 				} catch (updateError) {
 					console.error('Error updating contract:', updateError);

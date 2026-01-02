@@ -46,11 +46,22 @@
 	);
 
 	let formData = $state<Location>({
-		name: initialData?.name || '',
-		address: initialData?.address || '',
-		contactPerson: initialData?.contactPerson || null,
-		contactEmail: initialData?.contactEmail || null,
-		contactPhone: initialData?.contactPhone || null
+		name: '',
+		address: '',
+		contactPerson: null,
+		contactEmail: null,
+		contactPhone: null
+	});
+
+	// Update formData when initialData changes
+	$effect(() => {
+		if (initialData) {
+			formData.name = initialData.name || '';
+			formData.address = initialData.address || '';
+			formData.contactPerson = initialData.contactPerson || null;
+			formData.contactEmail = initialData.contactEmail || null;
+			formData.contactPhone = initialData.contactPhone || null;
+		}
 	});
 
 	// Helper to notify parent component of changes (event-based, not reactive)

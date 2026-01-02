@@ -1,22 +1,28 @@
-import { ContractRepository } from './ContractRepository';
+import {
+	saveServiceContract,
+	getServiceContracts,
+	getServiceContractById,
+	updateServiceContract,
+	updateServiceContractPaymentStatus,
+	getServiceContractsByLocationId,
+	type SavedServiceContract,
+	type SavedServiceContractInput
+} from './serviceContracts';
 import type { ContractData } from '$lib/schemas/contract';
-import type { SavedContract } from './ContractRepository';
 
-// Re-export types for backward compatibility
-export type { SavedContract, SavedContractInput } from './ContractRepository';
+// Re-export types
+export type SavedContract = SavedServiceContract;
+export type SavedContractInput = SavedServiceContractInput;
 
-// Singleton instance for backward compatibility
-const repository = new ContractRepository();
-
-// Legacy function exports - delegate to repository
+// Function exports - delegate to service contracts repository
 export async function saveContract(
 	ownerUid: string,
-	contractType: 'service',
+	_contractType: 'service',
 	contractData: ContractData,
 	contractNumber: string,
 	locationId: string
 ): Promise<string> {
-	return repository.save(ownerUid, contractType, contractData, contractNumber, locationId);
+	return saveServiceContract(ownerUid, contractData, contractNumber, locationId);
 }
 
 export async function updatePaymentStatus(
@@ -24,27 +30,24 @@ export async function updatePaymentStatus(
 	status: 'unpaid' | 'paid',
 	adminUid: string
 ): Promise<void> {
-	return repository.updatePaymentStatus(contractId, status, adminUid);
+	return updateServiceContractPaymentStatus(contractId, status, adminUid);
 }
 
 export async function getContractsByLocationId(locationId: string): Promise<SavedContract[]> {
-	return repository.getByLocationId(locationId);
+	return getServiceContractsByLocationId(locationId);
 }
 
 export async function getAllContracts(): Promise<SavedContract[]> {
-	return repository.getAll();
+	return getServiceContracts();
 }
 
 export async function getContract(contractId: string): Promise<SavedContract | null> {
-	return repository.getById(contractId);
+	return getServiceContractById(contractId);
 }
 
 export async function updateContract(
 	contractId: string,
 	contractData: ContractData
 ): Promise<void> {
-	return repository.update(contractId, contractData);
+	return updateServiceContract(contractId, contractData);
 }
-
-// Re-export repository class for those who want to use it directly
-export { ContractRepository };
