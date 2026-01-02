@@ -36,7 +36,7 @@
 	<section class="space-y-6">
 		<h2 class="text-3xl font-bold tracking-tight">Color Palette</h2>
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-			{#each COLORS as color}
+			{#each COLORS as color (color.variable)}
 				<div class="space-y-3">
 					<div class="aspect-video rounded-3xl {color.class.replace('shadow-sm', '').replace('border', '')}"></div>
 					<div class="px-1">
@@ -53,7 +53,7 @@
 	<section class="space-y-6">
 		<h2 class="text-3xl font-bold tracking-tight">Typography</h2>
 		<div class="bg-secondary/40 rounded-[2.5rem] p-10 space-y-8">
-			{#each TYPOGRAPHY as type}
+			{#each TYPOGRAPHY as type (type.name)}
 				<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-foreground/5 pb-6 last:border-0 last:pb-0">
 					<div class="space-y-1">
 						<p class="text-[10px] font-black uppercase tracking-widest text-primary mb-2">{type.name} / {type.font}</p>

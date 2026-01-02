@@ -24,7 +24,9 @@
 	<!-- Main Content Area -->
 	<main class="flex-1 flex flex-col overflow-hidden">
 		<!-- Top Bar -->
-		<header class="h-16 border-b border-border glass flex items-center justify-between px-8 shrink-0">
+		<header
+			class="h-16 border-b border-border glass flex items-center justify-between px-8 shrink-0"
+		>
 			<div class="flex items-center flex-1 max-w-xl">
 				<div class="relative w-full">
 					<Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -37,12 +39,14 @@
 			</div>
 
 			<div class="flex items-center space-x-4">
-				<div class="flex items-center space-x-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+				<div
+					class="flex items-center space-x-2 text-xs font-bold text-muted-foreground uppercase tracking-widest"
+				>
 					<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
 					<span>Design Mode</span>
 				</div>
-				<div class="h-6 w-[1px] bg-border mx-2"></div>
-				<button 
+				<div class="h-6 w-px bg-border mx-2"></div>
+				<button
 					onclick={() => themeState.toggle()}
 					class="p-2 rounded-full hover:bg-muted text-muted-foreground transition-colors"
 				>

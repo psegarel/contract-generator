@@ -163,11 +163,7 @@
 
 				<!-- Actions -->
 				<div class="flex flex-wrap gap-2 pt-1">
-					<Button
-						size="sm"
-						href="/contracts/service?edit={contract.id}"
-						class="flex-1 min-w-[100px]"
-					>
+					<Button size="sm" href="/contracts/service?edit={contract.id}" class="flex-1 min-w-25">
 						<Pencil class="h-3.5 w-3.5 mr-1.5" />
 						Edit
 					</Button>
@@ -176,7 +172,7 @@
 						size="sm"
 						onclick={() => handleDownload(contract)}
 						disabled={downloadingIds.has(contract.id)}
-						class="flex-1 min-w-[100px]"
+						class="flex-1 min-w-25"
 					>
 						{#if downloadingIds.has(contract.id)}
 							<span class="animate-spin mr-1.5">⏳</span>

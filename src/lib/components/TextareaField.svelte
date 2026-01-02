@@ -48,7 +48,7 @@
 		{placeholder}
 		{rows}
 		oninput={handleInput}
-		class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none text-sm resize-y min-h-[100px] {error
+		class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none text-sm resize-y min-h-25 {error
 			? 'ring-4 ring-destructive/10'
 			: ''}"
 	></textarea>

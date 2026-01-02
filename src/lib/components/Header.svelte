@@ -65,7 +65,7 @@
 									<FileText class="h-4 w-4" />
 									<span>Contracts</span>
 								</DropdownMenu.SubTrigger>
-								<DropdownMenu.SubContent class="min-w-[180px]">
+								<DropdownMenu.SubContent class="min-w-45">
 									<!-- Contacts -->
 									<DropdownMenu.Sub>
 										<DropdownMenu.SubTrigger class="cursor-pointer">
