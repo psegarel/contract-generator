@@ -18,7 +18,7 @@
 	}: {
 		id: string;
 		label: string;
-		value?: string;
+		value?: string | null;
 		type?: string;
 		required?: boolean;
 		placeholder?: string;

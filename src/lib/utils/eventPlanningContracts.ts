@@ -16,11 +16,13 @@ import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContra
 
 export interface SavedEventPlanningContract {
 	id: string;
+	type: 'event-planning';
 	contractData: EventPlanningContractData;
 	contractNumber: string;
 	createdAt: Timestamp;
 	ownerUid: string;
 	locationId: string;
+	paymentDirection: 'receivable' | 'payable'; // receivable = client pays us, payable = we pay vendor
 	paymentStatus: 'unpaid' | 'paid';
 	paidAt: Timestamp | null;
 	paidBy: string | null;
@@ -40,14 +42,17 @@ export async function saveEventPlanningContract(
 	ownerUid: string,
 	contractData: EventPlanningContractData,
 	contractNumber: string,
-	locationId: string
+	locationId: string,
+	paymentDirection: 'receivable' | 'payable' = 'receivable'
 ): Promise<string> {
 	try {
 		const contractInput: SavedEventPlanningContractInput = {
+			type: 'event-planning',
 			contractData,
 			contractNumber,
 			ownerUid,
 			locationId,
+			paymentDirection,
 			paymentStatus: 'unpaid',
 			paidAt: null,
 			paidBy: null,
@@ -75,7 +80,9 @@ export async function getEventPlanningContracts(): Promise<SavedEventPlanningCon
 			return {
 				id: doc.id,
 				...data,
+				type: data.type || 'event-planning',
 				locationId: data.locationId || '',
+				paymentDirection: data.paymentDirection || 'receivable',
 				paymentStatus: data.paymentStatus || 'unpaid',
 				paidAt: data.paidAt || null,
 				paidBy: data.paidBy || null
@@ -102,7 +109,9 @@ export async function getEventPlanningContractById(
 			return {
 				id: docSnap.id,
 				...data,
+				type: data.type || 'event-planning',
 				locationId: data.locationId || '',
+				paymentDirection: data.paymentDirection || 'receivable',
 				paymentStatus: data.paymentStatus || 'unpaid',
 				paidAt: data.paidAt || null,
 				paidBy: data.paidBy || null
@@ -175,6 +184,7 @@ export async function getEventPlanningContractsByLocationId(
 				id: doc.id,
 				...data,
 				locationId: data.locationId || '',
+				paymentDirection: data.paymentDirection || 'receivable',
 				paymentStatus: data.paymentStatus || 'unpaid',
 				paidAt: data.paidAt || null,
 				paidBy: data.paidBy || null

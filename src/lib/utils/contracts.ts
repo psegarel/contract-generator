@@ -31,9 +31,10 @@ export async function saveContract(
 	_contractType: 'service',
 	contractData: ContractData,
 	contractNumber: string,
-	locationId: string
+	locationId: string,
+	status: 'draft' | 'generated' = 'generated'
 ): Promise<string> {
-	return saveServiceContract(ownerUid, contractData, contractNumber, locationId);
+	return saveServiceContract(ownerUid, contractData, contractNumber, locationId, status);
 }
 
 export async function updatePaymentStatus(
@@ -49,7 +50,11 @@ export async function getContractsByLocationId(locationId: string): Promise<Save
 }
 
 export async function getAllContracts(): Promise<SavedContract[]> {
-	return getServiceContracts();
+	try {
+		return await getServiceContracts();
+	} catch (error) {
+		throw new Error('Failed to fetch contracts');
+	}
 }
 
 export async function getContract(contractId: string): Promise<SavedContract | null> {
@@ -68,7 +73,8 @@ export async function saveEventPlanningContract(
 	ownerUid: string,
 	contractData: EventPlanningContractData,
 	contractNumber: string,
-	locationId: string
+	locationId: string,
+	paymentDirection: 'receivable' | 'payable' = 'receivable'
 ): Promise<string> {
-	return saveEventPlanningContractImpl(ownerUid, contractData, contractNumber, locationId);
+	return saveEventPlanningContractImpl(ownerUid, contractData, contractNumber, locationId, paymentDirection);
 }

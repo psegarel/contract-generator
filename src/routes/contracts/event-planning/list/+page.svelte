@@ -1,15 +1,43 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import type { SavedEventPlanningContract } from '$lib/utils/eventPlanningContracts';
+	import { updateEventPlanningContractPaymentStatus } from '$lib/utils/eventPlanningContracts';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
-	import { FileText } from 'lucide-svelte';
+	import { FileText, Check, X, Pencil } from 'lucide-svelte';
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import { Badge } from '$lib/components/ui/badge';
+	import { authState } from '$lib/state/auth.svelte';
+	import { toast } from 'svelte-sonner';
 
 	let { data }: { data: PageData } = $props();
+	let updatingPayment = $state<string | null>(null);
 
 	function handleContractsUpdate(updatedContracts: SavedEventPlanningContract[]) {
 		data.contracts = updatedContracts;
+	}
+
+	async function togglePaymentStatus(contract: SavedEventPlanningContract) {
+		if (!authState.user?.uid) return;
+
+		updatingPayment = contract.id;
+		try {
+			const newStatus = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
+			await updateEventPlanningContractPaymentStatus(
+				contract.id,
+				newStatus,
+				authState.user.uid
+			);
+
+			// Update the local state
+			contract.paymentStatus = newStatus;
+			toast.success(`Payment status updated to ${newStatus}`);
+		} catch (error) {
+			console.error('Error updating payment status:', error);
+			toast.error('Failed to update payment status');
+		} finally {
+			updatingPayment = null;
+		}
 	}
 </script>
 
@@ -34,15 +62,47 @@
 				<div class="space-y-4">
 					{#each data.contracts as contract (contract.id)}
 						<Card class="p-6">
-							<div class="flex justify-between items-start">
-								<div>
-									<h3 class="text-lg font-semibold mb-2">{contract.contractData.eventName}</h3>
+							<div class="flex justify-between items-start gap-4">
+								<div class="flex-1">
+									<div class="flex items-center gap-2 mb-3">
+										<h3 class="text-lg font-semibold">{contract.contractData.eventName}</h3>
+										<Badge variant={contract.paymentDirection === 'receivable' ? 'default' : 'secondary'}>
+											{contract.paymentDirection === 'receivable' ? '↓ Receivable' : '↑ Payable'}
+										</Badge>
+										<Badge variant={contract.paymentStatus === 'paid' ? 'default' : 'outline'}>
+											{contract.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
+										</Badge>
+									</div>
 									<p class="text-sm text-muted-foreground">Client: {contract.contractData.clientCompany}</p>
 									<p class="text-sm text-muted-foreground">Event Date: {contract.contractData.eventDate}</p>
 									<p class="text-sm text-muted-foreground">Venue: {contract.contractData.eventVenue}</p>
+									<p class="text-sm text-muted-foreground mt-2">Contract #: {contract.contractNumber}</p>
 								</div>
-								<div class="text-sm text-muted-foreground">
-									Contract #: {contract.contractNumber}
+								<div class="flex flex-col gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										href="/contracts/event-planning?edit={contract.id}"
+									>
+										<Pencil class="w-4 h-4 mr-1" />
+										Edit
+									</Button>
+									<Button
+										variant={contract.paymentStatus === 'paid' ? 'outline' : 'default'}
+										size="sm"
+										onclick={() => togglePaymentStatus(contract)}
+										disabled={updatingPayment === contract.id}
+									>
+										{#if updatingPayment === contract.id}
+											Updating...
+										{:else if contract.paymentStatus === 'paid'}
+											<X class="w-4 h-4 mr-1" />
+											Mark Unpaid
+										{:else}
+											<Check class="w-4 h-4 mr-1" />
+											Mark Paid
+										{/if}
+									</Button>
 								</div>
 							</div>
 						</Card>

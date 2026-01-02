@@ -114,22 +114,17 @@ export function getInitialFormData(): EventPlanningContractData {
 		clientAddress: '',
 		clientTaxCode: '',
 		clientRepresentativeName: '',
-		clientNationality: '',
-		clientPassportNumber: '',
-		clientPassportIssuedDate: '',
-		clientPassportIssuedPlace: '',
 		clientRepresentativePosition: '',
-		clientAuthority: '',
 
 		// Event Information
-		eventTheme: undefined,
+		eventTheme: null,
 		eventName: '',
-		eventType: undefined,
-		eventDescription: undefined,
+		eventType: null,
+		eventDescription: null,
 		eventVenue: '',
 		eventDate: '',
-		eventDuration: undefined,
-		expectedAttendance: undefined,
+		eventDuration: null,
+		expectedAttendance: null,
 
 		// Financial Terms
 		contractValueVND: 0,

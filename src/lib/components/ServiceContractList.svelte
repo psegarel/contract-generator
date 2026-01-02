@@ -126,18 +126,23 @@
 		<div class="py-6 border-b border-dotted border-border">
 			<!-- Mobile: Stacked Layout -->
 			<div class="md:hidden space-y-3">
-				<!-- Title and Badge -->
+				<!-- Title and Badges -->
 				<div class="flex items-start justify-between gap-2">
 					<h3 class="text-lg font-semibold leading-tight flex-1">
 						{contract.contractData.eventName}
 					</h3>
-					{#if contract.paymentStatus === 'paid'}
-						<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600 shrink-0"
-							>Paid</Badge
-						>
-					{:else}
-						<Badge variant="secondary" class="shrink-0">Unpaid</Badge>
-					{/if}
+					<div class="flex gap-2 shrink-0">
+						{#if contract.status === 'draft'}
+							<Badge variant="outline" class="border-amber-500 text-amber-600 dark:text-amber-400">
+								Draft
+							</Badge>
+						{/if}
+						{#if contract.paymentStatus === 'paid'}
+							<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
+						{:else}
+							<Badge variant="secondary">Unpaid</Badge>
+						{/if}
+					</div>
 				</div>
 
 				<!-- Details -->
@@ -208,6 +213,11 @@
 						<h3 class="text-lg font-semibold">
 							{contract.contractData.eventName}
 						</h3>
+						{#if contract.status === 'draft'}
+							<Badge variant="outline" class="border-amber-500 text-amber-600 dark:text-amber-400">
+								Draft
+							</Badge>
+						{/if}
 						{#if contract.paymentStatus === 'paid'}
 							<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
 						{:else}

@@ -19,24 +19,19 @@ export const clientInfoSchema = z.object({
 	clientAddress: z.string().min(1, 'Client address is required'),
 	clientTaxCode: z.string().min(1, 'Client tax code is required'),
 	clientRepresentativeName: z.string().min(1, 'Client representative name is required'),
-	clientNationality: z.string().min(1, 'Client nationality is required'),
-	clientPassportNumber: z.string().min(1, 'Client passport number is required'),
-	clientPassportIssuedDate: z.string().min(1, 'Passport issued date is required'),
-	clientPassportIssuedPlace: z.string().min(1, 'Passport issued place is required'),
-	clientRepresentativePosition: z.string().min(1, 'Client representative position is required'),
-	clientAuthority: z.string().min(1, 'Client authority basis is required')
+	clientRepresentativePosition: z.string().min(1, 'Client representative position is required')
 });
 
 // ===== SECTION 3: EVENT INFORMATION =====
 export const eventInfoSchema = z.object({
-	eventTheme: z.string().optional(),
+	eventTheme: z.string().nullable().default(null),
 	eventName: z.string().min(1, 'Event name is required'),
-	eventType: z.string().optional(),
-	eventDescription: z.string().optional(),
+	eventType: z.string().nullable().default(null),
+	eventDescription: z.string().nullable().default(null),
 	eventVenue: z.string().min(1, 'Event venue is required'),
 	eventDate: z.string().min(1, 'Event date is required'),
-	eventDuration: z.string().optional(),
-	expectedAttendance: z.string().optional()
+	eventDuration: z.string().nullable().default(null),
+	expectedAttendance: z.string().nullable().default(null)
 });
 
 // ===== SECTION 4: FINANCIAL TERMS =====

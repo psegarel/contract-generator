@@ -236,7 +236,18 @@ This project uses Tailwind CSS with a utility-first methodology:
 - Faster development (no context switching between files)
 - Better maintainability (styles co-located with markup)
 
+### Component Quality Tracking
+
+**All custom Svelte components must be validated with the Svelte autofixer tool.**
+
+- Track autofixer check status in `AUTOFIXER_STATUS.md`
+- Address ALL autofixer suggestions - no exceptions
+- Update tracking document after each check
+- Run `pnpm check` after fixes to ensure 0 errors and 0 warnings
+
+See `AUTOFIXER_STATUS.md` for current component status and checking progress.
+
 ---
 
 **Last Updated:** 2026-01-02
-**Reason:** Added Svelte 5 anti-pattern documentation: Never use `$effect` to sync props to state
+**Reason:** Added autofixer tracking documentation

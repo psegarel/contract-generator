@@ -11,16 +11,33 @@ import {
 	type Timestamp,
 	serverTimestamp
 } from 'firebase/firestore';
+import { z } from 'zod';
 import { db } from '$lib/config/firebase';
-import type { ContractData } from '$lib/schemas/contract';
+import { contractSchema, type ContractData } from '$lib/schemas/contract';
+
+// Zod schema for validating service contract input before saving to Firebase
+export const savedServiceContractInputSchema = z.object({
+	contractData: contractSchema,
+	contractNumber: z.string().min(1, 'Contract number is required'),
+	ownerUid: z.string().min(1, 'Owner UID is required'),
+	locationId: z.string().min(1, 'Location ID is required'),
+	status: z.enum(['draft', 'generated']),
+	paymentStatus: z.enum(['unpaid', 'paid']),
+	paidAt: z.any().nullable(),
+	paidBy: z.string().nullable(),
+	createdAt: z.any().optional(),
+	type: z.literal('service').default('service')
+});
 
 export interface SavedServiceContract {
 	id: string;
+	type: 'service';
 	contractData: ContractData;
 	contractNumber: string;
 	createdAt: Timestamp;
 	ownerUid: string;
 	locationId: string;
+	status: 'draft' | 'generated';
 	paymentStatus: 'unpaid' | 'paid';
 	paidAt: Timestamp | null;
 	paidBy: string | null;
@@ -40,19 +57,31 @@ export async function saveServiceContract(
 	ownerUid: string,
 	contractData: ContractData,
 	contractNumber: string,
-	locationId: string
+	locationId: string,
+	status: 'draft' | 'generated' = 'generated'
 ): Promise<string> {
 	try {
 		const contractInput: SavedServiceContractInput = {
+			type: 'service',
 			contractData,
 			contractNumber,
 			ownerUid,
 			locationId,
+			status,
 			paymentStatus: 'unpaid',
 			paidAt: null,
 			paidBy: null,
 			createdAt: serverTimestamp()
 		};
+
+		// Only validate fully for generated contracts, not drafts
+		if (status === 'generated') {
+			const validationResult = savedServiceContractInputSchema.safeParse(contractInput);
+			if (!validationResult.success) {
+				console.error('Validation error:', validationResult.error);
+				throw new Error('Invalid contract data: ' + validationResult.error.message);
+			}
+		}
 
 		const docRef = await addDoc(collection(db, COLLECTION_NAME), contractInput);
 		return docRef.id;
@@ -75,6 +104,7 @@ export async function getServiceContracts(): Promise<SavedServiceContract[]> {
 			return {
 				id: doc.id,
 				...data,
+				type: data.type || 'service',
 				locationId: data.locationId || '',
 				paymentStatus: data.paymentStatus || 'unpaid',
 				paidAt: data.paidAt || null,
@@ -104,7 +134,9 @@ export async function getServiceContractById(contractId: string): Promise<SavedS
 		return {
 			id: docSnap.id,
 			...data,
+			type: data.type || 'service',
 			locationId: data.locationId || '',
+			status: data.status || 'generated',
 			paymentStatus: data.paymentStatus || 'unpaid',
 			paidAt: data.paidAt || null,
 			paidBy: data.paidBy || null

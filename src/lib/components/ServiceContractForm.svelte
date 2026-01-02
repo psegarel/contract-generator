@@ -9,7 +9,7 @@
 	import { getServiceContractById, updateServiceContract } from '$lib/utils/serviceContracts';
 	import { companyConfig } from '$lib/config/company';
 	import { authState } from '$lib/state/auth.svelte';
-	import { LoaderCircle } from 'lucide-svelte';
+	import { LoaderCircle, Save, FileText } from 'lucide-svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
@@ -43,6 +43,7 @@
 
 	let errors: Partial<Record<keyof ContractData, string>> = $state({});
 	let isGenerating = $state(false);
+	let isSavingDraft = $state(false);
 	let taxRateStr = $state('10');
 	let editContractId = $state<string | null>(null);
 	let isLoadingContract = $state(false);
@@ -140,6 +141,62 @@
 		return true;
 	};
 
+	const handleSaveDraft = async () => {
+		// Skip validation for drafts - they can be incomplete
+
+		// Sync formData.taxRate from derivedTaxRate before saving
+		formData.taxRate = derivedTaxRate;
+
+		isSavingDraft = true;
+		try {
+			// Update existing contract
+			if (editContractId) {
+				await updateServiceContract(editContractId, formData);
+				toast.success('Draft updated successfully!');
+				goto('/contracts/service/list');
+				return;
+			}
+
+			// Save new contract as draft (without generating DOCX)
+			if (!authState.user?.uid) {
+				toast.error('You must be signed in to save drafts');
+				return;
+			}
+
+			if (!selectedLocationId) {
+				toast.error('Please select a location before saving');
+				return;
+			}
+
+			// Generate contract number
+			const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+			const initials = formData.clientName
+				.split(' ')
+				.map((n) => n[0])
+				.join('')
+				.toUpperCase();
+			const timestamp = Date.now().toString().slice(-3);
+			const contractNumber = `${dateStr}-${initials}-${timestamp}`;
+
+			await saveContract(
+				authState.user.uid,
+				'service',
+				formData,
+				contractNumber,
+				selectedLocationId,
+				'draft'
+			);
+
+			toast.success('Draft saved successfully!');
+			goto('/contracts/service/list');
+		} catch (error) {
+			console.error('Error saving draft:', error);
+			toast.error('Failed to save draft. Please try again.');
+		} finally {
+			isSavingDraft = false;
+		}
+	};
+
 	const handleSubmit = async () => {
 		if (!validate()) return;
 
@@ -181,7 +238,14 @@
 			// Save contract to Firebase
 			if (authState.user?.uid && selectedLocationId) {
 				try {
-					await saveContract(authState.user.uid, 'service', formData, contractNumber, selectedLocationId);
+					await saveContract(
+					authState.user.uid,
+					'service',
+					formData,
+					contractNumber,
+					selectedLocationId,
+					'generated'
+				);
 				} catch (saveError) {
 					console.error('Error saving contract to database:', saveError);
 					// Continue with download even if save fails
@@ -491,11 +555,42 @@
 			</div>
 		</div>
 
+			<!-- TODO: Re-enable "Save as Draft" after fixing location requirement -->
+			<!-- <div class="flex gap-3">
+				<Button
+					type="button"
+					variant="outline"
+					disabled={isSavingDraft || isGenerating}
+					onclick={handleSaveDraft}
+					class="flex-1"
+					size="lg"
+				>
+					{#if isSavingDraft}
+						<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
+						Saving Draft...
+					{:else}
+						<Save class="w-5 h-5 mr-2" />
+						Save as Draft
+					{/if}
+				</Button>
+
+				<Button type="submit" disabled={isGenerating || isSavingDraft} class="flex-1" size="lg">
+					{#if isGenerating}
+						<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
+						{editContractId ? 'Updating...' : 'Generating...'}
+					{:else}
+						<FileText class="w-5 h-5 mr-2" />
+						{editContractId ? 'Update Contract' : 'Generate Contract'}
+					{/if}
+				</Button>
+			</div> -->
+
 			<Button type="submit" disabled={isGenerating} class="w-full" size="lg">
 				{#if isGenerating}
 					<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
-					{editContractId ? 'Updating Contract...' : 'Generating Contract...'}
+					{editContractId ? 'Updating...' : 'Generating...'}
 				{:else}
+					<FileText class="w-5 h-5 mr-2" />
 					{editContractId ? 'Update Contract' : 'Generate Contract'}
 				{/if}
 			</Button>

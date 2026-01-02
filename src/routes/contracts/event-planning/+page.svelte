@@ -1,15 +1,60 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import EventPlanningContractForm from '$lib/components/EventPlanningContractForm.svelte';
 	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
 	import { saveEventPlanningContract } from '$lib/utils/contracts';
+	import { getEventPlanningContractById, updateEventPlanningContract } from '$lib/utils/eventPlanningContracts';
 	import { authState } from '$lib/state/auth.svelte';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
+	import { LoaderCircle } from 'lucide-svelte';
 	import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContract';
+
+	let editContractId = $state<string | null>(null);
+	let isLoadingContract = $state(false);
+	let initialData = $state<EventPlanningContractData | null>(null);
+
+	onMount(async () => {
+		const editId = $page.url.searchParams.get('edit');
+		if (editId) {
+			editContractId = editId;
+			isLoadingContract = true;
+			try {
+				const contract = await getEventPlanningContractById(editId);
+				if (contract) {
+					initialData = contract.contractData;
+				} else {
+					toast.error('Contract not found');
+					goto('/contracts/event-planning/list');
+				}
+			} catch (error) {
+				console.error('Error loading contract:', error);
+				toast.error('Failed to load contract');
+				goto('/contracts/event-planning/list');
+			} finally {
+				isLoadingContract = false;
+			}
+		}
+	});
 
 	async function handleSubmit(formData: EventPlanningContractData) {
 		try {
+			// If editing, update the existing contract
+			if (editContractId) {
+				try {
+					await updateEventPlanningContract(editContractId, formData);
+					toast.success('Contract updated successfully!');
+					goto('/contracts/event-planning/list');
+					return;
+				} catch (updateError) {
+					console.error('Error updating contract:', updateError);
+					toast.error('Failed to update contract. Please try again.');
+					return;
+				}
+			}
+
 			// Generate the contract document
 			const blob = await generateEventPlanningContract(formData);
 			const filename = `EventPlanning_${formData.clientCompany.replace(/\s+/g, '_')}.docx`;
@@ -63,7 +108,7 @@
 					await writable.write(blob);
 					await writable.close();
 					toast.success('Contract generated successfully!');
-					goto('/contracts/history');
+					goto('/contracts/event-planning/list');
 					return;
 				} catch (err) {
 					// User cancelled or API failed, fall back if not cancelled
@@ -87,7 +132,7 @@
 			URL.revokeObjectURL(url);
 
 			toast.success('Contract generated successfully!');
-			goto('/contracts/history');
+			goto('/contracts/event-planning/list');
 		} catch (error) {
 			console.error('Error generating contract:', error);
 			toast.error('Failed to generate contract. Please try again.');
@@ -98,14 +143,23 @@
 <AuthGuard>
 	<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
 		<div class="max-w-4xl mx-auto">
-			<div class="mb-8">
-				<h1 class="text-3xl font-medium text-foreground mb-3">Event Planning Contract</h1>
-				<p class="text-muted-foreground">
-					Generate professional bilingual event planning service contracts
-				</p>
-			</div>
+			{#if isLoadingContract}
+				<div class="flex justify-center items-center py-12">
+					<LoaderCircle class="w-8 h-8 animate-spin text-primary" />
+					<span class="ml-3 text-muted-foreground">Loading contract...</span>
+				</div>
+			{:else}
+				<div class="mb-8">
+					<h1 class="text-3xl font-medium text-foreground mb-3">
+						{editContractId ? 'Edit' : 'Create'} Event Planning Contract
+					</h1>
+					<p class="text-muted-foreground">
+						{editContractId ? 'Update your' : 'Generate professional bilingual'} event planning service contract{editContractId ? '' : 's'}
+					</p>
+				</div>
 
-			<EventPlanningContractForm onSubmit={handleSubmit} />
+				<EventPlanningContractForm onSubmit={handleSubmit} initialData={initialData} />
+			{/if}
 		</div>
 	</div>
 </AuthGuard>

@@ -4,7 +4,7 @@
 	import { signOut } from '$lib/utils/auth';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { LogOut, Sun, Moon, Users, FileText } from 'lucide-svelte';
+	import { LogOut, Sun, Moon, Users, FileText, CalendarCheck } from 'lucide-svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
 
@@ -60,25 +60,77 @@
 								</div>
 							</DropdownMenu.Label>
 							<DropdownMenu.Separator />
-							<DropdownMenu.Item onSelect={() => goto(resolve('/contacts'))} class="cursor-pointer">
-								<Users class="h-4 w-4" />
-								<span>Contacts</span>
-							</DropdownMenu.Item>
 							<DropdownMenu.Sub>
 								<DropdownMenu.SubTrigger class="cursor-pointer">
 									<FileText class="h-4 w-4" />
 									<span>Contracts</span>
 								</DropdownMenu.SubTrigger>
 								<DropdownMenu.SubContent class="min-w-[180px]">
-									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/service'))} class="cursor-pointer">
-										<span>Service Contract</span>
-									</DropdownMenu.Item>
-									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/service/list'))} class="cursor-pointer">
-										<span>Service Contracts</span>
-									</DropdownMenu.Item>
-									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts'))} class="cursor-pointer">
-										<span>Templates</span>
-									</DropdownMenu.Item>
+									<!-- Contacts -->
+									<DropdownMenu.Sub>
+										<DropdownMenu.SubTrigger class="cursor-pointer">
+											<Users class="h-4 w-4" />
+											<span>Contacts</span>
+										</DropdownMenu.SubTrigger>
+										<DropdownMenu.SubContent>
+											<DropdownMenu.Item
+												onSelect={() => goto(resolve('/contacts'))}
+												class="cursor-pointer"
+											>
+												<span>Create</span>
+											</DropdownMenu.Item>
+											<DropdownMenu.Item
+												onSelect={() => goto(resolve('/contacts/list'))}
+												class="cursor-pointer"
+											>
+												<span>List</span>
+											</DropdownMenu.Item>
+										</DropdownMenu.SubContent>
+									</DropdownMenu.Sub>
+
+									<!-- Event Planning -->
+									<DropdownMenu.Sub>
+										<DropdownMenu.SubTrigger class="cursor-pointer">
+											<CalendarCheck class="h-4 w-4" />
+											<span>Event Planning</span>
+										</DropdownMenu.SubTrigger>
+										<DropdownMenu.SubContent>
+											<DropdownMenu.Item
+												onSelect={() => goto(resolve('/contracts/event-planning'))}
+												class="cursor-pointer"
+											>
+												<span>Create</span>
+											</DropdownMenu.Item>
+											<DropdownMenu.Item
+												onSelect={() => goto(resolve('/contracts/event-planning/list'))}
+												class="cursor-pointer"
+											>
+												<span>List</span>
+											</DropdownMenu.Item>
+										</DropdownMenu.SubContent>
+									</DropdownMenu.Sub>
+
+									<!-- Service -->
+									<DropdownMenu.Sub>
+										<DropdownMenu.SubTrigger class="cursor-pointer">
+											<FileText class="h-4 w-4" />
+											<span>Service</span>
+										</DropdownMenu.SubTrigger>
+										<DropdownMenu.SubContent>
+											<DropdownMenu.Item
+												onSelect={() => goto(resolve('/contracts/service'))}
+												class="cursor-pointer"
+											>
+												<span>Create</span>
+											</DropdownMenu.Item>
+											<DropdownMenu.Item
+												onSelect={() => goto(resolve('/contracts/service/list'))}
+												class="cursor-pointer"
+											>
+												<span>List</span>
+											</DropdownMenu.Item>
+										</DropdownMenu.SubContent>
+									</DropdownMenu.Sub>
 								</DropdownMenu.SubContent>
 							</DropdownMenu.Sub>
 							<DropdownMenu.Separator />

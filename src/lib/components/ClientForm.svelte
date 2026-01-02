@@ -24,6 +24,8 @@
 		initialData?: ClientData;
 		/** Custom title for the entity (e.g., 'Client', 'Service Provider') */
 		entityTitle?: string;
+		/** Pre-select client by ID */
+		clientId?: string;
 	}
 
 	const props: Props = $props();
@@ -85,6 +87,10 @@
 		if (authState.isAuthenticated) {
 			try {
 				clients = await listClients();
+				// If a clientId was passed from outside, select it
+				if (props.clientId) {
+					await handleClientSelect(props.clientId);
+				}
 			} catch (e) {
 				console.error('Load clients error:', e);
 			}
