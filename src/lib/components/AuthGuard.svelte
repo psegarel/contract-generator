@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
@@ -9,9 +9,9 @@
 	onMount(() => {
 		// Wait for auth to initialize
 		const checkAuth = setInterval(() => {
-			if (authStore.initialized) {
+			if (authState.initialized) {
 				clearInterval(checkAuth);
-				if (!authStore.isAuthenticated) {
+				if (!authState.isAuthenticated) {
 					goto(resolve('/login'));
 				}
 			}
@@ -21,13 +21,13 @@
 	});
 </script>
 
-{#if authStore.loading}
+{#if authState.loading}
 	<div class="min-h-screen flex items-center justify-center bg-background">
 		<div class="text-center">
 			<div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
 			<p class="mt-4 text-muted-foreground">Loading...</p>
 		</div>
 	</div>
-{:else if authStore.isAuthenticated}
+{:else if authState.isAuthenticated}
 	{@render children()}
 {/if}

@@ -134,5 +134,33 @@ service cloud.firestore {
       // Delete: any authenticated user can delete
       allow delete: if isSignedIn();
     }
+
+    match /service-contracts/{contractId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in and fields must be valid
+      allow create: if isSignedIn()
+        && ('ownerUid' in request.resource.data)
+        && ('contractData' in request.resource.data && request.resource.data.contractData is map)
+        && ('contractNumber' in request.resource.data && request.resource.data.contractNumber is string)
+        && ('locationId' in request.resource.data && request.resource.data.locationId is string)
+        && ('paymentStatus' in request.resource.data && request.resource.data.paymentStatus is string)
+        && ('createdAt' in request.resource.data);
+
+      // Update: any authenticated user can update contractData
+      // But only admins can update payment status
+      allow update: if isSignedIn()
+        && ('ownerUid' in request.resource.data)
+        && (
+          // Regular update (non-payment fields)
+          (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
+          // OR admin updating payment status
+          || isAdmin()
+        );
+
+      // Delete: any authenticated user can delete
+      allow delete: if isSignedIn();
+    }
   }
 }

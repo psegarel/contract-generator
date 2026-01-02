@@ -2,7 +2,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { toast } from 'svelte-sonner';
 	import {
 		listLocations,
@@ -46,11 +46,22 @@
 	);
 
 	let formData = $state<Location>({
-		name: initialData?.name || '',
-		address: initialData?.address || '',
-		contactPerson: initialData?.contactPerson || null,
-		contactEmail: initialData?.contactEmail || null,
-		contactPhone: initialData?.contactPhone || null
+		name: '',
+		address: '',
+		contactPerson: null,
+		contactEmail: null,
+		contactPhone: null
+	});
+
+	// Update formData when initialData changes
+	$effect(() => {
+		if (initialData) {
+			formData.name = initialData.name || '';
+			formData.address = initialData.address || '';
+			formData.contactPerson = initialData.contactPerson || null;
+			formData.contactEmail = initialData.contactEmail || null;
+			formData.contactPhone = initialData.contactPhone || null;
+		}
 	});
 
 	// Helper to notify parent component of changes (event-based, not reactive)
@@ -59,7 +70,7 @@
 	}
 
 	onMount(async () => {
-		if (authStore.isAuthenticated) {
+		if (authState.isAuthenticated) {
 			try {
 				locations = await listLocations();
 			} catch (e) {
@@ -114,7 +125,7 @@
 	}
 
 	async function saveLocationProfile() {
-		if (!authStore.user) {
+		if (!authState.user) {
 			toast.error('You must be signed in to save locations.');
 			return;
 		}
@@ -123,7 +134,7 @@
 		try {
 			// Use pre-generated locationId for new locations, or selectedLocationId for updates
 			const idToUse = selectedLocationId || locationId;
-			const id = await upsertLocation(authStore.user.uid, formData, idToUse);
+			const id = await upsertLocation(authState.user.uid, formData, idToUse);
 			toast.success('Location saved successfully!');
 			locations = await listLocations();
 			selectedLocationId = id;

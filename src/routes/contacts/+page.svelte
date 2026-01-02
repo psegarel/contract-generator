@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { listClients } from '$lib/utils/clients';
@@ -11,7 +11,7 @@
 	let loading = $state(false);
 
 	onMount(async () => {
-		if (!authStore.isAuthenticated) {
+		if (!authState.isAuthenticated) {
 			goto(resolve('/login'));
 			return;
 		}

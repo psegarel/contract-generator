@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { ArrowRight } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 </script>
@@ -16,7 +16,7 @@
 		</p>
 
 		<div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-			{#if authStore.isAuthenticated}
+			{#if authState.isAuthenticated}
 				<Button href="/contracts" class="group" variant="default" size="lg">
 					<span>Go to Contracts</span>
 					<ArrowRight class="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />

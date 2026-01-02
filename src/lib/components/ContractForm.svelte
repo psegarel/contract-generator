@@ -7,7 +7,7 @@
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import { saveContract, getContract, updateContract } from '$lib/utils/contracts';
 	import { companyConfig } from '$lib/config/company';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { LoaderCircle } from 'lucide-svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -141,7 +141,7 @@
 				try {
 					await updateContract(editContractId, formData);
 					toast.success('Contract updated successfully!');
-					goto('/contracts/history');
+					goto('/contracts/service/list');
 					return;
 				} catch (updateError) {
 					console.error('Error updating contract:', updateError);
@@ -167,9 +167,9 @@
 			const contractNumber = `${dateStr}-${initials}-${timestamp}`;
 
 			// Save contract to Firebase
-			if (authStore.user?.uid && selectedLocationId) {
+			if (authState.user?.uid && selectedLocationId) {
 				try {
-					await saveContract(authStore.user.uid, 'service', formData, contractNumber, selectedLocationId);
+					await saveContract(authState.user.uid, 'service', formData, contractNumber, selectedLocationId);
 				} catch (saveError) {
 					console.error('Error saving contract to database:', saveError);
 					// Continue with download even if save fails

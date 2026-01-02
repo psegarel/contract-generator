@@ -1,35 +1,24 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
-	import { updatePaymentStatus, type SavedContract } from '$lib/utils/contracts';
+	import {
+		updateServiceContractPaymentStatus,
+		type SavedServiceContract
+	} from '$lib/utils/serviceContracts';
 	import { Download, Pencil, DollarSign, MapPin, User, Calendar } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 
 	interface Props {
-		contracts: SavedContract[];
-		showLocationLink?: boolean;
-		onContractsUpdate?: (contracts: SavedContract[]) => void;
+		contracts: SavedServiceContract[];
+		onContractsUpdate?: (contracts: SavedServiceContract[]) => void;
 	}
 
-	let { contracts = [], showLocationLink = false, onContractsUpdate }: Props = $props();
+	let { contracts = [], onContractsUpdate }: Props = $props();
 
 	let downloadingIds = $state<Set<string>>(new Set());
 	let updatingPaymentIds = $state<Set<string>>(new Set());
-
-	// Type guards for discriminated union
-	type ServiceContract = SavedContract & { type: 'service' };
-	type EventPlanningContract = SavedContract & { type: 'event-planning' };
-
-	function isServiceContract(contract: SavedContract): contract is ServiceContract {
-		return contract.type === 'service';
-	}
-
-	function isEventPlanningContract(contract: SavedContract): contract is EventPlanningContract {
-		return contract.type === 'event-planning';
-	}
 
 	function formatDateString(dateString: string): string {
 		if (!dateString) return 'N/A';
@@ -41,54 +30,12 @@
 		}).format(date);
 	}
 
-	// Helper functions to get display data based on contract type
-	function getContractTitle(contract: SavedContract): string {
-		return contract.contractData.eventName;
-	}
-
-	function getContractDate(contract: SavedContract): string {
-		if (isServiceContract(contract)) {
-			return contract.contractData.startDate;
-		}
-		return contract.contractData.eventDate;
-	}
-
-	function getContractLocation(contract: SavedContract): string {
-		if (isServiceContract(contract)) {
-			return contract.contractData.eventLocation;
-		}
-		return contract.contractData.eventVenue;
-	}
-
-	function getContractClient(contract: SavedContract): string {
-		if (isServiceContract(contract)) {
-			return contract.contractData.clientName;
-		}
-		return contract.contractData.clientCompany;
-	}
-
-	function getEditUrl(contract: SavedContract): string {
-		if (isServiceContract(contract)) {
-			return `/contracts/service-contract?edit=${contract.id}`;
-		}
-		return `/contracts/event-planning?edit=${contract.id}`;
-	}
-
-	async function handleDownload(contract: SavedContract) {
+	async function handleDownload(contract: SavedServiceContract) {
 		downloadingIds.add(contract.id);
 
 		try {
-			// Generate contract based on type
-			let blob: Blob;
-			let filename: string;
-
-			if (isServiceContract(contract)) {
-				blob = await generateServiceContract(contract.contractData);
-				filename = `Contract_${contract.contractData.clientName.replace(/\s+/g, '_')}.docx`;
-			} else {
-				blob = await generateEventPlanningContract(contract.contractData);
-				filename = `EventPlanning_${contract.contractData.clientCompany.replace(/\s+/g, '_')}.docx`;
-			}
+			const blob = await generateServiceContract(contract.contractData);
+			const filename = `Contract_${contract.contractData.clientName.replace(/\s+/g, '_')}.docx`;
 
 			// Try File System Access API
 			if ('showSaveFilePicker' in window) {
@@ -136,8 +83,8 @@
 		}
 	}
 
-	async function togglePaymentStatus(contract: SavedContract) {
-		if (!authStore.user?.uid || !authStore.isAdmin) {
+	async function togglePaymentStatus(contract: SavedServiceContract) {
+		if (!authState.user?.uid || !authState.isAdmin) {
 			toast.error('Only admins can update payment status');
 			return;
 		}
@@ -146,7 +93,7 @@
 
 		try {
 			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
-			await updatePaymentStatus(contract.id, newStatus, authStore.user.uid);
+			await updateServiceContractPaymentStatus(contract.id, newStatus, authState.user.uid);
 
 			// Update local state and notify parent
 			const updatedContracts = contracts.map((c) =>
@@ -155,7 +102,7 @@
 							...c,
 							paymentStatus: newStatus,
 							paidAt: (newStatus === 'paid' ? new Date() : null) as any,
-							paidBy: newStatus === 'paid' ? authStore.user!.uid : null
+							paidBy: newStatus === 'paid' ? authState.user!.uid : null
 						}
 					: c
 			);
@@ -182,7 +129,7 @@
 				<!-- Title and Badge -->
 				<div class="flex items-start justify-between gap-2">
 					<h3 class="text-lg font-semibold leading-tight flex-1">
-						{getContractTitle(contract)}
+						{contract.contractData.eventName}
 					</h3>
 					{#if contract.paymentStatus === 'paid'}
 						<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600 shrink-0"
@@ -197,31 +144,25 @@
 				<div class="space-y-1.5 text-sm text-muted-foreground">
 					<div class="flex items-center gap-2">
 						<Calendar class="h-3.5 w-3.5 shrink-0" />
-						<span>{formatDateString(getContractDate(contract))}</span>
+						<span>{formatDateString(contract.contractData.startDate)}</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<MapPin class="h-3.5 w-3.5 shrink-0" />
-						<span>{getContractLocation(contract)}</span>
+						<span>{contract.contractData.eventLocation}</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<User class="h-3.5 w-3.5 shrink-0" />
-						<span>{getContractClient(contract)}</span>
+						<span>{contract.contractData.clientName}</span>
 					</div>
-					{#if showLocationLink && contract.locationId}
-						<div class="pt-1">
-							<a
-								href="/contracts/{contract.locationId}/list"
-								class="text-primary hover:underline text-sm"
-							>
-								View all at this location →
-							</a>
-						</div>
-					{/if}
 				</div>
 
 				<!-- Actions -->
 				<div class="flex flex-wrap gap-2 pt-1">
-					<Button size="sm" href={getEditUrl(contract)} class="flex-1 min-w-[100px]">
+					<Button
+						size="sm"
+						href="/contracts/service-contract?edit={contract.id}"
+						class="flex-1 min-w-[100px]"
+					>
 						<Pencil class="h-3.5 w-3.5 mr-1.5" />
 						Edit
 					</Button>
@@ -240,7 +181,7 @@
 							Download
 						{/if}
 					</Button>
-					{#if authStore.isAdmin}
+					{#if authState.isAdmin}
 						<Button
 							variant="outline"
 							size="sm"
@@ -265,7 +206,7 @@
 				<div class="flex-1 min-w-0">
 					<div class="flex items-center gap-3 mb-2">
 						<h3 class="text-lg font-semibold">
-							{getContractTitle(contract)}
+							{contract.contractData.eventName}
 						</h3>
 						{#if contract.paymentStatus === 'paid'}
 							<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
@@ -274,26 +215,16 @@
 						{/if}
 					</div>
 					<div class="text-lg text-muted-foreground mb-2">
-						{formatDateString(getContractDate(contract))}
+						{formatDateString(contract.contractData.startDate)}
 					</div>
 					<div class="space-y-1 text-sm text-muted-foreground">
-						<div>{getContractLocation(contract)}</div>
-						<div>{getContractClient(contract)}</div>
-						{#if showLocationLink && contract.locationId}
-							<div>
-								<a
-									href="/contracts/{contract.locationId}/list"
-									class="text-primary hover:underline"
-								>
-									View all contracts at {getContractLocation(contract)}
-								</a>
-							</div>
-						{/if}
+						<div>{contract.contractData.eventLocation}</div>
+						<div>{contract.contractData.clientName}</div>
 					</div>
 				</div>
 
 				<div class="flex gap-2 shrink-0">
-					{#if authStore.isAdmin}
+					{#if authState.isAdmin}
 						<Button
 							variant="outline"
 							size="sm"
@@ -313,7 +244,7 @@
 							{/if}
 						</Button>
 					{/if}
-					<Button size="sm" href={getEditUrl(contract)}>
+					<Button size="sm" href="/contracts/service-contract?edit={contract.id}">
 						<span class="flex items-center space-x-2">
 							<Pencil class="h-4 w-4" />
 							<span>Edit</span>
