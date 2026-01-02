@@ -81,7 +81,14 @@ This project uses:
 - **Svelte 5** - Follow modern rune-based patterns, avoid legacy patterns
 - **TypeScript** - Full type safety, no `any` types
 - **Svelte Autofixer** - Address ALL suggestions, no matter how small
-- **Type checking** - Code must pass `pnpm check` with zero errors
+- **Type checking** - Code must pass `pnpm check` with **ZERO errors AND ZERO warnings**
+
+**CRITICAL: Zero-Tolerance for Warnings**
+- Warnings are not acceptable, even if the code "works"
+- Warnings indicate poor logic or non-adherence to best practices
+- NEVER dismiss warnings as "expected" or "safe to ignore"
+- If code produces warnings, it must be refactored until warnings are eliminated
+- `pnpm check` must show "0 errors and 0 warnings"
 
 When in doubt:
 1. Check with the autofixer
@@ -90,6 +97,54 @@ When in doubt:
 4. Ask the human for clarification
 
 Never skip steps to appear faster. Thoroughness and accuracy are more valuable than speed.
+
+### Svelte 5 Runes: Anti-Patterns to Avoid
+
+**NEVER use `$effect` to sync props to state**
+
+This is a common anti-pattern that breaks reactivity and creates unnecessary complexity:
+
+```svelte
+<!-- ❌ BAD: Using $effect to sync props to state -->
+<script lang="ts">
+  let { initialData }: Props = $props();
+  let formData = $state({ name: '', email: '' });
+
+  // ANTI-PATTERN: Don't do this!
+  $effect(() => {
+    if (initialData) {
+      formData.name = initialData.name;
+      formData.email = initialData.email;
+    }
+  });
+</script>
+
+<!-- ✅ GOOD: Use $derived or direct prop access -->
+<script lang="ts">
+  let { initialData }: Props = $props();
+
+  // Option 1: Use $derived for computed values
+  let displayName = $derived(initialData?.name || '');
+
+  // Option 2: Use props directly in the template
+  // Option 3: Initialize state from props once (not reactively)
+  let formData = $state({
+    name: initialData?.name || '',
+    email: initialData?.email || ''
+  });
+</script>
+```
+
+**Why this is wrong:**
+- `$effect` is for side effects (DOM manipulation, logging, external APIs)
+- Syncing props to state creates two sources of truth
+- It breaks Svelte's reactivity model
+- It can cause infinite loops and race conditions
+
+**When you need to use prop values:**
+1. **Read-only display**: Use `$derived` or access props directly in template
+2. **Initialize once**: Set state from props in initial declaration (not reactive)
+3. **Two-way binding**: Use `bind:` directive or event callbacks, not effects
 
 ### Component Architecture
 
@@ -183,5 +238,5 @@ This project uses Tailwind CSS with a utility-first methodology:
 
 ---
 
-**Last Updated:** 2026-01-01
-**Reason:** Updated styling architecture to Tailwind utility-first approach - use Tailwind utilities directly, only use app.css when Tailwind cannot achieve the styling
+**Last Updated:** 2026-01-02
+**Reason:** Added Svelte 5 anti-pattern documentation: Never use `$effect` to sync props to state

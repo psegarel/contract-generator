@@ -26,12 +26,33 @@
 		entityTitle?: string;
 	}
 
-	let {
-		onClientChange,
-		showActions = false,
-		initialData,
-		entityTitle = 'Client'
-	}: Props = $props();
+	const props: Props = $props();
+
+	// Helper to get initial form data without capturing reactive prop reference
+	function createInitialFormData(data: ClientData | undefined): ClientData {
+		if (!data) {
+			return {
+				name: '',
+				email: '',
+				phone: '',
+				address: '',
+				idDocument: '',
+				taxId: null,
+				bankName: null,
+				accountNumber: null
+			};
+		}
+		return {
+			name: data.name || '',
+			email: data.email || '',
+			phone: data.phone || '',
+			address: data.address || '',
+			idDocument: data.idDocument || '',
+			taxId: data.taxId || null,
+			bankName: data.bankName || null,
+			accountNumber: data.accountNumber || null
+		};
+	}
 
 	let clients = $state<{ id: string; name: string }[]>([]);
 	let selectedClientId = $state('');
@@ -52,34 +73,12 @@
 			: clients
 	);
 
-	let formData = $state<ClientData>({
-		name: '',
-		email: '',
-		phone: '',
-		address: '',
-		idDocument: '',
-		taxId: null,
-		bankName: null,
-		accountNumber: null
-	});
-
-	// Update formData when initialData changes
-	$effect(() => {
-		if (initialData) {
-			formData.name = initialData.name || '';
-			formData.email = initialData.email || '';
-			formData.phone = initialData.phone || '';
-			formData.address = initialData.address || '';
-			formData.idDocument = initialData.idDocument || '';
-			formData.taxId = initialData.taxId || null;
-			formData.bankName = initialData.bankName || null;
-			formData.accountNumber = initialData.accountNumber || null;
-		}
-	});
+	// Initialize formData from initialData (one-time initialization via function)
+	let formData = $state<ClientData>(createInitialFormData(props.initialData));
 
 	// Helper to notify parent component of changes (event-based, not reactive)
 	function notifyParent() {
-		onClientChange?.(formData, selectedClientId || clientId);
+		props.onClientChange?.(formData, selectedClientId || clientId);
 	}
 
 	onMount(async () => {
@@ -137,7 +136,7 @@
 		showDropdown = false;
 
 		// Notify parent that client selection was cleared
-		onClientChange?.(null, '');
+		props.onClientChange?.(null, '');
 	}
 
 	async function saveClientProfile() {
@@ -195,7 +194,7 @@
 				toast.success('Client deleted successfully!');
 
 				// Notify parent that client was deleted
-				onClientChange?.(null, '');
+				props.onClientChange?.(null, '');
 			} else {
 				toast.error('Failed to delete client.');
 			}
@@ -304,7 +303,7 @@
 <div class="space-y-4">
 	<!-- Client Selector with Search -->
 	<div class="space-y-2">
-		<Label for="clientSearch">{entityTitle}</Label>
+		<Label for="clientSearch">{props.entityTitle || 'Client'}</Label>
 		<div class="relative">
 			<Input
 				id="clientSearch"
@@ -312,7 +311,7 @@
 				bind:value={searchQuery}
 				onfocus={handleSearchFocus}
 				onblur={handleSearchBlur}
-				placeholder="Search or select a {entityTitle.toLowerCase()}..."
+				placeholder="Search or select a {(props.entityTitle || 'Client').toLowerCase()}..."
 				class="w-full"
 			/>
 			{#if searchQuery && !showDropdown}
@@ -342,7 +341,7 @@
 				<div
 					class="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg px-4 py-2 text-muted-foreground text-sm"
 				>
-					No {entityTitle.toLowerCase()}s found
+					No {(props.entityTitle || 'Client').toLowerCase()}s found
 				</div>
 			{/if}
 		</div>
@@ -351,7 +350,7 @@
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 		<!-- Client Name -->
 		<div class="space-y-2">
-			<Label for="clientName">{entityTitle} Name *</Label>
+			<Label for="clientName">{props.entityTitle || 'Client'} Name *</Label>
 			<Input
 				id="clientName"
 				type="text"
@@ -463,10 +462,10 @@
 	</div>
 
 	<!-- Action Buttons (only shown if showActions is true) -->
-	{#if showActions}
+	{#if props.showActions}
 		<div class="pt-2 flex gap-3 items-center">
 			<Button type="button" variant="secondary" onclick={saveClientProfile} disabled={saveLoading}>
-				{#if saveLoading}Saving...{:else}Save {entityTitle}{/if}
+				{#if saveLoading}Saving...{:else}Save {props.entityTitle || 'Client'}{/if}
 			</Button>
 			{#if selectedClientId}
 				<Button
@@ -475,7 +474,7 @@
 					onclick={handleDeleteClient}
 					disabled={deleteLoading}
 				>
-					{#if deleteLoading}Deleting...{:else}Delete {entityTitle}{/if}
+					{#if deleteLoading}Deleting...{:else}Delete {props.entityTitle || 'Client'}{/if}
 				</Button>
 			{/if}
 			{#if saveMessage}

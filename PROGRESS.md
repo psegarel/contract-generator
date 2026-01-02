@@ -372,14 +372,70 @@ After implementing fixes, verify:
 6. PROGRESS.md - updated with migration results
 7. STATUS.md - updated to reflect TRUE ZERO suggestions
 
+---
+
+### Session 5: Service Contract Form Improvements ✅ COMPLETED
+**Date**: 2026-01-02
+
+Fixed service contract editing issues and eliminated all warnings.
+
+**Issues Resolved**:
+1. ✅ Missing location data when editing service contracts
+2. ✅ Missing client data when editing service contracts
+3. ✅ Svelte 5 warnings about props in $state declarations
+
+**Files Modified**:
+1. ✅ CLAUDE.md - Added $effect anti-pattern section and zero-tolerance for warnings policy
+2. ✅ `ContractForm.svelte` → `ServiceContractForm.svelte` - Renamed for clarity
+3. ✅ ServiceContractForm.svelte - Load full location data from locationId when editing
+4. ✅ ClientForm.svelte - Fixed props reference pattern (const props: Props = $props())
+5. ✅ LocationForm.svelte - Fixed props reference pattern (const props: Props = $props())
+6. ✅ src/routes/contracts/service/+page.svelte - Updated import
+7. ✅ Removed redundant edit mode message
+
+**Pattern Established - Proper Props Handling in Svelte 5**:
+```typescript
+// ❌ BAD: Captures reactive reference, causes warnings
+let { initialData }: Props = $props();
+let formData = $state({
+  name: initialData?.name || ''  // ⚠️ Warning!
+});
+
+// ✅ GOOD: Use function to initialize without capturing reactive reference
+const props: Props = $props();
+
+function createInitialFormData(data: DataType | undefined): DataType {
+  if (!data) return { /* defaults */ };
+  return { ...data };
+}
+
+let formData = $state(createInitialFormData(props.initialData));
+```
+
+**Impact**:
+- **ZERO TypeScript errors**
+- **ZERO TypeScript warnings** (enforced by policy)
+- Location data now fully loads when editing contracts (name, address, contact info)
+- Client data properly initializes in edit mode
+- Cleaner component naming (ServiceContractForm vs generic ContractForm)
+
+**Key Learning**:
+- Never dismiss warnings as "expected" - they indicate improper patterns
+- Props should not be referenced inside $state() declarations
+- Use helper functions to initialize state from props without capturing reactive references
+
+---
+
 ### Useful Commands
 ```bash
 # Run autofixer on a component
 # (via MCP server svelte-autofixer tool)
 
-# Check TypeScript errors
-npm run check
+# Check TypeScript errors and warnings
+pnpm check
+
+# Must show: "0 errors and 0 warnings"
 
 # Run dev server
-npm run dev
+pnpm dev
 ```

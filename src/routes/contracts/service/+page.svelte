@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
-	import ContractForm from '$lib/components/ContractForm.svelte';
+	import ServiceContractForm from '$lib/components/ServiceContractForm.svelte';
 </script>
 
 <AuthGuard>
@@ -11,7 +11,7 @@
 				<p class="text-muted-foreground">Generate professional bilingual service contracts</p>
 			</div>
 
-			<ContractForm />
+			<ServiceContractForm />
 		</div>
 	</div>
 </AuthGuard>

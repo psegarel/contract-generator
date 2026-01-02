@@ -5,7 +5,8 @@
 	import { toast } from 'svelte-sonner';
 	import { contractSchema, type ContractData } from '$lib/schemas/contract';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { saveContract, getContract, updateContract } from '$lib/utils/contracts';
+	import { saveContract } from '$lib/utils/contracts';
+	import { getServiceContractById, updateServiceContract } from '$lib/utils/serviceContracts';
 	import { companyConfig } from '$lib/config/company';
 	import { authState } from '$lib/state/auth.svelte';
 	import { LoaderCircle } from 'lucide-svelte';
@@ -17,7 +18,7 @@
 	import ClientForm from '$lib/components/ClientForm.svelte';
 	import LocationForm from '$lib/components/LocationForm.svelte';
 	import type { ClientData as ClientProfile } from '$lib/utils/clients';
-	import type { Location } from '$lib/utils/locations';
+	import { getLocation, type Location } from '$lib/utils/locations';
 
 	let formData: ContractData = $state({
 		clientName: '',
@@ -47,24 +48,36 @@
 	let isLoadingContract = $state(false);
 	let selectedClientId = $state<string>('');
 	let selectedLocationId = $state<string>('');
+	let loadedLocationData = $state<Location | null>(null);
 
 	// Derive formData.taxRate from taxRateStr (read-only computed property)
 	let derivedTaxRate = $derived(Number(taxRateStr));
 
 	onMount(async () => {
-		// TODO: Re-enable after refactor to separate collections
-		// Edit functionality temporarily disabled during architecture refactor
-		// See: docs/architecture-refactor-plan.md
-
-		/* const editId = $page.url.searchParams.get('edit');
+		const editId = $page.url.searchParams.get('edit');
 		if (editId) {
 			editContractId = editId;
 			isLoadingContract = true;
 			try {
-				const contract = await getContract(editId);
+				const contract = await getServiceContractById(editId);
 				if (contract) {
 					formData = { ...contract.contractData };
 					taxRateStr = String(contract.contractData.taxRate);
+					selectedLocationId = contract.locationId;
+
+					// Load full location data
+					if (contract.locationId) {
+						const location = await getLocation(contract.locationId);
+						if (location) {
+							loadedLocationData = {
+								name: location.name,
+								address: location.address,
+								contactPerson: location.contactPerson || null,
+								contactEmail: location.contactEmail || null,
+								contactPhone: location.contactPhone || null
+							};
+						}
+					}
 				} else {
 					toast.error('Contract not found');
 					goto('/contracts/service');
@@ -76,7 +89,7 @@
 			} finally {
 				isLoadingContract = false;
 			}
-		} */
+		}
 	});
 
 	function handleClientChange(clientData: ClientProfile | null, clientId?: string) {
@@ -135,11 +148,10 @@
 
 		isGenerating = true;
 		try{
-			// TODO: Re-enable after refactor to separate collections
-			// Edit functionality temporarily disabled during architecture refactor
-			/* if (editContractId) {
+			// Update existing contract
+			if (editContractId) {
 				try {
-					await updateContract(editContractId, formData);
+					await updateServiceContract(editContractId, formData);
 					toast.success('Contract updated successfully!');
 					goto('/contracts/service/list');
 					return;
@@ -150,7 +162,7 @@
 				} finally {
 					isGenerating = false;
 				}
-			} */
+			}
 
 			// Generate new contract
 			const blob = await generateServiceContract(formData);
@@ -234,14 +246,6 @@
 			<span class="ml-3 text-muted-foreground">Loading contract...</span>
 		</div>
 	{:else}
-		{#if editContractId}
-			<div class="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-				<p class="text-sm text-blue-800 dark:text-blue-200">
-					You are editing an existing contract. Click "Update Contract" to save your changes.
-				</p>
-			</div>
-		{/if}
-
 		<form
 			onsubmit={(e) => {
 				e.preventDefault();
@@ -258,6 +262,18 @@
 				showActions={true}
 				entityTitle="Contact"
 				onClientChange={handleClientChange}
+				initialData={editContractId
+					? {
+							name: formData.clientName,
+							email: formData.clientEmail,
+							phone: formData.clientPhone,
+							address: formData.clientAddress,
+							idDocument: formData.clientIdDocument,
+							taxId: formData.clientTaxId || null,
+							bankName: formData.bankName || null,
+							accountNumber: formData.accountNumber || null
+						}
+					: undefined}
 			/>
 			{#if errors.clientName}
 				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
@@ -272,6 +288,7 @@
 			<LocationForm
 				showActions={true}
 				onLocationChange={handleLocationChange}
+				initialData={editContractId && loadedLocationData ? loadedLocationData : undefined}
 			/>
 			{#if errors.eventLocation}
 				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.eventLocation}</p>
