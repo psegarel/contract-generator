@@ -67,12 +67,12 @@
 					taxRateStr = String(contract.contractData.taxRate);
 				} else {
 					toast.error('Contract not found');
-					goto('/contracts/service-contract');
+					goto('/contracts/service');
 				}
 			} catch (error) {
 				console.error('Error loading contract:', error);
 				toast.error('Failed to load contract');
-				goto('/contracts/service-contract');
+				goto('/contracts/service');
 			} finally {
 				isLoadingContract = false;
 			}

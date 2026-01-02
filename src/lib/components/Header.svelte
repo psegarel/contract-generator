@@ -70,7 +70,7 @@
 									<span>Contracts</span>
 								</DropdownMenu.SubTrigger>
 								<DropdownMenu.SubContent class="min-w-[180px]">
-									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/service-contract'))} class="cursor-pointer">
+									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/service'))} class="cursor-pointer">
 										<span>Service Contract</span>
 									</DropdownMenu.Item>
 									<DropdownMenu.Item onSelect={() => goto(resolve('/contracts/service/list'))} class="cursor-pointer">

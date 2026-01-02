@@ -160,7 +160,7 @@
 				<div class="flex flex-wrap gap-2 pt-1">
 					<Button
 						size="sm"
-						href="/contracts/service-contract?edit={contract.id}"
+						href="/contracts/service?edit={contract.id}"
 						class="flex-1 min-w-[100px]"
 					>
 						<Pencil class="h-3.5 w-3.5 mr-1.5" />
@@ -244,7 +244,7 @@
 							{/if}
 						</Button>
 					{/if}
-					<Button size="sm" href="/contracts/service-contract?edit={contract.id}">
+					<Button size="sm" href="/contracts/service?edit={contract.id}">
 						<span class="flex items-center space-x-2">
 							<Pencil class="h-4 w-4" />
 							<span>Edit</span>

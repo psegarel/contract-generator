@@ -29,7 +29,7 @@
 					<p class="text-muted-foreground mb-6">
 						You haven't created any service contracts yet. Create your first contract to see it here.
 					</p>
-					<Button href="/contracts/service-contract">Create Service Contract</Button>
+					<Button href="/contracts/service">Create Service Contract</Button>
 				</Card>
 			{:else}
 				<ServiceContractList
