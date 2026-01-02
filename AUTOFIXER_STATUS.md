@@ -26,6 +26,7 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 |-----------|--------|--------------|-------|
 | AuthGuard.svelte | ✅ | 2026-01-02 | Clean - no issues |
 | ClientForm.svelte | ✅ | 2026-01-02 | Recent refactor, no $effect issues |
+| ContractPageHeader.svelte | ✅ | 2026-01-02 | Fixed deprecated slot usage |
 | EventPlanningContractForm.svelte | ✅ | 2026-01-02 | Clean - orchestrator pattern |
 | FileUpload.svelte | ✅ | 2026-01-02 | Updated to use bind:this |
 | Header.svelte | ❌ | - | - |
@@ -105,13 +106,14 @@ Based on CLAUDE.md guidelines:
 
 ## Progress Tracking
 
-**Total Custom Components:** 28 (ui/ folder NOT included - shadcn components)
-**Checked:** 9 (32%)
+**Total Custom Components:** 29 (ui/ folder NOT included - shadcn components)
+**Checked:** 10 (34%)
 **Needs Review:** 0 (0%)
-**Not Checked:** 19 (68%)
+**Not Checked:** 19 (66%)
 
 **Recently Checked (2026-01-02):**
 - AuthGuard.svelte ✅
+- ContractPageHeader.svelte ✅
 - EventPlanningContractForm.svelte ✅
 - FileUpload.svelte ✅
 

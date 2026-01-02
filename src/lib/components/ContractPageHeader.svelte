@@ -1,10 +1,14 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	let {
 		title,
-		subtitle
+		subtitle,
+		children
 	}: {
 		title: string;
 		subtitle: string;
+		children?: Snippet;
 	} = $props();
 </script>
 
@@ -15,6 +19,6 @@
 			<p class="text-sm text-muted-foreground uppercase tracking-widest font-bold">{subtitle}</p>
 		</div>
 
-		<slot />
+		{@render children?.()}
 	</div>
 </div>
