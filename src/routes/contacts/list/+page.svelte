@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { authState } from '$lib/state/auth.svelte';
-	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { listClients, deleteClient, type ClientData } from '$lib/utils/clients';
-	import AuthGuard from '$lib/components/AuthGuard.svelte';
+
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Users, Mail, Phone, MapPin, Pencil, Trash2, Plus } from 'lucide-svelte';
@@ -14,10 +12,6 @@
 	let loading = $state(true);
 
 	onMount(async () => {
-		if (!authState.isAuthenticated) {
-			goto(resolve('/login'));
-			return;
-		}
 		await loadClients();
 	});
 
@@ -60,14 +54,12 @@
 	}
 </script>
 
-<AuthGuard>
-	<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-		<div class="max-w-6xl mx-auto">
-			<div class="flex justify-between items-center mb-8">
-				<div>
-					<h1 class="text-3xl font-medium text-foreground mb-3">Contact List</h1>
-					<p class="text-muted-foreground">Manage your saved business contacts</p>
-				</div>
+<div>
+		<div class="flex justify-between items-center mb-8">
+			<div>
+				<h1 class="text-3xl font-medium text-foreground mb-3">Contact List</h1>
+				<p class="text-muted-foreground">Manage your saved business contacts</p>
+			</div>
 				<Button href={resolve('/contacts')} class="flex items-center gap-2">
 					<Plus class="h-4 w-4" />
 					<span>Add Contact</span>
@@ -139,6 +131,5 @@
 					{/each}
 				</div>
 			{/if}
-		</div>
 	</div>
-</AuthGuard>
+

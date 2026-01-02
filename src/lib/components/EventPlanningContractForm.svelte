@@ -150,7 +150,7 @@
 	}
 </script>
 
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="max-w-6xl mx-auto p-8">
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-8">
 	<div class="mb-8">
 		<h1 class="text-3xl font-bold text-gray-900 mb-2">Event Planning Contract</h1>
 		<p class="text-gray-600">Complete all required fields to generate your contract</p>

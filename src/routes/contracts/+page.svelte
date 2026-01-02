@@ -1,5 +1,4 @@
 <script lang="ts">
-	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import { resolve } from '$app/paths';
 	import { FileText, ArrowRight, CalendarCheck } from 'lucide-svelte';
 	import {
@@ -11,13 +10,12 @@
 	} from '$lib/components/ui/card';
 </script>
 
-<AuthGuard>
-	<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-		<div class="max-w-4xl mx-auto">
-			<div class="mb-12">
-				<h1 class="text-3xl font-medium text-foreground mb-3">Contract Templates</h1>
-				<p class="text-muted-foreground">Choose a contract type to get started</p>
-			</div>
+<div>
+
+		<div class="mb-12">
+			<h1 class="text-3xl font-medium text-foreground mb-3">Contract Templates</h1>
+			<p class="text-muted-foreground">Choose a contract type to get started</p>
+		</div>
 
 			<div class="grid gap-4">
 				<a href={resolve('/contracts/service')} class="group">
@@ -66,6 +64,5 @@
 					</Card>
 				</a>
 			</div>
-		</div>
 	</div>
-</AuthGuard>
+

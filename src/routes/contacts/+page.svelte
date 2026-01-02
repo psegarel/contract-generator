@@ -15,12 +15,9 @@
 	const editClientId = $derived(page.url.searchParams.get('edit') || undefined);
 
 	onMount(async () => {
-		if (!authState.isAuthenticated) {
-			goto(resolve('/login'));
-			return;
-		}
 		await loadClients();
 	});
+
 
 	async function loadClients() {
 		loading = true;
@@ -34,7 +31,7 @@
 	}
 </script>
 
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div>
 	<div class="flex justify-between items-start mb-6">
 		<div>
 			<h1 class="text-3xl font-bold text-foreground">Contact Management</h1>

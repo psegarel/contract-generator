@@ -2,7 +2,6 @@
 	import type { PageData } from './$types';
 	import type { SavedEventPlanningContract } from '$lib/utils/eventPlanningContracts';
 	import { updateEventPlanningContractPaymentStatus } from '$lib/utils/eventPlanningContracts';
-	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import { FileText, Check, X, Pencil } from 'lucide-svelte';
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
@@ -41,13 +40,12 @@
 	}
 </script>
 
-<AuthGuard>
-	<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-		<div class="max-w-6xl mx-auto">
-			<div class="mb-8">
-				<h1 class="text-3xl font-medium text-foreground mb-3">Event Planning Contracts</h1>
-				<p class="text-muted-foreground">View and manage your event planning contracts</p>
-			</div>
+<div>
+
+		<div class="mb-8">
+			<h1 class="text-3xl font-medium text-foreground mb-3">Event Planning Contracts</h1>
+			<p class="text-muted-foreground">View and manage your event planning contracts</p>
+		</div>
 
 			{#if data.contracts.length === 0}
 				<Card class="p-12 text-center">
@@ -109,6 +107,5 @@
 					{/each}
 				</div>
 			{/if}
-		</div>
 	</div>
-</AuthGuard>
+

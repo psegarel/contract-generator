@@ -303,7 +303,7 @@
 	};
 </script>
 
-<div class="max-w-4xl mx-auto">
+<div>
 	{#if isLoadingContract}
 		<div class="flex justify-center items-center py-12">
 			<LoaderCircle class="w-8 h-8 animate-spin text-primary" />

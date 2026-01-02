@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import AuthGuard from '$lib/components/AuthGuard.svelte';
+
 	import EventPlanningContractForm from '$lib/components/EventPlanningContractForm.svelte';
 	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
 	import { saveEventPlanningContract } from '$lib/utils/contracts';
@@ -140,8 +140,8 @@
 	}
 </script>
 
-<AuthGuard>
 	<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+
 		<div class="max-w-4xl mx-auto">
 			{#if isLoadingContract}
 				<div class="flex justify-center items-center py-12">
@@ -162,4 +162,5 @@
 			{/if}
 		</div>
 	</div>
-</AuthGuard>
+
+
