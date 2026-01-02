@@ -26,8 +26,8 @@
 	}
 </script>
 
-<div class="p-6 bg-white rounded-lg border border-gray-200">
-	<h3 class="text-lg font-semibold text-gray-900 mb-6">Timeline & Deadlines</h3>
+<div class="space-y-6">
+	<h3 class="text-xl font-bold text-foreground">Timeline & Deadlines</h3>
 
 	<div class="grid gap-6 grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
 		<TextField

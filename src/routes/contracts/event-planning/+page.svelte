@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
+	import ContractPageHeader from '$lib/components/ContractPageHeader.svelte';
 	import EventPlanningContractForm from '$lib/components/EventPlanningContractForm.svelte';
 	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
 	import { saveEventPlanningContract } from '$lib/utils/contracts';
@@ -140,27 +141,18 @@
 	}
 </script>
 
-	<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-
-		<div class="max-w-4xl mx-auto">
-			{#if isLoadingContract}
-				<div class="flex justify-center items-center py-12">
-					<LoaderCircle class="w-8 h-8 animate-spin text-primary" />
-					<span class="ml-3 text-muted-foreground">Loading contract...</span>
-				</div>
-			{:else}
-				<div class="mb-8">
-					<h1 class="text-3xl font-medium text-foreground mb-3">
-						{editContractId ? 'Edit' : 'Create'} Event Planning Contract
-					</h1>
-					<p class="text-muted-foreground">
-						{editContractId ? 'Update your' : 'Generate professional bilingual'} event planning service contract{editContractId ? '' : 's'}
-					</p>
-				</div>
-
-				<EventPlanningContractForm onSubmit={handleSubmit} initialData={initialData} />
-			{/if}
-		</div>
-	</div>
+	<ContractPageHeader
+		title={`${editContractId ? 'Edit' : ''} Event Planning Contract`}
+		subtitle="Comprehensive Event Management Agreement"
+	>
+		{#if isLoadingContract}
+			<div class="flex justify-center items-center py-12">
+				<LoaderCircle class="w-8 h-8 animate-spin text-primary" />
+				<span class="ml-3 text-muted-foreground">Loading contract...</span>
+			</div>
+		{:else}
+			<EventPlanningContractForm onSubmit={handleSubmit} initialData={initialData} />
+		{/if}
+	</ContractPageHeader>
 
 

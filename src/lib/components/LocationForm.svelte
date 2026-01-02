@@ -206,7 +206,7 @@
 				onfocus={handleSearchFocus}
 				onblur={handleSearchBlur}
 				placeholder="Search or select a location..."
-				class="bg-secondary/50 rounded-2xl border-none h-12 pl-12"
+				class="bg-background rounded-2xl border-none h-12 pl-12"
 			/>
 			<MapPin class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 			
@@ -243,7 +243,7 @@
 				type="text"
 				bind:value={formData.name}
 				placeholder="ABC Nightclub"
-				class="bg-secondary/50 rounded-2xl border-none h-12"
+				class="bg-background rounded-2xl border-none h-12"
 				required
 			/>
 		</div>
@@ -256,7 +256,7 @@
 				type="text"
 				bind:value={formData.address}
 				placeholder="123 Main St, City, Country"
-				class="bg-secondary/50 rounded-2xl border-none h-12"
+				class="bg-background rounded-2xl border-none h-12"
 				required
 			/>
 		</div>
@@ -271,7 +271,7 @@
 				type="text"
 				bind:value={formData.contactPerson}
 				placeholder="John Doe"
-				class="bg-secondary/50 rounded-2xl border-none h-12"
+				class="bg-background rounded-2xl border-none h-12"
 			/>
 		</div>
 
@@ -283,7 +283,7 @@
 				type="email"
 				bind:value={formData.contactEmail}
 				placeholder="contact@location.com"
-				class="bg-secondary/50 rounded-2xl border-none h-12"
+				class="bg-background rounded-2xl border-none h-12"
 			/>
 		</div>
 
@@ -295,7 +295,7 @@
 				type="tel"
 				bind:value={formData.contactPhone}
 				placeholder="+1 234 567 890"
-				class="bg-secondary/50 rounded-2xl border-none h-12"
+				class="bg-background rounded-2xl border-none h-12"
 			/>
 		</div>
 	</div>

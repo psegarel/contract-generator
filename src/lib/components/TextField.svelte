@@ -14,6 +14,7 @@
 		placeholder = '',
 		error = '',
 		helperText = '',
+		class: className = '',
 		onInput
 	}: {
 		id: string;
@@ -24,6 +25,7 @@
 		placeholder?: string;
 		error?: string;
 		helperText?: string;
+		class?: string;
 		onInput: (value: string) => void;
 	} = $props();
 
@@ -33,11 +35,11 @@
 	}
 </script>
 
-<div class="flex flex-col gap-2">
-	<label for={id} class="text-sm font-medium text-gray-700">
+<div class="flex flex-col gap-2 {className}">
+	<label for={id} class="text-sm font-medium text-foreground ml-1">
 		{label}
 		{#if required}
-			<span class="text-red-500">*</span>
+			<span class="text-destructive">*</span>
 		{/if}
 	</label>
 	<input
@@ -46,9 +48,9 @@
 		{value}
 		{placeholder}
 		oninput={handleInput}
-		class="px-3.5 py-2.5 border rounded-md text-sm transition-all font-[inherit] {error
-			? 'border-red-500 focus:border-red-500 focus:ring-red-500/10'
-			: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/10'} focus:outline-none focus:ring-[3px]"
+		class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none text-sm {error
+			? 'ring-4 ring-destructive/10'
+			: ''}"
 	/>
 	{#if helperText && !error}
 		<p class="text-xs text-gray-500 m-0">{helperText}</p>

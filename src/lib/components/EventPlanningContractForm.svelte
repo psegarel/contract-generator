@@ -150,90 +150,121 @@
 	}
 </script>
 
-<form novalidate onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-8">
-	<div class="mb-8">
-		<h1 class="text-3xl font-bold text-gray-900 mb-2">Event Planning Contract</h1>
-		<p class="text-gray-600">Complete all required fields to generate your contract</p>
+<form novalidate onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-12">
+
+	<!-- Primary Grid: Contract, Client, Timeline vs Event Details -->
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+		<!-- Left Column -->
+		<div class="space-y-8">
+			<!-- Contract Info Section - Soft Peach -->
+			<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.96 0.02 40);">
+				<ContractInfoSection
+					data={{
+						contractDate: formData.contractDate,
+						contractLocation: formData.contractLocation
+					}}
+					onChange={handleContractInfoChange}
+				/>
+			</div>
+
+			<!-- Client Info Section - Soft Sky Blue -->
+			<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.96 0.02 230);">
+				<ClientInfoSection
+					data={{
+						clientCompany: formData.clientCompany,
+						clientAddress: formData.clientAddress,
+						clientTaxCode: formData.clientTaxCode,
+						clientRepresentativeName: formData.clientRepresentativeName,
+						clientRepresentativePosition: formData.clientRepresentativePosition
+					}}
+					onChange={handleClientInfoChange}
+				/>
+			</div>
+
+			<!-- Timeline Section - Soft Amber -->
+			<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.96 0.02 60);">
+				<TimelineSection
+					data={{
+						planningMeetingDays: formData.planningMeetingDays,
+						performerBookingDeadline: formData.performerBookingDeadline,
+						technicalSetupDate: formData.technicalSetupDate,
+						eventExecutionDate: formData.eventExecutionDate,
+						setupCommencementTime: formData.setupCommencementTime,
+						eventExecutionDuration: formData.eventExecutionDuration,
+						breakdownCompletionDateTime: formData.breakdownCompletionDateTime
+					}}
+					onChange={handleTimelineChange}
+				/>
+			</div>
+		</div>
+
+		<!-- Right Column -->
+		<div class="space-y-8">
+			<!-- Event Details Section - Soft Lavender -->
+			<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.96 0.02 280);">
+				<EventDetailsSection
+					data={{
+						eventTheme: formData.eventTheme,
+						eventName: formData.eventName,
+						eventType: formData.eventType,
+						eventDescription: formData.eventDescription,
+						eventVenue: formData.eventVenue,
+						eventDate: formData.eventDate,
+						eventDuration: formData.eventDuration,
+						expectedAttendance: formData.expectedAttendance
+					}}
+					onChange={handleEventInfoChange}
+				/>
+			</div>
+		</div>
 	</div>
 
-	<div class="grid gap-6">
-		<ContractInfoSection
-			data={{
-				contractDate: formData.contractDate,
-				contractLocation: formData.contractLocation
-			}}
-			onChange={handleContractInfoChange}
-		/>
+	<!-- Secondary Grid: Legal Terms vs Financial Terms & Submit -->
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+		<!-- Left Column -->
+		<div class="space-y-8">
+			<!-- Legal Terms Section - Soft Charcoal -->
+			<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.92 0.005 280);">
+				<LegalTermsSection
+					data={{
+						paymentGracePeriodDays: formData.paymentGracePeriodDays,
+						terminationNoticeDays: formData.terminationNoticeDays,
+						negotiationPeriodDays: formData.negotiationPeriodDays,
+						arbitrationLocation: formData.arbitrationLocation,
+						arbitrationLanguage: formData.arbitrationLanguage
+					}}
+					onChange={handleLegalTermsChange}
+				/>
+			</div>
+		</div>
 
-		<ClientInfoSection
-			data={{
-				clientCompany: formData.clientCompany,
-				clientAddress: formData.clientAddress,
-				clientTaxCode: formData.clientTaxCode,
-				clientRepresentativeName: formData.clientRepresentativeName,
-				clientRepresentativePosition: formData.clientRepresentativePosition
-			}}
-			onChange={handleClientInfoChange}
-		/>
+		<!-- Right Column -->
+		<div class="space-y-8">
+			<!-- Financial Terms Section - Sage Green -->
+			<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.96 0.02 150);">
+				<FinancialTermsSection
+					data={{
+						contractValueVND: formData.contractValueVND,
+						vatRate: formData.vatRate,
+						depositPercentage: formData.depositPercentage,
+						finalPaymentPercentage: formData.finalPaymentPercentage,
+						professionalIndemnityAmount: formData.professionalIndemnityAmount,
+						publicLiabilityAmount: formData.publicLiabilityAmount
+					}}
+					onChange={handleFinancialTermsChange}
+				/>
+			</div>
 
-		<EventDetailsSection
-			data={{
-				eventTheme: formData.eventTheme,
-				eventName: formData.eventName,
-				eventType: formData.eventType,
-				eventDescription: formData.eventDescription,
-				eventVenue: formData.eventVenue,
-				eventDate: formData.eventDate,
-				eventDuration: formData.eventDuration,
-				expectedAttendance: formData.expectedAttendance
-			}}
-			onChange={handleEventInfoChange}
-		/>
-
-		<FinancialTermsSection
-			data={{
-				contractValueVND: formData.contractValueVND,
-				vatRate: formData.vatRate,
-				depositPercentage: formData.depositPercentage,
-				finalPaymentPercentage: formData.finalPaymentPercentage,
-				professionalIndemnityAmount: formData.professionalIndemnityAmount,
-				publicLiabilityAmount: formData.publicLiabilityAmount
-			}}
-			onChange={handleFinancialTermsChange}
-		/>
-
-		<TimelineSection
-			data={{
-				planningMeetingDays: formData.planningMeetingDays,
-				performerBookingDeadline: formData.performerBookingDeadline,
-				technicalSetupDate: formData.technicalSetupDate,
-				eventExecutionDate: formData.eventExecutionDate,
-				setupCommencementTime: formData.setupCommencementTime,
-				eventExecutionDuration: formData.eventExecutionDuration,
-				breakdownCompletionDateTime: formData.breakdownCompletionDateTime
-			}}
-			onChange={handleTimelineChange}
-		/>
-
-		<LegalTermsSection
-			data={{
-				paymentGracePeriodDays: formData.paymentGracePeriodDays,
-				terminationNoticeDays: formData.terminationNoticeDays,
-				negotiationPeriodDays: formData.negotiationPeriodDays,
-				arbitrationLocation: formData.arbitrationLocation,
-				arbitrationLanguage: formData.arbitrationLanguage
-			}}
-			onChange={handleLegalTermsChange}
-		/>
-
-		<div class="flex gap-4 justify-end pt-4 border-t border-gray-200">
-			<button
-				type="submit"
-				disabled={!isValid || isSubmitting}
-				class="px-6 py-3 bg-blue-600 text-white rounded-md font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 focus:outline-none focus:ring-[3px] focus:ring-blue-500/10"
-			>
-				{isSubmitting ? 'Generating Contract...' : 'Generate Contract'}
-			</button>
+			<div class="flex gap-4 justify-end pt-4">
+				<button
+					type="submit"
+					disabled={!isValid || isSubmitting}
+					class="px-8 h-12 text-white rounded-2xl font-bold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-primary/10"
+					style="background-color: oklch(0.3 0.01 280);"
+				>
+					{isSubmitting ? 'Generating Contract...' : 'Generate Contract'}
+				</button>
+			</div>
 		</div>
 	</div>
 </form>
