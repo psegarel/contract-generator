@@ -33,7 +33,7 @@ export type ClientData = {
 const repository = new ClientRepository();
 
 // Legacy function exports - delegate to repository
-export async function listClients(): Promise<Array<{ id: string; name: string }>> {
+export async function listClients(): Promise<Array<{ id: string; name: string; email: string }>> {
 	return repository.list();
 }
 

@@ -2,11 +2,11 @@
 	import ServiceContractForm from '$lib/components/ServiceContractForm.svelte';
 </script>
 
-<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-	<div class="max-w-4xl mx-auto">
-		<div class="mb-8">
-			<h1 class="text-3xl font-medium text-foreground mb-3">Service Contract Generator</h1>
-			<p class="text-muted-foreground">Generate professional bilingual service contracts</p>
+<div class="py-6 px-8">
+	<div class="max-w-7xl mx-auto space-y-8">
+		<div class="space-y-1">
+			<h1 class="text-5xl font-black tracking-tighter text-foreground">Service Contract</h1>
+			<p class="text-sm text-muted-foreground uppercase tracking-widest font-bold">Bilingual Generation Engine</p>
 		</div>
 
 		<ServiceContractForm />

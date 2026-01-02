@@ -311,289 +311,266 @@
 		</div>
 	{:else}
 		<form
+			novalidate
 			onsubmit={(e) => {
 				e.preventDefault();
 				handleSubmit();
 			}}
 			class="space-y-8"
 		>
-		<!-- Contact Information Section -->
-		<div class="space-y-4">
-			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">
-				Contact Information
-			</h3>
-			<ClientForm
-				showActions={true}
-				entityTitle="Contact"
-				onClientChange={handleClientChange}
-				initialData={editContractId
-					? {
-							name: formData.clientName,
-							email: formData.clientEmail,
-							phone: formData.clientPhone,
-							address: formData.clientAddress,
-							idDocument: formData.clientIdDocument,
-							taxId: formData.clientTaxId || null,
-							bankName: formData.bankName || null,
-							accountNumber: formData.accountNumber || null
-						}
-					: undefined}
-			/>
-			{#if errors.clientName}
-				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
-			{/if}
-		</div>
-
-		<!-- Location Information Section -->
-		<div class="space-y-4">
-			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">
-				Location Information
-			</h3>
-			<LocationForm
-				showActions={true}
-				onLocationChange={handleLocationChange}
-				initialData={editContractId && loadedLocationData ? loadedLocationData : undefined}
-			/>
-			{#if errors.eventLocation}
-				<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.eventLocation}</p>
-			{/if}
-		</div>
-
-		<!-- Event Details Section -->
-		<div class="space-y-4">
-			<h3
-				class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-[#2a2a2a] pb-3"
-			>
-				Event Details
-			</h3>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<!-- Job Name -->
-				<div class="space-y-2">
-					<label for="jobName" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-						>Job Name</label
-					>
-					<input
-						type="text"
-						id="jobName"
-						bind:value={formData.jobName}
-						class="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#2a2a2a] rounded-md text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] focus:border-[#5E6AD2] transition-colors"
-						placeholder="e.g., MC, Performer"
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-12 items-start">
+			<!-- Left Column: Identity & Location -->
+			<div class="space-y-12">
+				<!-- Contact Information Section -->
+				<div class="space-y-8">
+					<h3 class="text-xl font-bold tracking-tight text-foreground">
+						Contact Information
+					</h3>
+					<ClientForm
+						showActions={true}
+						entityTitle="Contact"
+						onClientChange={handleClientChange}
+						initialData={editContractId
+							? {
+									name: formData.clientName,
+									email: formData.clientEmail,
+									phone: formData.clientPhone,
+									address: formData.clientAddress,
+									idDocument: formData.clientIdDocument,
+									taxId: formData.clientTaxId || null,
+									bankName: formData.bankName || null,
+									accountNumber: formData.accountNumber || null
+								}
+							: undefined}
 					/>
-					{#if errors.jobName}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.jobName}</p>
+					{#if errors.clientName}
+						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
 					{/if}
 				</div>
 
-				<!-- Event Name -->
-				<div class="space-y-2">
-					<label for="eventName" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-						>Event Name</label
-					>
-					<input
-						type="text"
-						id="eventName"
-						bind:value={formData.eventName}
-						class="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#2a2a2a] rounded-md text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] focus:border-[#5E6AD2] transition-colors"
-						placeholder="Event name"
-					/>
-					{#if errors.eventName}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.eventName}</p>
-					{/if}
-				</div>
-
-				<!-- Number of Performances -->
-				<div class="space-y-2">
-					<label
-						for="numberOfPerformances"
-						class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-						>Number of Performances</label
-					>
-					<input
-						type="number"
-						id="numberOfPerformances"
-						bind:value={formData.numberOfPerformances}
-						min="1"
-						class="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#2a2a2a] rounded-md text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] focus:border-[#5E6AD2] transition-colors"
-					/>
-					{#if errors.numberOfPerformances}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.numberOfPerformances}</p>
-					{/if}
-				</div>
-
-				<!-- Event Location -->
-				<div class="space-y-2">
-					<label
-						for="eventLocation"
-						class="block text-sm font-medium text-gray-700 dark:text-gray-300">Event Location</label
-					>
-					<input
-						type="text"
-						id="eventLocation"
-						bind:value={formData.eventLocation}
-						class="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#2a2a2a] rounded-md text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] focus:border-[#5E6AD2] transition-colors"
-						placeholder="Venue name"
+				<!-- Location Information Section -->
+				<div class="space-y-8">
+					<h3 class="text-xl font-bold tracking-tight text-foreground">
+						Location Information
+					</h3>
+					<LocationForm
+						showActions={true}
+						onLocationChange={handleLocationChange}
+						initialData={editContractId && loadedLocationData ? loadedLocationData : undefined}
 					/>
 					{#if errors.eventLocation}
 						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.eventLocation}</p>
 					{/if}
 				</div>
-
-				<!-- First Performance Time -->
-				<div class="space-y-2">
-					<label
-						for="firstPerformanceTime"
-						class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-						>Performance Time</label
-					>
-					<input
-						type="text"
-						id="firstPerformanceTime"
-						bind:value={formData.firstPerformanceTime}
-						class="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#2a2a2a] rounded-md text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] focus:border-[#5E6AD2] transition-colors"
-						placeholder="e.g., 7:00 PM"
-					/>
-					{#if errors.firstPerformanceTime}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.firstPerformanceTime}</p>
-					{/if}
-				</div>
 			</div>
 
-			<!-- Job Content -->
-			<div class="space-y-2">
-				<label for="jobContent" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-					>Job Content</label
-				>
-				<textarea
-					id="jobContent"
-					bind:value={formData.jobContent}
-					rows="3"
-					class="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#2a2a2a] rounded-md text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#5E6AD2] focus:border-[#5E6AD2] transition-colors"
-					placeholder="Describe the job responsibilities..."
-				></textarea>
-				{#if errors.jobContent}
-					<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.jobContent}</p>
-				{/if}
+			<!-- Right Column: Event, Finance & Timeline -->
+			<div class="space-y-12">
+				<!-- Event Details Section (Cardified) -->
+				<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.96 0.02 230);">
+					<h3 class="text-xl font-bold tracking-tight text-foreground">
+						Event Details
+					</h3>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<!-- Job Name -->
+						<div class="space-y-2.5">
+							<label for="jobName" class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1"
+								>Job Name</label
+							>
+							<input
+								type="text"
+								id="jobName"
+								bind:value={formData.jobName}
+								class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none"
+								placeholder="e.g., MC, Performer"
+							/>
+							{#if errors.jobName}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.jobName}</p>
+							{/if}
+						</div>
+
+						<!-- Event Name -->
+						<div class="space-y-2.5">
+							<label for="eventName" class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1"
+								>Event Name</label
+							>
+							<input
+								type="text"
+								id="eventName"
+								bind:value={formData.eventName}
+								class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none"
+								placeholder="Event name"
+							/>
+							{#if errors.eventName}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.eventName}</p>
+							{/if}
+						</div>
+
+						<!-- Number of Performances -->
+						<div class="space-y-2.5">
+							<label
+								for="numberOfPerformances"
+								class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1"
+								>Number of Performances</label
+							>
+							<input
+								type="number"
+								id="numberOfPerformances"
+								bind:value={formData.numberOfPerformances}
+								min="1"
+								class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none"
+							/>
+							{#if errors.numberOfPerformances}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.numberOfPerformances}</p>
+							{/if}
+						</div>
+
+						<!-- Event Location -->
+						<div class="space-y-2.5">
+							<label
+								for="eventLocation"
+								class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Event Location</label
+							>
+							<input
+								type="text"
+								id="eventLocation"
+								bind:value={formData.eventLocation}
+								class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none"
+								placeholder="Venue name"
+							/>
+							{#if errors.eventLocation}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.eventLocation}</p>
+							{/if}
+						</div>
+
+						<!-- Performance Time -->
+						<div class="space-y-2.5">
+							<label
+								for="firstPerformanceTime"
+								class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1"
+								>Performance Time</label
+							>
+							<input
+								type="text"
+								id="firstPerformanceTime"
+								bind:value={formData.firstPerformanceTime}
+								class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none"
+								placeholder="e.g., 7:00 PM"
+							/>
+							{#if errors.firstPerformanceTime}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.firstPerformanceTime}</p>
+							{/if}
+						</div>
+					</div>
+
+					<!-- Job Content -->
+					<div class="space-y-2.5">
+						<label for="jobContent" class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1"
+							>Job Content</label
+						>
+						<textarea
+							id="jobContent"
+							bind:value={formData.jobContent}
+							rows="3"
+							class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none"
+							placeholder="Describe the job responsibilities..."
+						></textarea>
+						{#if errors.jobContent}
+							<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.jobContent}</p>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Financial Details Section (Cardified) -->
+				<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.96 0.02 150);">
+					<h3 class="text-xl font-bold tracking-tight text-foreground">
+						Financial Details
+					</h3>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<!-- Net Fee -->
+						<div class="space-y-2.5">
+							<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Net Service Fee (VND)</Label>
+							<Input id="netFee" type="number" bind:value={formData.netFee} min="0" class="bg-background rounded-2xl border-none h-12" />
+							{#if errors.netFee}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.netFee}</p>
+							{/if}
+						</div>
+
+						<!-- Tax Rate -->
+						<div class="space-y-2.5">
+							<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">PIT Tax Rate (%)</Label>
+							<Select type="single" bind:value={taxRateStr}>
+								<SelectTrigger class="w-full bg-background rounded-2xl border-none h-12">
+									<span data-slot="select-value">{taxRateStr ? `${taxRateStr}%` : 'Select rate'}</span>
+								</SelectTrigger>
+								<SelectContent>
+									{#each companyConfig.taxRates as rate (rate)}
+										<SelectItem value={String(rate)}>{rate}%</SelectItem>
+									{/each}
+								</SelectContent>
+							</Select>
+							{#if errors.taxRate}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.taxRate}</p>
+							{/if}
+						</div>
+					</div>
+
+					<!-- Calculation Preview -->
+					<div class="p-8 bg-background rounded-[2rem] space-y-3 text-sm">
+						<div class="flex justify-between text-muted-foreground">
+							<span class="font-medium">Net Fee (Paid to Staff)</span>
+							<span class="font-bold text-foreground">{formatCurrency(formData.netFee)}</span>
+						</div>
+						<div class="flex justify-between text-muted-foreground border-b border-foreground/5 pb-3">
+							<span class="font-medium">Tax Amount ({derivedTaxRate}%)</span>
+							<span class="font-bold text-foreground">{formatCurrency(taxAmount)}</span>
+						</div>
+						<div class="flex justify-between pt-3 font-black text-foreground text-lg">
+							<span>Total Gross Fee</span>
+							<span class="text-primary">{formatCurrency(grossFee)}</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Contract Period Section (Cardified) -->
+				<div class="p-10 rounded-[2.5rem] space-y-8" style="background-color: oklch(0.92 0.005 280);">
+					<h3 class="text-xl font-bold tracking-tight text-foreground">
+						Contract Period
+					</h3>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<!-- Start Date -->
+						<div class="space-y-2.5">
+							<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Start Date</Label>
+							<Input id="startDate" type="date" bind:value={formData.startDate} class="bg-background rounded-2xl border-none h-12" />
+							{#if errors.startDate}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.startDate}</p>
+							{/if}
+						</div>
+
+						<!-- End Date -->
+						<div class="space-y-2.5">
+							<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">End Date</Label>
+							<Input id="endDate" type="date" bind:value={formData.endDate} class="bg-background rounded-2xl border-none h-12" />
+							{#if errors.endDate}
+								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.endDate}</p>
+							{/if}
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<!-- Financial Details Section -->
-		<div class="space-y-4">
-			<h3 class="text-lg font-medium text-foreground border-b border-border pb-3">
-				Financial Details
-			</h3>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<!-- Net Fee -->
-				<div class="space-y-2">
-					<Label for="netFee">Net Service Fee (VND)</Label>
-					<Input id="netFee" type="number" bind:value={formData.netFee} min="0" />
-					{#if errors.netFee}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.netFee}</p>
-					{/if}
-				</div>
-
-				<!-- Tax Rate -->
-				<div class="space-y-2">
-					<Label for="taxRate">PIT Tax Rate (%)</Label>
-					<Select type="single" bind:value={taxRateStr}>
-						<SelectTrigger class="w-full">
-							<span data-slot="select-value">{taxRateStr ? `${taxRateStr}%` : 'Select rate'}</span>
-						</SelectTrigger>
-						<SelectContent>
-							{#each companyConfig.taxRates as rate (rate)}
-								<SelectItem value={String(rate)}>{rate}%</SelectItem>
-							{/each}
-						</SelectContent>
-					</Select>
-					{#if errors.taxRate}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.taxRate}</p>
-					{/if}
-				</div>
-			</div>
-
-			<!-- Calculation Preview -->
-			<Card class="p-4 space-y-2 text-sm">
-				<div class="flex justify-between text-muted-foreground">
-					<span>Net Fee (Paid to Staff):</span>
-					<span class="font-medium text-foreground">{formatCurrency(formData.netFee)}</span>
-				</div>
-				<div class="flex justify-between text-muted-foreground">
-					<span>Tax Amount ({derivedTaxRate}%):</span>
-					<span class="font-medium text-foreground">{formatCurrency(taxAmount)}</span>
-				</div>
-				<div class="flex justify-between pt-2 border-t border-border font-medium text-foreground">
-					<span>Total Gross Fee:</span>
-					<span>{formatCurrency(grossFee)}</span>
-				</div>
-			</Card>
-		</div>
-
-		<!-- Contract Period Section -->
-		<div class="space-y-4">
-			<h3
-				class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-[#2a2a2a] pb-3"
-			>
-				Contract Period
-			</h3>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<!-- Start Date -->
-				<div class="space-y-2">
-					<Label for="startDate">Start Date</Label>
-					<Input id="startDate" type="date" bind:value={formData.startDate} />
-					{#if errors.startDate}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.startDate}</p>
-					{/if}
-				</div>
-
-				<!-- End Date -->
-				<div class="space-y-2">
-					<Label for="endDate">End Date</Label>
-					<Input id="endDate" type="date" bind:value={formData.endDate} />
-					{#if errors.endDate}
-						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.endDate}</p>
-					{/if}
-				</div>
-			</div>
-		</div>
-
-			<!-- TODO: Re-enable "Save as Draft" after fixing location requirement -->
-			<!-- <div class="flex gap-3">
-				<Button
-					type="button"
-					variant="outline"
-					disabled={isSavingDraft || isGenerating}
-					onclick={handleSaveDraft}
-					class="flex-1"
-					size="lg"
-				>
-					{#if isSavingDraft}
-						<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
-						Saving Draft...
-					{:else}
-						<Save class="w-5 h-5 mr-2" />
-						Save as Draft
-					{/if}
-				</Button>
-
-				<Button type="submit" disabled={isGenerating || isSavingDraft} class="flex-1" size="lg">
-					{#if isGenerating}
-						<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
-						{editContractId ? 'Updating...' : 'Generating...'}
-					{:else}
-						<FileText class="w-5 h-5 mr-2" />
-						{editContractId ? 'Update Contract' : 'Generate Contract'}
-					{/if}
-				</Button>
-			</div> -->
-
-			<Button type="submit" disabled={isGenerating} class="w-full" size="lg">
+		<div class="pt-12 border-t border-foreground/5 flex justify-end">
+			<Button type="submit" disabled={isGenerating} class="text-white h-12 rounded-2xl font-bold text-base hover:scale-[1.01] active:scale-[0.99] transition-all px-8" style="background-color: oklch(0.3 0.01 280);" size="lg">
 				{#if isGenerating}
-					<LoaderCircle class="w-5 h-5 mr-2 animate-spin" />
+					<LoaderCircle class="w-6 h-6 mr-2 animate-spin" />
 					{editContractId ? 'Updating...' : 'Generating...'}
 				{:else}
-					<FileText class="w-5 h-5 mr-2" />
+					<FileText class="w-6 h-6 mr-2" />
 					{editContractId ? 'Update Contract' : 'Generate Contract'}
 				{/if}
 			</Button>
+		</div>
 		</form>
 	{/if}
 </div>

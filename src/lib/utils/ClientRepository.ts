@@ -53,9 +53,13 @@ export class ClientRepository {
 	/**
 	 * List all clients (minimal data for selection)
 	 */
-	async list(): Promise<Array<{ id: string; name: string }>> {
+	async list(): Promise<Array<{ id: string; name: string; email: string }>> {
 		const snap = await getDocs(collection(db, ClientRepository.COLLECTION_NAME));
-		return snap.docs.map((d) => ({ id: d.id, name: (d.data().name as string) || '' }));
+		return snap.docs.map((d) => ({
+			id: d.id,
+			name: (d.data().name as string) || '',
+			email: (d.data().email as string) || ''
+		}));
 	}
 
 	/**

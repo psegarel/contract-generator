@@ -154,16 +154,16 @@
 <div class="flex h-screen bg-background overflow-hidden text-foreground">
 	<!-- Sidebar -->
 	<aside 
-		class="relative h-full border-r border-border transition-all duration-300 ease-in-out z-30
+		class="relative h-full border-r border-sidebar transition-all duration-300 ease-in-out z-30
 		{sidebarOpen ? 'w-64' : 'w-20'}"
 	>
-		<div class="flex flex-col h-full bg-muted/20">
+		<div class="flex flex-col h-full bg-sidebar text-sidebar-foreground">
 			<!-- Logo Area -->
-			<div class="h-16 flex items-center px-6 border-b border-border">
+			<div class="h-16 flex items-center px-6 border-b border-sidebar">
 				<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
 					<FileCode class="text-primary-foreground h-5 w-5" />
 				</div>
-				<span class="ml-3 font-bold text-lg tracking-tight transition-opacity duration-200 {sidebarOpen ? 'opacity-100' : 'opacity-0 hidden text-[0px]'}">
+				<span class="ml-3 font-bold text-lg text-foreground tracking-tight transition-opacity duration-200 {sidebarOpen ? 'opacity-100' : 'opacity-0 hidden text-[0px]'}">
 					Insense
 				</span>
 			</div>
@@ -181,7 +181,7 @@
 								}
 							}}
 							class="flex items-center px-3 py-2.5 rounded-xl transition-all group
-							{isActive(item) ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}"
+							{isActive(item) ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-sidebar-accent text-sidebar-foreground hover:text-foreground'}"
 						>
 							<item.icon class="h-5 w-5 transition-colors {isActive(item) ? 'text-primary' : 'group-hover:text-primary'}" />
 							{#if sidebarOpen}
@@ -202,7 +202,7 @@
 										<a 
 											href={sub.href} 
 											class="flex items-center h-8 text-xs transition-colors
-											{page.url.pathname === sub.href ? 'text-primary font-bold' : 'text-muted-foreground hover:text-foreground'}"
+											{page.url.pathname === sub.href ? 'text-primary font-bold' : 'text-sidebar-foreground/70 hover:text-foreground'}"
 										>
 											{sub.label}
 										</a>
@@ -216,10 +216,10 @@
 
 
 			<!-- Sidebar Footer -->
-			<div class="p-4 border-t border-border flex flex-col items-center gap-4">
+			<div class="p-4 border-t border-sidebar flex flex-col items-center gap-4">
 				<button 
 					onclick={() => themeState.toggle()}
-					class="w-full flex items-center justify-center p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+					class="w-full flex items-center justify-center p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground hover:text-foreground transition-colors"
 					title="Toggle Theme"
 				>
 					{#if themeState.theme === 'dark'}
@@ -230,7 +230,7 @@
 				</button>
 				<button 
 					onclick={() => sidebarOpen = !sidebarOpen}
-					class="w-full flex items-center justify-center p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+					class="w-full flex items-center justify-center p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground hover:text-foreground transition-colors"
 					title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
 				>
 					<Menu class="h-5 w-5" />

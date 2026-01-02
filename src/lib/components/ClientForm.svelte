@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
 	import { toast } from 'svelte-sonner';
+	import { Search, LoaderCircle, Trash2, Save } from 'lucide-svelte';
 	import {
 		listClients,
 		getClient,
@@ -56,7 +57,7 @@
 		};
 	}
 
-	let clients = $state<{ id: string; name: string }[]>([]);
+	let clients = $state<{ id: string; name: string; email: string }[]>([]);
 	let selectedClientId = $state('');
 	let saveLoading = $state(false);
 	let deleteLoading = $state(false);
@@ -306,10 +307,10 @@
 	// Selection is handled via user interaction in the dropdown
 </script>
 
-<div class="space-y-4">
+<div class="space-y-8">
 	<!-- Client Selector with Search -->
-	<div class="space-y-2">
-		<Label for="clientSearch">{props.entityTitle || 'Client'}</Label>
+	<div class="space-y-2.5">
+		<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Search {(props.entityTitle || 'Client')}</Label>
 		<div class="relative">
 			<Input
 				id="clientSearch"
@@ -317,9 +318,10 @@
 				bind:value={searchQuery}
 				onfocus={handleSearchFocus}
 				onblur={handleSearchBlur}
-				placeholder="Search or select a {(props.entityTitle || 'Client').toLowerCase()}..."
-				class="w-full"
+				placeholder="Search for an existing {(props.entityTitle || 'client')}..."
+				class="bg-secondary/50 rounded-2xl border-none h-12 pl-12"
 			/>
+			<Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 			{#if searchQuery && !showDropdown}
 				<button
 					type="button"
@@ -331,21 +333,22 @@
 			{/if}
 			{#if showDropdown && filteredClients.length > 0}
 				<div
-					class="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto"
+					class="absolute z-50 w-full mt-2 bg-secondary rounded-2xl shadow-lg border-none overflow-hidden"
 				>
 					{#each filteredClients as client (client.id)}
 						<button
 							type="button"
+							class="w-full text-left px-4 py-3 hover:bg-black/5 text-sm transition-colors"
 							onclick={() => handleClientSelect(client.id)}
-							class="w-full text-left px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-colors"
 						>
-							{client.name}
+							<div class="font-bold">{client.name}</div>
+							<div class="text-xs text-muted-foreground">{client.email}</div>
 						</button>
 					{/each}
 				</div>
 			{:else if showDropdown && searchQuery && filteredClients.length === 0}
 				<div
-					class="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg px-4 py-2 text-muted-foreground text-sm"
+					class="absolute z-10 w-full mt-2 bg-secondary rounded-2xl shadow-none border-none px-4 py-3 text-muted-foreground text-xs font-bold uppercase tracking-widest"
 				>
 					No {(props.entityTitle || 'Client').toLowerCase()}s found
 				</div>
@@ -353,102 +356,109 @@
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 		<!-- Client Name -->
-		<div class="space-y-2">
-			<Label for="clientName">{props.entityTitle || 'Client'} Name *</Label>
+		<div class="space-y-2.5">
+			<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">{props.entityTitle || 'Client'} Name *</Label>
 			<Input
 				id="clientName"
 				type="text"
 				bind:value={formData.name}
 				placeholder="John Doe"
+				class="bg-secondary/50 rounded-2xl border-none h-12"
 				required
 			/>
 		</div>
 
 		<!-- Email -->
-		<div class="space-y-2">
-			<Label for="clientEmail">Email Address *</Label>
+		<div class="space-y-2.5">
+			<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Email Address *</Label>
 			<Input
 				id="clientEmail"
 				type="email"
 				bind:value={formData.email}
 				placeholder="john@example.com"
+				class="bg-secondary/50 rounded-2xl border-none h-12"
 				required
 			/>
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 		<!-- Client Phone -->
-		<div class="space-y-2">
-			<Label for="clientPhone">Phone Number *</Label>
+		<div class="space-y-2.5">
+			<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Phone Number *</Label>
 			<Input
 				id="clientPhone"
 				type="tel"
 				bind:value={formData.phone}
 				placeholder="+1 234 567 890"
+				class="bg-secondary/50 rounded-2xl border-none h-12"
 				required
 			/>
 		</div>
 
 		<!-- ID Document -->
-		<div class="space-y-2">
-			<Label for="idDocument">ID Card / Passport Number *</Label>
+		<div class="space-y-2.5">
+			<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">ID Card / Passport Number *</Label>
 			<Input
 				id="idDocument"
 				type="text"
 				bind:value={formData.idDocument}
 				placeholder="ID or Passport Number"
+				class="bg-secondary/50 rounded-2xl border-none h-12"
 				required
 			/>
 		</div>
 	</div>
 
 	<!-- Client Address -->
-	<div class="space-y-2">
-		<Label for="clientAddress">Address *</Label>
+	<div class="space-y-2.5">
+		<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Address *</Label>
 		<Input
 			id="clientAddress"
 			type="text"
 			bind:value={formData.address}
 			placeholder="123 Main St, City, Country"
+			class="bg-secondary/50 rounded-2xl border-none h-12"
 			required
 		/>
 	</div>
 
 	<!-- Tax ID -->
-	<div class="space-y-2">
-		<Label for="clientTaxId">Tax ID (Optional)</Label>
-		<Input id="clientTaxId" type="text" bind:value={formData.taxId} placeholder="Tax Code" />
+	<div class="space-y-2.5">
+		<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Tax ID (Optional)</Label>
+		<Input id="clientTaxId" type="text" bind:value={formData.taxId} placeholder="Tax Code" class="bg-secondary/50 rounded-2xl border-none h-12" />
 	</div>
 
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 		<!-- Bank Name -->
-		<div class="space-y-2">
-			<Label for="bankName">Bank Name (Optional)</Label>
+		<div class="space-y-2.5">
+			<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Bank Name (Optional)</Label>
 			<Input
 				id="bankName"
 				type="text"
 				bind:value={formData.bankName}
-				placeholder="e.g., Vietcombank"
+				placeholder="Bank Name"
+				class="bg-secondary/50 rounded-2xl border-none h-12"
 			/>
 		</div>
 
 		<!-- Account Number -->
-		<div class="space-y-2">
-			<Label for="accountNumber">Account Number (Optional)</Label>
+		<div class="space-y-2.5">
+			<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Account Number (Optional)</Label>
 			<Input
 				id="accountNumber"
 				type="text"
 				bind:value={formData.accountNumber}
-				placeholder="Account number"
+				placeholder="Account Number"
+				class="bg-secondary/50 rounded-2xl border-none h-12"
 			/>
 		</div>
 	</div>
 
 	<!-- Document Uploads -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-border">
 		<FileUpload
 			label="ID Document - Image 1"
 			document={formData.documents?.image1}
@@ -469,22 +479,39 @@
 
 	<!-- Action Buttons (only shown if showActions is true) -->
 	{#if props.showActions}
-		<div class="pt-2 flex gap-3 items-center">
-			<Button type="button" variant="secondary" onclick={saveClientProfile} disabled={saveLoading}>
-				{#if saveLoading}Saving...{:else}Save {props.entityTitle || 'Client'}{/if}
+		<div class="pt-6 flex gap-4 justify-end">
+			<Button
+				type="button"
+				variant="secondary"
+				onclick={saveClientProfile}
+				disabled={saveLoading}
+				class="h-12 rounded-2xl font-bold bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition-all shadow-none border-none px-6"
+			>
+				{#if saveLoading}
+					<LoaderCircle class="w-4 h-4 mr-2 animate-spin" />
+					Saving...
+				{:else}
+					<Save class="w-4 h-4 mr-2" />
+					Save {props.entityTitle || 'Client'}
+				{/if}
 			</Button>
+
 			{#if selectedClientId}
 				<Button
 					type="button"
-					variant="destructive"
+					variant="ghost"
 					onclick={handleDeleteClient}
 					disabled={deleteLoading}
+					class="h-12 rounded-2xl font-bold bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all shadow-none border-none px-6"
 				>
-					{#if deleteLoading}Deleting...{:else}Delete {props.entityTitle || 'Client'}{/if}
+					{#if deleteLoading}
+						<LoaderCircle class="w-4 h-4 mr-2 animate-spin" />
+						Deleting...
+					{:else}
+						<Trash2 class="w-4 h-4 mr-2" />
+						Delete {props.entityTitle || 'Client'}
+					{/if}
 				</Button>
-			{/if}
-			{#if saveMessage}
-				<span class="text-sm text-muted-foreground">{saveMessage}</span>
 			{/if}
 		</div>
 	{/if}

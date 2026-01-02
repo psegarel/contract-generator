@@ -98,7 +98,7 @@
 				</Alert>
 			{/if}
 
-			<form onsubmit={handleSubmit} class="space-y-5">
+			<form novalidate onsubmit={handleSubmit} class="space-y-5">
 				<div>
 					<Label for="email" class="mb-2">Email Address</Label>
 					<Input
