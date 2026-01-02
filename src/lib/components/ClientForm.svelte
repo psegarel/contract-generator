@@ -2,7 +2,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { toast } from 'svelte-sonner';
 	import {
 		listClients,
@@ -83,7 +83,7 @@
 	}
 
 	onMount(async () => {
-		if (authStore.isAuthenticated) {
+		if (authState.isAuthenticated) {
 			try {
 				clients = await listClients();
 			} catch (e) {
@@ -141,7 +141,7 @@
 	}
 
 	async function saveClientProfile() {
-		if (!authStore.user) {
+		if (!authState.user) {
 			toast.error('You must be signed in to save clients.');
 			return;
 		}
@@ -150,7 +150,7 @@
 		try {
 			// Use pre-generated clientId for new clients, or selectedClientId for updates
 			const idToUse = selectedClientId || clientId;
-			const id = await upsertClient(authStore.user.uid, formData, idToUse);
+			const id = await upsertClient(authState.user.uid, formData, idToUse);
 			toast.success('Client saved successfully!');
 			clients = await listClients();
 			selectedClientId = id;
@@ -208,14 +208,14 @@
 	}
 
 	async function handleImage1Upload(file: File) {
-		if (!authStore.user) {
+		if (!authState.user) {
 			toast.error('You must be signed in to upload documents');
 			return;
 		}
 
 		uploadingImage1 = true;
 		try {
-			const doc = await uploadClientDocument(clientId, file, 1, authStore.user.uid);
+			const doc = await uploadClientDocument(clientId, file, 1, authState.user.uid);
 			if (!formData.documents) {
 				formData.documents = {};
 			}
@@ -224,7 +224,7 @@
 
 			// Save to Firestore if client already exists
 			if (selectedClientId) {
-				await upsertClient(authStore.user.uid, formData, selectedClientId);
+				await upsertClient(authState.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
 			console.error('Upload error:', error);
@@ -243,8 +243,8 @@
 			toast.success('Image 1 deleted');
 
 			// Update Firestore if client already exists
-			if (authStore.user && selectedClientId) {
-				await upsertClient(authStore.user.uid, formData, selectedClientId);
+			if (authState.user && selectedClientId) {
+				await upsertClient(authState.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
 			console.error('Delete error:', error);
@@ -253,14 +253,14 @@
 	}
 
 	async function handleImage2Upload(file: File) {
-		if (!authStore.user) {
+		if (!authState.user) {
 			toast.error('You must be signed in to upload documents');
 			return;
 		}
 
 		uploadingImage2 = true;
 		try {
-			const doc = await uploadClientDocument(clientId, file, 2, authStore.user.uid);
+			const doc = await uploadClientDocument(clientId, file, 2, authState.user.uid);
 			if (!formData.documents) {
 				formData.documents = {};
 			}
@@ -269,7 +269,7 @@
 
 			// Save to Firestore if client already exists
 			if (selectedClientId) {
-				await upsertClient(authStore.user.uid, formData, selectedClientId);
+				await upsertClient(authState.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
 			console.error('Upload error:', error);
@@ -288,8 +288,8 @@
 			toast.success('Image 2 deleted');
 
 			// Update Firestore if client already exists
-			if (authStore.user && selectedClientId) {
-				await upsertClient(authStore.user.uid, formData, selectedClientId);
+			if (authState.user && selectedClientId) {
+				await upsertClient(authState.user.uid, formData, selectedClientId);
 			}
 		} catch (error) {
 			console.error('Delete error:', error);

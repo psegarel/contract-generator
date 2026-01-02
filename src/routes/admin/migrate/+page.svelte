@@ -9,7 +9,7 @@
 		orderBy
 	} from 'firebase/firestore';
 	import { db } from '$lib/config/firebase';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import AuthGuard from '$lib/components/AuthGuard.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
@@ -124,12 +124,12 @@
 						<CardTitle>Authentication Status</CardTitle>
 					</CardHeader>
 					<CardContent class="space-y-2">
-						{#if authStore.user}
+						{#if authState.user}
 							<div class="flex items-center gap-3 text-foreground">
 								<User class="h-5 w-5 text-green-500" />
 								<div>
-									<div class="font-medium">{authStore.user.email}</div>
-									<div class="text-xs text-muted-foreground">UID: {authStore.user.uid}</div>
+									<div class="font-medium">{authState.user.email}</div>
+									<div class="text-xs text-muted-foreground">UID: {authState.user.uid}</div>
 								</div>
 							</div>
 						{:else}

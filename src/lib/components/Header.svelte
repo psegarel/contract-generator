@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { authStore } from '$lib/stores/auth.svelte';
-	import { themeStore } from '$lib/stores/theme.svelte';
+	import { authState } from '$lib/state/auth.svelte';
+	import { themeState } from '$lib/state/theme.svelte';
 	import { signOut } from '$lib/utils/auth';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -39,7 +39,7 @@
 
 			<!-- Navigation -->
 			<nav class="flex items-center space-x-4">
-				{#if authStore.isAuthenticated}
+				{#if authState.isAuthenticated}
 					<!-- User Menu -->
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger
@@ -47,7 +47,7 @@
 						>
 							<Avatar.Root class="h-8 w-8">
 								<Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
-									{getInitials(authStore.user?.email)}
+									{getInitials(authState.user?.email)}
 								</Avatar.Fallback>
 							</Avatar.Root>
 						</DropdownMenu.Trigger>
@@ -55,7 +55,7 @@
 							<DropdownMenu.Label class="font-normal">
 								<div class="flex flex-col space-y-1">
 									<p class="text-xs text-muted-foreground truncate">
-										{authStore.user?.email}
+										{authState.user?.email}
 									</p>
 								</div>
 							</DropdownMenu.Label>
@@ -92,11 +92,11 @@
 
 				<!-- Theme Toggle -->
 				<button
-					onclick={() => themeStore.toggle()}
+					onclick={() => themeState.toggle()}
 					class="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
 					aria-label="Toggle theme"
 				>
-					{#if themeStore.theme === 'dark'}
+					{#if themeState.theme === 'dark'}
 						<Sun class="h-4 w-4" />
 					{:else}
 						<Moon class="h-4 w-4" />

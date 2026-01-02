@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import {
 		updateServiceContractPaymentStatus,
@@ -84,7 +84,7 @@
 	}
 
 	async function togglePaymentStatus(contract: SavedServiceContract) {
-		if (!authStore.user?.uid || !authStore.isAdmin) {
+		if (!authState.user?.uid || !authState.isAdmin) {
 			toast.error('Only admins can update payment status');
 			return;
 		}
@@ -93,7 +93,7 @@
 
 		try {
 			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
-			await updateServiceContractPaymentStatus(contract.id, newStatus, authStore.user.uid);
+			await updateServiceContractPaymentStatus(contract.id, newStatus, authState.user.uid);
 
 			// Update local state and notify parent
 			const updatedContracts = contracts.map((c) =>
@@ -102,7 +102,7 @@
 							...c,
 							paymentStatus: newStatus,
 							paidAt: (newStatus === 'paid' ? new Date() : null) as any,
-							paidBy: newStatus === 'paid' ? authStore.user!.uid : null
+							paidBy: newStatus === 'paid' ? authState.user!.uid : null
 						}
 					: c
 			);
@@ -181,7 +181,7 @@
 							Download
 						{/if}
 					</Button>
-					{#if authStore.isAdmin}
+					{#if authState.isAdmin}
 						<Button
 							variant="outline"
 							size="sm"
@@ -224,7 +224,7 @@
 				</div>
 
 				<div class="flex gap-2 shrink-0">
-					{#if authStore.isAdmin}
+					{#if authState.isAdmin}
 						<Button
 							variant="outline"
 							size="sm"

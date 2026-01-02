@@ -1,5 +1,5 @@
-// Theme store using Svelte 5 runes
-class ThemeStore {
+// Theme state using Svelte 5 runes
+class ThemeState {
 	theme = $state<'light' | 'dark'>('dark');
 
 	constructor() {
@@ -34,4 +34,4 @@ class ThemeStore {
 	}
 }
 
-export const themeStore = new ThemeStore();
+export const themeState = new ThemeState();

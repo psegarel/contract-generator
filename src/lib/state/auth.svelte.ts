@@ -3,7 +3,7 @@ import { auth } from '$lib/config/firebase';
 import type { UserProfile } from '$lib/types/user';
 import { UserRepository } from '$lib/utils/UserRepository';
 
-export class AuthStore {
+export class AuthState {
 	user = $state<User | null>(null);
 	userProfile = $state<UserProfile | null>(null);
 	loading = $state(true);
@@ -63,4 +63,4 @@ export class AuthStore {
 	}
 }
 
-export const authStore = new AuthStore();
+export const authState = new AuthState();
