@@ -3,7 +3,7 @@
 	import EventPlanningContractForm from '$lib/components/EventPlanningContractForm.svelte';
 	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
 	import { saveEventPlanningContract } from '$lib/utils/contracts';
-	import { authStore } from '$lib/stores/auth.svelte';
+	import { authState } from '$lib/state/auth.svelte';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContract';
@@ -25,10 +25,10 @@
 			const contractNumber = `EP-${dateStr}-${initials}-${timestamp}`;
 
 			// Save contract to Firebase
-			if (authStore.user?.uid && formData.contractLocation) {
+			if (authState.user?.uid && formData.contractLocation) {
 				try {
 					await saveEventPlanningContract(
-						authStore.user.uid,
+						authState.user.uid,
 						formData,
 						contractNumber,
 						formData.contractLocation

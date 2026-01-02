@@ -8,7 +8,18 @@ import {
 	type SavedServiceContract,
 	type SavedServiceContractInput
 } from './serviceContracts';
+import {
+	saveEventPlanningContract as saveEventPlanningContractImpl,
+	getEventPlanningContracts,
+	getEventPlanningContractById,
+	updateEventPlanningContract,
+	updateEventPlanningContractPaymentStatus,
+	getEventPlanningContractsByLocationId,
+	type SavedEventPlanningContract,
+	type SavedEventPlanningContractInput
+} from './eventPlanningContracts';
 import type { ContractData } from '$lib/schemas/contract';
+import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContract';
 
 // Re-export types
 export type SavedContract = SavedServiceContract;
@@ -50,4 +61,14 @@ export async function updateContract(
 	contractData: ContractData
 ): Promise<void> {
 	return updateServiceContract(contractId, contractData);
+}
+
+// Event Planning Contract functions
+export async function saveEventPlanningContract(
+	ownerUid: string,
+	contractData: EventPlanningContractData,
+	contractNumber: string,
+	locationId: string
+): Promise<string> {
+	return saveEventPlanningContractImpl(ownerUid, contractData, contractNumber, locationId);
 }

@@ -16,15 +16,13 @@
 	 */
 
 	let {
-		onSubmit,
-		initialData
+		onSubmit
 	}: {
 		onSubmit: (data: EventPlanningContractData) => void | Promise<void>;
-		initialData?: EventPlanningContractData;
 	} = $props();
 
-	// Form data state - use provided initial data or defaults
-	let formData = $state<EventPlanningContractData>(initialData || getInitialFormData());
+	// Form data state - initialized with defaults
+	let formData = $state(getInitialFormData());
 
 	// Validation errors for each section
 	let contractInfoErrors = $state<Record<string, string>>({});
