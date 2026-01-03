@@ -9,7 +9,9 @@ import {
 	where,
 	orderBy,
 	type Timestamp,
-	serverTimestamp
+	serverTimestamp,
+	onSnapshot,
+	type Unsubscribe
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContract';
@@ -36,8 +38,39 @@ export interface SavedEventPlanningContractInput
 const COLLECTION_NAME = 'event-planning-contracts';
 
 /**
- * Save a new event planning contract
+ * Subscribe to event planning contracts (real-time updates)
  */
+export function subscribeToEventPlanningContracts(
+	callback: (contracts: SavedEventPlanningContract[]) => void,
+	onError: (error: Error) => void
+): Unsubscribe {
+	const q = query(collection(db, COLLECTION_NAME), orderBy('createdAt', 'desc'));
+
+	return onSnapshot(
+		q,
+		(snapshot) => {
+			const contracts = snapshot.docs.map((doc) => {
+				const data = doc.data();
+				return {
+					id: doc.id,
+					...data,
+					type: data.type || 'event-planning',
+					locationId: data.locationId || '',
+					paymentDirection: data.paymentDirection || 'receivable',
+					paymentStatus: data.paymentStatus || 'unpaid',
+					paidAt: data.paidAt || null,
+					paidBy: data.paidBy || null
+				} as SavedEventPlanningContract;
+			});
+			callback(contracts);
+		},
+		(error) => {
+			console.error('Error in contracts subscription:', error);
+			onError(error);
+		}
+	);
+}
+
 export async function saveEventPlanningContract(
 	ownerUid: string,
 	contractData: EventPlanningContractData,

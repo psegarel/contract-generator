@@ -4,6 +4,7 @@
 	import { sumContracts } from '$lib/utils/contractCalculations';
 	import ContractValue from '$lib/components/ContractValue.svelte';
 	import { LayoutDashboard } from 'lucide-svelte';
+	import DashboardCard from '$lib/components/DashboardCard.svelte';
 
 	$effect(() => {
 		contractState.init();
@@ -27,12 +28,15 @@
 
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 			<!-- Future Stats Cards -->
-			<ContractValue
-				title="Total Contract Value"
-				{totalContractValue}
-				isLoading={contractState.isLoading}
-				error={contractState.error}
-			/>
+
+			<DashboardCard backgroundColor="bg-indigo-500/20" textColor="text-indigo-900">
+				<ContractValue
+					title="Total Contract Value"
+					{totalContractValue}
+					isLoading={contractState.isLoading}
+					error={contractState.error}
+				/>
+			</DashboardCard>
 			<div class="p-6 rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
 				<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
 					Active Projects

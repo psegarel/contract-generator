@@ -20,8 +20,8 @@
 	};
 </script>
 
-<div class="bg-card/50 border-border rounded-2xl border p-6 backdrop-blur-sm {className}">
-	<h3 class="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">
+<div class={className}>
+	<h3 class="mb-1 text-xs font-semibold uppercase tracking-wider">
 		{title}
 	</h3>
 	{#if isLoading}

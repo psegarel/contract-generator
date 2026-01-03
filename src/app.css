@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter';
 
 @import 'tw-animate-css';
 
@@ -24,14 +25,14 @@
 	--border: oklch(0.96 0.005 30);
 	--input: oklch(0.96 0.005 30);
 	--ring: oklch(0.7 0.12 15 / 20%);
-	--sidebar: oklch(0.985 0.005 280); /* Crisp, light sidebar */
-	--sidebar-foreground: oklch(0.35 0.02 280);
+	--sidebar: oklch(0.22 0.01 280); /* Darker sidebar */
+	--sidebar-foreground: oklch(0.9 0.01 30);
 	--sidebar-primary: oklch(0.7 0.12 15);
 	--sidebar-primary-foreground: oklch(1 0 0);
-	--sidebar-accent: oklch(0 0 0 / 3%); /* Very subtle flat hover */
-	--sidebar-accent-foreground: oklch(0.2 0.01 30);
-	--sidebar-border: oklch(0.96 0.005 280);
-	--sidebar-ring: oklch(0.7 0.12 15 / 20%);
+	--sidebar-accent: oklch(1 0 0 / 8%); /* Light hover for dark sidebar */
+	--sidebar-accent-foreground: oklch(0.95 0.01 30);
+	--sidebar-border: oklch(1 0 0 / 8%);
+	--sidebar-ring: oklch(0.7 0.12 15 / 40%);
 }
 
 .dark {
@@ -105,13 +106,14 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+
 	h1,
 	h2,
 	h3,
 	h4,
 	h5,
 	h6 {
-		font-family: 'Plus Jakarta Sans', 'Inter Tight Variable', system-ui, sans-serif !important;
+		font-family: 'Inter Variable', system-ui, sans-serif;
 		font-weight: 700;
 		letter-spacing: -0.03em;
 	}
@@ -121,6 +123,7 @@
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 		letter-spacing: -0.01em;
+		font-display: swap;
 	}
 }
 
@@ -129,4 +132,3 @@
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
 }
-

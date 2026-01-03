@@ -1,7 +1,7 @@
 <script lang="ts">
-	import '@fontsource-variable/inter';
-	import '@fontsource/geist-sans';
-	import { resolve } from '$app/paths';
+	// import '@fontsource-variable/inter';
+	// import '@fontsource/geist-sans';
+	// import { resolve } from '$app/paths';
 	import { themeState } from '$lib/state/theme.svelte';
 	import {
 		LayoutDashboard,
