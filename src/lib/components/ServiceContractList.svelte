@@ -110,9 +110,21 @@
 </script>
 
 <div>
-	{#each contracts as contract (contract.id)}
+	<!-- Column Headers (Desktop only) -->
+	<div class="hidden md:grid grid-cols-16 gap-3 items-center bg-slate-200 px-4">
+		<div class="col-span-4 text-sm font-semibold px-3 py-3 border-r border-white">Event</div>
+		<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-white">Client</div>
+		<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-white">Fee</div>
+		<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">Date</div>
+		<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-white">Location</div>
+		<div class="col-span-3 text-sm font-semibold px-3 py-3 text-center">Actions</div>
+	</div>
+
+	<!-- Contract List -->
+	{#each contracts as contract, index (contract.id)}
 		<ServiceContractListItem
 			{contract}
+			{index}
 			isDownloading={downloadingIds.has(contract.id)}
 			isUpdatingPayment={updatingPaymentIds.has(contract.id)}
 			showAdminActions={authState.isAdmin}

@@ -54,8 +54,21 @@
 		</div>
 	{:else}
 		<div class="max-h-96 overflow-y-auto">
-			{#each latestContracts as contract (contract.id)}
-				<ContractListItem {contract} />
+			<!-- Column Headers (Desktop only) -->
+			<div class="hidden md:grid grid-cols-16 gap-3 items-center bg-slate-200 px-4">
+				<div class="col-span-4 text-sm font-semibold px-3 py-3 border-r border-white">Event</div>
+				<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-white">Client</div>
+				<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-white">Value</div>
+				<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">Date</div>
+				<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-white">Location</div>
+				<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center border-r border-white">Type</div>
+				<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center border-r border-white">Status</div>
+				<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center">Actions</div>
+			</div>
+
+			<!-- Contract List -->
+			{#each latestContracts as contract, index (contract.id)}
+				<ContractListItem {contract} {index} />
 			{/each}
 		</div>
 	{/if}

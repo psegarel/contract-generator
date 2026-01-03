@@ -7,6 +7,7 @@
 
 	interface Props {
 		contract: SavedServiceContract;
+		index: number;
 		isDownloading?: boolean;
 		isUpdatingPayment?: boolean;
 		showAdminActions?: boolean;
@@ -16,6 +17,7 @@
 
 	let {
 		contract,
+		index,
 		isDownloading = false,
 		isUpdatingPayment = false,
 		showAdminActions = false,
@@ -24,9 +26,9 @@
 	}: Props = $props();
 </script>
 
-<div class="py-2 border-b border-dotted border-border">
+<div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
 	<!-- Mobile: Stacked Layout -->
-	<div class="md:hidden space-y-4">
+	<div class="md:hidden space-y-4 py-3">
 		<!-- Title and Badges -->
 		<div class="flex items-start justify-between gap-3">
 			<h3 class="text-xl font-bold leading-tight flex-1 tracking-tight">
@@ -104,31 +106,31 @@
 	</div>
 
 	<!-- Desktop: Dashboard Grid Layout (16 columns for better spacing) -->
-	<div class="hidden md:grid grid-cols-16 gap-3 items-center">
+	<div class="hidden md:grid grid-cols-16 gap-3 items-center py-3 px-4">
 		<!-- Event Name -->
-		<h3 class="col-span-4 text-base font-bold tracking-tight truncate">
+		<h3 class="col-span-4 text-sm font-bold tracking-tight truncate">
 			{contract.contractData.eventName}
 		</h3>
 
 		<!-- Client/Staff Name -->
-		<div class="col-span-3 text-base truncate">
+		<div class="col-span-3 text-sm truncate">
 			{contract.contractData.clientName}
 		</div>
 
 		<!-- Service Fee - Right-Aligned -->
 		<div
-			class="col-span-2 text-base font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
+			class="col-span-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
 		>
 			{formatCurrency(contract.contractData.netFee)}
 		</div>
 
 		<!-- Date -->
-		<div class="col-span-2 text-sm text-center tracking-wide text-foreground/70 font-medium">
+		<div class="col-span-2 text-sm text-center tracking-wide">
 			{formatDateString(contract.contractData.startDate)}
 		</div>
 
 		<!-- Venue/Location -->
-		<div class="col-span-2 text-sm text-muted-foreground/60 truncate">
+		<div class="col-span-2 text-sm truncate">
 			{contract.contractData.eventLocation}
 		</div>
 

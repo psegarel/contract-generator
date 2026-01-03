@@ -31,8 +31,8 @@
 		</Card>
 	{:else}
 		<div>
-			{#each contracts as contract (contract.id)}
-				<ContractListItem {contract} />
+			{#each contracts as contract, index (contract.id)}
+				<ContractListItem {contract} {index} />
 			{/each}
 		</div>
 	{/if}

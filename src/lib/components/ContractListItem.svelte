@@ -7,9 +7,10 @@
 
 	interface Props {
 		contract: UnifiedContract;
+		index: number;
 	}
 
-	let { contract }: Props = $props();
+	let { contract, index }: Props = $props();
 
 	function getContractTypeLabel(type: 'service' | 'event-planning'): string {
 		return type === 'service' ? 'Service' : 'Event Planning';
@@ -22,9 +23,9 @@
 	}
 </script>
 
-<div class="py-3 border-b border-dotted border-border">
+<div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
 	<!-- Mobile: Stacked Layout -->
-	<div class="md:hidden space-y-4">
+	<div class="md:hidden space-y-4 py-3">
 		<!-- Title and Type Badge -->
 		<div class="flex items-start justify-between gap-3">
 			<h3 class="text-xl font-bold leading-tight flex-1 tracking-tight">
@@ -73,7 +74,7 @@
 	</div>
 
 	<!-- Desktop: Grid Layout (16 columns for better spacing) -->
-	<div class="hidden md:grid grid-cols-16 gap-3 items-center">
+	<div class="hidden md:grid grid-cols-16 gap-3 items-center py-3 px-4">
 		<!-- Event Name -->
 		<div class="col-span-4">
 			<h3 class="text-sm font-bold tracking-tight truncate">
@@ -120,7 +121,7 @@
 		</div>
 
 		<!-- Edit Button -->
-		<div class="col-span-1 flex justify-end">
+		<div class="col-span-1 flex justify-center">
 			<Button size="sm" href={getContractLink(contract)} class="px-2">
 				<Pencil class="h-4 w-4" />
 			</Button>
