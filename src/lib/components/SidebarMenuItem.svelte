@@ -108,30 +108,36 @@
 	<a
 		{href}
 		onclick={handleClick}
-		class="flex items-center px-3 py-2.5 rounded-xl transition-all group
+		class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden
 		{isActive
 			? 'bg-primary/10 text-primary font-semibold'
 			: 'hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground'}"
 	>
 		<Icon
-			class="h-5 w-5 transition-colors {isActive
+			class="h-5 w-5 shrink-0 transition-colors {isActive
 				? 'text-primary'
 				: 'text-sidebar-foreground group-hover:text-primary'}"
 		/>
-		{#if sidebarOpen}
-			<span class="ml-3 font-medium text-sm">{label}</span>
-			{#if subItems}
-				<ChevronRight
-					class="ml-auto h-4 w-4 transition-transform {expanded ? 'rotate-90' : ''}"
-				/>
-			{/if}
+		<span
+			class="ml-3 font-medium text-sm whitespace-nowrap transition-all duration-300 ease-in-out {sidebarOpen
+				? 'opacity-100 translate-x-0'
+				: 'opacity-0 -translate-x-4 pointer-events-none'}"
+		>
+			{label}
+		</span>
+		{#if subItems}
+			<ChevronRight
+				class="ml-auto h-4 w-4 shrink-0 transition-all duration-300 ease-in-out {expanded
+					? 'rotate-90'
+					: ''} {sidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}"
+			/>
 		{/if}
 	</a>
 
 	{#if sidebarOpen && subItems}
 		<div use:submenuAnimation={expanded} class="overflow-hidden">
 			<div class="ml-9 mt-1 space-y-1 pb-2">
-				{#each subItems as sub}
+				{#each subItems as sub (sub.href)}
 					<SidebarSubMenuItem label={sub.label} href={sub.href} isActive={currentPath === sub.href} />
 				{/each}
 			</div>
