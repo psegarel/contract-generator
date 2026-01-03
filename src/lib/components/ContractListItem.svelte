@@ -24,10 +24,10 @@
 
 <div class="py-3 border-b border-dotted border-border">
 	<!-- Mobile: Stacked Layout -->
-	<div class="md:hidden space-y-3 px-1">
+	<div class="md:hidden space-y-4">
 		<!-- Title and Type Badge -->
 		<div class="flex items-start justify-between gap-3">
-			<h3 class="text-base font-bold leading-tight flex-1 tracking-tight">
+			<h3 class="text-xl font-bold leading-tight flex-1 tracking-tight">
 				{contract.eventName}
 			</h3>
 			<Badge variant="outline" class="shrink-0">
@@ -36,17 +36,17 @@
 		</div>
 
 		<!-- Details -->
-		<div class="space-y-1.5 text-sm text-muted-foreground">
+		<div class="space-y-2 text-sm text-muted-foreground">
 			<div class="flex items-center gap-2.5">
-				<Calendar class="h-3.5 w-3.5 shrink-0" />
+				<Calendar class="h-4 w-4 shrink-0" />
 				<span class="tracking-wide">{formatDateString(contract.date)}</span>
 			</div>
 			<div class="flex items-center gap-2.5">
-				<MapPin class="h-3.5 w-3.5 shrink-0" />
+				<MapPin class="h-4 w-4 shrink-0" />
 				<span class="truncate">{contract.location}</span>
 			</div>
 			<div class="flex items-center gap-2.5">
-				<User class="h-3.5 w-3.5 shrink-0" />
+				<User class="h-4 w-4 shrink-0" />
 				<span class="truncate">{contract.clientName}</span>
 			</div>
 		</div>
@@ -73,39 +73,39 @@
 	</div>
 
 	<!-- Desktop: Grid Layout (16 columns for better spacing) -->
-	<div class="hidden md:grid grid-cols-16 gap-3 items-center px-1">
+	<div class="hidden md:grid grid-cols-16 gap-3 items-center">
 		<!-- Event Name -->
 		<div class="col-span-4">
-			<h3 class="text-sm font-bold tracking-tight truncate">
+			<h3 class="text-base font-bold tracking-tight truncate">
 				{contract.eventName}
 			</h3>
 		</div>
 
 		<!-- Client Name -->
-		<div class="col-span-3 text-sm truncate">
+		<div class="col-span-3 text-base truncate">
 			{contract.clientName}
 		</div>
 
 		<!-- Contract Value -->
 		<div
-			class="col-span-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
+			class="col-span-2 text-base font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
 		>
 			{formatCurrency(contract.contractValue)}
 		</div>
 
 		<!-- Date -->
-		<div class="col-span-2 text-xs text-center tracking-wide text-foreground/70 font-medium">
+		<div class="col-span-2 text-base text-center tracking-wide">
 			{formatDateString(contract.date)}
 		</div>
 
 		<!-- Location -->
-		<div class="col-span-2 text-xs text-muted-foreground/60 truncate">
+		<div class="col-span-2 text-base truncate">
 			{contract.location}
 		</div>
 
 		<!-- Type Badge -->
 		<div class="col-span-1 flex justify-center">
-			<Badge variant="outline" class="text-xs">
+			<Badge variant="outline">
 				{getContractTypeLabel(contract.type)}
 			</Badge>
 		</div>
@@ -113,9 +113,9 @@
 		<!-- Payment Status Badge -->
 		<div class="col-span-1 flex justify-center">
 			{#if contract.paymentStatus === 'paid'}
-				<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600 text-xs">Paid</Badge>
+				<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
 			{:else}
-				<Badge variant="secondary" class="text-xs">Unpaid</Badge>
+				<Badge variant="secondary">Unpaid</Badge>
 			{/if}
 		</div>
 
