@@ -5,6 +5,7 @@
 	import ContractValue from '$lib/components/ContractValue.svelte';
 	import { LayoutDashboard } from 'lucide-svelte';
 	import DashboardCard from '$lib/components/DashboardCard.svelte';
+	import LatestContractsList from '$lib/components/LatestContractsList.svelte';
 
 	$effect(() => {
 		contractState.init();
@@ -15,7 +16,7 @@
 </script>
 
 <div class="p-8">
-	<div class="max-w-4xl">
+	<div>
 		<div class="flex items-center gap-3 mb-8">
 			<!-- <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
 				<LayoutDashboard class="w-6 h-6" />
@@ -35,6 +36,7 @@
 					{totalContractValue}
 					isLoading={contractState.isLoading}
 					error={contractState.error}
+					class="text-right"
 				/>
 			</DashboardCard>
 			<div class="p-6 rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
@@ -49,6 +51,11 @@
 				</div>
 				<div class="text-3xl font-bold">0</div>
 			</div>
+		</div>
+
+		<!-- Latest Contracts Section -->
+		<div class="mt-8">
+			<LatestContractsList />
 		</div>
 	</div>
 </div>

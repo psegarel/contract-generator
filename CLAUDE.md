@@ -193,9 +193,10 @@ This project uses Tailwind CSS with a utility-first methodology:
 **Core Principles:**
 
 1. **Use Tailwind utilities directly in components** - This is the primary approach
-2. \*\*Use app.css to create a design-system
+2. **Use app.css to create a design-system**
 3. **No component-scoped `<style>` blocks** - Avoid scattered styles across components
 4. **Reduce CSS bundle size** - Let Tailwind's tree-shaking optimize the bundle
+5. **Avoid `max-w-*` utilities** - Let content use full available width; use responsive grid/flex instead
 
 **Tailwind-First Process:**
 
@@ -262,5 +263,5 @@ This project uses Tailwind CSS with a utility-first methodology:
 See `AUTOFIXER_STATUS.md` for current component status and checking progress.
 
 ---
-**Last Updated:** 2026-01-02
-**Reason:** Added autofixer tracking documentation, updated navigation and contact editing functionality.
+**Last Updated:** 2026-01-03
+**Reason:** Added guideline to avoid max-w-* utilities in favor of full-width responsive layouts.

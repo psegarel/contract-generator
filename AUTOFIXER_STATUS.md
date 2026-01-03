@@ -27,9 +27,13 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | AuthGuard.svelte | ✅ | 2026-01-02 | Clean - no issues |
 | ClientForm.svelte | ✅ | 2026-01-02 | Recent refactor, no $effect issues |
 | ContractPageHeader.svelte | ✅ | 2026-01-02 | Fixed deprecated slot usage |
+| DashboardCard.svelte | ❌ | - | - |
+| ContractValue.svelte | ❌ | - | - |
 | EventPlanningContractForm.svelte | ✅ | 2026-01-02 | Clean - orchestrator pattern |
 | FileUpload.svelte | ✅ | 2026-01-02 | Updated to use bind:this |
 | Header.svelte | ✅ | 2026-01-02 | Clean - no issues |
+| LatestContractsList.svelte | ✅ | 2026-01-03 | Subscription pattern - see Known Issues |
+| LatestContractsListItem.svelte | ✅ | 2026-01-03 | Clean - 0 issues, 0 suggestions |
 | LocationForm.svelte | ❌ | - | - |
 | LoginForm.svelte | ❌ | - | - |
 | ServiceContractForm.svelte | ✅ | 2026-01-02 | Recent refactor, no $effect issues |
@@ -94,6 +98,36 @@ When checking a component:
 
 ---
 
+## Known Issues (To Revisit)
+
+### Subscription Pattern Warnings
+
+**Components Affected:**
+- LatestContractsList.svelte
+- +page.svelte (Dashboard root)
+
+**Issue:**
+Autofixer gives 2 suggestions about calling `.init()` and `.destroy()` methods inside `$effect`:
+```
+"You are calling a function inside an $effect. Please check if the function
+is reassigning a stateful variable because that's considered malpractice..."
+```
+
+**Context:**
+- This is the established pattern for managing Firestore subscriptions via state classes
+- Same pattern used in `ContractState` and `ServiceContractState`
+- The autofixer suggests to ignore if we're sure the functions are managing side effects
+- This is legitimate use of `$effect` for external API subscriptions (Firestore)
+
+**Decision:**
+- Accepted as valid pattern for now
+- Consider refactoring subscription management pattern in future to eliminate warnings
+- Not blocking since autofixer says to ignore if certain about side effects
+
+**Date Noted:** 2026-01-03
+
+---
+
 ## Common Issues to Watch For
 
 Based on CLAUDE.md guidelines:
@@ -109,22 +143,30 @@ Based on CLAUDE.md guidelines:
 
 ## Progress Tracking
 
-**Total Custom Components:** 32 (ui/ folder NOT included - shadcn components)
-**Checked:** 15 (47%)
+**Total Custom Components:** 34 (ui/ folder NOT included - shadcn components)
+**Checked:** 17 (50%)
 **Needs Review:** 0 (0%)
-**Not Checked:** 17 (53%)
+**Not Checked:** 17 (50%)
 
 **Recently Checked (2026-01-03):**
+- LatestContractsList.svelte ✅
+- LatestContractsListItem.svelte ✅
 - ServiceContractListItem.svelte ✅
 
 **Previously Checked (2026-01-02):**
 - AuthGuard.svelte ✅
+- ClientForm.svelte ✅
 - ContractPageHeader.svelte ✅
 - design-system/+layout.svelte ✅
 - design-system/+page.svelte ✅
+- contracts/event-planning/list/+page.svelte ✅
 - EventPlanningContractForm.svelte ✅
 - FileUpload.svelte ✅
 - Header.svelte ✅
+- ServiceContractForm.svelte ✅
 - ServiceContractList.svelte ✅
+- TextField.svelte ✅
+- TextareaField.svelte ✅
+- event-planning/ClientInfoSection.svelte ✅
 
 **Goal:** 100% of custom components checked and validated

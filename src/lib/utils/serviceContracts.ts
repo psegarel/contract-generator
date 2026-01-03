@@ -9,7 +9,9 @@ import {
 	where,
 	orderBy,
 	type Timestamp,
-	serverTimestamp
+	serverTimestamp,
+	onSnapshot,
+	type Unsubscribe
 } from 'firebase/firestore';
 import { z } from 'zod';
 import { db } from '$lib/config/firebase';
@@ -49,6 +51,40 @@ export interface SavedServiceContractInput
 }
 
 const COLLECTION_NAME = 'service-contracts';
+
+/**
+ * Subscribe to service contracts (real-time updates)
+ */
+export function subscribeToServiceContracts(
+	callback: (contracts: SavedServiceContract[]) => void,
+	onError: (error: Error) => void
+): Unsubscribe {
+	const q = query(collection(db, COLLECTION_NAME), orderBy('createdAt', 'desc'));
+
+	return onSnapshot(
+		q,
+		(snapshot) => {
+			const contracts = snapshot.docs.map((doc) => {
+				const data = doc.data();
+				return {
+					id: doc.id,
+					...data,
+					type: data.type || 'service',
+					locationId: data.locationId || '',
+					status: data.status || 'generated',
+					paymentStatus: data.paymentStatus || 'unpaid',
+					paidAt: data.paidAt || null,
+					paidBy: data.paidBy || null
+				} as SavedServiceContract;
+			});
+			callback(contracts);
+		},
+		(error) => {
+			console.error('Error in service contracts subscription:', error);
+			onError(error);
+		}
+	);
+}
 
 /**
  * Save a new service contract
