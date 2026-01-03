@@ -2,7 +2,7 @@
 
 This document tracks which Svelte components have been validated with the Svelte autofixer tool.
 
-**Last Updated:** 2026-01-02
+**Last Updated:** 2026-01-03
 
 ## ⚠️ Important Note
 
@@ -34,6 +34,7 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | LoginForm.svelte | ❌ | - | - |
 | ServiceContractForm.svelte | ✅ | 2026-01-02 | Recent refactor, no $effect issues |
 | ServiceContractList.svelte | ✅ | 2026-01-02 | Clean - no issues |
+| ServiceContractListItem.svelte | ✅ | 2026-01-03 | Dashboard grid layout, Titillium Web typography |
 | TextField.svelte | ✅ | 2026-01-02 | Updated to handle nullable values |
 | TextareaField.svelte | ✅ | 2026-01-02 | Updated to handle nullable values |
 
@@ -108,12 +109,15 @@ Based on CLAUDE.md guidelines:
 
 ## Progress Tracking
 
-**Total Custom Components:** 31 (ui/ folder NOT included - shadcn components)
-**Checked:** 14 (45%)
+**Total Custom Components:** 32 (ui/ folder NOT included - shadcn components)
+**Checked:** 15 (47%)
 **Needs Review:** 0 (0%)
-**Not Checked:** 17 (55%)
+**Not Checked:** 17 (53%)
 
-**Recently Checked (2026-01-02):**
+**Recently Checked (2026-01-03):**
+- ServiceContractListItem.svelte ✅
+
+**Previously Checked (2026-01-02):**
 - AuthGuard.svelte ✅
 - ContractPageHeader.svelte ✅
 - design-system/+layout.svelte ✅
