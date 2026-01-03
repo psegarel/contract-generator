@@ -25,16 +25,12 @@
 	});
 </script>
 
-<div class="p-6 rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+<div class="border-t border-border">
 	<!-- Header -->
-	<div class="flex items-center justify-between mb-6">
+	<div class="flex items-center justify-between py-6">
 		<div>
 			<h2 class="text-lg font-bold tracking-tight text-foreground">Latest Contracts</h2>
 		</div>
-		<!-- <Button variant="ghost" size="sm" href="/contracts" class="gap-1.5">
-			View All
-			<ArrowRight class="h-3.5 w-3.5" />
-		</Button> -->
 	</div>
 
 	<!-- Content -->
@@ -57,11 +53,9 @@
 			<p class="text-xs">Create your first contract to see it here</p>
 		</div>
 	{:else}
-		<div class="-mx-6">
+		<div class="max-h-96 overflow-y-auto">
 			{#each latestContracts as contract (contract.id)}
-				<div class="px-6">
-					<ContractListItem {contract} />
-				</div>
+				<ContractListItem {contract} />
 			{/each}
 		</div>
 	{/if}

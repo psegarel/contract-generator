@@ -76,30 +76,30 @@
 	<div class="hidden md:grid grid-cols-16 gap-3 items-center">
 		<!-- Event Name -->
 		<div class="col-span-4">
-			<h3 class="text-base font-bold tracking-tight truncate">
+			<h3 class="text-sm font-bold tracking-tight truncate">
 				{contract.eventName}
 			</h3>
 		</div>
 
 		<!-- Client Name -->
-		<div class="col-span-3 text-base truncate">
+		<div class="col-span-3 text-sm truncate">
 			{contract.clientName}
 		</div>
 
 		<!-- Contract Value -->
 		<div
-			class="col-span-2 text-base font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
+			class="col-span-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
 		>
 			{formatCurrency(contract.contractValue)}
 		</div>
 
 		<!-- Date -->
-		<div class="col-span-2 text-base text-center tracking-wide">
+		<div class="col-span-2 text-sm text-center tracking-wide">
 			{formatDateString(contract.date)}
 		</div>
 
 		<!-- Location -->
-		<div class="col-span-2 text-base truncate">
+		<div class="col-span-2 text-sm truncate">
 			{contract.location}
 		</div>
 
