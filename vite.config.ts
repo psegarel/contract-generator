@@ -7,6 +7,7 @@ export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	ssr: { noExternal: ['bits-ui'] },
 	test: {
+		environment: 'jsdom',
 		expect: { requireAssertions: true },
 		projects: [
 			{
