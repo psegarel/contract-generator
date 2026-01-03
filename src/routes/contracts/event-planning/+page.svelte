@@ -142,7 +142,7 @@
 </script>
 
 	<ContractPageHeader
-		title={`${editContractId ? 'Edit' : ''} Event Planning Contract`}
+		title="Event Planning Contract"
 		subtitle="Comprehensive Event Management Agreement"
 	>
 		{#if isLoadingContract}

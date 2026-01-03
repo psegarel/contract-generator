@@ -2,7 +2,7 @@
 	import { serviceContractState } from '$lib/state/serviceContractState.svelte';
 	import { contractState } from '$lib/state/contractState.svelte';
 	import { mergeAndSortContracts, type UnifiedContract } from '$lib/utils/mergeContracts';
-	import LatestContractsListItem from './LatestContractsListItem.svelte';
+	import ContractListItem from './ContractListItem.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowRight, FileText } from 'lucide-svelte';
 
@@ -17,9 +17,7 @@
 	);
 
 	let isLoading = $derived(serviceContractState.isLoading || contractState.isLoading);
-	let hasError = $derived(
-		serviceContractState.error !== null || contractState.error !== null
-	);
+	let hasError = $derived(serviceContractState.error !== null || contractState.error !== null);
 
 	$effect(() => {
 		serviceContractState.init();
@@ -32,18 +30,19 @@
 	<div class="flex items-center justify-between mb-6">
 		<div>
 			<h2 class="text-lg font-bold tracking-tight text-foreground">Latest Contracts</h2>
-			<p class="text-sm text-muted-foreground mt-0.5">Recent service and event planning contracts</p>
 		</div>
-		<Button variant="ghost" size="sm" href="/contracts" class="gap-1.5">
+		<!-- <Button variant="ghost" size="sm" href="/contracts" class="gap-1.5">
 			View All
 			<ArrowRight class="h-3.5 w-3.5" />
-		</Button>
+		</Button> -->
 	</div>
 
 	<!-- Content -->
 	{#if isLoading}
 		<div class="py-12 text-center text-muted-foreground">
-			<div class="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-3"></div>
+			<div
+				class="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-3"
+			></div>
 			<p class="text-sm">Loading contracts...</p>
 		</div>
 	{:else if hasError}
@@ -61,7 +60,7 @@
 		<div class="-mx-6">
 			{#each latestContracts as contract (contract.id)}
 				<div class="px-6">
-					<LatestContractsListItem {contract} />
+					<ContractListItem {contract} />
 				</div>
 			{/each}
 		</div>

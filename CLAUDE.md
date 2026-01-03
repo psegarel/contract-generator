@@ -164,7 +164,9 @@ This is a common anti-pattern that breaks reactivity and creates unnecessary com
 - ✅ **Small components** - Each component should do one thing well
 - ✅ **Sub-components** - Break large components into smaller, focused pieces
 - ✅ **Dumb components** - Components should be presentational (receive props, emit events)
-- ✅ **Externalized logic** - Business logic, calculations, and validations in utility functions
+- ✅ **Externalized logic** - Business logic, calculations, validations, and formatting in utility functions
+  - **Avoid duplication**: If the same function appears in multiple components, extract it to a shared utility
+  - **Example**: `formatCurrency()` and `formatDateString()` used across multiple list components should live in `src/lib/utils/formatting.ts`
 
 **Size Guidelines:**
 
@@ -263,5 +265,94 @@ This project uses Tailwind CSS with a utility-first methodology:
 See `AUTOFIXER_STATUS.md` for current component status and checking progress.
 
 ---
+
+## Contract Architecture: Current State & Future Vision
+
+### Current State (Temporary Normalization Approach)
+
+We currently have **separate contract types** for different contract kinds:
+- `SavedServiceContract` (service contracts)
+- `SavedEventPlanningContract` (event planning contracts)
+
+To display them together, we use a **normalization pattern**:
+- `UnifiedContract` interface (common display fields)
+- `mergeContracts()` utility (converts specific types → unified format)
+
+**Location:** `src/lib/utils/mergeContracts.ts`
+
+### Target Architecture (Base Contract Interface)
+
+**Vision:** All contract types should share a common base interface with type-safe discrimination.
+
+```typescript
+// Future: Base interface with all common fields
+interface BaseContract {
+  id: string;
+  type: 'service' | 'event-planning';
+  contractNumber: string;
+  createdAt: Timestamp;
+  ownerUid: string;
+  locationId: string;
+  paymentStatus: 'unpaid' | 'paid';
+  paidAt: Timestamp | null;
+  paidBy: string | null;
+
+  // Common display fields (enforced at type level)
+  eventName: string;
+  clientName: string;
+  location: string;
+  date: string;
+  contractValue: number;
+}
+
+// Specific types extend the base
+interface ServiceContract extends BaseContract {
+  type: 'service';
+  contractData: ContractData;
+  status: 'draft' | 'generated';
+}
+
+interface EventPlanningContract extends BaseContract {
+  type: 'event-planning';
+  contractData: EventPlanningContractData;
+  paymentDirection: 'receivable' | 'payable';
+}
+```
+
+### Migration Path: Design for the Future
+
+**Strategy:** Design all new code to work with `UnifiedContract`, treating it as the proto-base interface.
+
+**Guidelines for New Code:**
+
+1. ✅ **Components should consume `UnifiedContract`**, not specific contract types
+   - Good: `ContractListItem` accepts `UnifiedContract`
+   - Bad: Creating separate `ServiceContractListItem` and `EventPlanningContractListItem`
+
+2. ✅ **Use normalization functions as temporary adapters**
+   - `normalizeServiceContract()` and `normalizeEventPlanningContract()` are temporary
+   - They will be removed when we refactor to base contracts
+
+3. ✅ **New contract types must provide normalization**
+   - If adding a new contract type, create a `normalizeXContract()` function
+   - Map fields to `UnifiedContract` format
+
+4. ✅ **Avoid spreading contract-type-specific logic**
+   - Don't check `contract.type` everywhere
+   - Prefer polymorphism through the unified interface
+
+**When We Refactor:**
+- Restructure Firebase schemas to conform to `BaseContract` shape
+- Remove normalization functions (`mergeContracts.ts` becomes obsolete)
+- Components already work - no changes needed!
+
+**Why This Matters:**
+- Prevents technical debt from growing
+- Makes eventual refactor much easier
+- New features align with target architecture
+- Each new component is a step forward, not backward
+
+---
+
 **Last Updated:** 2026-01-03
-**Reason:** Added guideline to avoid max-w-* utilities in favor of full-width responsive layouts.
+**Reason:** Added contract architecture vision and guidelines for designing toward future refactor.

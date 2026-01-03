@@ -33,7 +33,7 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | FileUpload.svelte | ✅ | 2026-01-02 | Updated to use bind:this |
 | Header.svelte | ✅ | 2026-01-02 | Clean - no issues |
 | LatestContractsList.svelte | ✅ | 2026-01-03 | Subscription pattern - see Known Issues |
-| LatestContractsListItem.svelte | ✅ | 2026-01-03 | Clean - 0 issues, 0 suggestions |
+| ContractListItem.svelte | ✅ | 2026-01-03 | Renamed from LatestContractsListItem, generic component for all contract lists |
 | LocationForm.svelte | ❌ | - | - |
 | LoginForm.svelte | ❌ | - | - |
 | ServiceContractForm.svelte | ✅ | 2026-01-02 | Recent refactor, no $effect issues |
@@ -62,7 +62,7 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | contacts/+page.svelte | ❌ | - | - |
 | contracts/+page.svelte | ❌ | - | - |
 | contracts/event-planning/+page.svelte | ❌ | - | - |
-| contracts/event-planning/list/+page.svelte | ✅ | 2026-01-02 | Added payment status tracking |
+| contracts/event-planning/list/+page.svelte | ✅ | 2026-01-03 | Refactored to use generic ContractListItem |
 | contracts/service/+page.svelte | ❌ | - | - |
 | contracts/service/list/+page.svelte | ❌ | - | - |
 | design-system/+layout.svelte | ✅ | 2026-01-02 | Clean - no issues |
@@ -150,8 +150,9 @@ Based on CLAUDE.md guidelines:
 
 **Recently Checked (2026-01-03):**
 - LatestContractsList.svelte ✅
-- LatestContractsListItem.svelte ✅
+- ContractListItem.svelte ✅ (renamed from LatestContractsListItem)
 - ServiceContractListItem.svelte ✅
+- contracts/event-planning/list/+page.svelte ✅ (refactored to use generic component)
 
 **Previously Checked (2026-01-02):**
 - AuthGuard.svelte ✅

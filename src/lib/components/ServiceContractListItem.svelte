@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { SavedServiceContract } from '$lib/utils/serviceContracts';
+	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
 	import { Download, Pencil, DollarSign, MapPin, User, Calendar } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
@@ -21,25 +22,6 @@
 		onDownload,
 		onTogglePayment
 	}: Props = $props();
-
-	function formatDateString(dateString: string): string {
-		if (!dateString) return 'N/A';
-		const date = new Date(dateString);
-		return new Intl.DateTimeFormat('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		})
-			.format(date)
-			.toUpperCase();
-	}
-
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('vi-VN', {
-			style: 'currency',
-			currency: 'VND'
-		}).format(amount);
-	}
 </script>
 
 <div class="py-2 border-b border-dotted border-border">
@@ -121,21 +103,21 @@
 		</div>
 	</div>
 
-	<!-- Desktop: Dashboard Grid Layout -->
-	<div class="hidden md:grid grid-cols-12 gap-4 items-center">
+	<!-- Desktop: Dashboard Grid Layout (16 columns for better spacing) -->
+	<div class="hidden md:grid grid-cols-16 gap-3 items-center">
 		<!-- Event Name -->
-		<h3 class="col-span-3 text-base font-bold tracking-tight truncate">
+		<h3 class="col-span-4 text-base font-bold tracking-tight truncate">
 			{contract.contractData.eventName}
 		</h3>
 
 		<!-- Client/Staff Name -->
-		<div class="col-span-2 text-base font-base truncate">
+		<div class="col-span-3 text-base truncate">
 			{contract.contractData.clientName}
 		</div>
 
 		<!-- Service Fee - Right-Aligned -->
 		<div
-			class="col-span-1 text-base font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
+			class="col-span-2 text-base font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
 		>
 			{formatCurrency(contract.contractData.netFee)}
 		</div>
@@ -146,12 +128,12 @@
 		</div>
 
 		<!-- Venue/Location -->
-		<div class="col-span-3 text-sm text-muted-foreground/60 truncate">
+		<div class="col-span-2 text-sm text-muted-foreground/60 truncate">
 			{contract.contractData.eventLocation}
 		</div>
 
 		<!-- Badges & Actions -->
-		<div class="col-span-1 flex gap-2 justify-end items-center">
+		<div class="col-span-3 flex gap-2 justify-end items-center">
 			{#if contract.status === 'draft'}
 				<Badge variant="outline" class="border-amber-500 text-amber-600 dark:text-amber-400">
 					Draft
