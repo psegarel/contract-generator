@@ -190,5 +190,61 @@ service cloud.firestore {
       // Delete: any authenticated user can delete
       allow delete: if isSignedIn();
     }
+
+    // ============================================================
+    // V2 Collections (New Architecture)
+    // ============================================================
+
+    // Counterparties (v2) - replaces clients
+    match /counterparties/{counterpartyId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in
+      allow create: if isSignedIn();
+
+      // Update: any authenticated user can update
+      allow update: if isSignedIn();
+
+      // Delete: any authenticated user can delete
+      allow delete: if isSignedIn();
+    }
+
+    // Events (v2) - new entity grouping contracts
+    match /events/{eventId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in
+      allow create: if isSignedIn();
+
+      // Update: any authenticated user can update
+      allow update: if isSignedIn();
+
+      // Delete: any authenticated user can delete
+      allow delete: if isSignedIn();
+    }
+
+    // Service Provision Contracts (v2) - migrated from service-contracts
+    match /service-provision-contracts/{contractId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in
+      allow create: if isSignedIn();
+
+      // Update: any authenticated user can update
+      // But only admins can update payment status
+      allow update: if isSignedIn()
+        && (
+          // Regular update (non-payment fields)
+          (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
+          // OR admin updating payment status
+          || isAdmin()
+        );
+
+      // Delete: any authenticated user can delete
+      allow delete: if isSignedIn();
+    }
   }
 }
