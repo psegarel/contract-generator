@@ -6,7 +6,7 @@ import { baseContractSchema, baseContractInputSchema } from '../baseContract';
  */
 const serviceProvisionFields = {
 	type: z.literal('service-provision'),
-	paymentDirection: z.literal('receivable'),
+	paymentDirection: z.literal('payable'),
 
 	// Service details (from old ContractData)
 	jobName: z.string().min(1, 'Job name is required'),

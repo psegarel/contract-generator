@@ -1,16 +1,17 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, MapPin, User, Pencil } from 'lucide-svelte';
+	import { Calendar, User, Pencil } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		contract: BaseContract;
 		index: number;
+		getLink?: (c: BaseContract) => string;
 	}
 
-	let { contract, index }: Props = $props();
+	let { contract, index, getLink }: Props = $props();
 
 	function getContractTypeLabel(type: BaseContract['type']): string {
 		const labels: Record<BaseContract['type'], string> = {
@@ -19,20 +20,24 @@
 			'equipment-rental': 'Equipment',
 			'service-provision': 'Service',
 			'event-planning': 'Event Planning',
-			'subcontractor': 'Subcontractor',
+			subcontractor: 'Subcontractor',
 			'client-service': 'Client Service'
 		};
 		return labels[type];
 	}
 
-	function getContractLink(contract: BaseContract): string {
-		return `/v2/contracts/${contract.type}/${contract.id}`;
+	function getDefaultContractLink(contract: BaseContract): string {
+		return `/contracts/${contract.type}/${contract.id}`;
 	}
 
 	function getPaymentDirectionBadge(direction: BaseContract['paymentDirection']) {
 		return direction === 'receivable'
 			? { variant: 'default' as const, label: 'AR', class: 'bg-blue-500 hover:bg-blue-600' }
-			: { variant: 'secondary' as const, label: 'AP', class: 'bg-amber-500 hover:bg-amber-600 text-white' };
+			: {
+					variant: 'secondary' as const,
+					label: 'AP',
+					class: 'bg-amber-500 hover:bg-amber-600 text-white'
+				};
 	}
 
 	let paymentDirBadge = $derived(getPaymentDirectionBadge(contract.paymentDirection));
@@ -55,7 +60,9 @@
 		<div class="space-y-2 text-sm text-muted-foreground">
 			<div class="flex items-center gap-2.5">
 				<Calendar class="h-4 w-4 shrink-0" />
-				<span class="tracking-wide">{formatDateString(contract.createdAt.toDate().toISOString())}</span>
+				<span class="tracking-wide"
+					>{formatDateString(contract.createdAt.toDate().toISOString())}</span
+				>
 			</div>
 			<div class="flex items-center gap-2.5">
 				<User class="h-4 w-4 shrink-0" />
@@ -80,7 +87,7 @@
 
 		<!-- Actions -->
 		<div class="pt-2">
-			<Button size="sm" href={getContractLink(contract)} class="w-full">
+			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="w-full">
 				<Pencil class="h-3.5 w-3.5 mr-1.5" />
 				View
 			</Button>
@@ -141,7 +148,7 @@
 
 		<!-- View Button -->
 		<div class="col-span-1 flex justify-center">
-			<Button size="sm" href={getContractLink(contract)} class="px-2">
+			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="px-2">
 				<Pencil class="h-4 w-4" />
 			</Button>
 		</div>

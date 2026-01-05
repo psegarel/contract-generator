@@ -18,7 +18,7 @@
 
 	function getContractLink(contract: UnifiedContract): string {
 		return contract.type === 'service'
-			? `/contracts/service?edit=${contract.id}`
+			? `/contracts/service-provision?edit=${contract.id}`
 			: `/contracts/event-planning?edit=${contract.id}`;
 	}
 </script>

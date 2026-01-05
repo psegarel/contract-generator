@@ -96,7 +96,7 @@ async function transformServiceContract(
 		// Contract metadata
 		contractNumber: v1Contract.contractNumber,
 		contractValue,
-		paymentDirection: 'receivable',
+		paymentDirection: 'payable',
 		currency: 'VND',
 
 		// Payment tracking

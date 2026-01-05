@@ -28,8 +28,11 @@
 	let notes = $state('');
 
 	// Sync form state with client prop (only on initial load or client change)
+	// Note: While $effect to sync props to state is generally an anti-pattern,
+	// it's acceptable here for handling async prop updates (similar to EventForm.svelte pattern)
 	$effect(() => {
 		if (client) {
+			// Access all properties to ensure they're tracked
 			name = client.name;
 			email = client.email || '';
 			phone = client.phone || '';
@@ -40,8 +43,9 @@
 			representativePosition = client.representativePosition || '';
 			idDocument = client.idDocument || '';
 			taxId = client.taxId || '';
-			bankName = client.bankName || '';
-			bankAccountNumber = client.bankAccountNumber || '';
+			// Use nullish coalescing to ensure bank fields are strings (not null) for proper input display
+			bankName = client.bankName ?? '';
+			bankAccountNumber = client.bankAccountNumber ?? '';
 			notes = client.notes || '';
 		}
 	});

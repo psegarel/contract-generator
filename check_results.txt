@@ -1,0 +1,100 @@
+
+> contract-generator@0.0.1 check /Users/mac/Documents/WebDev/contract-generator
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+
+Loading svelte-check in workspace: /Users/mac/Documents/WebDev/contract-generator
+Getting Svelte diagnostics...
+
+/Users/mac/Documents/WebDev/contract-generator/src/lib/components/Header.svelte:77:42
+Error: Argument of type '["/contacts"]' is not assignable to parameter of type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/contracts/event-planning/[id]", params: { id: string; }] | [route: "/contracts/service/[id]", params: { id: string; }] | [route: "/counterparties"] | [route: "/counterparties/[id]", params: { ...; }] | ... 47 more ... | [route: ...]'.
+  Type '["/contacts"]' is not assignable to type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/counterparties"] | [route: "/events"] | [route: "/v1/contracts/event-planning/list"] | [route: "/v1/contracts/service/list"] | [route: "/contracts"] | ... 42 more ... | [route: ...]'.
+    Type '["/contacts"]' is not assignable to type '[route: "/v1/design-system/"]'.
+      Type '"/contacts"' is not assignable to type '"/v1/design-system/"'. (ts)
+											<DropdownMenu.Item
+												onSelect={() => goto(resolve('/contacts'))}
+												class="cursor-pointer"
+
+/Users/mac/Documents/WebDev/contract-generator/src/lib/components/Header.svelte:83:42
+Error: Argument of type '["/contacts/list"]' is not assignable to parameter of type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/contracts/event-planning/[id]", params: { id: string; }] | [route: "/contracts/service/[id]", params: { id: string; }] | [route: "/counterparties"] | [route: "/counterparties/[id]", params: { ...; }] | ... 47 more ... | [route: ...]'.
+  Type '["/contacts/list"]' is not assignable to type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/counterparties"] | [route: "/events"] | [route: "/v1/contracts/event-planning/list"] | [route: "/v1/contracts/service/list"] | [route: "/contracts"] | ... 42 more ... | [route: ...]'.
+    Type '["/contacts/list"]' is not assignable to type '[route: "/v1/design-system/"]'.
+      Type '"/contacts/list"' is not assignable to type '"/v1/design-system/"'. (ts)
+											<DropdownMenu.Item
+												onSelect={() => goto(resolve('/contacts/list'))}
+												class="cursor-pointer"
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/event-planning/list/+page.svelte:5:14
+Error: 'ContractType' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled. (ts)
+	import { onMount } from 'svelte';
+    import { ContractType } from '$lib/types/v2';
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/event-planning/list/+page.svelte:15:56
+Error: 'ContractType' only refers to a type, but is being used as a value here. (ts)
+    let eventContracts = $derived(
+        contractState.contracts.filter(c => c.type === ContractType.EVENT_PLANNING)
+    );
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/event-planning/list/+page.svelte:21:9
+Error: Type 'SavedEventPlanningContract[]' is not assignable to type 'BaseContract[]'.
+  Type 'SavedEventPlanningContract' is missing the following properties from type 'BaseContract': updatedAt, eventId, counterpartyId, counterpartyName, and 4 more. (ts)
+	<ContractsList 
+        contracts={eventContracts} 
+        title="Event Planning Contracts"
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/service/list/+page.svelte:5:14
+Error: 'ContractType' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled. (ts)
+	import { onMount } from 'svelte';
+    import { ContractType } from '$lib/types/v2';
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/service/list/+page.svelte:15:56
+Error: 'ContractType' only refers to a type, but is being used as a value here. (ts)
+    let serviceContracts = $derived(
+        contractState.contracts.filter(c => c.type === ContractType.SERVICE_PROVISION)
+    );
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/contracts/service/list/+page.svelte:21:9
+Error: Type 'SavedEventPlanningContract[]' is not assignable to type 'BaseContract[]'.
+  Type 'SavedEventPlanningContract' is missing the following properties from type 'BaseContract': updatedAt, eventId, counterpartyId, counterpartyName, and 4 more. (ts)
+	<ContractsList 
+        contracts={serviceContracts} 
+        title="Service Contracts"
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/v1/contacts/+page.svelte:42:43
+Error: Argument of type '["/contacts/list"]' is not assignable to parameter of type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/contracts/event-planning/[id]", params: { id: string; }] | [route: "/contracts/service/[id]", params: { id: string; }] | [route: "/counterparties"] | [route: "/counterparties/[id]", params: { ...; }] | ... 47 more ... | [route: ...]'.
+  Type '["/contacts/list"]' is not assignable to type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/counterparties"] | [route: "/events"] | [route: "/v1/contracts/event-planning/list"] | [route: "/v1/contracts/service/list"] | [route: "/contracts"] | ... 42 more ... | [route: ...]'.
+    Type '["/contacts/list"]' is not assignable to type '[route: "/v1/design-system/"]'.
+      Type '"/contacts/list"' is not assignable to type '"/v1/design-system/"'. (ts)
+		</div>
+		<Button variant="outline" href={resolve('/contacts/list')} class="flex items-center gap-2">
+			<List class="h-4 w-4" />
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/v1/contacts/list/+page.svelte:63:27
+Error: Argument of type '["/contacts"]' is not assignable to parameter of type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/contracts/event-planning/[id]", params: { id: string; }] | [route: "/contracts/service/[id]", params: { id: string; }] | [route: "/counterparties"] | [route: "/counterparties/[id]", params: { ...; }] | ... 47 more ... | [route: ...]'.
+  Type '["/contacts"]' is not assignable to type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/counterparties"] | [route: "/events"] | [route: "/v1/contracts/event-planning/list"] | [route: "/v1/contracts/service/list"] | [route: "/contracts"] | ... 42 more ... | [route: ...]'.
+    Type '["/contacts"]' is not assignable to type '[route: "/v1/design-system/"]'.
+      Type '"/contacts"' is not assignable to type '"/v1/design-system/"'. (ts)
+			</div>
+				<Button href={resolve('/contacts')} class="flex items-center gap-2">
+					<Plus class="h-4 w-4" />
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/v1/contacts/list/+page.svelte:80:28
+Error: Argument of type '["/contacts"]' is not assignable to parameter of type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/contracts/event-planning/[id]", params: { id: string; }] | [route: "/contracts/service/[id]", params: { id: string; }] | [route: "/counterparties"] | [route: "/counterparties/[id]", params: { ...; }] | ... 47 more ... | [route: ...]'.
+  Type '["/contacts"]' is not assignable to type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/counterparties"] | [route: "/events"] | [route: "/v1/contracts/event-planning/list"] | [route: "/v1/contracts/service/list"] | [route: "/contracts"] | ... 42 more ... | [route: ...]'.
+    Type '["/contacts"]' is not assignable to type '[route: "/v1/design-system/"]'.
+      Type '"/contacts"' is not assignable to type '"/v1/design-system/"'. (ts)
+					</p>
+					<Button href={resolve('/contacts')}>Add Contact</Button>
+				</Card>
+
+/Users/mac/Documents/WebDev/contract-generator/src/routes/v1/contacts/list/+page.svelte:94:26
+Error: Argument of type '["/contacts"]' is not assignable to parameter of type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/contracts/event-planning/[id]", params: { id: string; }] | [route: "/contracts/service/[id]", params: { id: string; }] | [route: "/counterparties"] | [route: "/counterparties/[id]", params: { ...; }] | ... 47 more ... | [route: ...]'.
+  Type '["/contacts"]' is not assignable to type '[route: "/login"] | [route: "/"] | [route: "/contracts/service"] | [route: "/counterparties"] | [route: "/events"] | [route: "/v1/contracts/event-planning/list"] | [route: "/v1/contracts/service/list"] | [route: "/contracts"] | ... 42 more ... | [route: ...]'.
+    Type '["/contacts"]' is not assignable to type '[route: "/v1/design-system/"]'.
+      Type '"/contacts"' is not assignable to type '"/v1/design-system/"'. (ts)
+										size="icon"
+										href="{resolve('/contacts')}?edit={client.id}"
+										class="h-8 w-8 text-muted-foreground hover:text-foreground"
+
+====================================
+svelte-check found 12 errors and 0 warnings in 5 files
+ ELIFECYCLE  Command failed with exit code 1.

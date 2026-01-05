@@ -5,8 +5,10 @@
 		type ServiceProvisionContractInput
 	} from '$lib/schemas/v2/contracts/serviceProvision';
 	import { saveServiceProvisionContract, updateServiceProvisionContract } from '$lib/utils/v2';
+	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
+	import { toast } from 'svelte-sonner';
 	import ServiceDetailsSection from './sections/ServiceDetailsSection.svelte';
 	import FinancialSection from './sections/FinancialSection.svelte';
 	import BankingSection from './sections/BankingSection.svelte';
@@ -30,9 +32,9 @@
 		};
 	});
 
-	// Get available events and clients for selection
+	// Get available events and service providers for selection
 	const events = $derived(eventState.events);
-	const clients = $derived(counterpartyState.counterparties.filter((c) => c.type === 'client'));
+	const serviceProviders = $derived(counterpartyState.counterparties.filter((c) => c.type === 'service-provider'));
 
 	// Form state - initialize empty, sync with contract prop via $effect
 	let contractNumber = $state('');
@@ -73,8 +75,9 @@
 			taxRate = contract.taxRate;
 			netFee = contract.netFee;
 			status = contract.status;
-			bankName = contract.bankName;
-			accountNumber = contract.accountNumber;
+			// Ensure bank fields are strings (not null/undefined) for proper input display
+			bankName = contract.bankName ?? '';
+			accountNumber = contract.accountNumber ?? '';
 			clientEmail = contract.clientEmail;
 			clientAddress = contract.clientAddress;
 			clientPhone = contract.clientPhone;
@@ -86,18 +89,23 @@
 		}
 	});
 
-	// Auto-fill client details when client is selected
+	// Auto-fill service provider details when selected (only for new contracts, not when editing)
 	$effect(() => {
-		if (counterpartyId && clients.length > 0) {
-			const selectedClient = clients.find((c) => c.id === counterpartyId);
-			if (selectedClient && selectedClient.type === 'client') {
-				clientEmail = selectedClient.email || '';
-				clientAddress = selectedClient.address || '';
-				clientPhone = selectedClient.phone || '';
-				clientIdDocument = selectedClient.idDocument || '';
-				clientTaxId = selectedClient.taxId || '';
-				bankName = selectedClient.bankName || '';
-				accountNumber = selectedClient.bankAccountNumber || '';
+		// Don't auto-fill if we're editing an existing contract - preserve contract data
+		if (contract) return;
+		
+		if (counterpartyId && serviceProviders.length > 0) {
+			const selectedProvider = serviceProviders.find((c) => c.id === counterpartyId);
+			if (selectedProvider && selectedProvider.type === 'service-provider') {
+				clientEmail = selectedProvider.email || '';
+				clientAddress = selectedProvider.address || '';
+				clientPhone = selectedProvider.phone || '';
+				// Service providers don't have these fields - user will need to fill manually
+				// Only clear when creating a new contract (we already checked contract is null above)
+				clientIdDocument = '';
+				clientTaxId = '';
+				bankName = '';
+				accountNumber = '';
 			}
 		}
 	});
@@ -116,10 +124,66 @@
 
 	// Get selected event and counterparty names
 	let eventName = $derived(events.find((e) => e.id === eventId)?.name || '');
-	let counterpartyName = $derived(clients.find((c) => c.id === counterpartyId)?.name || '');
+	let counterpartyName = $derived(serviceProviders.find((c) => c.id === counterpartyId)?.name || '');
 
 	let isSubmitting = $state(false);
 	let error = $state<string | null>(null);
+	let showCreateProvider = $state(false);
+	let isCreatingProvider = $state(false);
+
+	// New provider form fields
+	let newProviderName = $state('');
+	let newProviderServiceType = $state('');
+	let newProviderEmail = $state('');
+	let newProviderPhone = $state('');
+
+	async function handleCreateProvider() {
+		if (!authState.user) {
+			toast.error('You must be logged in to create a service provider');
+			return;
+		}
+
+		if (!newProviderName || !newProviderServiceType) {
+			toast.error('Please fill in provider name and service type');
+			return;
+		}
+
+		isCreatingProvider = true;
+		try {
+			const providerId = await saveCounterparty({
+				type: 'service-provider',
+				name: newProviderName,
+				serviceType: newProviderServiceType,
+				email: newProviderEmail || null,
+				phone: newProviderPhone || null,
+				address: null,
+				ownerUid: authState.user.uid,
+				notes: null,
+				companyName: null,
+				typicalDeliverables: [],
+				equipmentProvided: [],
+				businessLicense: null,
+				insuranceInfo: null
+			});
+
+			toast.success('Service provider created successfully!');
+
+			// Select the newly created provider
+			counterpartyId = providerId;
+
+			// Reset form and hide
+			newProviderName = '';
+			newProviderServiceType = '';
+			newProviderEmail = '';
+			newProviderPhone = '';
+			showCreateProvider = false;
+		} catch (err) {
+			console.error('Error creating provider:', err);
+			toast.error('Failed to create service provider');
+		} finally {
+			isCreatingProvider = false;
+		}
+	}
 
 	async function handleSubmit() {
 		if (!authState.user) {
@@ -133,7 +197,7 @@
 		}
 
 		if (!counterpartyId) {
-			error = 'Please select a client';
+			error = 'Please select a service provider';
 			return;
 		}
 
@@ -149,7 +213,7 @@
 				counterpartyId,
 				counterpartyName,
 				eventName,
-				paymentDirection: 'receivable',
+				paymentDirection: 'payable',
 				paymentStatus,
 				contractValue,
 				currency: 'VND',
@@ -259,18 +323,27 @@
 			</div>
 
 			<div>
-				<label for="counterpartyId" class="block text-sm font-medium text-gray-700 mb-1">
-					Client <span class="text-red-500">*</span>
-				</label>
+				<div class="flex items-center justify-between mb-1">
+					<label for="counterpartyId" class="block text-sm font-medium text-gray-700">
+						Service Provider <span class="text-red-500">*</span>
+					</label>
+					<button
+						type="button"
+						onclick={() => showCreateProvider = !showCreateProvider}
+						class="text-sm text-blue-600 hover:text-blue-700 font-medium"
+					>
+						{showCreateProvider ? 'Cancel' : '+ Create New'}
+					</button>
+				</div>
 				<select
 					id="counterpartyId"
 					bind:value={counterpartyId}
 					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
-					<option value="">Select a client</option>
-					{#each clients as client}
-						<option value={client.id}>{client.name}</option>
+					<option value="">Select a service provider</option>
+					{#each serviceProviders as provider}
+						<option value={provider.id}>{provider.name}</option>
 					{/each}
 				</select>
 			</div>
@@ -291,6 +364,90 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Inline Service Provider Creation Form -->
+	{#if showCreateProvider}
+		<div class="bg-blue-50 border border-blue-200 p-6 rounded-lg">
+			<h3 class="text-lg font-semibold text-gray-900 mb-4">Create New Service Provider</h3>
+			<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
+				<div>
+					<label for="newProviderName" class="block text-sm font-medium text-gray-700 mb-1">
+						Provider Name <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="newProviderName"
+						type="text"
+						bind:value={newProviderName}
+						placeholder="e.g., ABC Catering Services"
+						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					/>
+				</div>
+
+				<div>
+					<label for="newProviderServiceType" class="block text-sm font-medium text-gray-700 mb-1">
+						Service Type <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="newProviderServiceType"
+						type="text"
+						bind:value={newProviderServiceType}
+						placeholder="e.g., Catering, Photography, AV Equipment"
+						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					/>
+				</div>
+
+				<div>
+					<label for="newProviderEmail" class="block text-sm font-medium text-gray-700 mb-1">
+						Email
+					</label>
+					<input
+						id="newProviderEmail"
+						type="email"
+						bind:value={newProviderEmail}
+						placeholder="provider@example.com"
+						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					/>
+				</div>
+
+				<div>
+					<label for="newProviderPhone" class="block text-sm font-medium text-gray-700 mb-1">
+						Phone
+					</label>
+					<input
+						id="newProviderPhone"
+						type="tel"
+						bind:value={newProviderPhone}
+						placeholder="+84 123 456 789"
+						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					/>
+				</div>
+			</div>
+
+			<div class="flex gap-3 justify-end mt-4">
+				<button
+					type="button"
+					onclick={() => {
+						showCreateProvider = false;
+						newProviderName = '';
+						newProviderServiceType = '';
+						newProviderEmail = '';
+						newProviderPhone = '';
+					}}
+					class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+				>
+					Cancel
+				</button>
+				<button
+					type="button"
+					onclick={handleCreateProvider}
+					disabled={isCreatingProvider}
+					class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+				>
+					{isCreatingProvider ? 'Creating...' : 'Create Provider'}
+				</button>
+			</div>
+		</div>
+	{/if}
 
 	<!-- Service Details Section -->
 	<ServiceDetailsSection

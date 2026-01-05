@@ -1,61 +1,87 @@
 <script lang="ts">
 	import { authState } from '$lib/state/auth.svelte';
-	import { contractState } from '$lib/state/contractState.svelte';
-	import { sumContracts } from '$lib/utils/contractCalculations';
-	import ContractValue from '$lib/components/ContractValue.svelte';
-	import { LayoutDashboard } from 'lucide-svelte';
+	import { LatestContractsList } from '$lib/components/v2/contracts';
+	import { eventState } from '$lib/state/v2';
+	import { formatCurrency } from '$lib/utils/formatting';
+	import { LayoutDashboard, TrendingUp, Calendar, FileText } from 'lucide-svelte';
 	import DashboardCard from '$lib/components/DashboardCard.svelte';
-	import LatestContractsList from '$lib/components/LatestContractsList.svelte';
 
+	// Initialize event state for financial calculations
 	$effect(() => {
-		contractState.init();
-		return () => contractState.destroy();
+		eventState.init();
+		return () => eventState.destroy();
 	});
 
-	let totalContractValue = $derived(sumContracts(contractState.contracts));
+	// Calculate total receivables and payables across all events
+	let totalReceivable = $derived(
+		eventState.events.reduce((sum, event) => sum + event.totalReceivable, 0)
+	);
+
+	let totalPayable = $derived(
+		eventState.events.reduce((sum, event) => sum + event.totalPayable, 0)
+	);
+
+	let netRevenue = $derived(totalReceivable - totalPayable);
+
+	let upcomingEventsCount = $derived(eventState.upcoming.length);
 </script>
 
 <div class="p-8">
 	<div>
 		<div class="flex items-center gap-3 mb-8">
-			<!-- <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-				<LayoutDashboard class="w-6 h-6" />
-			</div> -->
 			<div>
-				<h1 class="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
+				<h1 class="text-3xl font-bold tracking-tight text-foreground">Dashboard v2</h1>
 				<p class="text-muted-foreground mt-1 text-sm">Welcome back, {authState.user?.email}</p>
 			</div>
 		</div>
 
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-			<!-- Future Stats Cards -->
-
+		<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+			<!-- Net Revenue -->
 			<DashboardCard backgroundColor="bg-indigo-500/20" textColor="text-indigo-900">
-				<ContractValue
-					title="Total Contract Value"
-					{totalContractValue}
-					isLoading={contractState.isLoading}
-					error={contractState.error}
-					class="text-right"
-				/>
+				<div class="flex items-start justify-between">
+					<div class="flex-1">
+						<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+							Net Revenue
+						</div>
+						<div class="text-2xl font-bold">{formatCurrency(netRevenue)}</div>
+					</div>
+					<TrendingUp class="w-8 h-8 opacity-50" />
+				</div>
 			</DashboardCard>
-			<div class="p-6 rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+
+			<!-- Total Receivable -->
+			<DashboardCard backgroundColor="bg-emerald-500/20" textColor="text-emerald-900">
 				<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-					Active Projects
+					Total Receivable
 				</div>
-				<div class="text-3xl font-bold">0</div>
-			</div>
-			<div class="p-6 rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+				<div class="text-2xl font-bold">{formatCurrency(totalReceivable)}</div>
+			</DashboardCard>
+
+			<!-- Total Payable -->
+			<DashboardCard backgroundColor="bg-red-500/20" textColor="text-red-900">
 				<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-					Pending Sync
+					Total Payable
 				</div>
-				<div class="text-3xl font-bold">0</div>
-			</div>
+				<div class="text-2xl font-bold">{formatCurrency(totalPayable)}</div>
+			</DashboardCard>
+
+			<!-- Upcoming Events -->
+			<DashboardCard backgroundColor="bg-blue-500/20" textColor="text-blue-900">
+				<div class="flex items-start justify-between">
+					<div class="flex-1">
+						<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+							Upcoming Events
+						</div>
+						<div class="text-2xl font-bold">{upcomingEventsCount}</div>
+					</div>
+					<Calendar class="w-8 h-8 opacity-50" />
+				</div>
+			</DashboardCard>
 		</div>
 
 		<!-- Latest Contracts Section -->
 		<div class="mt-8">
-			<LatestContractsList />
+			<LatestContractsList limit={10} />
 		</div>
 	</div>
 </div>

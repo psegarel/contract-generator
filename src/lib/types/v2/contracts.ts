@@ -88,12 +88,12 @@ export interface EquipmentItem {
 
 /**
  * Service Provision Contract
- * - We provide AV/technical services (receivable)
+ * - We pay service providers for services (payable)
  * - This maps to the old SavedServiceContract
  */
 export interface ServiceProvisionContract extends BaseContract {
 	type: 'service-provision';
-	paymentDirection: 'receivable';
+	paymentDirection: 'payable';
 
 	// Service details (from old ContractData schema)
 	jobName: string;

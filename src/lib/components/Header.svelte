@@ -74,13 +74,13 @@
 										</DropdownMenu.SubTrigger>
 										<DropdownMenu.SubContent>
 											<DropdownMenu.Item
-												onSelect={() => goto(resolve('/contacts'))}
+												onSelect={() => goto(resolve('/v1/contacts'))}
 												class="cursor-pointer"
 											>
 												<span>Create</span>
 											</DropdownMenu.Item>
 											<DropdownMenu.Item
-												onSelect={() => goto(resolve('/contacts/list'))}
+												onSelect={() => goto(resolve('/v1/contacts/list'))}
 												class="cursor-pointer"
 											>
 												<span>List</span>
@@ -118,13 +118,13 @@
 										</DropdownMenu.SubTrigger>
 										<DropdownMenu.SubContent>
 											<DropdownMenu.Item
-												onSelect={() => goto(resolve('/contracts/service'))}
+												onSelect={() => goto(resolve('/contracts/service-provision'))}
 												class="cursor-pointer"
 											>
 												<span>Create</span>
 											</DropdownMenu.Item>
 											<DropdownMenu.Item
-												onSelect={() => goto(resolve('/contracts/service/list'))}
+												onSelect={() => goto(resolve('/contracts/service-provision/list'))}
 												class="cursor-pointer"
 											>
 												<span>List</span>

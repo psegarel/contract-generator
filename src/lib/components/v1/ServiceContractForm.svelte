@@ -1,3 +1,8 @@
+<!--
+	@deprecated This component is part of the v1 system and is being phased out.
+	Use $lib/components/v2/contracts/ServiceProvisionForm.svelte instead for new development.
+	This component is only kept for backward compatibility with existing v1 service contracts.
+-->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
@@ -16,7 +21,7 @@
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import ClientForm from '$lib/components/v1/ClientForm.svelte';
-	import LocationForm from '$lib/components/LocationForm.svelte';
+	import LocationForm from '$lib/components/v1/LocationForm.svelte';
 	import type { ClientData as ClientProfile } from '$lib/utils/clients';
 	import { getLocation, type Location } from '$lib/utils/locations';
 

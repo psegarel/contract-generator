@@ -66,7 +66,7 @@
 
 		<!-- Actions -->
 		<div class="flex flex-wrap gap-2 pt-1">
-			<Button size="sm" href="/contracts/service?edit={contract.id}" class="flex-1 min-w-25">
+			<Button size="sm" href="/contracts/service-provision?edit={contract.id}" class="flex-1 min-w-25">
 				<Pencil class="h-3.5 w-3.5 mr-1.5" />
 				Edit
 			</Button>
@@ -163,7 +163,7 @@
 						{/if}
 					</Button>
 				{/if}
-				<Button size="sm" href="/contracts/service?edit={contract.id}" class="px-2">
+				<Button size="sm" href="/contracts/service-provision?edit={contract.id}" class="px-2">
 					<Pencil class="h-4 w-4" />
 				</Button>
 				<Button

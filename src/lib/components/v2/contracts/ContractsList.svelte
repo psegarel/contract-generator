@@ -19,7 +19,8 @@
 			<div>
 				<h2 class="text-lg font-bold tracking-tight text-foreground">{title}</h2>
 				<p class="text-sm text-muted-foreground mt-1">
-					{contracts.length} {contracts.length === 1 ? 'contract' : 'contracts'}
+					{contracts.length}
+					{contracts.length === 1 ? 'contract' : 'contracts'}
 				</p>
 			</div>
 		</div>
