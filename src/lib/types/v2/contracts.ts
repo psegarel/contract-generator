@@ -107,7 +107,7 @@ export interface ServiceProvisionContract extends BaseContract {
 
 	// Tax
 	taxRate: number; // VAT percentage
-	netFee: number; // Pre-tax amount
+	netFee: number; // Amount after tax has been deducted (what provider receives)
 
 	// Status (from old system)
 	status: 'draft' | 'generated';

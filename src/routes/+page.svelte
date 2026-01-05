@@ -1,29 +1,79 @@
 <script lang="ts">
 	import { authState } from '$lib/state/auth.svelte';
 	import { LatestContractsList } from '$lib/components/v2/contracts';
-	import { eventState } from '$lib/state/v2';
+	import {
+		serviceProvisionContractState,
+		eventPlanningContractState
+	} from '$lib/state/v2';
 	import { formatCurrency } from '$lib/utils/formatting';
-	import { LayoutDashboard, TrendingUp, Calendar, FileText } from 'lucide-svelte';
+	import { calculateDashboardStats } from '$lib/utils/v2/dashboardStats';
+	import type { BaseContract } from '$lib/types/v2';
+	import { TrendingUp } from 'lucide-svelte';
 	import DashboardCard from '$lib/components/DashboardCard.svelte';
 
-	// Initialize event state for financial calculations
+	// Initialize only contract states that exist (event-planning and service-provision)
+	// Other contract types will be added as their collections are created
 	$effect(() => {
-		eventState.init();
-		return () => eventState.destroy();
+		// Only initialize contract states that have existing collections
+		serviceProvisionContractState.init();
+		eventPlanningContractState.init();
+
+		// TODO: Initialize these when their collections are created:
+		// venueRentalContractState.init();
+		// performerBookingContractState.init();
+		// equipmentRentalContractState.init();
+		// subcontractorContractState.init();
+		// clientServiceContractState.init();
+
+		return () => {
+			serviceProvisionContractState.destroy();
+			eventPlanningContractState.destroy();
+		};
 	});
 
-	// Calculate total receivables and payables across all events
-	let totalReceivable = $derived(
-		eventState.events.reduce((sum, event) => sum + event.totalReceivable, 0)
-	);
+	// Merge all contracts into a single array
+	// Only include contract states that are initialized
+	let allContracts = $derived<BaseContract[]>([
+		...serviceProvisionContractState.contracts,
+		...eventPlanningContractState.contracts
+		// Add other contract types when their collections exist:
+		// ...venueRentalContractState.contracts,
+		// ...performerBookingContractState.contracts,
+		// ...equipmentRentalContractState.contracts,
+		// ...subcontractorContractState.contracts,
+		// ...clientServiceContractState.contracts
+	]);
 
-	let totalPayable = $derived(
-		eventState.events.reduce((sum, event) => sum + event.totalPayable, 0)
-	);
+	// Debug: Log contract loading status
+	$effect(() => {
+		console.log('Contract States:', {
+			eventPlanning: {
+				count: eventPlanningContractState.contracts.length,
+				isLoading: eventPlanningContractState.isLoading,
+				error: eventPlanningContractState.error,
+				contracts: eventPlanningContractState.contracts.map((c) => ({
+					id: c.id,
+					contractValue: c.contractValue,
+					paymentDirection: c.paymentDirection,
+					eventDate: c.eventDate
+				}))
+			},
+			serviceProvision: {
+				count: serviceProvisionContractState.contracts.length,
+				isLoading: serviceProvisionContractState.isLoading,
+				error: serviceProvisionContractState.error
+			},
+			totalContracts: allContracts.length
+		});
+	});
 
-	let netRevenue = $derived(totalReceivable - totalPayable);
+	// Calculate dashboard stats from all contracts (filtered by date range)
+	let stats = $derived(calculateDashboardStats(allContracts));
 
-	let upcomingEventsCount = $derived(eventState.upcoming.length);
+	let netRevenue = $derived(stats.netRevenue);
+	let totalReceivable = $derived(stats.totalReceivable);
+	let totalPayable = $derived(stats.totalPayable);
+	let totalPaid = $derived(stats.totalPaid);
 </script>
 
 <div class="p-8">
@@ -36,12 +86,12 @@
 		</div>
 
 		<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-			<!-- Net Revenue -->
+			<!-- Total Received -->
 			<DashboardCard backgroundColor="bg-indigo-500/20" textColor="text-indigo-900">
 				<div class="flex items-start justify-between">
 					<div class="flex-1">
 						<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-							Net Revenue
+							Total Received
 						</div>
 						<div class="text-2xl font-bold">{formatCurrency(netRevenue)}</div>
 					</div>
@@ -65,17 +115,12 @@
 				<div class="text-2xl font-bold">{formatCurrency(totalPayable)}</div>
 			</DashboardCard>
 
-			<!-- Upcoming Events -->
-			<DashboardCard backgroundColor="bg-blue-500/20" textColor="text-blue-900">
-				<div class="flex items-start justify-between">
-					<div class="flex-1">
-						<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-							Upcoming Events
-						</div>
-						<div class="text-2xl font-bold">{upcomingEventsCount}</div>
-					</div>
-					<Calendar class="w-8 h-8 opacity-50" />
+			<!-- Total Paid -->
+			<DashboardCard backgroundColor="bg-purple-500/20" textColor="text-purple-900">
+				<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+					Total Paid
 				</div>
+				<div class="text-2xl font-bold">{formatCurrency(totalPaid)}</div>
 			</DashboardCard>
 		</div>
 

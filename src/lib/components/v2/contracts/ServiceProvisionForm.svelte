@@ -47,7 +47,7 @@
 	let startDate = $state('');
 	let endDate = $state('');
 	let taxRate = $state(10);
-	let netFee = $state(0);
+	let contractValue = $state(0); // Base amount (before tax) - same as Event Planning
 	let status = $state<'draft' | 'generated'>('draft');
 	let bankName = $state('');
 	let accountNumber = $state('');
@@ -73,7 +73,8 @@
 			startDate = contract.startDate;
 			endDate = contract.endDate;
 			taxRate = contract.taxRate;
-			netFee = contract.netFee;
+			// Use contractValue from BaseContract, fallback to netFee for backward compatibility
+			contractValue = contract.contractValue ?? contract.netFee ?? 0;
 			status = contract.status;
 			// Ensure bank fields are strings (not null/undefined) for proper input display
 			bankName = contract.bankName ?? '';
@@ -118,9 +119,6 @@
 			contractNumber = `SVC-${dateStr}-${timestamp}`;
 		}
 	});
-
-	// Calculate contract value (gross amount before tax)
-	let contractValue = $derived(Math.round(netFee / (1 - taxRate / 100)));
 
 	// Get selected event and counterparty names
 	let eventName = $derived(events.find((e) => e.id === eventId)?.name || '');
@@ -205,6 +203,10 @@
 		error = null;
 
 		try {
+			// Set netFee = contractValue for contract generator compatibility
+			// Contract generator expects netFee field
+			const netFee = contractValue;
+
 			const contractData: ServiceProvisionContractInput = {
 				type: 'service-provision',
 				ownerUid: authState.user.uid,
@@ -215,7 +217,7 @@
 				eventName,
 				paymentDirection: 'payable',
 				paymentStatus,
-				contractValue,
+				contractValue, // Store base amount (before tax)
 				currency: 'VND',
 				notes: notes || null,
 				jobName,
@@ -225,7 +227,7 @@
 				startDate,
 				endDate,
 				taxRate,
-				netFee,
+				netFee, // For contract generator compatibility
 				status,
 				bankName,
 				accountNumber,
@@ -464,9 +466,9 @@
 
 	<!-- Financial Section -->
 	<FinancialSection
-		{netFee}
+		contractValue={contractValue}
 		{taxRate}
-		onnetFeeChange={(value) => (netFee = value)}
+		oncontractValueChange={(value) => (contractValue = value)}
 		ontaxRateChange={(value) => (taxRate = value)}
 	/>
 

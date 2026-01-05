@@ -22,10 +22,11 @@
 		</p>
 	</div>
 
-	<EventPlanningForm
-		key={data.contract.id}
-		contract={data.contract}
-		onSuccess={handleSuccess}
-		onCancel={handleCancel}
-	/>
+	{#key data.contract.id}
+		<EventPlanningForm
+			contract={data.contract}
+			onSuccess={handleSuccess}
+			onCancel={handleCancel}
+		/>
+	{/key}
 </div>

@@ -356,13 +356,14 @@
 					<h3 class="text-xl font-bold tracking-tight text-foreground">
 						Contact Information
 					</h3>
-					<ClientForm
-						key={`${editContractId || 'new'}-${formData.clientName || ''}-${formData.bankName || ''}-${formData.accountNumber || ''}`}
-						showActions={true}
-						entityTitle="Contact"
-						onClientChange={handleClientChange}
-						initialData={clientInitialData}
-					/>
+					{#key `${editContractId || 'new'}-${formData.clientName || ''}-${formData.bankName || ''}-${formData.accountNumber || ''}`}
+						<ClientForm
+							showActions={true}
+							entityTitle="Contact"
+							onClientChange={handleClientChange}
+							initialData={clientInitialData}
+						/>
+					{/key}
 					{#if errors.clientName}
 						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
 					{/if}
@@ -507,9 +508,9 @@
 						Financial Details
 					</h3>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-						<!-- Net Fee -->
+						<!-- Contract Value -->
 						<div class="space-y-2.5">
-							<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Net Service Fee (VND)</Label>
+							<Label class="text-xs font-bold uppercase tracking-tight text-muted-foreground ml-1">Contract Value (after tax deducted) (VND)</Label>
 							<Input id="netFee" type="number" bind:value={formData.netFee} min="0" class="bg-background rounded-2xl border-none h-12" />
 							{#if errors.netFee}
 								<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.netFee}</p>
@@ -538,7 +539,7 @@
 					<!-- Calculation Preview -->
 					<div class="p-8 bg-background rounded-[2rem] space-y-3 text-sm">
 						<div class="flex justify-between text-muted-foreground">
-							<span class="font-medium">Net Fee (Paid to Staff)</span>
+							<span class="font-medium">Contract Value (after tax deducted)</span>
 							<span class="font-bold text-foreground">{formatCurrency(formData.netFee)}</span>
 						</div>
 						<div class="flex justify-between text-muted-foreground border-b border-foreground/5 pb-3">

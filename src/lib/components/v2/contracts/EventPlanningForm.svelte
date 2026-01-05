@@ -84,16 +84,16 @@
 			// Helper to get value from either v1 (contractData) or v2 (contract) structure
 			const getValue = <T>(v1Key: string, v2Key?: string): T => {
 				if (isV1Structure && contractData) {
-					return (contractData[v1Key] ?? contract[v2Key || v1Key]) as T;
+					return (contractData[v1Key] ?? (contract as any)[v2Key || v1Key]) as T;
 				}
-				return (contract[v2Key || v1Key] ?? '') as T;
+				return ((contract as any)[v2Key || v1Key] ?? '') as T;
 			};
 			
 			const getNumber = (v1Key: string, v2Key?: string, defaultValue: number = 0): number => {
 				if (isV1Structure && contractData) {
-					return contractData[v1Key] ?? contract[v2Key || v1Key] ?? defaultValue;
+					return contractData[v1Key] ?? (contract as any)[v2Key || v1Key] ?? defaultValue;
 				}
-				return contract[v2Key || v1Key] ?? defaultValue;
+				return (contract as any)[v2Key || v1Key] ?? defaultValue;
 			};
 			
 			// Explicitly access each property to ensure reactivity tracking

@@ -1,10 +1,25 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { EventCard } from '$lib/components/v2';
+	import { EventsList } from '$lib/components/v2/events';
 	import { Button } from '$lib/components/ui/button';
 	import { Calendar, Plus } from 'lucide-svelte';
+	import {
+		serviceProvisionContractState,
+		eventPlanningContractState
+	} from '$lib/state/v2';
 
 	let { data }: { data: PageData } = $props();
+
+	// Initialize contract states so EventsList can calculate financials
+	$effect(() => {
+		serviceProvisionContractState.init();
+		eventPlanningContractState.init();
+
+		return () => {
+			serviceProvisionContractState.destroy();
+			eventPlanningContractState.destroy();
+		};
+	});
 </script>
 
 <div class="p-8">
@@ -23,28 +38,12 @@
 				</p>
 			</div>
 		</div>
-		<Button href="/v2/events/new">
+		<Button href="/events/new">
 			<Plus class="w-4 h-4 mr-2" />
 			New Event
 		</Button>
 	</div>
 
-	<!-- Events Grid -->
-	{#if data.events.length === 0}
-		<div class="py-20 text-center text-muted-foreground">
-			<Calendar class="h-16 w-16 mx-auto mb-4 opacity-50" />
-			<h3 class="text-lg font-semibold mb-2">No events yet</h3>
-			<p class="text-sm mb-6">Create your first event to get started</p>
-			<Button href="/v2/events/new">
-				<Plus class="w-4 h-4 mr-2" />
-				Create Event
-			</Button>
-		</div>
-	{:else}
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			{#each data.events as event (event.id)}
-				<EventCard {event} />
-			{/each}
-		</div>
-	{/if}
+	<!-- Events List -->
+	<EventsList events={data.events} title="" showHeaders={true} />
 </div>

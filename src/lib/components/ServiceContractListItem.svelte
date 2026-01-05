@@ -24,6 +24,14 @@
 		onDownload,
 		onTogglePayment
 	}: Props = $props();
+
+	/**
+	 * Get the base amount (before tax) - netFee stores the base amount
+	 */
+	function getBeforeTaxValue(): number {
+		// netFee stores the base amount (before tax), same as contractValue
+		return contract.contractData.netFee;
+	}
 </script>
 
 <div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
@@ -117,11 +125,11 @@
 			{contract.contractData.clientName}
 		</div>
 
-		<!-- Service Fee - Right-Aligned -->
+		<!-- Service Fee - Right-Aligned (before tax) -->
 		<div
 			class="col-span-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
 		>
-			{formatCurrency(contract.contractData.netFee)}
+			{formatCurrency(getBeforeTaxValue())}
 		</div>
 
 		<!-- Date -->

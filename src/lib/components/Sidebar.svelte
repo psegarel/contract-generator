@@ -57,18 +57,7 @@
 			label: 'Events',
 			href: resolve('/events')
 		},
-		{ icon: Users, label: 'Counterparties', href: resolve('/counterparties') },
-		{
-			icon: PanelLeft,
-			label: 'Legacy V1',
-			href: '#',
-			subItems: [
-				{ label: 'Dashboard', href: resolve('/v1') },
-				{ label: 'Contracts', href: resolve('/v1/contracts') },
-				{ label: 'Contacts', href: resolve('/v1/contacts/list') },
-				{ label: 'Design System', href: resolve('/v1/design-system') }
-			]
-		}
+		{ icon: Users, label: 'Counterparties', href: resolve('/counterparties') }
 	];
 
 	let expandedItems = $state<Record<string, boolean>>(

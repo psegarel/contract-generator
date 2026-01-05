@@ -16,7 +16,7 @@
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import ClientForm from '$lib/components/v1/ClientForm.svelte';
-	import LocationForm from '$lib/components/LocationForm.svelte';
+	import LocationForm from '$lib/components/v1/LocationForm.svelte';
 	import type { ClientData as ClientProfile } from '$lib/utils/clients';
 	import { getLocation, type Location } from '$lib/utils/locations';
 
@@ -351,13 +351,14 @@
 					<h3 class="text-xl font-bold tracking-tight text-foreground">
 						Contact Information
 					</h3>
-					<ClientForm
-						key={`${editContractId || 'new'}-${formData.clientName || ''}-${formData.bankName || ''}-${formData.accountNumber || ''}`}
-						showActions={true}
-						entityTitle="Contact"
-						onClientChange={handleClientChange}
-						initialData={clientInitialData}
-					/>
+					{#key `${editContractId || 'new'}-${formData.clientName || ''}-${formData.bankName || ''}-${formData.accountNumber || ''}`}
+						<ClientForm
+							showActions={true}
+							entityTitle="Contact"
+							onClientChange={handleClientChange}
+							initialData={clientInitialData}
+						/>
+					{/key}
 					{#if errors.clientName}
 						<p class="text-red-600 dark:text-red-400 text-xs mt-1">{errors.clientName}</p>
 					{/if}
