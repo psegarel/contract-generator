@@ -30,7 +30,7 @@
 	<div>
 		<div class="flex items-center gap-3 mb-8">
 			<div>
-				<h1 class="text-3xl font-bold tracking-tight text-foreground">Dashboard v2</h1>
+				<h1 class="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
 				<p class="text-muted-foreground mt-1 text-sm">Welcome back, {authState.user?.email}</p>
 			</div>
 		</div>
