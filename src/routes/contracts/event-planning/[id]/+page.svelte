@@ -6,11 +6,11 @@
 	let { data }: { data: PageData } = $props();
 
 	function handleSuccess() {
-		goto('/v2/contracts');
+		goto('/contracts/event-planning/list');
 	}
 
 	function handleCancel() {
-		goto('/v2/contracts');
+		goto('/contracts/event-planning/list');
 	}
 </script>
 
@@ -22,5 +22,10 @@
 		</p>
 	</div>
 
-	<EventPlanningForm contract={data.contract} onSuccess={handleSuccess} onCancel={handleCancel} />
+	<EventPlanningForm
+		key={data.contract.id}
+		contract={data.contract}
+		onSuccess={handleSuccess}
+		onCancel={handleCancel}
+	/>
 </div>

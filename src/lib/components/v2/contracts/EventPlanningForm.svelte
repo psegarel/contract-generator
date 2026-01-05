@@ -77,48 +77,71 @@
 	// Sync form state with contract prop (only on initial load or contract change)
 	$effect(() => {
 		if (contract) {
-			contractNumber = contract.contractNumber;
-			contractDate = contract.contractDate;
-			contractLocation = contract.contractLocation;
-			eventId = contract.eventId || '';
-			counterpartyId = contract.counterpartyId;
-			clientCompany = contract.clientCompany;
-			clientAddress = contract.clientAddress;
-			clientTaxCode = contract.clientTaxCode;
-			clientRepresentativeName = contract.clientRepresentativeName;
-			clientRepresentativePosition = contract.clientRepresentativePosition;
-			eventTheme = contract.eventTheme || '';
-			eventType = contract.eventType || '';
-			eventDescription = contract.eventDescription || '';
-			eventVenue = contract.eventVenue;
-			eventDate = contract.eventDate;
-			eventDuration = contract.eventDuration || '';
-			expectedAttendance = contract.expectedAttendance || '';
-			contractValueVND = contract.contractValueVND;
-			vatRate = contract.vatRate;
-			depositPercentage = contract.depositPercentage;
-			finalPaymentPercentage = contract.finalPaymentPercentage;
-			professionalIndemnityAmount = contract.professionalIndemnityAmount;
-			publicLiabilityAmount = contract.publicLiabilityAmount;
-			planningMeetingDays = contract.planningMeetingDays;
-			performerBookingDeadline = contract.performerBookingDeadline;
-			technicalSetupDate = contract.technicalSetupDate;
-			eventExecutionDate = contract.eventExecutionDate;
-			setupCommencementTime = contract.setupCommencementTime;
-			eventExecutionDuration = contract.eventExecutionDuration;
-			breakdownCompletionDateTime = contract.breakdownCompletionDateTime;
-			paymentGracePeriodDays = contract.paymentGracePeriodDays;
-			terminationNoticeDays = contract.terminationNoticeDays;
-			negotiationPeriodDays = contract.negotiationPeriodDays;
-			arbitrationLocation = contract.arbitrationLocation;
-			arbitrationLanguage = contract.arbitrationLanguage;
-			paymentStatus = contract.paymentStatus;
-			notes = contract.notes || '';
+			// Handle both v1 (nested contractData) and v2 (flat) structures
+			const contractData = (contract as any).contractData;
+			const isV1Structure = !!contractData;
+			
+			// Helper to get value from either v1 (contractData) or v2 (contract) structure
+			const getValue = <T>(v1Key: string, v2Key?: string): T => {
+				if (isV1Structure && contractData) {
+					return (contractData[v1Key] ?? contract[v2Key || v1Key]) as T;
+				}
+				return (contract[v2Key || v1Key] ?? '') as T;
+			};
+			
+			const getNumber = (v1Key: string, v2Key?: string, defaultValue: number = 0): number => {
+				if (isV1Structure && contractData) {
+					return contractData[v1Key] ?? contract[v2Key || v1Key] ?? defaultValue;
+				}
+				return contract[v2Key || v1Key] ?? defaultValue;
+			};
+			
+			// Explicitly access each property to ensure reactivity tracking
+			contractNumber = contract.contractNumber ?? '';
+			contractDate = getValue<string>('contractDate');
+			contractLocation = getValue<string>('contractLocation');
+			eventId = contract.eventId ?? '';
+			counterpartyId = contract.counterpartyId ?? '';
+			clientCompany = getValue<string>('clientCompany');
+			clientAddress = getValue<string>('clientAddress');
+			clientTaxCode = getValue<string>('clientTaxCode');
+			clientRepresentativeName = getValue<string>('clientRepresentativeName');
+			clientRepresentativePosition = getValue<string>('clientRepresentativePosition');
+			eventTheme = getValue<string | null>('eventTheme') ?? '';
+			eventType = getValue<string | null>('eventType') ?? '';
+			eventDescription = getValue<string | null>('eventDescription') ?? '';
+			eventVenue = getValue<string>('eventVenue');
+			eventDate = getValue<string>('eventDate');
+			eventDuration = getValue<string | null>('eventDuration') ?? '';
+			expectedAttendance = getValue<string | null>('expectedAttendance') ?? '';
+			contractValueVND = getNumber('contractValueVND', undefined, 0);
+			vatRate = getNumber('vatRate', undefined, 10);
+			depositPercentage = getNumber('depositPercentage', undefined, 50);
+			finalPaymentPercentage = getNumber('finalPaymentPercentage', undefined, 50);
+			professionalIndemnityAmount = getNumber('professionalIndemnityAmount', undefined, 0);
+			publicLiabilityAmount = getNumber('publicLiabilityAmount', undefined, 0);
+			planningMeetingDays = getNumber('planningMeetingDays', undefined, 7);
+			performerBookingDeadline = getValue<string>('performerBookingDeadline');
+			technicalSetupDate = getValue<string>('technicalSetupDate');
+			eventExecutionDate = getValue<string>('eventExecutionDate');
+			setupCommencementTime = getValue<string>('setupCommencementTime');
+			eventExecutionDuration = getValue<string>('eventExecutionDuration');
+			breakdownCompletionDateTime = getValue<string>('breakdownCompletionDateTime');
+			paymentGracePeriodDays = getNumber('paymentGracePeriodDays', undefined, 30);
+			terminationNoticeDays = getNumber('terminationNoticeDays', undefined, 7);
+			negotiationPeriodDays = getNumber('negotiationPeriodDays', undefined, 14);
+			arbitrationLocation = getValue<string>('arbitrationLocation', undefined) || 'Ho Chi Minh City';
+			arbitrationLanguage = getValue<string>('arbitrationLanguage', undefined) || 'Vietnamese';
+			paymentStatus = contract.paymentStatus ?? 'unpaid';
+			notes = contract.notes ?? '';
 		}
 	});
 
-	// Auto-fill client details when client is selected
+	// Auto-fill client details when client is selected (only for new contracts, not when editing)
 	$effect(() => {
+		// Don't auto-fill if we're editing an existing contract - preserve contract data
+		if (contract) return;
+
 		if (counterpartyId && clients.length > 0) {
 			const selectedClient = clients.find((c) => c.id === counterpartyId);
 			if (selectedClient && selectedClient.type === 'client') {
@@ -243,7 +266,7 @@
 	}
 </script>
 
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} novalidate class="space-y-6">
 	<!-- Error message -->
 	{#if error}
 		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
@@ -263,7 +286,6 @@
 					id="contractNumber"
 					type="text"
 					bind:value={contractNumber}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="EVT-20260104-1234"
 				/>
@@ -277,7 +299,6 @@
 					id="contractDate"
 					type="date"
 					bind:value={contractDate}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				/>
 			</div>
@@ -290,7 +311,6 @@
 					id="contractLocation"
 					type="text"
 					bind:value={contractLocation}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="Ho Chi Minh City"
 				/>
@@ -303,7 +323,6 @@
 				<select
 					id="eventId"
 					bind:value={eventId}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
 					<option value="">Select an event</option>
@@ -320,7 +339,6 @@
 				<select
 					id="counterpartyId"
 					bind:value={counterpartyId}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
 					<option value="">Select a client</option>
@@ -337,7 +355,6 @@
 				<select
 					id="paymentStatus"
 					bind:value={paymentStatus}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
 					<option value="unpaid">Unpaid</option>

@@ -54,11 +54,11 @@
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
 						Type
 					</div>
-					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center border-r border-white">
-						AR/AP
-					</div>
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
 						Status
+					</div>
+					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center border-r border-white">
+						Payment
 					</div>
 					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center">Actions</div>
 				</div>

@@ -3,11 +3,11 @@
 	import EventPlanningForm from '$lib/components/v2/contracts/EventPlanningForm.svelte';
 
 	function handleSuccess(contractId: string) {
-		goto(`/v2/contracts/event-planning/${contractId}`);
+		goto('/contracts/event-planning/list');
 	}
 
 	function handleCancel() {
-		goto('/v2/contracts');
+		goto('/contracts/event-planning/list');
 	}
 </script>
 

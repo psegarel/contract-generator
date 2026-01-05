@@ -264,7 +264,7 @@
 	}
 </script>
 
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} novalidate class="space-y-6">
 	<!-- Error message -->
 	{#if error}
 		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
@@ -284,7 +284,6 @@
 					id="contractNumber"
 					type="text"
 					bind:value={contractNumber}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="SVC-20260104-1234"
 				/>
@@ -297,7 +296,6 @@
 				<select
 					id="status"
 					bind:value={status}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
 					<option value="draft">Draft</option>
@@ -312,7 +310,6 @@
 				<select
 					id="eventId"
 					bind:value={eventId}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
 					<option value="">Select an event</option>
@@ -338,7 +335,6 @@
 				<select
 					id="counterpartyId"
 					bind:value={counterpartyId}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
 					<option value="">Select a service provider</option>
@@ -355,7 +351,6 @@
 				<select
 					id="paymentStatus"
 					bind:value={paymentStatus}
-					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
 					<option value="unpaid">Unpaid</option>

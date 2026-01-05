@@ -1,17 +1,31 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Pencil } from 'lucide-svelte';
+	import { Calendar, User, Pencil, Check } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import { authState } from '$lib/state/auth.svelte';
+	import { toast } from 'svelte-sonner';
+	import {
+		updateServiceProvisionContractPaymentStatus,
+		updateEventPlanningContractPaymentStatus,
+		updateVenueRentalContractPaymentStatus,
+		updatePerformerBookingContractPaymentStatus,
+		updateEquipmentRentalContractPaymentStatus,
+		updateSubcontractorContractPaymentStatus,
+		updateClientServiceContractPaymentStatus
+	} from '$lib/utils/v2';
 
 	interface Props {
 		contract: BaseContract;
 		index: number;
 		getLink?: (c: BaseContract) => string;
+		onPaymentStatusUpdate?: (contract: BaseContract) => void;
 	}
 
-	let { contract, index, getLink }: Props = $props();
+	let { contract, index, getLink, onPaymentStatusUpdate }: Props = $props();
+
+	let isMarkingAsPaid = $state(false);
 
 	function getContractTypeLabel(type: BaseContract['type']): string {
 		const labels: Record<BaseContract['type'], string> = {
@@ -30,17 +44,66 @@
 		return `/contracts/${contract.type}/${contract.id}`;
 	}
 
-	function getPaymentDirectionBadge(direction: BaseContract['paymentDirection']) {
-		return direction === 'receivable'
-			? { variant: 'default' as const, label: 'AR', class: 'bg-blue-500 hover:bg-blue-600' }
-			: {
-					variant: 'secondary' as const,
-					label: 'AP',
-					class: 'bg-amber-500 hover:bg-amber-600 text-white'
-				};
-	}
+	async function togglePaymentStatus() {
+		if (!authState.user?.uid) {
+			toast.error('You must be logged in to update payment status');
+			return;
+		}
 
-	let paymentDirBadge = $derived(getPaymentDirectionBadge(contract.paymentDirection));
+		isMarkingAsPaid = true;
+
+		try {
+			let updateFunction: (contractId: string, status: 'unpaid' | 'paid', adminUid: string) => Promise<void>;
+
+			switch (contract.type) {
+				case 'service-provision':
+					updateFunction = updateServiceProvisionContractPaymentStatus;
+					break;
+				case 'event-planning':
+					updateFunction = updateEventPlanningContractPaymentStatus;
+					break;
+				case 'venue-rental':
+					updateFunction = updateVenueRentalContractPaymentStatus;
+					break;
+				case 'performer-booking':
+					updateFunction = updatePerformerBookingContractPaymentStatus;
+					break;
+				case 'equipment-rental':
+					updateFunction = updateEquipmentRentalContractPaymentStatus;
+					break;
+				case 'subcontractor':
+					updateFunction = updateSubcontractorContractPaymentStatus;
+					break;
+				case 'client-service':
+					updateFunction = updateClientServiceContractPaymentStatus;
+					break;
+				default:
+					throw new Error(`Unknown contract type: ${contract.type}`);
+			}
+
+			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
+			await updateFunction(contract.id, newStatus, authState.user.uid);
+
+			// Update local contract state
+			const updatedContract: BaseContract = {
+				...contract,
+				paymentStatus: newStatus,
+				paidAt: newStatus === 'paid' ? (new Date() as any) : null,
+				paidBy: newStatus === 'paid' ? authState.user.uid : null
+			};
+
+			if (onPaymentStatusUpdate) {
+				onPaymentStatusUpdate(updatedContract);
+			}
+
+			toast.success(`Contract marked as ${newStatus}`);
+		} catch (error) {
+			console.error('Error updating payment status:', error);
+			toast.error('Failed to update payment status');
+		} finally {
+			isMarkingAsPaid = false;
+		}
+	}
 </script>
 
 <div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
@@ -76,7 +139,6 @@
 				{formatCurrency(contract.contractValue)}
 			</div>
 			<div class="flex gap-2">
-				<Badge {...paymentDirBadge}>{paymentDirBadge.label}</Badge>
 				{#if contract.paymentStatus === 'paid'}
 					<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
 				{:else}
@@ -86,7 +148,22 @@
 		</div>
 
 		<!-- Actions -->
-		<div class="pt-2">
+		<div class="pt-2 space-y-2">
+			<Button
+				size="sm"
+				onclick={togglePaymentStatus}
+				disabled={isMarkingAsPaid}
+				class="w-full {contract.paymentStatus === 'paid'
+					? 'bg-gray-600 hover:bg-gray-700'
+					: 'bg-emerald-600 hover:bg-emerald-700'} text-white"
+			>
+				<Check class="h-3.5 w-3.5 mr-1.5" />
+				{isMarkingAsPaid
+					? 'Updating...'
+					: contract.paymentStatus === 'paid'
+						? 'Mark as Unpaid'
+						: 'Mark as Paid'}
+			</Button>
 			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="w-full">
 				<Pencil class="h-3.5 w-3.5 mr-1.5" />
 				View
@@ -94,7 +171,7 @@
 		</div>
 	</div>
 
-	<!-- Desktop: Grid Layout (18 columns for payment direction) -->
+	<!-- Desktop: Grid Layout (18 columns) -->
 	<div class="hidden md:grid grid-cols-18 gap-3 items-center py-3 px-4">
 		<!-- Contract Number -->
 		<div class="col-span-2">
@@ -132,11 +209,6 @@
 			</Badge>
 		</div>
 
-		<!-- Payment Direction -->
-		<div class="col-span-1 flex justify-center">
-			<Badge {...paymentDirBadge}>{paymentDirBadge.label}</Badge>
-		</div>
-
 		<!-- Payment Status Badge -->
 		<div class="col-span-2 flex justify-center">
 			{#if contract.paymentStatus === 'paid'}
@@ -146,9 +218,24 @@
 			{/if}
 		</div>
 
+		<!-- Payment Toggle Button -->
+		<div class="col-span-1 flex justify-center">
+			<Button
+				size="sm"
+				onclick={togglePaymentStatus}
+				disabled={isMarkingAsPaid}
+				class="px-2 {contract.paymentStatus === 'paid'
+					? 'bg-gray-600 hover:bg-gray-700'
+					: 'bg-emerald-600 hover:bg-emerald-700'} text-white"
+				title={contract.paymentStatus === 'paid' ? 'Mark as Unpaid' : 'Mark as Paid'}
+			>
+				<Check class="h-4 w-4" />
+			</Button>
+		</div>
+
 		<!-- View Button -->
 		<div class="col-span-1 flex justify-center">
-			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="px-2">
+			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="px-2" title="View">
 				<Pencil class="h-4 w-4" />
 			</Button>
 		</div>
