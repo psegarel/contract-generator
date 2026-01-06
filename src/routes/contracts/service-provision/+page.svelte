@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 	import ServiceProvisionForm from '$lib/components/v2/contracts/ServiceProvisionForm.svelte';
 	import ServiceContractForm from '$lib/components/v1/ServiceContractForm.svelte';
 	import ContractPageHeader from '$lib/components/ContractPageHeader.svelte';
+	import { page } from '$app/state';
+
+	let { data }: { data: PageData } = $props();
 
 	// Check if editing a v1 contract (has edit query parameter)
-	let isEditingV1 = $derived($page.url.searchParams.has('edit'));
+	let isEditingV1 = $derived(page.url.searchParams.has('edit'));
 
 	function handleSuccess(contractId: string) {
 		goto(`/contract/service/${contractId}`);
@@ -35,6 +38,6 @@
 			</p>
 		</div>
 
-		<ServiceProvisionForm onSuccess={handleSuccess} onCancel={handleCancel} />
+		<ServiceProvisionForm initialEventId={data.eventId || ''} onSuccess={handleSuccess} onCancel={handleCancel} />
 	</div>
 {/if}

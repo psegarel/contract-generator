@@ -1,16 +1,23 @@
 <script lang="ts">
 	import type { UnifiedContract } from '$lib/utils/mergeContracts';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, MapPin, User, Pencil } from 'lucide-svelte';
+	import { Calendar, MapPin, User, Pencil, Check } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import { authState } from '$lib/state/auth.svelte';
+	import { toast } from 'svelte-sonner';
+	import { updateServiceContractPaymentStatus } from '$lib/utils/serviceContracts';
+	import { updateEventPlanningContractPaymentStatus } from '$lib/utils/eventPlanningContracts';
 
 	interface Props {
 		contract: UnifiedContract;
 		index: number;
+		onPaymentStatusUpdate?: (contract: UnifiedContract) => void;
 	}
 
-	let { contract, index }: Props = $props();
+	let { contract, index, onPaymentStatusUpdate }: Props = $props();
+
+	let isMarkingAsPaid = $state(false);
 
 	function getContractTypeLabel(type: 'service' | 'event-planning'): string {
 		return type === 'service' ? 'Service' : 'Event Planning';
@@ -20,6 +27,42 @@
 		return contract.type === 'service'
 			? `/contracts/service-provision?edit=${contract.id}`
 			: `/contracts/event-planning?edit=${contract.id}`;
+	}
+
+	async function togglePaymentStatus() {
+		if (!authState.user?.uid) {
+			toast.error('You must be logged in to update payment status');
+			return;
+		}
+
+		isMarkingAsPaid = true;
+
+		try {
+			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
+
+			if (contract.type === 'service') {
+				await updateServiceContractPaymentStatus(contract.id, newStatus, authState.user.uid);
+			} else {
+				await updateEventPlanningContractPaymentStatus(contract.id, newStatus, authState.user.uid);
+			}
+
+			// Update local contract state
+			const updatedContract: UnifiedContract = {
+				...contract,
+				paymentStatus: newStatus
+			};
+
+			if (onPaymentStatusUpdate) {
+				onPaymentStatusUpdate(updatedContract);
+			}
+
+			toast.success(`Contract marked as ${newStatus}`);
+		} catch (error) {
+			console.error('Error updating payment status:', error);
+			toast.error('Failed to update payment status');
+		} finally {
+			isMarkingAsPaid = false;
+		}
 	}
 </script>
 
@@ -52,20 +95,30 @@
 			</div>
 		</div>
 
-		<!-- Value and Status -->
-		<div class="flex items-center justify-between pt-1">
+		<!-- Value -->
+		<div class="pt-1">
 			<div class="text-base font-bold text-emerald-600 dark:text-emerald-400">
 				{formatCurrency(contract.contractValue)}
 			</div>
-			{#if contract.paymentStatus === 'paid'}
-				<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
-			{:else}
-				<Badge variant="secondary">Unpaid</Badge>
-			{/if}
 		</div>
 
 		<!-- Actions -->
-		<div class="pt-2">
+		<div class="pt-2 space-y-2">
+			<Button
+				size="sm"
+				onclick={togglePaymentStatus}
+				disabled={isMarkingAsPaid}
+				class="w-full {contract.paymentStatus === 'paid'
+					? 'bg-gray-600 hover:bg-gray-700'
+					: 'bg-emerald-600 hover:bg-emerald-700'} text-white"
+			>
+				<Check class="h-3.5 w-3.5 mr-1.5" />
+				{isMarkingAsPaid
+					? 'Updating...'
+					: contract.paymentStatus === 'paid'
+						? 'Mark as Unpaid'
+						: 'Mark as Paid'}
+			</Button>
 			<Button size="sm" href={getContractLink(contract)} class="w-full">
 				<Pencil class="h-3.5 w-3.5 mr-1.5" />
 				Edit
@@ -111,18 +164,24 @@
 			</Badge>
 		</div>
 
-		<!-- Payment Status Badge -->
+		<!-- Payment Toggle Button -->
 		<div class="col-span-1 flex justify-center">
-			{#if contract.paymentStatus === 'paid'}
-				<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
-			{:else}
-				<Badge variant="secondary">Unpaid</Badge>
-			{/if}
+			<Button
+				size="sm"
+				onclick={togglePaymentStatus}
+				disabled={isMarkingAsPaid}
+				class="px-2 {contract.paymentStatus === 'paid'
+					? 'bg-gray-600 hover:bg-gray-700'
+					: 'bg-emerald-600 hover:bg-emerald-700'} text-white"
+				title={contract.paymentStatus === 'paid' ? 'Mark as Unpaid' : 'Mark as Paid'}
+			>
+				<Check class="h-4 w-4" />
+			</Button>
 		</div>
 
 		<!-- Edit Button -->
 		<div class="col-span-1 flex justify-center">
-			<Button size="sm" href={getContractLink(contract)} class="px-2">
+			<Button size="sm" href={getContractLink(contract)} class="px-2" title="Edit">
 				<Pencil class="h-4 w-4" />
 			</Button>
 		</div>

@@ -1,7 +1,6 @@
 import type { PageLoad } from './$types';
 import { getEventById } from '$lib/utils/v2/events';
 import {
-	getVenueRentalContractsByEventId,
 	getServiceProvisionContractsByEventId,
 	getEventPlanningContractsByEventId
 } from '$lib/utils/v2';
@@ -19,18 +18,30 @@ export const load: PageLoad = async ({ params }) => {
 			throw error(404, 'Event not found');
 		}
 
-		// Load all contracts for this event (from all types)
-		const [venueContracts, serviceContracts, eventPlanningContracts] = await Promise.all([
-			getVenueRentalContractsByEventId(params.id),
+		// Load all contracts for this event (service provision and event planning only)
+		// Handle errors gracefully - if one contract type fails, still return the others
+		const [serviceContracts, eventPlanningContracts] = await Promise.allSettled([
 			getServiceProvisionContractsByEventId(params.id),
 			getEventPlanningContractsByEventId(params.id)
 		]);
 
+		const serviceContractsResult =
+			serviceContracts.status === 'fulfilled' ? serviceContracts.value : [];
+		const eventPlanningContractsResult =
+			eventPlanningContracts.status === 'fulfilled' ? eventPlanningContracts.value : [];
+
+		// Log errors but don't fail the page load
+		if (serviceContracts.status === 'rejected') {
+			console.error('Failed to load service provision contracts:', serviceContracts.reason);
+		}
+		if (eventPlanningContracts.status === 'rejected') {
+			console.error('Failed to load event planning contracts:', eventPlanningContracts.reason);
+		}
+
 		// Merge all contract types - TypeScript inheritance makes this work!
 		const contracts: BaseContract[] = [
-			...venueContracts,
-			...serviceContracts,
-			...eventPlanningContracts
+			...serviceContractsResult,
+			...eventPlanningContractsResult
 		].sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
 
 		return {

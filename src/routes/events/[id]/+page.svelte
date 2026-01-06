@@ -28,14 +28,29 @@
 		return badges[status];
 	}
 
+	// Calculate financials from contracts (don't rely on stored event values)
+	let totalReceivable = $derived(
+		data.contracts
+			.filter((c) => c.paymentDirection === 'receivable')
+			.reduce((sum, c) => sum + (c.contractValue || 0), 0)
+	);
+
+	let totalPayable = $derived(
+		data.contracts
+			.filter((c) => c.paymentDirection === 'payable')
+			.reduce((sum, c) => sum + (c.contractValue || 0), 0)
+	);
+
+	let netRevenue = $derived(totalReceivable - totalPayable);
+
 	let statusBadge = $derived(getStatusBadge(data.event.status));
-	let netRevenueIsPositive = $derived(data.event.netRevenue >= 0);
+	let netRevenueIsPositive = $derived(netRevenue >= 0);
 </script>
 
 <div class="p-8">
 	<!-- Header -->
 	<div class="mb-8">
-		<Button variant="ghost" href="/v2/events" class="mb-4">
+		<Button variant="ghost" href="/events" class="mb-4">
 			<ArrowLeft class="w-4 h-4 mr-2" />
 			Back to Events
 		</Button>
@@ -117,14 +132,14 @@
 				<div>
 					<div class="text-xs text-muted-foreground mb-1">Total Receivable</div>
 					<div class="text-2xl font-bold text-emerald-600">
-						{formatCurrency(data.event.totalReceivable)}
+						{formatCurrency(totalReceivable)}
 					</div>
 				</div>
 
 				<div>
 					<div class="text-xs text-muted-foreground mb-1">Total Payable</div>
 					<div class="text-2xl font-bold text-red-600">
-						{formatCurrency(data.event.totalPayable)}
+						{formatCurrency(totalPayable)}
 					</div>
 				</div>
 
@@ -140,7 +155,7 @@
 					<div
 						class="text-2xl font-bold {netRevenueIsPositive ? 'text-emerald-600' : 'text-red-600'}"
 					>
-						{formatCurrency(data.event.netRevenue)}
+						{formatCurrency(netRevenue)}
 					</div>
 				</div>
 
@@ -158,7 +173,7 @@
 		<Card.Header>
 			<div class="flex items-center justify-between">
 				<Card.Title>Contracts</Card.Title>
-				<Button size="sm" href="/v2/contracts/new?eventId={data.event.id}">
+				<Button size="sm" href="/contracts/service-provision?eventId={data.event.id}">
 					<Plus class="w-4 h-4 mr-2" />
 					Add Contract
 				</Button>

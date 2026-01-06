@@ -17,11 +17,12 @@
 
 	interface Props {
 		contract?: ServiceProvisionContract | null;
+		initialEventId?: string;
 		onSuccess?: (contractId: string) => void;
 		onCancel?: () => void;
 	}
 
-	let { contract = null, onSuccess, onCancel }: Props = $props();
+	let { contract = null, initialEventId = '', onSuccess, onCancel }: Props = $props();
 
 	// Initialize state
 	$effect(() => {
@@ -39,7 +40,7 @@
 
 	// Form state - initialize empty, sync with contract prop via $effect
 	let contractNumber = $state('');
-	let eventId = $state<string>('');
+	let eventId = $state<string>(initialEventId);
 	let counterpartyId = $state<string>('');
 	let jobName = $state('');
 	let jobContent = $state('');

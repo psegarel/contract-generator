@@ -39,7 +39,7 @@
 	<!-- Header -->
 	<div class="flex items-center justify-between mb-8">
 		<div class="flex items-center gap-3">
-			<Button variant="ghost" size="sm" href={`/counterparties/${data.counterparty.id}`}>
+			<Button variant="ghost" size="sm" href="/counterparties">
 				<ArrowLeft class="w-4 h-4 mr-2" />
 				Back
 			</Button>

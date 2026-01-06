@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
-	import type { ServiceProvisionContract } from '$lib/types/v2/contracts';
+	import type { ServiceProvisionContract, EventPlanningContract } from '$lib/types/v2/contracts';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
 	import { Calendar, User, Pencil, Check, Download } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
@@ -17,6 +17,7 @@
 		updateClientServiceContractPaymentStatus
 	} from '$lib/utils/v2';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
+	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
 
 	interface Props {
 		contract: BaseContract;
@@ -109,86 +110,176 @@
 	}
 
 	async function handleDownload() {
-		if (contract.type !== 'service-provision') {
-			toast.error('Download is only available for service-provision contracts');
+		if (contract.type !== 'service-provision' && contract.type !== 'event-planning') {
+			toast.error('Download is only available for service-provision and event-planning contracts');
 			return;
 		}
 
 		isDownloading = true;
 
 		try {
-			const serviceContract = contract as ServiceProvisionContract;
+			if (contract.type === 'service-provision') {
+				const serviceContract = contract as ServiceProvisionContract;
 
-			// Validate required fields
-			if (!serviceContract.eventName) {
-				toast.error('Event name is required for download');
-				return;
-			}
-
-			// Convert ServiceProvisionContract to ContractData format
-			const contractData = {
-				clientName: serviceContract.counterpartyName,
-				clientEmail: serviceContract.clientEmail,
-				clientAddress: serviceContract.clientAddress,
-				clientPhone: serviceContract.clientPhone,
-				clientIdDocument: serviceContract.clientIdDocument,
-				clientTaxId: serviceContract.clientTaxId || undefined,
-				jobName: serviceContract.jobName,
-				eventName: serviceContract.eventName,
-				numberOfPerformances: serviceContract.numberOfPerformances,
-				eventLocation: serviceContract.eventLocation,
-				firstPerformanceTime: serviceContract.firstPerformanceTime,
-				jobContent: serviceContract.jobContent,
-				bankName: serviceContract.bankName,
-				accountNumber: serviceContract.accountNumber,
-				netFee: serviceContract.netFee,
-				taxRate: serviceContract.taxRate,
-				startDate: serviceContract.startDate,
-				endDate: serviceContract.endDate
-			};
-
-			const blob = await generateServiceContract(contractData);
-			const filename = `Contract_${serviceContract.counterpartyName.replace(/\s+/g, '_')}.docx`;
-
-			// Try File System Access API
-			if ('showSaveFilePicker' in window) {
-				try {
-					// @ts-expect-error - showSaveFilePicker is not yet in standard TS lib
-					const handle = await window.showSaveFilePicker({
-						suggestedName: filename,
-						types: [
-							{
-								description: 'Word Document',
-								accept: {
-									'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
-										'.docx'
-									]
-								}
-							}
-						]
-					});
-					const writable = await handle.createWritable();
-					await writable.write(blob);
-					await writable.close();
-					toast.success('Contract downloaded successfully!');
+				// Validate required fields
+				if (!serviceContract.eventName) {
+					toast.error('Event name is required for download');
 					return;
-				} catch (err) {
-					if (err && typeof err === 'object' && 'name' in err && err.name === 'AbortError') {
+				}
+
+				// Convert ServiceProvisionContract to ContractData format
+				const contractData = {
+					clientName: serviceContract.counterpartyName,
+					clientEmail: serviceContract.clientEmail,
+					clientAddress: serviceContract.clientAddress,
+					clientPhone: serviceContract.clientPhone,
+					clientIdDocument: serviceContract.clientIdDocument,
+					clientTaxId: serviceContract.clientTaxId || undefined,
+					jobName: serviceContract.jobName,
+					eventName: serviceContract.eventName,
+					numberOfPerformances: serviceContract.numberOfPerformances,
+					eventLocation: serviceContract.eventLocation,
+					firstPerformanceTime: serviceContract.firstPerformanceTime,
+					jobContent: serviceContract.jobContent,
+					bankName: serviceContract.bankName,
+					accountNumber: serviceContract.accountNumber,
+					netFee: serviceContract.netFee,
+					taxRate: serviceContract.taxRate,
+					startDate: serviceContract.startDate,
+					endDate: serviceContract.endDate
+				};
+
+				const blob = await generateServiceContract(contractData);
+				const filename = `Contract_${serviceContract.counterpartyName.replace(/\s+/g, '_')}.docx`;
+
+				// Try File System Access API
+				if ('showSaveFilePicker' in window) {
+					try {
+						// @ts-expect-error - showSaveFilePicker is not yet in standard TS lib
+						const handle = await window.showSaveFilePicker({
+							suggestedName: filename,
+							types: [
+								{
+									description: 'Word Document',
+									accept: {
+										'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
+											'.docx'
+										]
+									}
+								}
+							]
+						});
+						const writable = await handle.createWritable();
+						await writable.write(blob);
+						await writable.close();
+						toast.success('Contract downloaded successfully!');
 						return;
+					} catch (err) {
+						if (err && typeof err === 'object' && 'name' in err && err.name === 'AbortError') {
+							return;
+						}
 					}
 				}
-			}
 
-			// Fallback download
-			const url = window.URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			window.URL.revokeObjectURL(url);
-			document.body.removeChild(a);
-			toast.success('Contract downloaded successfully!');
+				// Fallback download
+				const url = window.URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = filename;
+				document.body.appendChild(a);
+				a.click();
+				window.URL.revokeObjectURL(url);
+				document.body.removeChild(a);
+				toast.success('Contract downloaded successfully!');
+			} else if (contract.type === 'event-planning') {
+				const eventContract = contract as EventPlanningContract;
+
+				// Validate required fields
+				if (!eventContract.eventName) {
+					toast.error('Event name is required for download');
+					return;
+				}
+
+				// Convert EventPlanningContract to EventPlanningContractData format
+				const contractData = {
+					contractDate: eventContract.contractDate,
+					contractLocation: eventContract.contractLocation,
+					clientCompany: eventContract.clientCompany,
+					clientAddress: eventContract.clientAddress,
+					clientTaxCode: eventContract.clientTaxCode,
+					clientRepresentativeName: eventContract.clientRepresentativeName,
+					clientRepresentativePosition: eventContract.clientRepresentativePosition,
+					eventTheme: eventContract.eventTheme || null,
+					eventName: eventContract.eventName,
+					eventType: eventContract.eventType || null,
+					eventDescription: eventContract.eventDescription || null,
+					eventVenue: eventContract.eventVenue,
+					eventDate: eventContract.eventDate,
+					eventDuration: eventContract.eventDuration || null,
+					expectedAttendance: eventContract.expectedAttendance || null,
+					contractValueVND: eventContract.contractValueVND,
+					vatRate: eventContract.vatRate,
+					depositPercentage: eventContract.depositPercentage,
+					finalPaymentPercentage: eventContract.finalPaymentPercentage,
+					professionalIndemnityAmount: eventContract.professionalIndemnityAmount,
+					publicLiabilityAmount: eventContract.publicLiabilityAmount,
+					planningMeetingDays: eventContract.planningMeetingDays,
+					performerBookingDeadline: eventContract.performerBookingDeadline,
+					technicalSetupDate: eventContract.technicalSetupDate,
+					eventExecutionDate: eventContract.eventExecutionDate,
+					setupCommencementTime: eventContract.setupCommencementTime,
+					eventExecutionDuration: eventContract.eventExecutionDuration,
+					breakdownCompletionDateTime: eventContract.breakdownCompletionDateTime,
+					paymentGracePeriodDays: eventContract.paymentGracePeriodDays,
+					terminationNoticeDays: eventContract.terminationNoticeDays,
+					negotiationPeriodDays: eventContract.negotiationPeriodDays,
+					arbitrationLocation: eventContract.arbitrationLocation,
+					arbitrationLanguage: eventContract.arbitrationLanguage
+				};
+
+				const blob = await generateEventPlanningContract(contractData);
+				const filename = `Event_Planning_Contract_${eventContract.clientCompany.replace(/\s+/g, '_')}.docx`;
+
+				// Try File System Access API
+				if ('showSaveFilePicker' in window) {
+					try {
+						// @ts-expect-error - showSaveFilePicker is not yet in standard TS lib
+						const handle = await window.showSaveFilePicker({
+							suggestedName: filename,
+							types: [
+								{
+									description: 'Word Document',
+									accept: {
+										'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
+											'.docx'
+										]
+									}
+								}
+							]
+						});
+						const writable = await handle.createWritable();
+						await writable.write(blob);
+						await writable.close();
+						toast.success('Contract downloaded successfully!');
+						return;
+					} catch (err) {
+						if (err && typeof err === 'object' && 'name' in err && err.name === 'AbortError') {
+							return;
+						}
+					}
+				}
+
+				// Fallback download
+				const url = window.URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = filename;
+				document.body.appendChild(a);
+				a.click();
+				window.URL.revokeObjectURL(url);
+				document.body.removeChild(a);
+				toast.success('Contract downloaded successfully!');
+			}
 		} catch (error) {
 			console.error('Error downloading contract:', error);
 			toast.error('Failed to download contract');
@@ -225,42 +316,39 @@
 			</div>
 		</div>
 
-		<!-- Value and Status -->
-		<div class="flex items-center justify-between pt-1">
+		<!-- Value -->
+		<div class="pt-1">
 			<div class="text-base font-bold text-emerald-600 dark:text-emerald-400">
 				{formatCurrency(contract.contractValue)}
-			</div>
-			<div class="flex gap-2">
-				{#if contract.paymentStatus === 'paid'}
-					<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
-				{:else}
-					<Badge variant="secondary">Unpaid</Badge>
-				{/if}
 			</div>
 		</div>
 
 		<!-- Actions -->
 		<div class="pt-2 space-y-2">
-			<Button
-				size="sm"
+			<button
 				onclick={togglePaymentStatus}
 				disabled={isMarkingAsPaid}
-				class="w-full {contract.paymentStatus === 'paid'
-					? 'bg-gray-600 hover:bg-gray-700'
-					: 'bg-emerald-600 hover:bg-emerald-700'} text-white"
+				class="w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				<Check class="h-3.5 w-3.5 mr-1.5" />
-				{isMarkingAsPaid
-					? 'Updating...'
-					: contract.paymentStatus === 'paid'
-						? 'Mark as Unpaid'
-						: 'Mark as Paid'}
-			</Button>
+				{#if isMarkingAsPaid}
+					<Badge variant="secondary" class="w-full justify-center py-2">
+						Updating...
+					</Badge>
+				{:else if contract.paymentStatus === 'paid'}
+					<Badge variant="default" class="w-full justify-center py-2 bg-emerald-500 hover:bg-emerald-600">
+						Paid
+					</Badge>
+				{:else}
+					<Badge variant="secondary" class="w-full justify-center py-2">
+						Unpaid
+					</Badge>
+				{/if}
+			</button>
 			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="w-full">
 				<Pencil class="h-3.5 w-3.5 mr-1.5" />
 				View
 			</Button>
-			{#if contract.type === 'service-provision'}
+			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
 				<Button
 					variant="outline"
 					size="sm"
@@ -280,8 +368,8 @@
 		</div>
 	</div>
 
-	<!-- Desktop: Grid Layout (18 columns) -->
-	<div class="hidden md:grid grid-cols-18 gap-3 items-center py-3 px-4">
+	<!-- Desktop: Grid Layout (17 columns) -->
+	<div class="hidden md:grid grid-cols-17 gap-3 items-center py-3 px-4">
 		<!-- Contract Number -->
 		<div class="col-span-2">
 			<h3 class="text-sm font-bold tracking-tight truncate">
@@ -318,28 +406,24 @@
 			</Badge>
 		</div>
 
-		<!-- Payment Status Badge -->
-		<div class="col-span-1 flex justify-center">
-			{#if contract.paymentStatus === 'paid'}
-				<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
-			{:else}
-				<Badge variant="secondary">Unpaid</Badge>
-			{/if}
-		</div>
-
-		<!-- Payment Toggle Button -->
+		<!-- Payment Toggle Badge -->
 		<div class="col-span-2 flex justify-center">
-			<Button
-				size="sm"
+			<button
 				onclick={togglePaymentStatus}
 				disabled={isMarkingAsPaid}
-				class="px-2 {contract.paymentStatus === 'paid'
-					? 'bg-gray-600 hover:bg-gray-700'
-					: 'bg-emerald-600 hover:bg-emerald-700'} text-white"
-				title={contract.paymentStatus === 'paid' ? 'Mark as Unpaid' : 'Mark as Paid'}
+				class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+				title={contract.paymentStatus === 'paid' ? 'Click to mark as Unpaid' : 'Click to mark as Paid'}
 			>
-				<Check class="h-4 w-4" />
-			</Button>
+				{#if contract.paymentStatus === 'paid'}
+					<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">
+						Paid
+					</Badge>
+				{:else}
+					<Badge variant="secondary">
+						Unpaid
+					</Badge>
+				{/if}
+			</button>
 		</div>
 
 		<!-- Actions -->
@@ -347,7 +431,7 @@
 			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="px-2" title="View">
 				<Pencil class="h-4 w-4" />
 			</Button>
-			{#if contract.type === 'service-provision'}
+			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
 				<Button
 					variant="outline"
 					size="sm"

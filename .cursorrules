@@ -1,0 +1,193 @@
+# Project Tech Stack
+
+- TypeScript (strict mode)
+- SvelteKit 5 (with Runes)
+- TailwindCSS v4
+- Zod v4
+
+# Svelte MCP Server Autofixer (MANDATORY)
+
+- ALL components and routes MUST be checked with Svelte's autofixer from the Svelte MCP server
+- Autofixer suggestions must NEVER be ignored - they enfore Svelte's best practices
+- Run autofixer before committing any Svelte files
+- If autofixer suggests changes, apply them immediately
+- The autofixer ensures correct Svelte 5 syntax and catches migration issues
+
+# SvelteKit 5 - Runes Syntax (CRITICAL)
+
+- Use runes for all reactivity: $state(), $derived(), $effect(), $props()
+- NEVER use let/const for reactive variables - always use $state()
+- NEVER use $: reactive statements - use $derived() or $effect() instead
+- NEVER use export let for props - use $props() with destructuring
+- Component props: const { propName, propName2 = defaultValue } = $props()
+- Use $state.raw() for non-reactive objects/arrays if needed
+- Use $effect() for side effects, not $: statements
+- Use $derived() for computed values, not $: statements
+- Use $bindable() for two-way binding props
+- DON'T use $effect() to update state, this is an antipattern
+
+# SvelteKit 5 - Component Structure
+
+```svelte
+<script lang="ts">
+	// Imports first
+	import { something } from 'somewhere';
+
+	// Props with $props()
+	const { title, count = 0 } = $props<{ title: string; count?: number }>();
+
+	// State with $state()
+	let isOpen = $state(false);
+
+	// Derived values with $derived()
+	let doubleCount = $derived(count * 2);
+
+	// Effects with $effect()
+	$effect(() => {
+		console.log('Count changed:', count);
+	});
+
+	// Regular functions
+	function handleClick() {
+		isOpen = !isOpen;
+	}
+</script>
+```
+
+# TailwindCSS v4 - New Syntax (CRITICAL)
+
+- Use @import "tailwindcss" instead of @tailwind directives
+- Use @theme {} for custom theme configuration instead of tailwind.config.js
+- Use @custom-variant for custom variants instead of addVariant
+- CSS variables are now scoped: var(--color-primary) instead of theme(colors.primary)
+- Use modern CSS features like oklch() for colors
+- Example theme configuration:
+
+```css
+@import 'tailwindcss';
+
+@theme {
+	--color-primary: oklch(0.5 0.2 200);
+	--font-sans: 'Inter', system-ui, sans-serif;
+}
+```
+
+# TypeScript
+
+- Use strict mode always
+- Prefer interfaces over types for object shapes
+- Use type for unions, intersections, and utility types
+- Always type function parameters and return values
+- Use satisfies operator for type checking without widening
+- Prefer const assertions for literal types
+- Use unknown instead of any when type is truly unknown
+
+## Decision-Making Process
+
+**When told something is wrong:**
+
+1. **STOP and ask**: "What is the correct approach?" before implementing
+2. **Don't assume** - verify the correct pattern for the framework version
+3. **Consider context** - In SvelteKit, load functions are often the right approach for URL params
+4. **Question your first instinct** - If you immediately think of a solution, pause and verify it's correct
+
+**Before implementing changes:**
+
+- Ask clarifying questions if the correct approach isn't clear
+- Check framework documentation patterns (e.g., SvelteKit 5 load functions)
+- Consider multiple approaches and explain trade-offs
+- Don't rush to "fix" - understand the problem fully first
+
+# File Naming & Organization
+
+- Use kebab-case for file names: user-profile.svelte, api-client.ts
+- Routes in src/routes/ follow SvelteKit conventions
+- Components in src/lib/components/
+- Utilities in src/lib/utils/
+- Types in src/lib/types/
+- Use +server.ts for API endpoints
+
+# Component Patterns
+
+- Keep components small and focused, a component should be responsible for doing one thing, well
+- Extract reusable logic into functions or separate files
+- Use composition over inheritance, unless the opposite was explicitly requested
+- Prefer explicit props over slot props when possible
+- Use snippets for reusable template fragments within components
+
+# Code Style
+
+- Use 2 spaces for indentation
+- Use single quotes for strings
+- Add trailing commas in multiline objects/arrays
+- Use const by default, let only when reassignment is needed
+- Use optional chaining (?.) and nullish coalescing (??)
+
+# SvelteKit Specifics
+
+- Use load functions in +page.ts/+page.server.ts for data fetching
+- Use form actions in +page.server.ts for mutations
+- Prefer server-side data loading when possible
+- Use $app/environment for environment detection
+- Use $app/navigation for programmatic navigation
+
+# API & Data Fetching
+
+- Use fetch in load functions for SSR-compatible requests
+- Handle errors properly with try/catch or error boundaries
+- Type API responses properly
+- Use zod or similar for runtime validation
+
+# State Management
+
+- Use $state() for component-level state
+- Use state classes ( .svelte.ts ) for shared state
+- Consider using context API (setContext/getContext) for tree-level state
+- Avoid prop drilling - use context or states instead
+
+# Performance
+
+- Use $derived() for memoization instead of redundant calculations
+- Lazy load routes and components when appropriate
+- Use {#key} blocks only when necessary
+- Avoid large bundle sizes - code split when needed
+
+# Testing
+
+- Write tests for utilities and complex logic
+- Use Playwright for e2e tests
+- Use Vitest for unit tests
+- Test user flows, not implementation details
+
+# What to AVOID
+
+- ❌ Old Svelte reactivity ($:, export let, stores etc.)
+- ❌ Old Tailwind v3 syntax (@tailwind, tailwind.config.js for theme)
+- ❌ Using any type without justification
+- ❌ Inline styles or style blocks (use Tailwind classes or a design system )
+- ❌ Large components (break them down)
+- ❌ Mutating props directly
+- ❌ Using deprecated SvelteKit features
+- ❌ Ignoring Svelte autofixer suggestions - ALWAYS apply them
+
+# Error Handling
+
+- Always handle errors in load functions
+- Use error boundaries (+error.svelte) appropriately
+- Provide meaningful error messages
+- Log errors for debugging but don't expose sensitive info to users
+
+# Accessibility
+
+- Use semantic HTML elements
+- Add proper ARIA labels when needed
+- Ensure keyboard navigation works
+- Test with screen readers when possible
+- Maintain proper heading hierarchy
+
+# Comments & Documentation
+
+- Write self-documenting code with clear names
+- Add comments for complex logic or non-obvious decisions
+- Use JSDoc for exported functions and types
+- Keep comments up to date with code changes
