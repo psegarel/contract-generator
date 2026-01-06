@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
+	import type { ServiceProvisionContract } from '$lib/types/v2/contracts';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Pencil, Check } from 'lucide-svelte';
+	import { Calendar, User, Pencil, Check, Download } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -15,6 +16,7 @@
 		updateSubcontractorContractPaymentStatus,
 		updateClientServiceContractPaymentStatus
 	} from '$lib/utils/v2';
+	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 
 	interface Props {
 		contract: BaseContract;
@@ -26,6 +28,7 @@
 	let { contract, index, getLink, onPaymentStatusUpdate }: Props = $props();
 
 	let isMarkingAsPaid = $state(false);
+	let isDownloading = $state(false);
 
 	function getContractTypeLabel(type: BaseContract['type']): string {
 		const labels: Record<BaseContract['type'], string> = {
@@ -104,6 +107,95 @@
 			isMarkingAsPaid = false;
 		}
 	}
+
+	async function handleDownload() {
+		if (contract.type !== 'service-provision') {
+			toast.error('Download is only available for service-provision contracts');
+			return;
+		}
+
+		isDownloading = true;
+
+		try {
+			const serviceContract = contract as ServiceProvisionContract;
+
+			// Validate required fields
+			if (!serviceContract.eventName) {
+				toast.error('Event name is required for download');
+				return;
+			}
+
+			// Convert ServiceProvisionContract to ContractData format
+			const contractData = {
+				clientName: serviceContract.counterpartyName,
+				clientEmail: serviceContract.clientEmail,
+				clientAddress: serviceContract.clientAddress,
+				clientPhone: serviceContract.clientPhone,
+				clientIdDocument: serviceContract.clientIdDocument,
+				clientTaxId: serviceContract.clientTaxId || undefined,
+				jobName: serviceContract.jobName,
+				eventName: serviceContract.eventName,
+				numberOfPerformances: serviceContract.numberOfPerformances,
+				eventLocation: serviceContract.eventLocation,
+				firstPerformanceTime: serviceContract.firstPerformanceTime,
+				jobContent: serviceContract.jobContent,
+				bankName: serviceContract.bankName,
+				accountNumber: serviceContract.accountNumber,
+				netFee: serviceContract.netFee,
+				taxRate: serviceContract.taxRate,
+				startDate: serviceContract.startDate,
+				endDate: serviceContract.endDate
+			};
+
+			const blob = await generateServiceContract(contractData);
+			const filename = `Contract_${serviceContract.counterpartyName.replace(/\s+/g, '_')}.docx`;
+
+			// Try File System Access API
+			if ('showSaveFilePicker' in window) {
+				try {
+					// @ts-expect-error - showSaveFilePicker is not yet in standard TS lib
+					const handle = await window.showSaveFilePicker({
+						suggestedName: filename,
+						types: [
+							{
+								description: 'Word Document',
+								accept: {
+									'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
+										'.docx'
+									]
+								}
+							}
+						]
+					});
+					const writable = await handle.createWritable();
+					await writable.write(blob);
+					await writable.close();
+					toast.success('Contract downloaded successfully!');
+					return;
+				} catch (err) {
+					if (err && typeof err === 'object' && 'name' in err && err.name === 'AbortError') {
+						return;
+					}
+				}
+			}
+
+			// Fallback download
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a);
+			toast.success('Contract downloaded successfully!');
+		} catch (error) {
+			console.error('Error downloading contract:', error);
+			toast.error('Failed to download contract');
+		} finally {
+			isDownloading = false;
+		}
+	}
 </script>
 
 <div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
@@ -168,6 +260,23 @@
 				<Pencil class="h-3.5 w-3.5 mr-1.5" />
 				View
 			</Button>
+			{#if contract.type === 'service-provision'}
+				<Button
+					variant="outline"
+					size="sm"
+					onclick={handleDownload}
+					disabled={isDownloading}
+					class="w-full"
+				>
+					{#if isDownloading}
+						<span class="animate-spin mr-1.5">⏳</span>
+						Downloading...
+					{:else}
+						<Download class="h-3.5 w-3.5 mr-1.5" />
+						Download
+					{/if}
+				</Button>
+			{/if}
 		</div>
 	</div>
 
@@ -203,14 +312,14 @@
 		</div>
 
 		<!-- Type Badge -->
-		<div class="col-span-2 flex justify-center">
+		<div class="col-span-1 flex justify-center">
 			<Badge variant="outline">
 				{getContractTypeLabel(contract.type)}
 			</Badge>
 		</div>
 
 		<!-- Payment Status Badge -->
-		<div class="col-span-2 flex justify-center">
+		<div class="col-span-1 flex justify-center">
 			{#if contract.paymentStatus === 'paid'}
 				<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
 			{:else}
@@ -219,7 +328,7 @@
 		</div>
 
 		<!-- Payment Toggle Button -->
-		<div class="col-span-1 flex justify-center">
+		<div class="col-span-2 flex justify-center">
 			<Button
 				size="sm"
 				onclick={togglePaymentStatus}
@@ -233,11 +342,27 @@
 			</Button>
 		</div>
 
-		<!-- View Button -->
-		<div class="col-span-1 flex justify-center">
+		<!-- Actions -->
+		<div class="col-span-2 flex gap-2 justify-center">
 			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="px-2" title="View">
 				<Pencil class="h-4 w-4" />
 			</Button>
+			{#if contract.type === 'service-provision'}
+				<Button
+					variant="outline"
+					size="sm"
+					onclick={handleDownload}
+					disabled={isDownloading}
+					class="px-2"
+					title="Download"
+				>
+					{#if isDownloading}
+						<span class="animate-spin">⏳</span>
+					{:else}
+						<Download class="h-4 w-4" />
+					{/if}
+				</Button>
+			{/if}
 		</div>
 	</div>
 </div>
