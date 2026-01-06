@@ -37,5 +37,9 @@ export { createInitialEvents } from './createInitialEvents';
 export { migrateServiceContracts } from './migrateServiceContracts';
 export { migrateEventPlanningContracts } from './migrateEventPlanningContracts';
 export { runFullMigration } from './runMigration';
+export { addTimestampsToCounterparties } from './addTimestampsToCounterparties';
+export { removeInvalidCounterpartyFields } from './removeInvalidCounterpartyFields';
+export { fixMissingRequiredFields } from './fixMissingRequiredFields';
+export { cleanCounterpartyData } from './cleanCounterpartyData';
 
 export type { MigrationResult } from './migrateClients';

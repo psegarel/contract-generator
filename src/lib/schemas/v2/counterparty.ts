@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import type { Timestamp } from 'firebase/firestore';
 
 /**
  * Base counterparty schema - common fields for all counterparty types
  */
 export const baseCounterpartySchema = z.object({
-	// Identity (id, createdAt, updatedAt added by Firestore)
+	// Identity
 	type: z.enum(['venue', 'performer', 'service-provider', 'client', 'supplier']),
 
 	// Common fields for list display
@@ -17,7 +18,11 @@ export const baseCounterpartySchema = z.object({
 	ownerUid: z.string().min(1, 'Owner UID is required'),
 
 	// Metadata
-	notes: z.string().nullable().optional()
+	notes: z.string().nullable().optional(),
+
+	// Timestamps (required - forms use Timestamp.now(), server replaces with serverTimestamp())
+	createdAt: z.custom<Timestamp>(),
+	updatedAt: z.custom<Timestamp>()
 });
 
 /**
@@ -33,7 +38,7 @@ export const venueCounterpartySchema = baseCounterpartySchema
 		ownerCompany: z.string().nullable().optional(),
 
 		// Business & billing
-		taxCode: z.string().min(1, 'Tax code is required'),
+		taxCode: z.string().nullable().optional(),
 		bankName: z.string().nullable().optional(),
 		bankAccountNumber: z.string().nullable().optional(),
 		representativeName: z.string().nullable().optional(),
@@ -86,7 +91,13 @@ export const serviceProviderCounterpartySchema = baseCounterpartySchema
 
 		// Business info
 		businessLicense: z.string().nullable().optional(),
-		insuranceInfo: z.string().nullable().optional()
+		insuranceInfo: z.string().nullable().optional(),
+
+		// Tax & banking (same as client)
+		taxId: z.string().nullable().optional(),
+		bankName: z.string().nullable().optional(),
+		bankAccountNumber: z.string().nullable().optional(),
+		idDocument: z.string().nullable().optional()
 	})
 	.strict();
 
@@ -132,6 +143,12 @@ export const supplierCounterpartySchema = baseCounterpartySchema
 	.strict();
 
 /**
+ * List schema - only common fields for list operations
+ * No .strict() - allows type-specific fields to be present but ignores them
+ */
+export const counterpartyListSchema = baseCounterpartySchema;
+
+/**
  * Union schema for all counterparty types
  */
 export const counterpartySchema = z.discriminatedUnion('type', [
@@ -145,6 +162,7 @@ export const counterpartySchema = z.discriminatedUnion('type', [
 /**
  * TypeScript types inferred from schemas
  */
+export type CounterpartyListItem = z.infer<typeof counterpartyListSchema>;
 export type VenueCounterpartyInput = z.infer<typeof venueCounterpartySchema>;
 export type PerformerCounterpartyInput = z.infer<typeof performerCounterpartySchema>;
 export type ServiceProviderCounterpartyInput = z.infer<typeof serviceProviderCounterpartySchema>;

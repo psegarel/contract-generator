@@ -370,13 +370,15 @@ This ensures data integrity and prevents runtime errors from undefined or malfor
 ```typescript
 // ✅ GOOD: Validate when writing
 export async function saveCounterparty(counterpartyData: CounterpartyInput): Promise<string> {
+  // Validate complete data (timestamps from form are present)
   const validationResult = counterpartySchema.safeParse(counterpartyData);
   if (!validationResult.success) {
     throw new Error('Invalid counterparty data: ' + validationResult.error.message);
   }
   
+  // Write to Firestore, replacing form timestamps with serverTimestamp() (server is source of truth)
   const toWrite = {
-    ...validationResult.data, // Use validated data
+    ...validationResult.data,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
@@ -391,12 +393,8 @@ export async function getCounterpartyById(id: string): Promise<Counterparty | nu
   
   const data = docSnap.data();
   
-  // Validate and transform through Zod
-  const result = counterpartySchema.safeParse({
-    ...data,
-    createdAt: data.createdAt || Timestamp.now(),
-    updatedAt: data.updatedAt || Timestamp.now()
-  });
+  // Validate with full schema (includes timestamps from Firestore)
+  const result = counterpartySchema.safeParse(data);
   
   if (!result.success) {
     console.error('Invalid counterparty data:', result.error, id);
@@ -417,10 +415,20 @@ export async function getCounterpartyById(id: string): Promise<Counterparty | nu
 - ✅ **Migration support**: Handles schema changes gracefully
 - ✅ **Consistency**: All data conforms to current schema before use
 
+**Timestamp handling:**
+- **Required fields**: `createdAt` and `updatedAt` are required `Timestamp` fields in all schemas
+- **Forms**: Include timestamps using `Timestamp.now()` for validation
+  - When creating: Set both `createdAt` and `updatedAt` to `Timestamp.now()`
+  - When editing: Preserve existing `createdAt`, set `updatedAt` to `Timestamp.now()`
+- **Writing**: Replace form timestamps with `serverTimestamp()` when writing to Firestore (server is source of truth)
+- **Reading**: Validate complete data including timestamps from Firestore
+- **Simple approach**: No complex validation logic - validate complete data, then overwrite timestamps when writing
+
 **Schema patterns:**
 - Use `.default([])` for array fields to ensure they're never undefined
 - Use `.nullable().optional()` for optional fields
 - Use `.strict()` to catch unexpected fields
+- Include `createdAt: z.custom<Timestamp>()` and `updatedAt: z.custom<Timestamp>()` as required fields in base schemas
 
 **Example schema:**
 ```typescript

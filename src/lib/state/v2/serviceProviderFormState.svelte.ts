@@ -11,6 +11,10 @@ export class ServiceProviderFormState {
 	equipmentProvided = $state<string[]>([]);
 	businessLicense = $state('');
 	insuranceInfo = $state('');
+	taxId = $state('');
+	bankName = $state('');
+	bankAccountNumber = $state('');
+	idDocument = $state('');
 	notes = $state('');
 
 	// Temporary state for adding items to arrays
@@ -40,6 +44,10 @@ export class ServiceProviderFormState {
 		this.equipmentProvided = [...serviceProvider.equipmentProvided];
 		this.businessLicense = serviceProvider.businessLicense || '';
 		this.insuranceInfo = serviceProvider.insuranceInfo || '';
+		this.taxId = serviceProvider.taxId || '';
+		this.bankName = serviceProvider.bankName || '';
+		this.bankAccountNumber = serviceProvider.bankAccountNumber || '';
+		this.idDocument = serviceProvider.idDocument || '';
 		this.notes = serviceProvider.notes || '';
 	}
 
@@ -57,6 +65,10 @@ export class ServiceProviderFormState {
 		this.equipmentProvided = [];
 		this.businessLicense = '';
 		this.insuranceInfo = '';
+		this.taxId = '';
+		this.bankName = '';
+		this.bankAccountNumber = '';
+		this.idDocument = '';
 		this.notes = '';
 		this.newDeliverable = '';
 		this.newEquipment = '';

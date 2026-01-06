@@ -44,7 +44,7 @@ export interface VenueCounterparty extends BaseCounterparty {
 	ownerCompany: string | null; // e.g., "XYZ Entertainment Ltd"
 
 	// Business & billing
-	taxCode: string;
+	taxCode: string | null;
 	bankName: string | null;
 	bankAccountNumber: string | null;
 	representativeName: string | null;
@@ -95,6 +95,12 @@ export interface ServiceProviderCounterparty extends BaseCounterparty {
 	// Business info
 	businessLicense: string | null;
 	insuranceInfo: string | null;
+
+	// Tax & banking (same as client)
+	taxId: string | null;
+	bankName: string | null;
+	bankAccountNumber: string | null;
+	idDocument: string | null;
 }
 
 /**

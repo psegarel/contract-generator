@@ -5,6 +5,7 @@
 	import { authState } from '$lib/state/auth.svelte';
 	import { ClientFormState } from '$lib/state/v2/clientFormState.svelte';
 	import { onMount } from 'svelte';
+	import { Timestamp } from 'firebase/firestore';
 
 	interface Props {
 		client?: ClientCounterparty | null;
@@ -47,7 +48,10 @@
 				taxId: formState.taxId || null,
 				bankName: formState.bankName || null,
 				bankAccountNumber: formState.bankAccountNumber || null,
-				notes: formState.notes || null
+				notes: formState.notes || null,
+				// Timestamps: when creating use Timestamp.now(), when editing preserve createdAt
+				createdAt: client?.createdAt || Timestamp.now(),
+				updatedAt: Timestamp.now()
 			};
 
 			// Validate with schema

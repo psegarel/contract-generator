@@ -11,11 +11,21 @@ import {
 	serverTimestamp,
 	onSnapshot,
 	deleteDoc,
-	type Unsubscribe
+	type Unsubscribe,
+	Timestamp
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { Counterparty } from '$lib/types/v2';
-import { counterpartySchema, type CounterpartyInput } from '$lib/schemas/v2';
+import {
+	counterpartySchema,
+	type CounterpartyInput,
+	counterpartyListSchema,
+	venueCounterpartySchema,
+	performerCounterpartySchema,
+	serviceProviderCounterpartySchema,
+	clientCounterpartySchema,
+	supplierCounterpartySchema
+} from '$lib/schemas/v2';
 
 const COLLECTION_NAME = 'counterparties';
 
@@ -31,10 +41,28 @@ export function subscribeToCounterparties(
 	return onSnapshot(
 		q,
 		(snapshot) => {
-			const counterparties = snapshot.docs.map((doc) => ({
-				id: doc.id,
-				...doc.data()
-			})) as Counterparty[];
+			const counterparties = snapshot.docs
+				.map((doc) => {
+					const data = doc.data();
+
+					// Use list schema (only validates common fields, ignores type-specific fields)
+					const result = counterpartyListSchema.safeParse(data);
+
+					if (!result.success) {
+						console.error('Invalid counterparty data:', {
+							id: doc.id,
+							error: result.error.format()
+						});
+						return null;
+					}
+
+					// Return validated data
+					return {
+						id: doc.id,
+						...result.data
+					} as Counterparty;
+				})
+				.filter((c): c is Counterparty => c !== null);
 			callback(counterparties);
 		},
 		(error) => {
@@ -47,18 +75,18 @@ export function subscribeToCounterparties(
 /**
  * Save a new counterparty
  */
-export async function saveCounterparty(
-	counterpartyData: CounterpartyInput
-): Promise<string> {
+export async function saveCounterparty(counterpartyData: CounterpartyInput): Promise<string> {
 	try {
+		// Validate complete data (timestamps from form are present)
 		const validationResult = counterpartySchema.safeParse(counterpartyData);
 		if (!validationResult.success) {
 			console.error('Validation error:', validationResult.error);
 			throw new Error('Invalid counterparty data: ' + validationResult.error.message);
 		}
 
+		// Write to Firestore, replacing form timestamps with serverTimestamp() (server is source of truth)
 		const toWrite = {
-			...counterpartyData,
+			...validationResult.data,
 			createdAt: serverTimestamp(),
 			updatedAt: serverTimestamp()
 		};
@@ -84,9 +112,54 @@ export async function getCounterpartyById(counterpartyId: string): Promise<Count
 		}
 
 		const data = docSnap.data();
+
+		// Check type first to use the correct schema
+		if (!data.type || typeof data.type !== 'string') {
+			console.error('Counterparty type is missing or invalid:', data.type, counterpartyId);
+			throw new Error('Counterparty type is missing');
+		}
+
+		// Normalize type (trim whitespace, lowercase)
+		const normalizedType = data.type.trim().toLowerCase();
+
+		// Select the appropriate schema based on type
+		let result;
+		switch (normalizedType) {
+			case 'venue':
+				result = venueCounterpartySchema.safeParse(data);
+				break;
+			case 'performer':
+				result = performerCounterpartySchema.safeParse(data);
+				break;
+			case 'service-provider':
+				result = serviceProviderCounterpartySchema.safeParse(data);
+				break;
+			case 'client':
+				result = clientCounterpartySchema.safeParse(data);
+				break;
+			case 'supplier':
+				result = supplierCounterpartySchema.safeParse(data);
+				break;
+			default:
+				console.error(
+					'Unknown counterparty type:',
+					normalizedType,
+					'original:',
+					data.type,
+					counterpartyId
+				);
+				throw new Error(`Unknown counterparty type: ${normalizedType}`);
+		}
+
+		if (!result.success) {
+			console.error('Invalid counterparty data:', result.error, counterpartyId);
+			throw new Error('Invalid counterparty data: ' + result.error.message);
+		}
+
+		// Return validated data
 		return {
 			id: docSnap.id,
-			...data
+			...result.data
 		} as Counterparty;
 	} catch (error) {
 		console.error('Error fetching counterparty:', error);
@@ -101,11 +174,70 @@ export async function getCounterparties(): Promise<Counterparty[]> {
 	try {
 		const q = query(collection(db, COLLECTION_NAME), orderBy('name', 'asc'));
 		const querySnapshot = await getDocs(q);
-		
-		return querySnapshot.docs.map((doc) => ({
-			id: doc.id,
-			...doc.data()
-		})) as Counterparty[];
+
+		return querySnapshot.docs
+			.map((doc) => {
+				const data = doc.data();
+
+				// Check type first to use the correct schema
+				if (!data.type || typeof data.type !== 'string') {
+					console.error('Counterparty type is missing:', doc.id);
+					return null;
+				}
+
+				// Normalize type (trim whitespace, lowercase)
+				const normalizedType = data.type.trim().toLowerCase();
+
+				// Select the appropriate schema based on type
+				let result;
+				switch (normalizedType) {
+					case 'venue':
+						result = venueCounterpartySchema.safeParse(data);
+						break;
+					case 'performer':
+						result = performerCounterpartySchema.safeParse(data);
+						break;
+					case 'service-provider':
+						result = serviceProviderCounterpartySchema.safeParse(data);
+						break;
+					case 'client':
+						result = clientCounterpartySchema.safeParse(data);
+						break;
+					case 'supplier':
+						result = supplierCounterpartySchema.safeParse(data);
+						break;
+					default:
+						console.error(
+							'Unknown counterparty type:',
+							normalizedType,
+							'original:',
+							data.type,
+							doc.id
+						);
+						return null;
+				}
+
+				if (!result.success) {
+					console.error('Invalid counterparty data:', {
+						id: doc.id,
+						type: normalizedType,
+						error: result.error.format(),
+						issues: result.error.issues.map((issue) => ({
+							path: issue.path.join('.'),
+							message: issue.message,
+							code: issue.code
+						}))
+					});
+					return null;
+				}
+
+				// Return validated data
+				return {
+					id: doc.id,
+					...result.data
+				} as Counterparty;
+			})
+			.filter((c): c is Counterparty => c !== null);
 	} catch (error) {
 		console.error('Error fetching counterparties:', error);
 		throw new Error('Failed to fetch counterparties');
@@ -126,10 +258,45 @@ export async function getCounterpartiesByType(
 		);
 
 		const querySnapshot = await getDocs(q);
-		return querySnapshot.docs.map((doc) => ({
-			id: doc.id,
-			...doc.data()
-		})) as Counterparty[];
+
+		// Select the appropriate schema for this type
+		let schema;
+		switch (type) {
+			case 'venue':
+				schema = venueCounterpartySchema;
+				break;
+			case 'performer':
+				schema = performerCounterpartySchema;
+				break;
+			case 'service-provider':
+				schema = serviceProviderCounterpartySchema;
+				break;
+			case 'client':
+				schema = clientCounterpartySchema;
+				break;
+			case 'supplier':
+				schema = supplierCounterpartySchema;
+				break;
+			default:
+				throw new Error(`Unknown counterparty type: ${type}`);
+		}
+
+		return querySnapshot.docs
+			.map((doc) => {
+				const data = doc.data();
+				const result = schema.safeParse(data);
+
+				if (!result.success) {
+					console.error('Invalid counterparty data:', result.error, doc.id);
+					return null;
+				}
+
+				return {
+					id: doc.id,
+					...result.data
+				} as Counterparty;
+			})
+			.filter((c): c is Counterparty => c !== null);
 	} catch (error) {
 		console.error('Error fetching counterparties by type:', error);
 		throw new Error('Failed to fetch counterparties');
@@ -148,10 +315,29 @@ export async function getCounterpartiesByOwner(ownerUid: string): Promise<Counte
 		);
 
 		const querySnapshot = await getDocs(q);
-		return querySnapshot.docs.map((doc) => ({
-			id: doc.id,
-			...doc.data()
-		})) as Counterparty[];
+
+		return querySnapshot.docs
+			.map((doc) => {
+				const data = doc.data();
+
+				// Use list schema (only validates common fields, ignores type-specific fields)
+				const result = counterpartyListSchema.safeParse(data);
+
+				if (!result.success) {
+					console.error('Invalid counterparty data:', {
+						id: doc.id,
+						error: result.error.format()
+					});
+					return null;
+				}
+
+				// Return validated data
+				return {
+					id: doc.id,
+					...result.data
+				} as Counterparty;
+			})
+			.filter((c): c is Counterparty => c !== null);
 	} catch (error) {
 		console.error('Error fetching counterparties by owner:', error);
 		throw new Error('Failed to fetch counterparties');
@@ -173,10 +359,14 @@ export async function updateCounterparty(
 			throw new Error('Counterparty not found');
 		}
 
-		await updateDoc(docRef, {
+		// Write to Firestore, replacing form updatedAt with serverTimestamp() (server is source of truth)
+		// Keep existing createdAt (don't overwrite it)
+		const toWrite = {
 			...updates,
 			updatedAt: serverTimestamp()
-		});
+		};
+
+		await updateDoc(docRef, toWrite);
 	} catch (error) {
 		console.error('Error updating counterparty:', error);
 		throw new Error('Failed to update counterparty');

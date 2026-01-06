@@ -8,6 +8,7 @@
 	import { authState } from '$lib/state/auth.svelte';
 	import { ServiceProviderFormState } from '$lib/state/v2/serviceProviderFormState.svelte';
 	import { onMount } from 'svelte';
+	import { Timestamp } from 'firebase/firestore';
 
 	interface Props {
 		serviceProvider?: ServiceProviderCounterparty | null;
@@ -48,7 +49,14 @@
 				equipmentProvided: formState.equipmentProvided,
 				businessLicense: formState.businessLicense || null,
 				insuranceInfo: formState.insuranceInfo || null,
-				notes: formState.notes || null
+				taxId: formState.taxId || null,
+				bankName: formState.bankName || null,
+				bankAccountNumber: formState.bankAccountNumber || null,
+				idDocument: formState.idDocument || null,
+				notes: formState.notes || null,
+				// Timestamps: when creating use Timestamp.now(), when editing preserve createdAt
+				createdAt: serviceProvider?.createdAt || Timestamp.now(),
+				updatedAt: Timestamp.now()
 			};
 
 			// Validate with schema

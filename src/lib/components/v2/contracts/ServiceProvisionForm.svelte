@@ -9,6 +9,7 @@
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
 	import { toast } from 'svelte-sonner';
+	import { Timestamp } from 'firebase/firestore';
 	import ServiceDetailsSection from './sections/ServiceDetailsSection.svelte';
 	import FinancialSection from './sections/FinancialSection.svelte';
 	import BankingSection from './sections/BankingSection.svelte';
@@ -161,7 +162,9 @@
 				typicalDeliverables: [],
 				equipmentProvided: [],
 				businessLicense: null,
-				insuranceInfo: null
+				insuranceInfo: null,
+				createdAt: Timestamp.now(),
+				updatedAt: Timestamp.now()
 			});
 
 			toast.success('Service provider created successfully!');
