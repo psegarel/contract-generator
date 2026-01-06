@@ -10,6 +10,7 @@
 	import { eventState, counterpartyState } from '$lib/state/v2';
 	import { toast } from 'svelte-sonner';
 	import { Timestamp } from 'firebase/firestore';
+	import { onMount } from 'svelte';
 	import ServiceDetailsSection from './sections/ServiceDetailsSection.svelte';
 	import FinancialSection from './sections/FinancialSection.svelte';
 	import BankingSection from './sections/BankingSection.svelte';
@@ -40,8 +41,15 @@
 
 	// Form state - initialize empty, sync with contract prop via $effect
 	let contractNumber = $state('');
-	let eventId = $state<string>(initialEventId);
+	let eventId = $state<string>('');
 	let counterpartyId = $state<string>('');
+
+	// Initialize eventId from prop on mount
+	onMount(() => {
+		if (initialEventId) {
+			eventId = initialEventId;
+		}
+	});
 	let jobName = $state('');
 	let jobContent = $state('');
 	let numberOfPerformances = $state(1);

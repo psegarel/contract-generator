@@ -25,8 +25,8 @@
 
 	function getContractLink(contract: UnifiedContract): string {
 		return contract.type === 'service'
-			? `/contracts/service-provision?edit=${contract.id}`
-			: `/contracts/event-planning?edit=${contract.id}`;
+			? `/contracts/service-provision/${contract.id}`
+			: `/contracts/event-planning/${contract.id}`;
 	}
 
 	async function togglePaymentStatus() {
