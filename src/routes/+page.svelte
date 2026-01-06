@@ -1,61 +1,132 @@
 <script lang="ts">
 	import { authState } from '$lib/state/auth.svelte';
-	import { contractState } from '$lib/state/contractState.svelte';
-	import { sumContracts } from '$lib/utils/contractCalculations';
-	import ContractValue from '$lib/components/ContractValue.svelte';
-	import { LayoutDashboard } from 'lucide-svelte';
+	import { LatestContractsList } from '$lib/components/v2/contracts';
+	import {
+		serviceProvisionContractState,
+		eventPlanningContractState
+	} from '$lib/state/v2';
+	import { formatCurrency } from '$lib/utils/formatting';
+	import { calculateDashboardStats } from '$lib/utils/v2/dashboardStats';
+	import type { BaseContract } from '$lib/types/v2';
+	import { TrendingUp } from 'lucide-svelte';
 	import DashboardCard from '$lib/components/DashboardCard.svelte';
-	import LatestContractsList from '$lib/components/LatestContractsList.svelte';
 
+	// Initialize only contract states that exist (event-planning and service-provision)
+	// Other contract types will be added as their collections are created
 	$effect(() => {
-		contractState.init();
-		return () => contractState.destroy();
+		// Only initialize contract states that have existing collections
+		serviceProvisionContractState.init();
+		eventPlanningContractState.init();
+
+		// TODO: Initialize these when their collections are created:
+		// venueRentalContractState.init();
+		// performerBookingContractState.init();
+		// equipmentRentalContractState.init();
+		// subcontractorContractState.init();
+		// clientServiceContractState.init();
+
+		return () => {
+			serviceProvisionContractState.destroy();
+			eventPlanningContractState.destroy();
+		};
 	});
 
-	let totalContractValue = $derived(sumContracts(contractState.contracts));
+	// Merge all contracts into a single array
+	// Only include contract states that are initialized
+	let allContracts = $derived<BaseContract[]>([
+		...serviceProvisionContractState.contracts,
+		...eventPlanningContractState.contracts
+		// Add other contract types when their collections exist:
+		// ...venueRentalContractState.contracts,
+		// ...performerBookingContractState.contracts,
+		// ...equipmentRentalContractState.contracts,
+		// ...subcontractorContractState.contracts,
+		// ...clientServiceContractState.contracts
+	]);
+
+	// Debug: Log contract loading status
+	$effect(() => {
+		console.log('Contract States:', {
+			eventPlanning: {
+				count: eventPlanningContractState.contracts.length,
+				isLoading: eventPlanningContractState.isLoading,
+				error: eventPlanningContractState.error,
+				contracts: eventPlanningContractState.contracts.map((c) => ({
+					id: c.id,
+					contractValue: c.contractValue,
+					paymentDirection: c.paymentDirection,
+					eventDate: c.eventDate
+				}))
+			},
+			serviceProvision: {
+				count: serviceProvisionContractState.contracts.length,
+				isLoading: serviceProvisionContractState.isLoading,
+				error: serviceProvisionContractState.error
+			},
+			totalContracts: allContracts.length
+		});
+	});
+
+	// Calculate dashboard stats from all contracts (filtered by date range)
+	let stats = $derived(calculateDashboardStats(allContracts));
+
+	let netRevenue = $derived(stats.netRevenue);
+	let totalReceivable = $derived(stats.totalReceivable);
+	let totalPayable = $derived(stats.totalPayable);
+	let totalPaid = $derived(stats.totalPaid);
 </script>
 
 <div class="p-8">
 	<div>
 		<div class="flex items-center gap-3 mb-8">
-			<!-- <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-				<LayoutDashboard class="w-6 h-6" />
-			</div> -->
 			<div>
 				<h1 class="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
 				<p class="text-muted-foreground mt-1 text-sm">Welcome back, {authState.user?.email}</p>
 			</div>
 		</div>
 
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-			<!-- Future Stats Cards -->
-
+		<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+			<!-- Total Received -->
 			<DashboardCard backgroundColor="bg-indigo-500/20" textColor="text-indigo-900">
-				<ContractValue
-					title="Total Contract Value"
-					{totalContractValue}
-					isLoading={contractState.isLoading}
-					error={contractState.error}
-					class="text-right"
-				/>
+				<div class="flex items-start justify-between">
+					<div class="flex-1">
+						<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+							Total Received
+						</div>
+						<div class="text-2xl font-bold">{formatCurrency(netRevenue)}</div>
+					</div>
+					<TrendingUp class="w-8 h-8 opacity-50" />
+				</div>
 			</DashboardCard>
-			<div class="p-6 rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+
+			<!-- Total Receivable -->
+			<DashboardCard backgroundColor="bg-emerald-500/20" textColor="text-emerald-900">
 				<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-					Active Projects
+					Total Receivable
 				</div>
-				<div class="text-3xl font-bold">0</div>
-			</div>
-			<div class="p-6 rounded-2xl border border-border bg-card/50 backdrop-blur-sm">
+				<div class="text-2xl font-bold">{formatCurrency(totalReceivable)}</div>
+			</DashboardCard>
+
+			<!-- Total Payable -->
+			<DashboardCard backgroundColor="bg-red-500/20" textColor="text-red-900">
 				<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-					Pending Sync
+					Total Payable
 				</div>
-				<div class="text-3xl font-bold">0</div>
-			</div>
+				<div class="text-2xl font-bold">{formatCurrency(totalPayable)}</div>
+			</DashboardCard>
+
+			<!-- Total Paid -->
+			<DashboardCard backgroundColor="bg-purple-500/20" textColor="text-purple-900">
+				<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+					Total Paid
+				</div>
+				<div class="text-2xl font-bold">{formatCurrency(totalPaid)}</div>
+			</DashboardCard>
 		</div>
 
 		<!-- Latest Contracts Section -->
 		<div class="mt-8">
-			<LatestContractsList />
+			<LatestContractsList limit={10} />
 		</div>
 	</div>
 </div>

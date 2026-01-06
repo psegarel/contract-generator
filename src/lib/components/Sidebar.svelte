@@ -39,8 +39,8 @@
 			label: 'Service Contracts',
 			href: '#',
 			subItems: [
-				{ label: 'List', href: resolve('/contracts/service/list') },
-				{ label: 'Create', href: resolve('/contracts/service') }
+				{ label: 'List', href: resolve('/contracts/service-provision/list') },
+				{ label: 'Create', href: resolve('/contracts/service-provision') }
 			]
 		},
 		{
@@ -52,8 +52,12 @@
 				{ label: 'Create', href: resolve('/contracts/event-planning') }
 			]
 		},
-		{ icon: Users, label: 'Contacts', href: resolve('/contacts/list') },
-		{ icon: Palette, label: 'Design System', href: resolve('/design-system') }
+		{
+			icon: CalendarCheck,
+			label: 'Events',
+			href: resolve('/events')
+		},
+		{ icon: Users, label: 'Counterparties', href: resolve('/counterparties') }
 	];
 
 	let expandedItems = $state<Record<string, boolean>>(

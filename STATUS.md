@@ -1,213 +1,327 @@
 # Current Status
 
-**Last Updated**: 2026-01-02
+**Last Updated:** 2026-01-04 (End of Day)
 
-## Active Work
-✅ **COMPLETED**: Service Contract Form Improvements & Code Quality
+---
 
-### Current Session - Service Contract Improvements (Session 5)
+## 🎯 Active Work: V2 Architecture Refactor
 
-**Status**: All service contract edit issues resolved. Achieved **ZERO errors, ZERO warnings** compliance.
+**Overall Progress:** 75% complete (Foundation + Migration complete, Core routes working)
+
+**Branch:** `develop/contract-refactor`
+
+**TypeScript Status:** ✅ 0 errors, 0 warnings
+
+---
+
+## Session Summary (2026-01-04)
+
+### ✅ Completed Today
+1. **V1 → V2 Migration Scripts** - Complete migration system with 5 scripts:
+   - `migrateClients.ts` - Migrate clients → counterparties (ClientCounterparty)
+   - `migrateLocations.ts` - Migrate locations → counterparties (VenueCounterparty)
+   - `createInitialEvents.ts` - Create events from contracts with date-based deduplication
+   - `migrateServiceContracts.ts` - Migrate service-contracts → service-provision-contracts
+   - `migrateEventPlanningContracts.ts` - Update event-planning-contracts with v2 fields + auto-create missing counterparties
+
+2. **Migration Features:**
+   - Date-based event deduplication (groups contracts within 1 day into single event)
+   - UUID consistency using `crypto.randomUUID()` (not Firestore auto-IDs)
+   - Auto-creates counterparties from event planning contract data when client doesn't exist
+   - Dry-run mode for testing before live execution
+   - Comprehensive error handling and logging
+
+3. **Data Migration Completed:**
+   - 4 clients → counterparties
+   - 4 locations → counterparties (VenueCounterparty with updated schema)
+   - 7 contracts → 2 events (date-based deduplication)
+   - 6 service contracts → service-provision-contracts
+   - 1 event planning contract updated with v2 fields
+   - TypeScript: ✅ 0 errors, 0 warnings
+
+### 🔍 Routes Tested
+- ✅ `/v2/` - Dashboard working
+- ❌ `/v2/contracts/` - 500 error (removed - not needed for v1 parity)
+- ✅ `/v2/contracts/service-provision/new/` - Form working (needs design alignment)
+- ✅ `/v2/contracts/event-planning/new/` - Form working (needs design alignment)
+- ❌ `/v2/events/` - 500 error "Failed to fetch events" (likely missing Firestore index)
+- ✅ `/v2/events/new/` - Form working
+- ✅ `/v2/counterparties/new/` - Form working
+
+### 🚧 Known Issues
+1. **`/v2/events/` - 500 error** - `getEvents()` failing, likely missing Firestore index for `orderBy('eventDate', 'desc')`
+2. **Forms don't follow v1 design** - Need to align with v1 design system (lower priority)
+3. **Missing route:** `/v2/contracts/new/` - Need selector page to choose contract type
+
+---
+
+## Quick Status Table
+
+| Phase | Component | Files | Status | Progress |
+|-------|-----------|-------|--------|----------|
+| 1 | Type Definitions | 5 | ✅ Complete | 100% |
+| 2 | Validation Schemas | 12 | ✅ Complete | 100% |
+| 3 | Firestore Utilities | 9 | ✅ Complete | 100% |
+| 4 | State Management | 10 | ✅ Complete | 100% |
+| 5 | UI Components | 20/25 | 🔄 In Progress | 80% |
+| 6 | Routes | 8/11 | 🔄 In Progress | 70% |
+| 7 | Migration Scripts | 5/5 | ✅ Complete | 100% |
 
 ---
 
 ## What's Working ✅
 
-### Event Planning Contract Feature
-- ✅ **Phase 1-4**: Schema, repository, generator, all form components complete
-- ✅ **Phase 5**: Route page `/contracts/event-planning/+page.svelte` created
-  - ZERO autofixer suggestions
-  - Full form with 6 sections works end-to-end
-- ✅ **Phase 6**: Contract type selector updated
-  - Added Event Planning card with CalendarCheck icon
-- ✅ **Can create Event Planning contracts**: Form validates, generates DOCX, saves to Firebase
-- ✅ **Can download contracts**: Generated documents work correctly
-- ✅ **EventPlanningContractForm cleanup**: Removed unused props (selectedLocationId, onLocationChange)
+### Foundation (Phases 1-4) - 100% Complete
+
+**Types (`src/lib/types/v2/`):**
+- ✅ BaseContract interface
+- ✅ 7 contract types
+- ✅ 5 counterparty types
+- ✅ Event entity
+
+**Schemas (`src/lib/schemas/v2/`):**
+- ✅ Zod validation for all types
+- ✅ Fixed `.omit()` issues with refined schemas
+- ✅ Updated to Zod v4 `.email()` pattern
+
+**Firestore Utilities (`src/lib/utils/v2/`):**
+- ✅ 7 contract CRUD files
+- ✅ Event CRUD
+- ✅ Counterparty CRUD
+
+**State Management (`src/lib/state/v2/`):**
+- ✅ All 9 state classes
+
+### UI Components (Phase 5) - 80% Complete
+
+**Display Components:**
+- ✅ ContractListItem.svelte
+- ✅ ContractsList.svelte
+- ✅ LatestContractsList.svelte
+- ✅ EventCard.svelte
+- ✅ CounterpartyCard.svelte
+
+**Selector Components:**
+- ✅ ContractTypeSelector.svelte
+- ✅ CounterpartyTypeSelector.svelte
+
+**Forms (Critical for V1 Parity):**
+- ✅ EventForm.svelte
+- ✅ ServiceProvisionForm.svelte (with sections)
+- ✅ EventPlanningForm.svelte (with sections)
+- ✅ ClientForm.svelte
+
+**Section Components:**
+- ✅ ServiceDetailsSection.svelte
+- ✅ FinancialSection.svelte
+- ✅ BankingSection.svelte
+- ✅ ClientInfoSection.svelte
+- ✅ EventPlanningClientSection.svelte
+- ✅ EventPlanningEventInfoSection.svelte
+- ✅ EventPlanningFinancialSection.svelte
+- ✅ EventPlanningTimelineSection.svelte
+- ✅ EventPlanningLegalSection.svelte
+
+### Migration Scripts (Phase 7) - 100% Complete
+
+**Migration System (`src/lib/migration/`):**
+- ✅ `migrateClients.ts` - Clients → ClientCounterparty
+- ✅ `migrateLocations.ts` - Locations → VenueCounterparty
+- ✅ `createInitialEvents.ts` - Contracts → Events (date-based deduplication)
+- ✅ `migrateServiceContracts.ts` - service-contracts → service-provision-contracts
+- ✅ `migrateEventPlanningContracts.ts` - Update event-planning-contracts + auto-create counterparties
+- ✅ `runMigration.ts` - Orchestrator with dry-run mode
+- ✅ `index.ts` - Module exports
+
+**Key Features:**
+- Date-based event deduplication (contracts within 1 day → single event)
+- Consistent UUID format using `crypto.randomUUID()`
+- Auto-creates missing counterparties from contract data
+- Dry-run mode for safe testing
+- Comprehensive error handling and logging
+
+**Usage:**
+```bash
+# Dry run (no database writes)
+npx tsx src/lib/migration/runMigration.ts
+
+# Live execution
+npx tsx src/lib/migration/runMigration.ts --live
+```
+
+### Routes (Phase 6) - 70% Complete
+
+**Working Routes:**
+- ✅ `/v2/` - Dashboard with financial summary
+- ✅ `/v2/contracts/service-provision/new/` - Create service contract
+- ✅ `/v2/contracts/service-provision/[id]/` - Edit service contract
+- ✅ `/v2/contracts/event-planning/new/` - Create event planning contract
+- ✅ `/v2/contracts/event-planning/[id]/` - Edit event planning contract
+- ✅ `/v2/events/new/` - Create event
+- ✅ `/v2/events/[id]/` - Event detail
+- ✅ `/v2/counterparties/new/` - Create counterparty
+- ✅ `/v2/counterparties/[id]/` - Counterparty detail
+
+**Routes with Issues:**
+- ❌ `/v2/events/` - 500 error (needs Firestore index or data)
+- ❌ `/v2/counterparties/` - Not tested yet
+
+**Removed (Not Needed for V1 Parity):**
+- 🗑️ `/v2/contracts/` - Doesn't exist in v1, removed
 
 ---
 
-## What's NOT Working ❌
+## What's Missing for V1 Parity ⏳
 
-### Phase 7: Contract List Display (Paused - Architecture Issue)
+### Critical (Blocks V1 Parity)
+1. **Fix `/v2/events/` 500 error** - Need to either:
+   - Create Firestore index for `events` collection with `orderBy('eventDate', 'desc')`
+   - Or handle empty collections gracefully
 
-**Problem Identified:**
-- Attempted to update `ContractList.svelte` to handle both service AND event planning contracts
-- Hit TypeScript discriminated union type narrowing issues
-- **Root cause**: Treating different contract types as similar objects is an architectural anti-pattern
+2. **Document Generation** - V1 has document generators:
+   - `serviceContractGenerator.ts` - Creates PDF/DOCX
+   - `eventPlanningContractGenerator.ts` - Creates PDF/DOCX
+   - V2 forms save data but can't generate documents yet
 
-**Why This Approach Is Wrong:**
-1. ❌ Single Firestore collection + discriminated union doesn't scale
-2. ❌ Shared UI component with if/else logic becomes unmaintainable
-3. ❌ Adding 3-4 more contract types = technical debt nightmare
-4. ❌ Different contract types are "apples and oranges" - should be completely separate
+3. **Missing route:** `/v2/contracts/new/+page.svelte`
+   - Should show ContractTypeSelector
+   - Redirect to appropriate form based on selection
 
-**Current State:**
-- `/contracts/history` only displays service contracts (will break if event planning contracts exist)
-- `/contracts/[locationId]/list` also only displays service contracts
-- Cannot edit existing event planning contracts from history
-
----
-
-## Architectural Decision: Refactor Required
-
-**Decision**: Separate contract types completely instead of forcing them into shared abstractions.
-
-**See**: `docs/architecture-refactor-plan.md` for detailed plan.
-
-### High-Level Refactor Plan
-
-1. **Separate Firestore Collections**
-   - `service-contracts` collection
-   - `event-planning-contracts` collection
-   - Future: easy to add more types without touching existing code
-
-2. **Separate Repository Functions**
-   - `src/lib/utils/serviceContracts.ts`
-   - `src/lib/utils/eventPlanningContracts.ts`
-
-3. **Separate UI Components**
-   - `ServiceContractList.svelte`
-   - `EventPlanningContractList.svelte`
-
-4. **Separate History Pages**
-   - `/contracts/service/history`
-   - `/contracts/event-planning/history`
-
-5. **Remove Deprecated Code**
-   - Unified `ContractList.svelte`
-   - Unified `/contracts/history`
-   - `/contracts/[locationId]/list` (not needed per user)
-
-**Benefits:**
-- ✅ Each contract type evolves independently
-- ✅ No if/else/switch logic based on type
-- ✅ Efficient Firestore queries
-- ✅ TypeScript complexity eliminated
-- ✅ Adding new contract types = zero impact on existing code
-
-**Timeline**: ~5-7 hours of focused work
+### Important (Nice to Have)
+4. **Align form designs with v1** - Forms work but don't match v1 design system
+5. **Contract detail/view pages** - V2 has edit pages but no read-only view pages
 
 ---
 
-## Files Modified in Session 5 (Today)
-
-1. ✅ `CLAUDE.md` - Added $effect anti-pattern documentation & zero-tolerance for warnings policy
-2. ✅ `src/lib/components/ContractForm.svelte` → `ServiceContractForm.svelte` - Renamed for clarity
-3. ✅ `src/lib/components/ServiceContractForm.svelte` - Fixed missing location data in edit flow
-4. ✅ `src/lib/components/ClientForm.svelte` - Fixed $effect anti-pattern (props in $state)
-5. ✅ `src/lib/components/LocationForm.svelte` - Fixed $effect anti-pattern (props in $state)
-6. ✅ `src/routes/contracts/service/+page.svelte` - Updated import to ServiceContractForm
-7. ✅ Removed redundant "You are editing" message from edit mode
-8. ✅ `STATUS.md` & `PROGRESS.md` - Updated documentation
-
-## Files Modified in Session 4
-
-1. ✅ `src/lib/components/EventPlanningContractForm.svelte` - Removed unused props
-2. ✅ `src/routes/contracts/event-planning/+page.svelte` - NEW route page (ZERO autofixer suggestions)
-3. ✅ `src/routes/contracts/+page.svelte` - Added Event Planning card
-4. ⚠️ `src/lib/components/ContractList.svelte` - Started updates, hit architectural issue, paused
-5. ✅ `docs/architecture-refactor-plan.md` - NEW comprehensive refactor plan
-6. ✅ `STATUS.md` - This file
-
----
-
-## Previous Sessions Summary
-
-### Session 3: Event Planning Contract Implementation
-- Created all form components (6 sections + orchestrator)
-- Created reusable TextField and TextareaField components
-- Pure Tailwind approach (removed 87 lines custom CSS)
-- ZERO autofixer suggestions
-
-### Session 2: SvelteKit Load Function Migration
-- Migrated route pages to load functions
-- TRUE ZERO autofixer suggestions achieved
-
-### Session 1: Svelte 5 Compliance
-- Fixed all Svelte 5 anti-patterns
-- Event-based callbacks pattern
-- Reduced autofixer suggestions from 30 to 0
-
----
-
-## Compliance Status
-
-- ✅ **Svelte 5 Compliance**: 100%
-- ✅ **TypeScript Errors**: 0
-- ✅ **TypeScript Warnings**: 0 (zero-tolerance policy)
-- ✅ **Autofixer Suggestions**: 0
-- ✅ **Anti-patterns in Code**: 0
-- ✅ **Anti-patterns in Documentation**: 0
-- ✅ **SvelteKit Best Practices**: Fully implemented
-- ⚠️ **Architecture**: Refactor needed (see architecture-refactor-plan.md)
-
----
-
-## Next Steps
+## Next Steps (Priority Order)
 
 ### Immediate (Next Session)
-1. **Execute Architecture Refactor** (see `docs/architecture-refactor-plan.md`)
-   - Create separate Firestore collections
-   - Create separate repository functions
-   - Create separate list components
-   - Create separate history pages
-   - Remove unified ContractList and history pages
+1. **Fix `/v2/events/` error:**
+   - Check browser console for exact Firestore error
+   - Create missing Firestore index if needed
+   - OR return empty array for empty collections
 
-### After Refactor
-2. Test end-to-end flows for both contract types
-3. Data migration (if needed)
-4. Update navigation/links
-5. Remove deprecated code
+2. **Create `/v2/contracts/new/` route:**
+   - Use ContractTypeSelector component
+   - Route to service-provision or event-planning form
 
----
+3. **Test `/v2/counterparties/` route:**
+   - Verify it works or fix errors
 
-## Key Learnings
+### Short Term
+4. **Add document generation to v2 forms:**
+   - Integrate existing generators into ServiceProvisionForm
+   - Integrate existing generators into EventPlanningForm
 
-### Senior Developer Principle Applied
-> "When things feel complicated, step back and review the architecture."
+5. **Create contract detail/view pages:**
+   - Read-only display of contract details
+   - Download/regenerate document buttons
 
-**What We Avoided:**
-- ❌ Getting trapped in TypeScript type narrowing rabbit hole
-- ❌ Band-aid fixes that create technical debt
-- ❌ Premature abstraction (discriminated unions for unrelated types)
-
-**What We're Doing Instead:**
-- ✅ Questioning architectural decisions early
-- ✅ Choosing simplicity over clever abstractions
-- ✅ Treating different domain objects as separate (apples and oranges)
-- ✅ Planning refactor before technical debt accumulates
+### Medium Term
+6. **Align v2 designs with v1:**
+   - Review v1 design system
+   - Apply consistent styling to v2 forms
 
 ---
 
-## Architecture Principles (Updated)
+## Firestore Collections Status
 
-### Component Design
-- **Small components**: Single purpose, <150 lines preferred
-- **Dumb components**: Presentational, no business logic
-- **Externalized logic**: Utilities for validation and data transformation
-- **Pure Tailwind**: Zero custom CSS, utility-first approach
-- **Event-based callbacks**: Parent-child communication via onChange props
+**V2 Collections (Migrated & Populated):**
+- ✅ `events` - 2 events (migrated from contracts with date-based deduplication)
+- ✅ `counterparties` - 8 counterparties (4 clients + 4 venues from locations)
+- ✅ `service-provision-contracts` - 6 contracts (migrated from service-contracts)
+- ✅ `event-planning-contracts` - 1 contract (updated in-place with v2 fields)
+- ⏳ `venue-rental-contracts` - Empty (not in v1)
+- ⏳ `performer-booking-contracts` - Empty (not in v1)
+- ⏳ `equipment-rental-contracts` - Empty (not in v1)
+- ⏳ `subcontractor-contracts` - Empty (not in v1)
+- ⏳ `client-service-contracts` - Empty (not in v1)
 
-### Contract Type Separation (NEW)
-- **Complete independence**: Each contract type is separate from others
-- **No shared abstractions**: Only share UI primitives (TextField, etc.)
-- **Separate collections**: One Firestore collection per contract type
-- **Separate repositories**: One set of functions per contract type
-- **Separate UI**: One list component per contract type
-- **Apples and oranges**: Different contracts are different domain objects
+**V1 Collections (Preserved for Reference):**
+- `service-contracts` - 6 contracts (source data preserved)
+- `clients` - 4 clients (source data preserved)
+- `locations` - 4 locations (source data preserved)
+
+**Migration Notes:**
+- V1 data preserved in original collections
+- V2 collections populated via migration scripts
+- Event planning contracts updated in-place (same collection used in v1 and v2)
 
 ---
 
-## Testing Checklist (Post-Refactor)
+## Testing the Current State
 
-- [ ] Can create service contracts
-- [ ] Can create event planning contracts
-- [ ] Service contract history shows only service contracts
-- [ ] Event planning history shows only event planning contracts
-- [ ] Can edit service contracts from history
-- [ ] Can edit event planning contracts from history
-- [ ] Can download both contract types
-- [ ] Payment status updates work for both types
-- [ ] Run `pnpm check` - ZERO TypeScript errors
-- [ ] Run autofixer - ZERO suggestions
-- [ ] No shared logic between contract types (except UI primitives)
+### TypeScript Check
+```bash
+pnpm check
+# Result: ✅ 0 errors and 0 warnings
+```
+
+### View Working Pages
+```bash
+pnpm dev
+```
+
+**Working URLs:**
+- http://localhost:5173/v2/ ✅
+- http://localhost:5173/v2/events/new/ ✅
+- http://localhost:5173/v2/events/[id]/ ✅ (with valid event ID)
+- http://localhost:5173/v2/counterparties/new/ ✅
+- http://localhost:5173/v2/counterparties/[id]/ ✅ (with valid ID)
+- http://localhost:5173/v2/contracts/service-provision/new/ ✅
+- http://localhost:5173/v2/contracts/event-planning/new/ ✅
+
+**Broken URLs:**
+- http://localhost:5173/v2/events/ ❌ (500 error)
+- http://localhost:5173/v2/contracts/new/ ❌ (404 - doesn't exist)
+
+---
+
+## Key Files to Reference
+
+**V2 Patterns:**
+- `src/lib/schemas/v2/contracts/eventPlanning.ts` - Fixed `.omit()` pattern
+- `src/lib/schemas/v2/contracts/serviceProvision.ts` - Fixed Zod v4 `.email()` pattern
+- `src/lib/components/v2/contracts/ServiceProvisionForm.svelte` - Full form with sections
+- `src/lib/components/v2/contracts/EventPlanningForm.svelte` - Full form with sections
+- `src/lib/components/v2/events/EventForm.svelte` - Clean Svelte 5 pattern
+
+**V1 Generators (Need Integration):**
+- `src/lib/utils/serviceContractGenerator.ts` - Document generation
+- `src/lib/utils/eventPlanningContractGenerator.ts` - Document generation
+
+---
+
+## Success Criteria
+
+**Before v2 is production-ready:**
+
+- [x] All v2 types created with proper inheritance
+- [x] Zod schemas validate all contract types
+- [x] Firestore utilities create/read/update/delete all entities
+- [x] State classes subscribe to real-time updates
+- [x] Critical forms exist (Service, EventPlanning, Client, Event)
+- [x] Core routes functional (creation pages work)
+- [x] Migration scripts convert existing data
+- [x] Zero TypeScript errors with `pnpm check`
+- [ ] All routes working (fix /v2/events/ error - likely resolved after migration)
+- [ ] Document generation integrated
+
+**Progress:** 8/10 criteria met ✅
+
+---
+
+## Documentation
+
+- **Plan:** `~/.claude/plans/replicated-puzzling-pinwheel.md` - Full refactor plan
+- **Progress:** `PROGRESS.md` - Historical accomplishments
+- **Status:** This file - Current state and next steps
+- **Guidelines:** `CLAUDE.md` - Coding standards and AI guidelines
+
+---
+
+## V1 System Status
+
+**Status:** ✅ Fully functional
+
+V1 continues to work normally. V2 is being built in parallel without disruption.

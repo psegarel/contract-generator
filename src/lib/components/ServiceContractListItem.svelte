@@ -24,6 +24,14 @@
 		onDownload,
 		onTogglePayment
 	}: Props = $props();
+
+	/**
+	 * Get the base amount (before tax) - netFee stores the base amount
+	 */
+	function getBeforeTaxValue(): number {
+		// netFee stores the base amount (before tax), same as contractValue
+		return contract.contractData.netFee;
+	}
 </script>
 
 <div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
@@ -66,7 +74,7 @@
 
 		<!-- Actions -->
 		<div class="flex flex-wrap gap-2 pt-1">
-			<Button size="sm" href="/contracts/service?edit={contract.id}" class="flex-1 min-w-25">
+			<Button size="sm" href="/contracts/service-provision?edit={contract.id}" class="flex-1 min-w-25">
 				<Pencil class="h-3.5 w-3.5 mr-1.5" />
 				Edit
 			</Button>
@@ -117,11 +125,11 @@
 			{contract.contractData.clientName}
 		</div>
 
-		<!-- Service Fee - Right-Aligned -->
+		<!-- Service Fee - Right-Aligned (before tax) -->
 		<div
 			class="col-span-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
 		>
-			{formatCurrency(contract.contractData.netFee)}
+			{formatCurrency(getBeforeTaxValue())}
 		</div>
 
 		<!-- Date -->
@@ -163,7 +171,7 @@
 						{/if}
 					</Button>
 				{/if}
-				<Button size="sm" href="/contracts/service?edit={contract.id}" class="px-2">
+				<Button size="sm" href="/contracts/service-provision?edit={contract.id}" class="px-2">
 					<Pencil class="h-4 w-4" />
 				</Button>
 				<Button

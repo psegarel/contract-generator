@@ -20,6 +20,13 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 
 ## Custom Components
 
+### V2 Contract Components (`src/lib/components/v2/contracts/`)
+
+| Component | Status | Last Checked | Notes |
+|-----------|--------|--------------|-------|
+| ContractsList.svelte | ✅ | 2026-01-05 | Clean - no issues |
+| ContractListItem.svelte | ✅ | 2026-01-05 | Clean - no issues |
+
 ### Core Components (`src/lib/components/`)
 
 | Component | Status | Last Checked | Notes |
@@ -143,12 +150,16 @@ Based on CLAUDE.md guidelines:
 
 ## Progress Tracking
 
-**Total Custom Components:** 34 (ui/ folder NOT included - shadcn components)
-**Checked:** 17 (50%)
+**Total Custom Components:** 36 (ui/ folder NOT included - shadcn components)
+**Checked:** 19 (52%)
 **Needs Review:** 0 (0%)
-**Not Checked:** 17 (50%)
+**Not Checked:** 17 (48%)
 
-**Recently Checked (2026-01-03):**
+**Recently Checked (2026-01-05):**
+- ContractsList.svelte (v2) ✅
+- ContractListItem.svelte (v2) ✅
+
+**Previously Checked (2026-01-03):**
 - LatestContractsList.svelte ✅
 - ContractListItem.svelte ✅ (renamed from LatestContractsListItem)
 - ServiceContractListItem.svelte ✅

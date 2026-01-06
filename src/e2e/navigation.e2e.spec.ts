@@ -25,7 +25,7 @@ test.describe('Navigation', () => {
 	test('should redirect to login when accessing protected route unauthenticated', async ({
 		page
 	}) => {
-		await page.goto('/contracts/service');
+		await page.goto('/contracts/service-provision');
 
 		// Should be redirected to login
 		await expect(page).toHaveURL(/\/login/);

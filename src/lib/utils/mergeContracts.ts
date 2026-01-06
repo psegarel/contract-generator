@@ -21,8 +21,12 @@ export interface UnifiedContract {
 
 /**
  * Convert a service contract to the unified format
+ * Uses netFee as the base amount (before tax) - same as contractValue
  */
 export function normalizeServiceContract(contract: SavedServiceContract): UnifiedContract {
+	// netFee stores the base amount (before tax), same as contractValue
+	const contractValue = contract.contractData.netFee;
+
 	return {
 		id: contract.id,
 		type: 'service',
@@ -30,7 +34,7 @@ export function normalizeServiceContract(contract: SavedServiceContract): Unifie
 		location: contract.contractData.eventLocation,
 		date: contract.contractData.startDate,
 		clientName: contract.contractData.clientName,
-		contractValue: contract.contractData.netFee,
+		contractValue,
 		paymentStatus: contract.paymentStatus,
 		createdAt: contract.createdAt,
 		contractNumber: contract.contractNumber
