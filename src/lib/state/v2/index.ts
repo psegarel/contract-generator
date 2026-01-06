@@ -10,3 +10,7 @@ export { clientServiceContractState, ClientServiceContractState } from './client
 // Core entity state exports
 export { eventState, EventState } from './eventState.svelte';
 export { counterpartyState, CounterpartyState } from './counterpartyState.svelte';
+
+// Form state exports
+export { ServiceProviderFormState } from './serviceProviderFormState.svelte';
+export { ClientFormState } from './clientFormState.svelte';

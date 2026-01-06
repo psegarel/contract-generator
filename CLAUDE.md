@@ -155,6 +155,103 @@ This is a common anti-pattern that breaks reactivity and creates unnecessary com
 2. **Initialize once**: Set state from props in initial declaration (not reactive)
 3. **Two-way binding**: Use `bind:` directive or event callbacks, not effects
 
+### Form State Management Pattern
+
+**For form components that need to sync props to editable state, use a Form State Class pattern.**
+
+This pattern avoids the `$effect` anti-pattern by extracting state management into a separate class:
+
+```typescript
+// ✅ GOOD: Form State Class Pattern
+// src/lib/state/v2/serviceProviderFormState.svelte.ts
+export class ServiceProviderFormState {
+  name = $state('');
+  email = $state('');
+  // ... all form fields as $state properties
+
+  /**
+   * Initialize form state from a service provider
+   */
+  init(serviceProvider: ServiceProviderCounterparty | null) {
+    if (!serviceProvider) {
+      this.reset();
+      return;
+    }
+    this.name = serviceProvider.name;
+    this.email = serviceProvider.email || '';
+    // ... initialize all fields
+  }
+
+  /**
+   * Reset form to empty state
+   */
+  reset() {
+    this.name = '';
+    this.email = '';
+    // ... reset all fields
+  }
+
+  // Helper methods for form operations
+  addDeliverable() { /* ... */ }
+  removeDeliverable(index: number) { /* ... */ }
+}
+```
+
+```svelte
+<!-- ✅ GOOD: Component uses state class -->
+<script lang="ts">
+  import { ServiceProviderFormState } from '$lib/state/v2/serviceProviderFormState.svelte';
+  import { onMount } from 'svelte';
+  
+  let { serviceProvider = null }: Props = $props();
+  
+  // Create form state instance
+  const formState = new ServiceProviderFormState();
+  
+  // Initialize form state from prop (one-time initialization on mount)
+  // Use onMount instead of $effect since data is available at mount time
+  // and we don't need reactive updates to the prop
+  onMount(() => {
+    formState.init(serviceProvider);
+  });
+</script>
+
+<form>
+  <input bind:value={formState.name} />
+  <input bind:value={formState.email} />
+  <!-- ... -->
+</form>
+```
+
+**Why this pattern works:**
+- ✅ **Separation of concerns**: State management is in the class, component is just the view
+- ✅ **No direct state assignments in `$effect`**: Component only calls `init()` method in `onMount`
+- ✅ **One-time initialization**: Using `onMount` is appropriate since data from load functions is available at mount time
+- ✅ **Reusable**: State class can be used in multiple components if needed
+- ✅ **Testable**: State class can be tested independently
+- ✅ **Clean component**: Component focuses on rendering, not state management
+
+**Why `onMount` instead of `$effect`:**
+- `onMount` is for one-time initialization when the component mounts
+- `$effect` is for reactive side effects that need to re-run when dependencies change
+- When data comes from SvelteKit load functions, it's available synchronously at mount time
+- The prop value doesn't change reactively within the same component instance
+- On route navigation, components unmount/remount, so `onMount` will run again with new data
+
+**When to use this pattern:**
+- Form components that need to sync props to editable state
+- Forms with complex state management (arrays, nested objects)
+- Forms that need helper methods for state manipulation
+
+**When NOT to use this pattern:**
+- Simple read-only displays (use `$derived` or direct prop access)
+- Forms that don't need to sync from props (just initialize state directly)
+- Very simple forms with 1-2 fields (may be overkill)
+
+**Example implementation:**
+- `ServiceProviderFormState` in `src/lib/state/v2/serviceProviderFormState.svelte.ts`
+- Used by `ServiceProviderForm.svelte`
+
 ### Component Architecture
 
 **Components should be small, dumb, and do one thing well.**
@@ -263,6 +360,88 @@ This project uses Tailwind CSS with a utility-first methodology:
 - Run `pnpm check` after fixes to ensure 0 errors and 0 warnings
 
 See `AUTOFIXER_STATUS.md` for current component status and checking progress.
+
+### Data Validation with Zod
+
+**CRITICAL: Validate data both when writing AND reading from Firestore.**
+
+This ensures data integrity and prevents runtime errors from undefined or malformed data:
+
+```typescript
+// ✅ GOOD: Validate when writing
+export async function saveCounterparty(counterpartyData: CounterpartyInput): Promise<string> {
+  const validationResult = counterpartySchema.safeParse(counterpartyData);
+  if (!validationResult.success) {
+    throw new Error('Invalid counterparty data: ' + validationResult.error.message);
+  }
+  
+  const toWrite = {
+    ...validationResult.data, // Use validated data
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+  
+  await addDoc(collection(db, COLLECTION_NAME), toWrite);
+}
+
+// ✅ GOOD: Validate when reading
+export async function getCounterpartyById(id: string): Promise<Counterparty | null> {
+  const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
+  if (!docSnap.exists()) return null;
+  
+  const data = docSnap.data();
+  
+  // Validate and transform through Zod
+  const result = counterpartySchema.safeParse({
+    ...data,
+    createdAt: data.createdAt || Timestamp.now(),
+    updatedAt: data.updatedAt || Timestamp.now()
+  });
+  
+  if (!result.success) {
+    console.error('Invalid counterparty data:', result.error, id);
+    throw new Error('Invalid counterparty data: ' + result.error.message);
+  }
+  
+  return {
+    id: docSnap.id,
+    ...result.data // Use validated data
+  } as Counterparty;
+}
+```
+
+**Why validate on read:**
+- ✅ **Data integrity**: Firestore data might be outdated or malformed
+- ✅ **Type safety**: Ensures arrays are always defined (via `.default([])`)
+- ✅ **Runtime safety**: Prevents "Cannot read property 'length' of undefined" errors
+- ✅ **Migration support**: Handles schema changes gracefully
+- ✅ **Consistency**: All data conforms to current schema before use
+
+**Schema patterns:**
+- Use `.default([])` for array fields to ensure they're never undefined
+- Use `.nullable().optional()` for optional fields
+- Use `.strict()` to catch unexpected fields
+
+**Example schema:**
+```typescript
+export const serviceProviderCounterpartySchema = baseCounterpartySchema
+  .extend({
+    type: z.literal('service-provider'),
+    serviceType: z.string().min(1, 'Service type is required'),
+    // Arrays always default to empty array
+    typicalDeliverables: z.array(z.string()).default([]),
+    equipmentProvided: z.array(z.string()).default([]),
+    // Optional fields
+    companyName: z.string().nullable().optional(),
+    businessLicense: z.string().nullable().optional()
+  })
+  .strict();
+```
+
+**When reading fails validation:**
+- Log the error with document ID for debugging
+- Filter out invalid documents in list queries
+- Throw error for single document queries (data corruption)
 
 ---
 

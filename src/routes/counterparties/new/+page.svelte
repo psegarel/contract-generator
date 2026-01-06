@@ -4,12 +4,12 @@
 
 	function handleSuccess(clientId: string) {
 		// Navigate to the counterparty detail page
-		goto(`/v2/counterparties/${clientId}`);
+		goto(`/counterparties/${clientId}`);
 	}
 
 	function handleCancel() {
 		// Navigate back to counterparties list
-		goto('/v2/counterparties');
+		goto('/counterparties');
 	}
 </script>
 

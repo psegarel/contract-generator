@@ -76,13 +76,13 @@
 	</Card.Content>
 
 	<Card.Footer class="flex gap-2">
-		<Button size="sm" href={`/v2/counterparties/${counterparty.id}`} class="flex-1">
+		<Button size="sm" href={`/counterparties/${counterparty.id}`} class="flex-1">
 			View Details
 		</Button>
 		<Button
 			size="sm"
 			variant="outline"
-			href={`/v2/counterparties/${counterparty.id}/contracts`}
+			href={`/counterparties/${counterparty.id}/contracts`}
 			class="flex-1"
 		>
 			Contracts

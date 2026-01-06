@@ -83,9 +83,10 @@ export async function getCounterpartyById(counterpartyId: string): Promise<Count
 			return null;
 		}
 
+		const data = docSnap.data();
 		return {
 			id: docSnap.id,
-			...docSnap.data()
+			...data
 		} as Counterparty;
 	} catch (error) {
 		console.error('Error fetching counterparty:', error);
@@ -100,7 +101,7 @@ export async function getCounterparties(): Promise<Counterparty[]> {
 	try {
 		const q = query(collection(db, COLLECTION_NAME), orderBy('name', 'asc'));
 		const querySnapshot = await getDocs(q);
-
+		
 		return querySnapshot.docs.map((doc) => ({
 			id: doc.id,
 			...doc.data()

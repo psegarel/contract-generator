@@ -57,7 +57,7 @@
 				</p>
 			</div>
 		</div>
-		<Button href="/v2/counterparties/new">
+		<Button href="/counterparties/new">
 			<Plus class="w-4 h-4 mr-2" />
 			New Counterparty
 		</Button>
@@ -104,7 +104,7 @@
 					: 'Try selecting a different type or create a new counterparty'}
 			</p>
 			{#if selectedType === 'all'}
-				<Button href="/v2/counterparties/new">
+				<Button href="/counterparties/new">
 					<Plus class="w-4 h-4 mr-2" />
 					Create Counterparty
 				</Button>
@@ -114,20 +114,20 @@
 		<div class="border-t border-border">
 			<!-- Column Headers (Desktop only) -->
 			<div class="hidden md:grid grid-cols-16 gap-3 items-center bg-slate-200 px-4">
-				<div class="col-span-5 text-sm font-semibold px-3 py-3 border-r border-white">Name</div>
+				<div class="col-span-4 text-sm font-semibold px-3 py-3 border-r border-white">Name</div>
 				<div class="col-span-4 text-sm font-semibold px-3 py-3 border-r border-white">Email</div>
 				<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-white">Phone</div>
 				<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
 					Type
 				</div>
-				<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center">Actions</div>
+				<div class="col-span-3 text-sm font-semibold px-3 py-3 text-center">Actions</div>
 			</div>
 
 			<!-- List Items -->
 			{#each filteredCounterparties as counterparty (counterparty.id)}
 				<!-- Desktop row -->
 				<div class="hidden md:grid grid-cols-16 gap-3 items-center px-4 border-b">
-					<div class="col-span-5 px-3 py-3">
+					<div class="col-span-4 px-3 py-3">
 						<div class="text-sm font-medium text-foreground">{counterparty.name}</div>
 						{#if counterparty.address}
 							<div class="text-xs text-muted-foreground">{counterparty.address}</div>
@@ -154,14 +154,17 @@
 					<div class="col-span-2 px-3 py-3 text-center">
 						<span class="text-xs font-semibold">{getTypeLabel(counterparty.type)}</span>
 					</div>
-					<div class="col-span-2 px-3 py-3 flex justify-center gap-2">
-						<Button size="sm" href={`/v2/counterparties/${counterparty.id}`} class="px-2"
+					<div class="col-span-3 px-3 py-3 flex justify-center gap-2">
+						<Button size="sm" href={`/counterparties/${counterparty.id}`} class="px-2"
 							>View</Button
+						>
+						<Button size="sm" variant="outline" href={`/counterparties/${counterparty.id}/edit`} class="px-2"
+							>Edit</Button
 						>
 						<Button
 							size="sm"
 							variant="outline"
-							href={`/v2/counterparties/${counterparty.id}/contracts`}
+							href={`/counterparties/${counterparty.id}/contracts`}
 							class="px-2"
 						>
 							Contracts
@@ -191,13 +194,16 @@
 						{/if}
 					</div>
 					<div class="flex gap-2 mt-3">
-						<Button size="sm" href={`/v2/counterparties/${counterparty.id}`} class="px-2 flex-1"
+						<Button size="sm" href={`/counterparties/${counterparty.id}`} class="px-2 flex-1"
 							>View</Button
+						>
+						<Button size="sm" variant="outline" href={`/counterparties/${counterparty.id}/edit`} class="px-2 flex-1"
+							>Edit</Button
 						>
 						<Button
 							size="sm"
 							variant="outline"
-							href={`/v2/counterparties/${counterparty.id}/contracts`}
+							href={`/counterparties/${counterparty.id}/contracts`}
 							class="px-2 flex-1"
 						>
 							Contracts

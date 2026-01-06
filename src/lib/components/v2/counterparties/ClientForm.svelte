@@ -3,6 +3,8 @@
 	import { clientCounterpartySchema, type ClientCounterpartyInput } from '$lib/schemas/v2';
 	import { saveCounterparty, updateCounterparty } from '$lib/utils/v2';
 	import { authState } from '$lib/state/auth.svelte';
+	import { ClientFormState } from '$lib/state/v2/clientFormState.svelte';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		client?: ClientCounterparty | null;
@@ -12,79 +14,46 @@
 
 	let { client = null, onSuccess, onCancel }: Props = $props();
 
-	// Form state - initialize empty, sync with client prop via $effect
-	let name = $state('');
-	let email = $state('');
-	let phone = $state('');
-	let address = $state('');
-	let clientType = $state<'individual' | 'company'>('individual');
-	let companyName = $state('');
-	let representativeName = $state('');
-	let representativePosition = $state('');
-	let idDocument = $state('');
-	let taxId = $state('');
-	let bankName = $state('');
-	let bankAccountNumber = $state('');
-	let notes = $state('');
+	// Create form state instance
+	const formState = new ClientFormState();
 
-	// Sync form state with client prop (only on initial load or client change)
-	// Note: While $effect to sync props to state is generally an anti-pattern,
-	// it's acceptable here for handling async prop updates (similar to EventForm.svelte pattern)
-	$effect(() => {
-		if (client) {
-			// Access all properties to ensure they're tracked
-			name = client.name;
-			email = client.email || '';
-			phone = client.phone || '';
-			address = client.address || '';
-			clientType = client.clientType;
-			companyName = client.companyName || '';
-			representativeName = client.representativeName || '';
-			representativePosition = client.representativePosition || '';
-			idDocument = client.idDocument || '';
-			taxId = client.taxId || '';
-			// Use nullish coalescing to ensure bank fields are strings (not null) for proper input display
-			bankName = client.bankName ?? '';
-			bankAccountNumber = client.bankAccountNumber ?? '';
-			notes = client.notes || '';
-		}
+	// Initialize form state from prop (one-time initialization on mount)
+	onMount(() => {
+		formState.init(client);
 	});
-
-	let isSubmitting = $state(false);
-	let error = $state<string | null>(null);
 
 	async function handleSubmit() {
 		if (!authState.user) {
-			error = 'You must be logged in to create a client';
+			formState.error = 'You must be logged in to create a client';
 			return;
 		}
 
-		isSubmitting = true;
-		error = null;
+		formState.isSubmitting = true;
+		formState.error = null;
 
 		try {
 			const clientData: ClientCounterpartyInput = {
 				type: 'client',
 				ownerUid: authState.user.uid,
-				name,
-				email: email || null,
-				phone: phone || null,
-				address: address || null,
-				clientType,
-				companyName: companyName || null,
-				representativeName: representativeName || null,
-				representativePosition: representativePosition || null,
-				idDocument: idDocument || null,
-				taxId: taxId || null,
-				bankName: bankName || null,
-				bankAccountNumber: bankAccountNumber || null,
-				notes: notes || null
+				name: formState.name,
+				email: formState.email || null,
+				phone: formState.phone || null,
+				address: formState.address || null,
+				clientType: formState.clientType,
+				companyName: formState.companyName || null,
+				representativeName: formState.representativeName || null,
+				representativePosition: formState.representativePosition || null,
+				idDocument: formState.idDocument || null,
+				taxId: formState.taxId || null,
+				bankName: formState.bankName || null,
+				bankAccountNumber: formState.bankAccountNumber || null,
+				notes: formState.notes || null
 			};
 
 			// Validate with schema
 			const validationResult = clientCounterpartySchema.safeParse(clientData);
 			if (!validationResult.success) {
-				error = 'Validation error: ' + validationResult.error.issues[0].message;
+				formState.error = 'Validation error: ' + validationResult.error.issues[0].message;
 				return;
 			}
 
@@ -101,18 +70,18 @@
 			}
 		} catch (e) {
 			console.error('Error saving client:', e);
-			error = (e as Error).message;
+			formState.error = (e as Error).message;
 		} finally {
-			isSubmitting = false;
+			formState.isSubmitting = false;
 		}
 	}
 </script>
 
 <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
 	<!-- Error message -->
-	{#if error}
+	{#if formState.error}
 		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
-			{error}
+			{formState.error}
 		</div>
 	{/if}
 
@@ -127,7 +96,7 @@
 				<input
 					id="name"
 					type="text"
-					bind:value={name}
+					bind:value={formState.name}
 					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="John Doe or ABC Corporation"
@@ -140,7 +109,7 @@
 				</label>
 				<select
 					id="clientType"
-					bind:value={clientType}
+					bind:value={formState.clientType}
 					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
@@ -156,7 +125,7 @@
 				<input
 					id="email"
 					type="email"
-					bind:value={email}
+					bind:value={formState.email}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="client@example.com"
 				/>
@@ -169,7 +138,7 @@
 				<input
 					id="phone"
 					type="tel"
-					bind:value={phone}
+					bind:value={formState.phone}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="+84 123 456 789"
 				/>
@@ -182,7 +151,7 @@
 				<input
 					id="address"
 					type="text"
-					bind:value={address}
+					bind:value={formState.address}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="123 Main St, Ho Chi Minh City"
 				/>
@@ -191,7 +160,7 @@
 	</div>
 
 	<!-- Company Details (shown if clientType === 'company') -->
-	{#if clientType === 'company'}
+	{#if formState.clientType === 'company'}
 		<div class="bg-white p-6 rounded-lg border border-gray-200">
 			<h3 class="text-lg font-semibold text-gray-900 mb-4">Company Details</h3>
 			<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -202,7 +171,7 @@
 					<input
 						id="companyName"
 						type="text"
-						bind:value={companyName}
+						bind:value={formState.companyName}
 						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 						placeholder="ABC Corporation Ltd"
 					/>
@@ -215,7 +184,7 @@
 					<input
 						id="representativeName"
 						type="text"
-						bind:value={representativeName}
+						bind:value={formState.representativeName}
 						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 						placeholder="John Doe"
 					/>
@@ -228,7 +197,7 @@
 					<input
 						id="representativePosition"
 						type="text"
-						bind:value={representativePosition}
+						bind:value={formState.representativePosition}
 						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 						placeholder="CEO, Director"
 					/>
@@ -238,7 +207,7 @@
 	{/if}
 
 	<!-- Individual Details (shown if clientType === 'individual') -->
-	{#if clientType === 'individual'}
+	{#if formState.clientType === 'individual'}
 		<div class="bg-white p-6 rounded-lg border border-gray-200">
 			<h3 class="text-lg font-semibold text-gray-900 mb-4">Individual Details</h3>
 			<div class="grid gap-4 grid-cols-1">
@@ -249,7 +218,7 @@
 					<input
 						id="idDocument"
 						type="text"
-						bind:value={idDocument}
+						bind:value={formState.idDocument}
 						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 						placeholder="123456789"
 					/>
@@ -269,7 +238,7 @@
 				<input
 					id="taxId"
 					type="text"
-					bind:value={taxId}
+					bind:value={formState.taxId}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="Tax identification number"
 				/>
@@ -282,7 +251,7 @@
 				<input
 					id="bankName"
 					type="text"
-					bind:value={bankName}
+					bind:value={formState.bankName}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="Vietcombank"
 				/>
@@ -295,7 +264,7 @@
 				<input
 					id="bankAccountNumber"
 					type="text"
-					bind:value={bankAccountNumber}
+					bind:value={formState.bankAccountNumber}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="1234567890"
 				/>
@@ -308,7 +277,7 @@
 		<h3 class="text-lg font-semibold text-gray-900 mb-4">Notes</h3>
 		<textarea
 			id="notes"
-			bind:value={notes}
+			bind:value={formState.notes}
 			rows="4"
 			class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 			placeholder="Additional notes about this client..."
@@ -321,7 +290,7 @@
 			<button
 				type="button"
 				onclick={onCancel}
-				disabled={isSubmitting}
+				disabled={formState.isSubmitting}
 				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
@@ -329,10 +298,10 @@
 		{/if}
 		<button
 			type="submit"
-			disabled={isSubmitting}
+			disabled={formState.isSubmitting}
 			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
 		>
-			{isSubmitting ? 'Saving...' : client ? 'Update Client' : 'Create Client'}
+			{formState.isSubmitting ? 'Saving...' : client ? 'Update Client' : 'Create Client'}
 		</button>
 	</div>
 </form>
