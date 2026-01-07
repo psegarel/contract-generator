@@ -34,10 +34,11 @@
 			<p class="text-xs">Create your first contract to see it here</p>
 		</div>
 	{:else}
-		<div class="max-h-96 overflow-y-auto">
+		<!-- Desktop Grid View: Scrolling container -->
+		<div class="hidden xl:block max-h-96 overflow-y-auto">
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
-				<div class="hidden xl:grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
+				<div class="grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-white">
 						Contract #
 					</div>
@@ -62,20 +63,27 @@
 				</div>
 			{/if}
 
-			<!-- Contract List -->
-			<div class="xl:contents">
-				<!-- Tablet: 2-column card grid -->
-				<div class="hidden md:grid xl:hidden grid-cols-2 gap-4 pb-4">
-					{#each contracts as contract, index (contract.id)}
-						<ContractListItem {contract} {index} />
-					{/each}
-				</div>
-				<!-- Mobile & Desktop: Single column -->
-				<div class="md:hidden xl:block">
-					{#each contracts as contract, index (contract.id)}
-						<ContractListItem {contract} {index} />
-					{/each}
-				</div>
+			<!-- Desktop Grid List -->
+			<div>
+				{#each contracts as contract, index (contract.id)}
+					<ContractListItem {contract} {index} />
+				{/each}
+			</div>
+		</div>
+
+		<!-- Tablet & Mobile: Full page scroll (no scrolling container) -->
+		<div class="xl:hidden">
+			<!-- Tablet: 2-column card grid -->
+			<div class="hidden md:grid grid-cols-2 gap-4 pb-4">
+				{#each contracts as contract, index (contract.id)}
+					<ContractListItem {contract} {index} />
+				{/each}
+			</div>
+			<!-- Mobile: Single column -->
+			<div class="md:hidden">
+				{#each contracts as contract, index (contract.id)}
+					<ContractListItem {contract} {index} />
+				{/each}
 			</div>
 		</div>
 	{/if}

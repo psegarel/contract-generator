@@ -541,5 +541,31 @@ interface EventPlanningContract extends BaseContract {
 
 ---
 
+## Responsive Design Patterns
+
+### Contract List Responsive Layout
+
+The contracts list uses a responsive design pattern that should be applied consistently across similar list views:
+
+**Breakpoint Strategy:**
+- **Mobile** (`< md`): Single column card layout, full page scroll
+- **Tablet** (`md` to `xl`): 2-column card grid, full page scroll
+- **Desktop** (`xl` and up): 18-column grid layout, scrolling container (max-h-96)
+
+**Key Components:**
+- `ContractCard.svelte` - Used for mobile and tablet card views
+- `ContractListItem.svelte` - Handles all three layouts (mobile card, tablet card, desktop grid)
+- `ContractsList.svelte` - Manages grid structure and scrolling behavior
+
+**Design Principles:**
+- Cards prioritize counterparty name over contract number
+- All action buttons on single line in card view
+- Desktop grid uses scrolling container to keep stats visible
+- Mobile/tablet use full page scroll (no scrolling container)
+
+**TODO:** Apply the same responsive design logic to the counterparties route (`/counterparties`).
+
+---
+
 **Last Updated:** 2026-01-03
-**Reason:** Added contract architecture vision and guidelines for designing toward future refactor.
+**Reason:** Added contract architecture vision and guidelines for designing toward future refactor. Added responsive design patterns section.
