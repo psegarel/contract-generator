@@ -37,7 +37,7 @@
 		<div class="max-h-96 overflow-y-auto">
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
-				<div class="hidden md:grid grid-cols-17 gap-3 items-center bg-slate-200 px-4">
+				<div class="hidden md:grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-white">
 						Contract #
 					</div>
@@ -57,7 +57,8 @@
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
 						Payment
 					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center">Actions</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">Actions</div>
+					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center">Delete</div>
 				</div>
 			{/if}
 

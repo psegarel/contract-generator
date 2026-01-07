@@ -5,6 +5,7 @@ import {
 	getDoc,
 	doc,
 	updateDoc,
+	deleteDoc,
 	query,
 	where,
 	orderBy,
@@ -271,5 +272,18 @@ export async function getServiceContractsByLocationId(
 	} catch (error) {
 		console.error('Error fetching service contracts by location:', error);
 		throw new Error('Failed to fetch service contracts');
+	}
+}
+
+/**
+ * Delete a service contract
+ */
+export async function deleteServiceContract(contractId: string): Promise<void> {
+	try {
+		const docRef = doc(db, COLLECTION_NAME, contractId);
+		await deleteDoc(docRef);
+	} catch (error) {
+		console.error('Error deleting service contract:', error);
+		throw new Error('Failed to delete service contract');
 	}
 }

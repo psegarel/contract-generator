@@ -2,7 +2,7 @@
 	import type { BaseContract } from '$lib/types/v2';
 	import type { ServiceProvisionContract, EventPlanningContract } from '$lib/types/v2/contracts';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Pencil, Check, Download } from 'lucide-svelte';
+	import { Calendar, User, Pencil, Check, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -14,7 +14,9 @@
 		updatePerformerBookingContractPaymentStatus,
 		updateEquipmentRentalContractPaymentStatus,
 		updateSubcontractorContractPaymentStatus,
-		updateClientServiceContractPaymentStatus
+		updateClientServiceContractPaymentStatus,
+		deleteServiceProvisionContract,
+		deleteEventPlanningContract
 	} from '$lib/utils/v2';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
@@ -24,12 +26,14 @@
 		index: number;
 		getLink?: (c: BaseContract) => string;
 		onPaymentStatusUpdate?: (contract: BaseContract) => void;
+		onDelete?: (contractId: string) => void;
 	}
 
-	let { contract, index, getLink, onPaymentStatusUpdate }: Props = $props();
+	let { contract, index, getLink, onPaymentStatusUpdate, onDelete }: Props = $props();
 
 	let isMarkingAsPaid = $state(false);
 	let isDownloading = $state(false);
+	let isDeleting = $state(false);
 
 	function getContractTypeLabel(type: BaseContract['type']): string {
 		const labels: Record<BaseContract['type'], string> = {
@@ -57,7 +61,11 @@
 		isMarkingAsPaid = true;
 
 		try {
-			let updateFunction: (contractId: string, status: 'unpaid' | 'paid', adminUid: string) => Promise<void>;
+			let updateFunction: (
+				contractId: string,
+				status: 'unpaid' | 'paid',
+				adminUid: string
+			) => Promise<void>;
 
 			switch (contract.type) {
 				case 'service-provision':
@@ -287,6 +295,54 @@
 			isDownloading = false;
 		}
 	}
+
+	async function handleDelete() {
+		if (!authState.user?.uid) {
+			toast.error('You must be logged in to delete contracts');
+			return;
+		}
+
+		if (!authState.isAdmin) {
+			toast.error('Only administrators can delete contracts');
+			return;
+		}
+
+		if (isDeleting) {
+			return;
+		}
+
+		if (
+			!confirm(
+				`Are you sure you want to delete "${contract.eventName}"? This action cannot be undone.`
+			)
+		) {
+			return;
+		}
+
+		isDeleting = true;
+
+		try {
+			if (contract.type === 'service-provision') {
+				await deleteServiceProvisionContract(contract.id);
+			} else if (contract.type === 'event-planning') {
+				await deleteEventPlanningContract(contract.id);
+			} else {
+				toast.error('Delete is only available for service-provision and event-planning contracts');
+				return;
+			}
+
+			if (onDelete) {
+				onDelete(contract.id);
+			}
+
+			toast.success('Contract deleted successfully');
+		} catch (error) {
+			console.error('Error deleting contract:', error);
+			toast.error('Failed to delete contract');
+		} finally {
+			isDeleting = false;
+		}
+	}
 </script>
 
 <div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
@@ -331,20 +387,24 @@
 				class="w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
 			>
 				{#if isMarkingAsPaid}
-					<Badge variant="secondary" class="w-full justify-center py-2">
-						Updating...
-					</Badge>
+					<Badge variant="secondary" class="w-full justify-center py-2">Updating...</Badge>
 				{:else if contract.paymentStatus === 'paid'}
-					<Badge variant="default" class="w-full justify-center py-2 bg-emerald-500 hover:bg-emerald-600">
+					<Badge
+						variant="default"
+						class="w-full justify-center py-2 bg-emerald-500 hover:bg-emerald-600"
+					>
 						Paid
 					</Badge>
 				{:else}
-					<Badge variant="secondary" class="w-full justify-center py-2">
-						Unpaid
-					</Badge>
+					<Badge variant="secondary" class="w-full justify-center py-2">Unpaid</Badge>
 				{/if}
 			</button>
-			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="w-full">
+			<Button
+				variant="outline"
+				size="sm"
+				href={(getLink ?? getDefaultContractLink)(contract)}
+				class="w-full"
+			>
 				<Pencil class="h-3.5 w-3.5 mr-1.5" />
 				View
 			</Button>
@@ -365,11 +425,26 @@
 					{/if}
 				</Button>
 			{/if}
+			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+				<Button
+					variant={authState.isAdmin ? 'destructive' : 'secondary'}
+					size="sm"
+					onclick={handleDelete}
+					disabled={!authState.isAdmin || isDeleting}
+					class="w-full {!authState.isAdmin
+						? 'bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700'
+						: ''}"
+					title={authState.isAdmin ? 'Delete contract' : 'Only administrators can delete contracts'}
+				>
+					<Trash2 class="h-3.5 w-3.5 mr-1.5" />
+					{isDeleting ? 'Deleting...' : 'Delete'}
+				</Button>
+			{/if}
 		</div>
 	</div>
 
-	<!-- Desktop: Grid Layout (17 columns) -->
-	<div class="hidden md:grid grid-cols-17 gap-3 items-center py-3 px-4">
+	<!-- Desktop: Grid Layout (18 columns) -->
+	<div class="hidden md:grid grid-cols-18 gap-3 items-center py-3 px-4">
 		<!-- Contract Number -->
 		<div class="col-span-2">
 			<h3 class="text-sm font-bold tracking-tight truncate">
@@ -412,23 +487,27 @@
 				onclick={togglePaymentStatus}
 				disabled={isMarkingAsPaid}
 				class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-				title={contract.paymentStatus === 'paid' ? 'Click to mark as Unpaid' : 'Click to mark as Paid'}
+				title={contract.paymentStatus === 'paid'
+					? 'Click to mark as Unpaid'
+					: 'Click to mark as Paid'}
 			>
 				{#if contract.paymentStatus === 'paid'}
-					<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">
-						Paid
-					</Badge>
+					<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
 				{:else}
-					<Badge variant="secondary">
-						Unpaid
-					</Badge>
+					<Badge variant="secondary">Unpaid</Badge>
 				{/if}
 			</button>
 		</div>
 
 		<!-- Actions -->
 		<div class="col-span-2 flex gap-2 justify-center">
-			<Button size="sm" href={(getLink ?? getDefaultContractLink)(contract)} class="px-2" title="View">
+			<Button
+				variant="outline"
+				size="sm"
+				href={(getLink ?? getDefaultContractLink)(contract)}
+				class="px-2"
+				title="View"
+			>
 				<Pencil class="h-4 w-4" />
 			</Button>
 			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
@@ -448,5 +527,25 @@
 				</Button>
 			{/if}
 		</div>
+
+		<!-- Delete Button -->
+		{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+			<div class="col-span-1 flex justify-center">
+				<Button
+					variant={authState.isAdmin ? 'destructive' : 'secondary'}
+					size="sm"
+					onclick={handleDelete}
+					disabled={!authState.isAdmin || isDeleting}
+					class="px-2 {!authState.isAdmin
+						? 'bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700'
+						: ''}"
+					title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
+				>
+					<Trash2 class="h-4 w-4" />
+				</Button>
+			</div>
+		{:else}
+			<div class="col-span-1"></div>
+		{/if}
 	</div>
 </div>

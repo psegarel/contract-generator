@@ -131,8 +131,8 @@ service cloud.firestore {
           || isAdmin()
         );
 
-      // Delete: any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
     }
 
     match /service-contracts/{contractId} {
@@ -159,8 +159,8 @@ service cloud.firestore {
           || isAdmin()
         );
 
-      // Delete: any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
     }
 
     match /event-planning-contracts/{contractId} {
@@ -187,8 +187,8 @@ service cloud.firestore {
           || isAdmin()
         );
 
-      // Delete: any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
     }
 
     // ============================================================
@@ -243,8 +243,8 @@ service cloud.firestore {
           || isAdmin()
         );
 
-      // Delete: any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
     }
   }
 }

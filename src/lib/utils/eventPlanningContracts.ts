@@ -5,6 +5,7 @@ import {
 	getDoc,
 	doc,
 	updateDoc,
+	deleteDoc,
 	query,
 	where,
 	orderBy,
@@ -226,5 +227,18 @@ export async function getEventPlanningContractsByLocationId(
 	} catch (error) {
 		console.error('Error getting event planning contracts by location:', error);
 		throw new Error('Failed to get event planning contracts');
+	}
+}
+
+/**
+ * Delete an event planning contract
+ */
+export async function deleteEventPlanningContract(contractId: string): Promise<void> {
+	try {
+		const docRef = doc(db, COLLECTION_NAME, contractId);
+		await deleteDoc(docRef);
+	} catch (error) {
+		console.error('Error deleting event planning contract:', error);
+		throw new Error('Failed to delete event planning contract');
 	}
 }
