@@ -4,6 +4,7 @@
 	import { resolve } from '$app/paths';
 	import { Eye, EyeOff } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+
 	import {
 		Card,
 		CardHeader,
@@ -56,7 +57,7 @@
 
 		try {
 			await signIn(email, password);
-			goto(resolve('/contracts'));
+			goto(resolve('/'));
 		} catch (err) {
 			console.error('Login error:', err);
 			const firebaseError = err as FirebaseError;
@@ -135,7 +136,7 @@
 					</div>
 				</div>
 
-				<Button type="submit" disabled={loading} class="w-full" size="lg">
+				<Button type="submit" disabled={loading} variant="dark" class="w-full" size="lg">
 					{#if loading}
 						<span>Signing in...</span>
 					{:else}
@@ -150,7 +151,7 @@
 					onclick={handlePasswordReset}
 					disabled={loading}
 					variant="link"
-					class="text-sm"
+					class="text-sm text-foreground hover:text-foreground/80"
 				>
 					Forgot your password?
 				</Button>

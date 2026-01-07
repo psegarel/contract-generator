@@ -37,7 +37,7 @@
 		<div class="max-h-96 overflow-y-auto">
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
-				<div class="hidden md:grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
+				<div class="hidden lg:grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-white">
 						Contract #
 					</div>
@@ -63,9 +63,20 @@
 			{/if}
 
 			<!-- Contract List -->
-			{#each contracts as contract, index (contract.id)}
-				<ContractListItem {contract} {index} />
-			{/each}
+			<div class="lg:contents">
+				<!-- Tablet: 2-column card grid -->
+				<div class="hidden md:grid lg:hidden grid-cols-2 gap-4 px-4 pb-4">
+					{#each contracts as contract, index (contract.id)}
+						<ContractListItem {contract} {index} />
+					{/each}
+				</div>
+				<!-- Mobile & Desktop: Single column -->
+				<div class="md:hidden lg:block">
+					{#each contracts as contract, index (contract.id)}
+						<ContractListItem {contract} {index} />
+					{/each}
+				</div>
+			</div>
 		</div>
 	{/if}
 </div>

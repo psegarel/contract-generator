@@ -20,6 +20,7 @@
 	} from '$lib/utils/v2';
 	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
 	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
+	import ContractCard from './ContractCard.svelte';
 
 	interface Props {
 		contract: BaseContract;
@@ -347,7 +348,7 @@
 
 <div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
 	<!-- Mobile: Stacked Layout -->
-	<div class="md:hidden space-y-4 py-3">
+	<div class="lg:hidden space-y-4 py-3">
 		<!-- Title and Type Badge -->
 		<div class="flex items-start justify-between gap-3">
 			<h3 class="text-xl font-bold leading-tight flex-1 tracking-tight">
@@ -443,8 +444,24 @@
 		</div>
 	</div>
 
+	<!-- Tablet: Card Layout -->
+	<div class="hidden md:block lg:hidden">
+		<ContractCard
+			{contract}
+			{getLink}
+			{getContractTypeLabel}
+			{getDefaultContractLink}
+			isMarkingAsPaid={isMarkingAsPaid}
+			isDownloading={isDownloading}
+			isDeleting={isDeleting}
+			onTogglePaymentStatus={togglePaymentStatus}
+			onDownload={handleDownload}
+			onDeleteClick={handleDelete}
+		/>
+	</div>
+
 	<!-- Desktop: Grid Layout (18 columns) -->
-	<div class="hidden md:grid grid-cols-18 gap-3 items-center py-3 px-4">
+	<div class="hidden lg:grid grid-cols-18 gap-3 items-center py-3 px-4">
 		<!-- Contract Number -->
 		<div class="col-span-2">
 			<h3 class="text-sm font-bold tracking-tight truncate">

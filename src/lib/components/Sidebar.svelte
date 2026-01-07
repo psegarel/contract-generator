@@ -25,7 +25,7 @@
 	}
 
 	let {
-		sidebarOpen = $bindable(true),
+		sidebarOpen = $bindable(false),
 		currentPath = ''
 	}: {
 		sidebarOpen?: boolean;
@@ -74,8 +74,10 @@
 </script>
 
 <aside
-	class="relative h-full border-r border-sidebar transition-all duration-300 ease-in-out z-30
-	{sidebarOpen ? 'w-64' : 'w-20'}"
+	class="fixed lg:relative inset-y-0 left-0 h-full border-r border-sidebar transition-transform duration-300 ease-in-out z-50 lg:z-30
+	{sidebarOpen
+		? 'translate-x-0 w-64'
+		: '-translate-x-full lg:translate-x-0 lg:w-20'} lg:translate-x-0"
 >
 	<div class="flex flex-col h-full bg-sidebar text-sidebar-foreground">
 		<!-- Logo Area with Sidebar Toggle -->
@@ -98,7 +100,7 @@
 			</div>
 			<button
 				onclick={() => (sidebarOpen = !sidebarOpen)}
-				class="p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors shrink-0"
+				class="hidden lg:flex p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors shrink-0"
 				title={sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
 			>
 				<PanelLeft class="h-5 w-5" />

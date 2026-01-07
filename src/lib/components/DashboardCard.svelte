@@ -12,7 +12,7 @@
 </script>
 
 <div
-	class="{backgroundColor} {textColor}  bg-card/50 border-border rounded-2xl border p-8 backdrop-blur-sm {className}"
+	class="{backgroundColor} {textColor}  bg-card/50 border-border rounded-2xl border p-4 lg:p-8 backdrop-blur-sm {className}"
 >
 	{@render children?.()}
 </div>
