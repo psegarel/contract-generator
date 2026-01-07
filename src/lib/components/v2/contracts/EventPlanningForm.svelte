@@ -7,6 +7,7 @@
 	import { saveEventPlanningContract, updateEventPlanningContract } from '$lib/utils/v2';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
+	import { Button } from '$lib/components/ui/button';
 	import EventPlanningClientSection from './sections/EventPlanningClientSection.svelte';
 	import EventPlanningEventInfoSection from './sections/EventPlanningEventInfoSection.svelte';
 	import EventPlanningFinancialSection from './sections/EventPlanningFinancialSection.svelte';
@@ -468,12 +469,8 @@
 				Cancel
 			</button>
 		{/if}
-		<button
-			type="submit"
-			disabled={isSubmitting}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-		>
+		<Button type="submit" disabled={isSubmitting} variant="dark">
 			{isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}
-		</button>
+		</Button>
 	</div>
 </form>

@@ -4,6 +4,7 @@
 	import { saveEvent, updateEvent } from '$lib/utils/v2';
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState } from '$lib/state/v2';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		event?: Event | null;
@@ -342,12 +343,8 @@
 				Cancel
 			</button>
 		{/if}
-		<button
-			type="submit"
-			disabled={isSubmitting}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-		>
+		<Button type="submit" disabled={isSubmitting} variant="dark">
 			{isSubmitting ? 'Saving...' : event ? 'Update Event' : 'Create Event'}
-		</button>
+		</Button>
 	</div>
 </form>

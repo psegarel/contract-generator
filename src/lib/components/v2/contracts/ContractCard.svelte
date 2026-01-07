@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Pencil, Download, Trash2 } from 'lucide-svelte';
+	import { Calendar, User, Eye, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -94,12 +94,12 @@
 		</button>
 
 		<Button
-			variant="outline"
+			variant="success"
 			size="sm"
 			href={(getLink ?? getDefaultContractLink)(contract)}
 			class="shrink-0"
 		>
-			<Pencil class="h-3.5 w-3.5 mr-1.5" />
+			<Eye class="h-3.5 w-3.5 mr-1.5" />
 			View
 		</Button>
 

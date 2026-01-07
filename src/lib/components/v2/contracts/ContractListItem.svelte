@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Pencil, Download, Trash2 } from 'lucide-svelte';
+	import { Calendar, User, Eye, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -222,13 +222,13 @@
 		<!-- Actions -->
 		<div class="col-span-2 px-1 flex gap-2 justify-center">
 			<Button
-				variant="outline"
+				variant="success"
 				size="sm"
 				href={(getLink ?? getDefaultContractLink)(contract)}
 				class="px-2"
 				title="View"
 			>
-				<Pencil class="h-4 w-4" />
+				<Eye class="h-4 w-4" />
 			</Button>
 			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
 				<Button

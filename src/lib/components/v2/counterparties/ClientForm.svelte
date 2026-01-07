@@ -6,6 +6,7 @@
 	import { ClientFormState } from '$lib/state/v2/clientFormState.svelte';
 	import { onMount } from 'svelte';
 	import { Timestamp } from 'firebase/firestore';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		client?: ClientCounterparty | null;
@@ -300,12 +301,8 @@
 				Cancel
 			</button>
 		{/if}
-		<button
-			type="submit"
-			disabled={formState.isSubmitting}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-		>
+		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : client ? 'Update Client' : 'Create Client'}
-		</button>
+		</Button>
 	</div>
 </form>

@@ -9,6 +9,7 @@
 	import { ServiceProviderFormState } from '$lib/state/v2/serviceProviderFormState.svelte';
 	import { onMount } from 'svelte';
 	import { Timestamp } from 'firebase/firestore';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		serviceProvider?: ServiceProviderCounterparty | null;
@@ -338,13 +339,9 @@
 				Cancel
 			</button>
 		{/if}
-		<button
-			type="submit"
-			disabled={formState.isSubmitting}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-		>
+		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : serviceProvider ? 'Update Service Provider' : 'Create Service Provider'}
-		</button>
+		</Button>
 	</div>
 </form>
 

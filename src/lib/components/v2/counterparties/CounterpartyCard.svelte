@@ -1,91 +1,88 @@
 <script lang="ts">
 	import type { Counterparty } from '$lib/types/v2';
-	import { Mail, Phone, MapPin, Building2 } from 'lucide-svelte';
+	import { Mail, Phone, Eye, Edit, FileText } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
 
 	interface Props {
 		counterparty: Counterparty;
+		getTypeLabel: (type: Counterparty['type']) => string;
+		backgroundColor?: string;
 	}
 
-	let { counterparty }: Props = $props();
-
-	function getTypeBadge(type: Counterparty['type']) {
-		const badges = {
-			'venue': { variant: 'default' as const, label: 'Venue', class: 'bg-purple-500' },
-			'performer': { variant: 'default' as const, label: 'Performer', class: 'bg-pink-500' },
-			'service-provider': { variant: 'default' as const, label: 'Service Provider', class: 'bg-blue-500' },
-			'client': { variant: 'default' as const, label: 'Client', class: 'bg-emerald-500' },
-			'supplier': { variant: 'default' as const, label: 'Supplier', class: 'bg-amber-500' }
-		};
-		return badges[type];
-	}
-
-	let typeBadge = $derived(getTypeBadge(counterparty.type));
+	let {
+		counterparty,
+		getTypeLabel,
+		backgroundColor = 'bg-white'
+	}: Props = $props();
 </script>
 
-<Card.Root class="hover:shadow-md transition-shadow">
-	<Card.Header>
-		<div class="flex items-start justify-between gap-4">
-			<div class="flex-1">
-				<div class="flex items-center gap-2 mb-2">
-					<Building2 class="h-5 w-5 text-muted-foreground" />
-					<Card.Title class="text-xl">{counterparty.name}</Card.Title>
-				</div>
-			</div>
-			<Badge {...typeBadge}>{typeBadge.label}</Badge>
+<div class="space-y-4 py-4 px-4 border border-border rounded-lg {backgroundColor}">
+	<!-- Header -->
+	<div class="flex items-start justify-between gap-2">
+		<div class="flex-1 min-w-0">
+			<h3 class="text-base font-bold tracking-tight truncate">
+				{counterparty.name}
+			</h3>
+			{#if counterparty.address}
+				<p class="text-sm text-muted-foreground truncate mt-0.5">
+					{counterparty.address}
+				</p>
+			{/if}
 		</div>
-	</Card.Header>
+		<Badge variant="outline" class="shrink-0">
+			{getTypeLabel(counterparty.type)}
+		</Badge>
+	</div>
 
-	<Card.Content class="space-y-3">
-		<!-- Contact Information -->
+	<!-- Details -->
+	<div class="space-y-1.5 text-sm">
 		{#if counterparty.email}
-			<div class="flex items-center gap-2.5 text-sm text-muted-foreground">
-				<Mail class="h-4 w-4 shrink-0" />
+			<div class="flex items-center gap-2 text-muted-foreground">
+				<Mail class="h-3.5 w-3.5 shrink-0" />
 				<a href={`mailto:${counterparty.email}`} class="hover:text-primary truncate">
 					{counterparty.email}
 				</a>
 			</div>
 		{/if}
-
 		{#if counterparty.phone}
-			<div class="flex items-center gap-2.5 text-sm text-muted-foreground">
-				<Phone class="h-4 w-4 shrink-0" />
+			<div class="flex items-center gap-2 text-muted-foreground">
+				<Phone class="h-3.5 w-3.5 shrink-0" />
 				<a href={`tel:${counterparty.phone}`} class="hover:text-primary">
 					{counterparty.phone}
 				</a>
 			</div>
 		{/if}
+	</div>
 
-		{#if counterparty.address}
-			<div class="flex items-start gap-2.5 text-sm text-muted-foreground">
-				<MapPin class="h-4 w-4 shrink-0 mt-0.5" />
-				<span class="flex-1">{counterparty.address}</span>
-			</div>
-		{/if}
-
-		<!-- Notes (if present) -->
-		{#if counterparty.notes}
-			<div class="pt-2 border-t">
-				<p class="text-xs text-muted-foreground line-clamp-2">
-					{counterparty.notes}
-				</p>
-			</div>
-		{/if}
-	</Card.Content>
-
-	<Card.Footer class="flex gap-2">
-		<Button size="sm" href={`/counterparties/${counterparty.id}`} class="flex-1">
-			View Details
+	<!-- Actions - All buttons on same line -->
+	<div class="pt-4 flex gap-2 flex-wrap">
+		<Button
+			variant="success"
+			size="sm"
+			href={`/counterparties/${counterparty.id}`}
+			class="shrink-0"
+		>
+			<Eye class="h-3.5 w-3.5 mr-1.5" />
+			View
 		</Button>
 		<Button
+			variant="destructive"
 			size="sm"
-			variant="outline"
-			href={`/counterparties/${counterparty.id}/contracts`}
-			class="flex-1"
+			href={`/counterparties/${counterparty.id}/edit`}
+			class="shrink-0"
 		>
+			<Edit class="h-3.5 w-3.5 mr-1.5" />
+			Edit
+		</Button>
+		<Button
+			variant="outline"
+			size="sm"
+			href={`/counterparties/${counterparty.id}/contracts`}
+			class="shrink-0"
+		>
+			<FileText class="h-3.5 w-3.5 mr-1.5" />
 			Contracts
 		</Button>
-	</Card.Footer>
-</Card.Root>
+	</div>
+</div>

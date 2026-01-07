@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
 	import { Building2, Plus } from 'lucide-svelte';
+	import CounterpartiesList from '$lib/components/v2/counterparties/CounterpartiesList.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -40,7 +41,7 @@
 	}
 </script>
 
-<div class="p-8">
+<div class="py-8">
 	<!-- Header -->
 	<div class="flex items-center justify-between mb-8">
 		<div class="flex items-center gap-3">
@@ -111,106 +112,11 @@
 			{/if}
 		</div>
 	{:else}
-		<div class="border-t border-border">
-			<!-- Column Headers (Desktop only) -->
-			<div class="hidden md:grid grid-cols-16 gap-3 items-center bg-slate-200 px-4">
-				<div class="col-span-4 text-sm font-semibold px-3 py-3 border-r border-white">Name</div>
-				<div class="col-span-4 text-sm font-semibold px-3 py-3 border-r border-white">Email</div>
-				<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-white">Phone</div>
-				<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
-					Type
-				</div>
-				<div class="col-span-3 text-sm font-semibold px-3 py-3 text-center">Actions</div>
-			</div>
-
-			<!-- List Items -->
-			{#each filteredCounterparties as counterparty (counterparty.id)}
-				<!-- Desktop row -->
-				<div class="hidden md:grid grid-cols-16 gap-3 items-center px-4 border-b">
-					<div class="col-span-4 px-3 py-3">
-						<div class="text-sm font-medium text-foreground">{counterparty.name}</div>
-						{#if counterparty.address}
-							<div class="text-xs text-muted-foreground">{counterparty.address}</div>
-						{/if}
-					</div>
-					<div class="col-span-4 px-3 py-3">
-						{#if counterparty.email}
-							<a href={`mailto:${counterparty.email}`} class="text-sm hover:text-primary"
-								>{counterparty.email}</a
-							>
-						{:else}
-							<span class="text-xs text-muted-foreground">—</span>
-						{/if}
-					</div>
-					<div class="col-span-3 px-3 py-3">
-						{#if counterparty.phone}
-							<a href={`tel:${counterparty.phone}`} class="text-sm hover:text-primary"
-								>{counterparty.phone}</a
-							>
-						{:else}
-							<span class="text-xs text-muted-foreground">—</span>
-						{/if}
-					</div>
-					<div class="col-span-2 px-3 py-3 text-center">
-						<span class="text-xs font-semibold">{getTypeLabel(counterparty.type)}</span>
-					</div>
-					<div class="col-span-3 px-3 py-3 flex justify-center gap-2">
-						<Button size="sm" href={`/counterparties/${counterparty.id}`} class="px-2"
-							>View</Button
-						>
-						<Button size="sm" variant="outline" href={`/counterparties/${counterparty.id}/edit`} class="px-2"
-							>Edit</Button
-						>
-						<Button
-							size="sm"
-							variant="outline"
-							href={`/counterparties/${counterparty.id}/contracts`}
-							class="px-2"
-						>
-							Contracts
-						</Button>
-					</div>
-				</div>
-
-				<!-- Mobile stacked item -->
-				<div class="md:hidden border-b px-4 py-3">
-					<div class="flex items-center justify-between mb-1">
-						<div class="text-sm font-medium text-foreground">{counterparty.name}</div>
-						<span class="text-xs">{getTypeLabel(counterparty.type)}</span>
-					</div>
-					{#if counterparty.address}
-						<div class="text-xs text-muted-foreground mb-1">{counterparty.address}</div>
-					{/if}
-					<div class="flex items-center gap-3 text-sm">
-						{#if counterparty.email}
-							<a href={`mailto:${counterparty.email}`} class="hover:text-primary"
-								>{counterparty.email}</a
-							>
-						{/if}
-						{#if counterparty.phone}
-							<a href={`tel:${counterparty.phone}`} class="hover:text-primary"
-								>{counterparty.phone}</a
-							>
-						{/if}
-					</div>
-					<div class="flex gap-2 mt-3">
-						<Button size="sm" href={`/counterparties/${counterparty.id}`} class="px-2 flex-1"
-							>View</Button
-						>
-						<Button size="sm" variant="outline" href={`/counterparties/${counterparty.id}/edit`} class="px-2 flex-1"
-							>Edit</Button
-						>
-						<Button
-							size="sm"
-							variant="outline"
-							href={`/counterparties/${counterparty.id}/contracts`}
-							class="px-2 flex-1"
-						>
-							Contracts
-						</Button>
-					</div>
-				</div>
-			{/each}
-		</div>
+		<CounterpartiesList
+			counterparties={filteredCounterparties}
+			title=""
+			showHeaders={true}
+			{getTypeLabel}
+		/>
 	{/if}
 </div>

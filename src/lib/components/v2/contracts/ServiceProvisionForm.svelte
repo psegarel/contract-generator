@@ -11,6 +11,7 @@
 	import { toast } from 'svelte-sonner';
 	import { Timestamp } from 'firebase/firestore';
 	import { onMount } from 'svelte';
+	import { Button } from '$lib/components/ui/button';
 	import ServiceDetailsSection from './sections/ServiceDetailsSection.svelte';
 	import FinancialSection from './sections/FinancialSection.svelte';
 	import BankingSection from './sections/BankingSection.svelte';
@@ -530,12 +531,8 @@
 				Cancel
 			</button>
 		{/if}
-		<button
-			type="submit"
-			disabled={isSubmitting}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-		>
+		<Button type="submit" disabled={isSubmitting} variant="dark">
 			{isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}
-		</button>
+		</Button>
 	</div>
 </form>
