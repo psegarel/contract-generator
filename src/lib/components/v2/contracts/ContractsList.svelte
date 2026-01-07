@@ -37,11 +37,11 @@
 		<div class="max-h-96 overflow-y-auto">
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
-				<div class="hidden lg:grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
+				<div class="hidden xl:grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-white">
 						Contract #
 					</div>
-					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-white">Event</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-white">Event</div>
 					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-white">
 						Counterparty
 					</div>
@@ -51,7 +51,7 @@
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
 						Date
 					</div>
-					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center border-r border-white">
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
 						Type
 					</div>
 					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
@@ -63,15 +63,15 @@
 			{/if}
 
 			<!-- Contract List -->
-			<div class="lg:contents">
+			<div class="xl:contents">
 				<!-- Tablet: 2-column card grid -->
-				<div class="hidden md:grid lg:hidden grid-cols-2 gap-4 px-4 pb-4">
+				<div class="hidden md:grid xl:hidden grid-cols-2 gap-4 pb-4">
 					{#each contracts as contract, index (contract.id)}
 						<ContractListItem {contract} {index} />
 					{/each}
 				</div>
 				<!-- Mobile & Desktop: Single column -->
-				<div class="md:hidden lg:block">
+				<div class="md:hidden xl:block">
 					{#each contracts as contract, index (contract.id)}
 						<ContractListItem {contract} {index} />
 					{/each}

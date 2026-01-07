@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
-	import type { ServiceProvisionContract, EventPlanningContract } from '$lib/types/v2/contracts';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Pencil, Check, Download, Trash2 } from 'lucide-svelte';
+	import { Calendar, User, Pencil, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -15,11 +14,9 @@
 		updateEquipmentRentalContractPaymentStatus,
 		updateSubcontractorContractPaymentStatus,
 		updateClientServiceContractPaymentStatus,
-		deleteServiceProvisionContract,
-		deleteEventPlanningContract
+		downloadContract,
+		deleteContract
 	} from '$lib/utils/v2';
-	import { generateServiceContract } from '$lib/utils/serviceContractGenerator';
-	import { generateEventPlanningContract } from '$lib/utils/eventPlanningContractGenerator';
 	import ContractCard from './ContractCard.svelte';
 
 	interface Props {
@@ -119,227 +116,30 @@
 	}
 
 	async function handleDownload() {
-		if (contract.type !== 'service-provision' && contract.type !== 'event-planning') {
-			toast.error('Download is only available for service-provision and event-planning contracts');
-			return;
-		}
-
 		isDownloading = true;
-
 		try {
-			if (contract.type === 'service-provision') {
-				const serviceContract = contract as ServiceProvisionContract;
-
-				// Validate required fields
-				if (!serviceContract.eventName) {
-					toast.error('Event name is required for download');
-					return;
-				}
-
-				// Convert ServiceProvisionContract to ContractData format
-				const contractData = {
-					clientName: serviceContract.counterpartyName,
-					clientEmail: serviceContract.clientEmail,
-					clientAddress: serviceContract.clientAddress,
-					clientPhone: serviceContract.clientPhone,
-					clientIdDocument: serviceContract.clientIdDocument,
-					clientTaxId: serviceContract.clientTaxId || undefined,
-					jobName: serviceContract.jobName,
-					eventName: serviceContract.eventName,
-					numberOfPerformances: serviceContract.numberOfPerformances,
-					eventLocation: serviceContract.eventLocation,
-					firstPerformanceTime: serviceContract.firstPerformanceTime,
-					jobContent: serviceContract.jobContent,
-					bankName: serviceContract.bankName,
-					accountNumber: serviceContract.accountNumber,
-					netFee: serviceContract.netFee,
-					taxRate: serviceContract.taxRate,
-					startDate: serviceContract.startDate,
-					endDate: serviceContract.endDate
-				};
-
-				const blob = await generateServiceContract(contractData);
-				const filename = `Contract_${serviceContract.counterpartyName.replace(/\s+/g, '_')}.docx`;
-
-				// Try File System Access API
-				if ('showSaveFilePicker' in window) {
-					try {
-						// @ts-expect-error - showSaveFilePicker is not yet in standard TS lib
-						const handle = await window.showSaveFilePicker({
-							suggestedName: filename,
-							types: [
-								{
-									description: 'Word Document',
-									accept: {
-										'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
-											'.docx'
-										]
-									}
-								}
-							]
-						});
-						const writable = await handle.createWritable();
-						await writable.write(blob);
-						await writable.close();
-						toast.success('Contract downloaded successfully!');
-						return;
-					} catch (err) {
-						if (err && typeof err === 'object' && 'name' in err && err.name === 'AbortError') {
-							return;
-						}
-					}
-				}
-
-				// Fallback download
-				const url = window.URL.createObjectURL(blob);
-				const a = document.createElement('a');
-				a.href = url;
-				a.download = filename;
-				document.body.appendChild(a);
-				a.click();
-				window.URL.revokeObjectURL(url);
-				document.body.removeChild(a);
-				toast.success('Contract downloaded successfully!');
-			} else if (contract.type === 'event-planning') {
-				const eventContract = contract as EventPlanningContract;
-
-				// Validate required fields
-				if (!eventContract.eventName) {
-					toast.error('Event name is required for download');
-					return;
-				}
-
-				// Convert EventPlanningContract to EventPlanningContractData format
-				const contractData = {
-					contractDate: eventContract.contractDate,
-					contractLocation: eventContract.contractLocation,
-					clientCompany: eventContract.clientCompany,
-					clientAddress: eventContract.clientAddress,
-					clientTaxCode: eventContract.clientTaxCode,
-					clientRepresentativeName: eventContract.clientRepresentativeName,
-					clientRepresentativePosition: eventContract.clientRepresentativePosition,
-					eventTheme: eventContract.eventTheme || null,
-					eventName: eventContract.eventName,
-					eventType: eventContract.eventType || null,
-					eventDescription: eventContract.eventDescription || null,
-					eventVenue: eventContract.eventVenue,
-					eventDate: eventContract.eventDate,
-					eventDuration: eventContract.eventDuration || null,
-					expectedAttendance: eventContract.expectedAttendance || null,
-					contractValueVND: eventContract.contractValueVND,
-					vatRate: eventContract.vatRate,
-					depositPercentage: eventContract.depositPercentage,
-					finalPaymentPercentage: eventContract.finalPaymentPercentage,
-					professionalIndemnityAmount: eventContract.professionalIndemnityAmount,
-					publicLiabilityAmount: eventContract.publicLiabilityAmount,
-					planningMeetingDays: eventContract.planningMeetingDays,
-					performerBookingDeadline: eventContract.performerBookingDeadline,
-					technicalSetupDate: eventContract.technicalSetupDate,
-					eventExecutionDate: eventContract.eventExecutionDate,
-					setupCommencementTime: eventContract.setupCommencementTime,
-					eventExecutionDuration: eventContract.eventExecutionDuration,
-					breakdownCompletionDateTime: eventContract.breakdownCompletionDateTime,
-					paymentGracePeriodDays: eventContract.paymentGracePeriodDays,
-					terminationNoticeDays: eventContract.terminationNoticeDays,
-					negotiationPeriodDays: eventContract.negotiationPeriodDays,
-					arbitrationLocation: eventContract.arbitrationLocation,
-					arbitrationLanguage: eventContract.arbitrationLanguage
-				};
-
-				const blob = await generateEventPlanningContract(contractData);
-				const filename = `Event_Planning_Contract_${eventContract.clientCompany.replace(/\s+/g, '_')}.docx`;
-
-				// Try File System Access API
-				if ('showSaveFilePicker' in window) {
-					try {
-						// @ts-expect-error - showSaveFilePicker is not yet in standard TS lib
-						const handle = await window.showSaveFilePicker({
-							suggestedName: filename,
-							types: [
-								{
-									description: 'Word Document',
-									accept: {
-										'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
-											'.docx'
-										]
-									}
-								}
-							]
-						});
-						const writable = await handle.createWritable();
-						await writable.write(blob);
-						await writable.close();
-						toast.success('Contract downloaded successfully!');
-						return;
-					} catch (err) {
-						if (err && typeof err === 'object' && 'name' in err && err.name === 'AbortError') {
-							return;
-						}
-					}
-				}
-
-				// Fallback download
-				const url = window.URL.createObjectURL(blob);
-				const a = document.createElement('a');
-				a.href = url;
-				a.download = filename;
-				document.body.appendChild(a);
-				a.click();
-				window.URL.revokeObjectURL(url);
-				document.body.removeChild(a);
-				toast.success('Contract downloaded successfully!');
-			}
+			await downloadContract(contract);
 		} catch (error) {
-			console.error('Error downloading contract:', error);
-			toast.error('Failed to download contract');
+			// Error already handled in downloadContract with toast
 		} finally {
 			isDownloading = false;
 		}
 	}
 
 	async function handleDelete() {
-		if (!authState.user?.uid) {
-			toast.error('You must be logged in to delete contracts');
-			return;
-		}
-
-		if (!authState.isAdmin) {
-			toast.error('Only administrators can delete contracts');
-			return;
-		}
-
 		if (isDeleting) {
 			return;
 		}
 
-		if (
-			!confirm(
-				`Are you sure you want to delete "${contract.eventName}"? This action cannot be undone.`
-			)
-		) {
-			return;
-		}
-
 		isDeleting = true;
-
 		try {
-			if (contract.type === 'service-provision') {
-				await deleteServiceProvisionContract(contract.id);
-			} else if (contract.type === 'event-planning') {
-				await deleteEventPlanningContract(contract.id);
-			} else {
-				toast.error('Delete is only available for service-provision and event-planning contracts');
-				return;
-			}
-
-			if (onDelete) {
-				onDelete(contract.id);
-			}
-
-			toast.success('Contract deleted successfully');
+			await deleteContract(contract, {
+				isAdmin: authState.isAdmin,
+				userUid: authState.user?.uid ?? null,
+				onDelete
+			});
 		} catch (error) {
-			console.error('Error deleting contract:', error);
-			toast.error('Failed to delete contract');
+			// Error already handled in deleteContract with toast
 		} finally {
 			isDeleting = false;
 		}
@@ -348,7 +148,7 @@
 
 <div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
 	<!-- Mobile: Stacked Layout -->
-	<div class="lg:hidden space-y-4 py-3">
+	<div class="md:hidden space-y-4 py-3">
 		<!-- Title and Type Badge -->
 		<div class="flex items-start justify-between gap-3">
 			<h3 class="text-xl font-bold leading-tight flex-1 tracking-tight">
@@ -445,15 +245,15 @@
 	</div>
 
 	<!-- Tablet: Card Layout -->
-	<div class="hidden md:block lg:hidden">
+	<div class="hidden md:block xl:hidden">
 		<ContractCard
 			{contract}
 			{getLink}
 			{getContractTypeLabel}
 			{getDefaultContractLink}
-			isMarkingAsPaid={isMarkingAsPaid}
-			isDownloading={isDownloading}
-			isDeleting={isDeleting}
+			{isMarkingAsPaid}
+			{isDownloading}
+			{isDeleting}
 			onTogglePaymentStatus={togglePaymentStatus}
 			onDownload={handleDownload}
 			onDeleteClick={handleDelete}
@@ -461,45 +261,45 @@
 	</div>
 
 	<!-- Desktop: Grid Layout (18 columns) -->
-	<div class="hidden lg:grid grid-cols-18 gap-3 items-center py-3 px-4">
+	<div class="hidden xl:grid grid-cols-18 gap-3 items-center py-3">
 		<!-- Contract Number -->
-		<div class="col-span-2">
+		<div class="col-span-2 px-1">
 			<h3 class="text-sm font-bold tracking-tight truncate">
 				{contract.contractNumber}
 			</h3>
 		</div>
 
 		<!-- Event Name -->
-		<div class="col-span-3 text-sm truncate">
+		<div class="col-span-2 px-1 text-sm truncate">
 			{contract.eventName}
 		</div>
 
 		<!-- Counterparty Name -->
-		<div class="col-span-3 text-sm truncate">
+		<div class="col-span-3 px-1 text-sm truncate">
 			{contract.counterpartyName}
 		</div>
 
 		<!-- Contract Value -->
 		<div
-			class="col-span-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
+			class="col-span-2 px-1 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
 		>
 			{formatCurrency(contract.contractValue)}
 		</div>
 
 		<!-- Date -->
-		<div class="col-span-2 text-sm text-center tracking-wide">
+		<div class="col-span-2 px-1 text-sm text-center tracking-wide">
 			{formatDateString(contract.createdAt.toDate().toISOString())}
 		</div>
 
 		<!-- Type Badge -->
-		<div class="col-span-1 flex justify-center">
+		<div class="col-span-2 px-1 flex justify-center">
 			<Badge variant="outline">
 				{getContractTypeLabel(contract.type)}
 			</Badge>
 		</div>
 
 		<!-- Payment Toggle Badge -->
-		<div class="col-span-2 flex justify-center">
+		<div class="col-span-2 px-1 flex justify-center">
 			<button
 				onclick={togglePaymentStatus}
 				disabled={isMarkingAsPaid}
@@ -517,7 +317,7 @@
 		</div>
 
 		<!-- Actions -->
-		<div class="col-span-2 flex gap-2 justify-center">
+		<div class="col-span-2 px-1 flex gap-2 justify-center">
 			<Button
 				variant="outline"
 				size="sm"
@@ -547,7 +347,7 @@
 
 		<!-- Delete Button -->
 		{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
-			<div class="col-span-1 flex justify-center">
+			<div class="col-span-1 px-1 flex justify-center">
 				<Button
 					variant={authState.isAdmin ? 'destructive' : 'secondary'}
 					size="sm"
@@ -562,7 +362,7 @@
 				</Button>
 			</div>
 		{:else}
-			<div class="col-span-1"></div>
+			<div class="col-span-1 px-1"></div>
 		{/if}
 	</div>
 </div>

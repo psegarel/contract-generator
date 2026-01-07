@@ -10,3 +10,6 @@ export * from './clientServiceContracts';
 // Core entity utilities
 export * from './events';
 export * from './counterparties';
+
+// Contract actions (download, delete)
+export * from './contractActions';

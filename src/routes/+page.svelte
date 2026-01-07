@@ -73,7 +73,7 @@
 	let totalPaid = $derived(stats.totalPaid);
 </script>
 
-<div class="p-8">
+<div class="py-8">
 	<div>
 		<div class="flex items-center gap-3 mb-8">
 			<div>
@@ -82,7 +82,7 @@
 			</div>
 		</div>
 
-		<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+		<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 			<!-- Total Received -->
 			<DashboardCard backgroundColor="bg-indigo-500/20" textColor="text-indigo-900">
 				<div class="flex items-start justify-between">

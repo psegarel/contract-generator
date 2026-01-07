@@ -40,10 +40,13 @@
 	<div class="flex items-start justify-between gap-2">
 		<div class="flex-1 min-w-0">
 			<h3 class="text-base font-bold tracking-tight truncate">
-				{contract.contractNumber}
+				{contract.counterpartyName}
 			</h3>
 			<p class="text-sm text-muted-foreground truncate mt-0.5">
 				{contract.eventName}
+			</p>
+			<p class="text-xs text-muted-foreground truncate mt-0.5">
+				{contract.contractNumber}
 			</p>
 		</div>
 		<Badge variant="outline" class="shrink-0">
@@ -53,10 +56,6 @@
 
 	<!-- Details -->
 	<div class="space-y-1.5 text-sm">
-		<div class="flex items-center gap-2 text-muted-foreground">
-			<User class="h-3.5 w-3.5 shrink-0" />
-			<span class="truncate">{contract.counterpartyName}</span>
-		</div>
 		<div class="flex items-center gap-2 text-muted-foreground">
 			<Calendar class="h-3.5 w-3.5 shrink-0" />
 			<span class="tracking-wide">
@@ -72,71 +71,69 @@
 		</div>
 	</div>
 
-	<!-- Payment Status -->
-	<div class="pt-2">
+	<!-- Actions - All buttons on same line -->
+	<div class="pt-4 flex gap-2 flex-wrap">
+		<!-- Payment Status -->
 		<button
 			onclick={onTogglePaymentStatus}
 			disabled={isMarkingAsPaid}
-			class="w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+			class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
 		>
 			{#if isMarkingAsPaid}
-				<Badge variant="secondary" class="w-full justify-center py-2">Updating...</Badge>
+				<Badge variant="secondary" class="py-2 px-3">Updating...</Badge>
 			{:else if contract.paymentStatus === 'paid'}
 				<Badge
 					variant="default"
-					class="w-full justify-center py-2 bg-emerald-500 hover:bg-emerald-600"
+					class="py-2 px-3 bg-emerald-500 hover:bg-emerald-600"
 				>
 					Paid
 				</Badge>
 			{:else}
-				<Badge variant="secondary" class="w-full justify-center py-2">Unpaid</Badge>
+				<Badge variant="secondary" class="py-2 px-3">Unpaid</Badge>
 			{/if}
 		</button>
-	</div>
 
-	<!-- Actions -->
-	<div class="pt-2 space-y-2">
 		<Button
 			variant="outline"
 			size="sm"
 			href={(getLink ?? getDefaultContractLink)(contract)}
-			class="w-full"
+			class="shrink-0"
 		>
 			<Pencil class="h-3.5 w-3.5 mr-1.5" />
 			View
 		</Button>
-		<div class="flex gap-2">
-			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={onDownload}
-					disabled={isDownloading}
-					class="flex-1"
-					title="Download"
-				>
-					{#if isDownloading}
-						<span class="animate-spin mr-1">⏳</span>
-					{:else}
-						<Download class="h-3.5 w-3.5" />
-					{/if}
-				</Button>
-			{/if}
-			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
-				<Button
-					variant={authState.isAdmin ? 'destructive' : 'secondary'}
-					size="sm"
-					onclick={onDeleteClick}
-					disabled={!authState.isAdmin || isDeleting}
-					class="px-3 {!authState.isAdmin
-						? 'bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700'
-						: ''}"
-					title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
-				>
-					<Trash2 class="h-3.5 w-3.5" />
-				</Button>
-			{/if}
-		</div>
+
+		{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+			<Button
+				variant="outline"
+				size="sm"
+				onclick={onDownload}
+				disabled={isDownloading}
+				class="shrink-0"
+				title="Download"
+			>
+				{#if isDownloading}
+					<span class="animate-spin mr-1">⏳</span>
+				{:else}
+					<Download class="h-3.5 w-3.5" />
+				{/if}
+			</Button>
+		{/if}
+
+		{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+			<Button
+				variant={authState.isAdmin ? 'destructive' : 'secondary'}
+				size="sm"
+				onclick={onDeleteClick}
+				disabled={!authState.isAdmin || isDeleting}
+				class="shrink-0 {!authState.isAdmin
+					? 'bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700'
+					: ''}"
+				title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
+			>
+				<Trash2 class="h-3.5 w-3.5" />
+			</Button>
+		{/if}
 	</div>
 </div>
 
