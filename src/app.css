@@ -134,3 +134,53 @@
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
 }
+
+/* Contract HTML Preview Styles */
+.contract-html-preview {
+	font-family: 'Times New Roman', Times, serif;
+	color: #000;
+	line-height: 1.6;
+}
+
+.contract-html-preview p {
+	margin: 0.5em 0;
+}
+
+.contract-html-preview h1,
+.contract-html-preview h2,
+.contract-html-preview h3 {
+	margin: 1em 0 0.5em 0;
+	font-weight: bold;
+}
+
+.contract-html-preview table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1em 0;
+}
+
+.contract-html-preview table td,
+.contract-html-preview table th {
+	border: 1px solid #000;
+	padding: 0.5em;
+	text-align: left;
+}
+
+.contract-html-preview strong {
+	font-weight: bold;
+}
+
+/* Print styles for contract preview */
+@media print {
+	.contract-html-preview {
+		font-size: 12pt;
+	}
+
+	.contract-html-preview p {
+		margin: 0.3em 0;
+	}
+
+	.contract-html-preview table {
+		page-break-inside: avoid;
+	}
+}

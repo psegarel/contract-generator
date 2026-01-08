@@ -1,32 +1,58 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
-	import EventPlanningForm from '$lib/components/v2/contracts/EventPlanningForm.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import { ArrowLeft, Edit, Download } from 'lucide-svelte';
+	import { downloadContract } from '$lib/utils/v2';
 
 	let { data }: { data: PageData } = $props();
 
-	function handleSuccess() {
-		goto('/contracts/event-planning/list');
-	}
+	let isDownloading = $state(false);
 
-	function handleCancel() {
-		goto('/contracts/event-planning/list');
+	async function handleDownload() {
+		isDownloading = true;
+		try {
+			await downloadContract(data.contract);
+		} catch (error) {
+			// Error already handled in downloadContract with toast
+		} finally {
+			isDownloading = false;
+		}
 	}
 </script>
 
-<div class="container mx-auto px-4 py-8 max-w-6xl">
-	<div class="mb-6">
-		<h1 class="text-3xl font-bold text-gray-900">Edit Event Planning Contract</h1>
-		<p class="text-gray-600 mt-2">
-			Editing contract #{data.contract.contractNumber}
-		</p>
+<div class="container mx-auto px-4 py-8">
+	<!-- Header with actions -->
+	<div class="mb-6 flex items-center justify-between">
+		<div class="flex items-center gap-3">
+			<Button variant="ghost" size="sm" href="/contracts/event-planning/list">
+				<ArrowLeft class="w-4 h-4 mr-2" />
+				Back
+			</Button>
+			<div>
+				<h1 class="text-3xl font-bold text-gray-900">Contract #{data.contract.contractNumber}</h1>
+				<p class="text-gray-600 mt-1 text-sm">Event Planning Contract</p>
+			</div>
+		</div>
+		<div class="flex gap-2">
+			<Button variant="outline" href={`/contracts/event-planning/${data.contract.id}/edit`}>
+				<Edit class="w-4 h-4 mr-2" />
+				Edit
+			</Button>
+			<Button variant="outline" onclick={handleDownload} disabled={isDownloading}>
+				{#if isDownloading}
+					<span class="animate-spin mr-2">⏳</span>
+				{:else}
+					<Download class="w-4 h-4 mr-2" />
+				{/if}
+				Download
+			</Button>
+		</div>
 	</div>
 
-	{#key data.contract.id}
-		<EventPlanningForm
-			contract={data.contract}
-			onSuccess={handleSuccess}
-			onCancel={handleCancel}
-		/>
-	{/key}
+	<!-- Contract Preview - HTML from Word template -->
+	<div class="bg-white rounded-lg p-8 print:p-0">
+		<div class="contract-html-preview">
+			{@html data.html}
+		</div>
+	</div>
 </div>

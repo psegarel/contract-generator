@@ -74,6 +74,11 @@
 		<div
 			class="fixed inset-0 bg-black/50 z-40 transition-opacity"
 			onclick={() => (sidebarOpen = false)}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					sidebarOpen = false;
+				}
+			}}
 			role="button"
 			tabindex="-1"
 			aria-label="Close sidebar"

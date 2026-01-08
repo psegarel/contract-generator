@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Eye, Download, Trash2 } from 'lucide-svelte';
+	import { Calendar, User, Eye, Edit, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -11,6 +11,7 @@
 		getLink?: (c: BaseContract) => string;
 		getContractTypeLabel: (type: BaseContract['type']) => string;
 		getDefaultContractLink: (contract: BaseContract) => string;
+		getEditLink: (contract: BaseContract) => string;
 		isMarkingAsPaid?: boolean;
 		isDownloading?: boolean;
 		isDeleting?: boolean;
@@ -25,6 +26,7 @@
 		getLink,
 		getContractTypeLabel,
 		getDefaultContractLink,
+		getEditLink,
 		isMarkingAsPaid = false,
 		isDownloading = false,
 		isDeleting = false,
@@ -104,6 +106,15 @@
 		</Button>
 
 		{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+			<Button
+				variant="outline"
+				size="sm"
+				href={getEditLink(contract)}
+				class="shrink-0"
+			>
+				<Edit class="h-3.5 w-3.5 mr-1.5" />
+				Edit
+			</Button>
 			<Button
 				variant="outline"
 				size="sm"

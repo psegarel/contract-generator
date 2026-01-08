@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Eye, Download, Trash2 } from 'lucide-svelte';
+	import { Calendar, User, Eye, Edit, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -48,6 +48,10 @@
 
 	function getDefaultContractLink(contract: BaseContract): string {
 		return `/contracts/${contract.type}/${contract.id}`;
+	}
+
+	function getEditLink(contract: BaseContract): string {
+		return `/contracts/${contract.type}/${contract.id}/edit`;
 	}
 
 	async function togglePaymentStatus() {
@@ -154,6 +158,7 @@
 			{getLink}
 			{getContractTypeLabel}
 			{getDefaultContractLink}
+			getEditLink={getEditLink}
 			{isMarkingAsPaid}
 			{isDownloading}
 			{isDeleting}
@@ -231,6 +236,15 @@
 				<Eye class="h-4 w-4" />
 			</Button>
 			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+				<Button
+					variant="outline"
+					size="sm"
+					href={getEditLink(contract)}
+					class="px-2"
+					title="Edit"
+				>
+					<Edit class="h-4 w-4" />
+				</Button>
 				<Button
 					variant="outline"
 					size="sm"

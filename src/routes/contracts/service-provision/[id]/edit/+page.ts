@@ -1,5 +1,4 @@
 import { getServiceProvisionContractById } from '$lib/utils/v2';
-import { generateServiceProvisionContractHtml } from '$lib/utils/v2/contractHtmlGenerator';
 import type { PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
@@ -14,12 +13,8 @@ export const load: PageLoad = async ({ params }) => {
 			throw error(404, 'Service provision contract not found');
 		}
 
-		// Generate HTML preview from template
-		const html = await generateServiceProvisionContractHtml(contract);
-
 		return {
-			contract,
-			html
+			contract
 		};
 	} catch (e) {
 		if (e && typeof e === 'object' && 'status' in e) {

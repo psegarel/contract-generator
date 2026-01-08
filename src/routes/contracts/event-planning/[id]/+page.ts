@@ -1,4 +1,5 @@
 import { getEventPlanningContractById } from '$lib/utils/v2';
+import { generateEventPlanningContractHtml } from '$lib/utils/v2/contractHtmlGenerator';
 import type { PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
@@ -13,8 +14,12 @@ export const load: PageLoad = async ({ params }) => {
 			throw error(404, 'Event planning contract not found');
 		}
 
+		// Generate HTML preview from template
+		const html = await generateEventPlanningContractHtml(contract);
+
 		return {
-			contract
+			contract,
+			html
 		};
 	} catch (e) {
 		if (e && typeof e === 'object' && 'status' in e) {
