@@ -41,9 +41,9 @@
 	}
 </script>
 
-<div class="py-8">
+<div class="h-full flex flex-col -m-6 md:-m-8">
 	<!-- Header -->
-	<div class="flex items-center justify-between mb-8">
+	<div class="flex items-center justify-between mb-8 flex-shrink-0 px-6 md:px-8 pt-6 md:pt-8">
 		<div class="flex items-center gap-3">
 			<div
 				class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"
@@ -65,7 +65,7 @@
 	</div>
 
 	<!-- Type Filter (Neutral Select) -->
-	<div class="mb-6">
+	<div class="mb-6 flex-shrink-0 px-6 md:px-8">
 		<div class="flex items-center gap-3">
 			<span class="text-sm text-muted-foreground">Type</span>
 			<Select type="single" bind:value={selectedType}>
@@ -93,30 +93,32 @@
 	</div>
 
 	<!-- Counterparties List -->
-	{#if filteredCounterparties.length === 0}
-		<div class="py-20 text-center text-muted-foreground">
-			<Building2 class="h-16 w-16 mx-auto mb-4 opacity-50" />
-			<h3 class="text-lg font-semibold mb-2">
-				{selectedType === 'all' ? 'No counterparties yet' : `No ${selectedType}s yet`}
-			</h3>
-			<p class="text-sm mb-6">
-				{selectedType === 'all'
-					? 'Create your first counterparty to get started'
-					: 'Try selecting a different type or create a new counterparty'}
-			</p>
-			{#if selectedType === 'all'}
-				<Button href="/counterparties/new">
-					<Plus class="w-4 h-4 mr-2" />
-					Create Counterparty
-				</Button>
-			{/if}
-		</div>
-	{:else}
-		<CounterpartiesList
-			counterparties={filteredCounterparties}
-			title=""
-			showHeaders={true}
-			{getTypeLabel}
-		/>
-	{/if}
+	<div class="flex-1 min-h-0 px-6 md:px-8 pb-6 md:pb-8">
+		{#if filteredCounterparties.length === 0}
+			<div class="py-20 text-center text-muted-foreground">
+				<Building2 class="h-16 w-16 mx-auto mb-4 opacity-50" />
+				<h3 class="text-lg font-semibold mb-2">
+					{selectedType === 'all' ? 'No counterparties yet' : `No ${selectedType}s yet`}
+				</h3>
+				<p class="text-sm mb-6">
+					{selectedType === 'all'
+						? 'Create your first counterparty to get started'
+						: 'Try selecting a different type or create a new counterparty'}
+				</p>
+				{#if selectedType === 'all'}
+					<Button href="/counterparties/new">
+						<Plus class="w-4 h-4 mr-2" />
+						Create Counterparty
+					</Button>
+				{/if}
+			</div>
+		{:else}
+			<CounterpartiesList
+				counterparties={filteredCounterparties}
+				title=""
+				showHeaders={true}
+				{getTypeLabel}
+			/>
+		{/if}
+	</div>
 </div>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
-	import { ArrowLeft, Edit, Download } from 'lucide-svelte';
+	import { Edit, Download } from 'lucide-svelte';
 	import { downloadContract } from '$lib/utils/v2';
 
 	let { data }: { data: PageData } = $props();
@@ -23,15 +23,9 @@
 <div class="container mx-auto px-4 py-8">
 	<!-- Header with actions -->
 	<div class="mb-6 flex items-center justify-between">
-		<div class="flex items-center gap-3">
-			<Button variant="ghost" size="sm" href="/contracts/service-provision/list">
-				<ArrowLeft class="w-4 h-4 mr-2" />
-				Back
-			</Button>
-			<div>
-				<h1 class="text-3xl font-bold text-gray-900">Contract #{data.contract.contractNumber}</h1>
-				<p class="text-gray-600 mt-1 text-sm">Service Provision Contract</p>
-			</div>
+		<div>
+			<h1 class="text-3xl font-bold text-gray-900">Contract #{data.contract.contractNumber}</h1>
+			<p class="text-gray-600 mt-1 text-sm">Service Provision Contract</p>
 		</div>
 		<div class="flex gap-2">
 			<Button variant="outline" href={`/contracts/service-provision/${data.contract.id}/edit`}>

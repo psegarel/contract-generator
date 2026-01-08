@@ -35,9 +35,9 @@
 	);
 </script>
 
-<div class="p-8">
+<div class="h-full flex flex-col -m-6 md:-m-8">
 	<!-- Header -->
-	<div class="flex items-center justify-between mb-8">
+	<div class="flex items-center justify-between mb-8 flex-shrink-0 px-6 md:px-8 pt-6 md:pt-8">
 		<div class="flex items-center gap-3">
 			<Button variant="ghost" size="sm" href="/counterparties">
 				<ArrowLeft class="w-4 h-4 mr-2" />
@@ -61,6 +61,8 @@
 	</div>
 
 	<!-- Contracts List -->
-	<ContractsList contracts={filteredContracts} title="" showHeaders={true} />
+	<div class="flex-1 min-h-0 px-6 md:px-8 pb-6 md:pb-8">
+		<ContractsList contracts={filteredContracts} title="" showHeaders={true} />
+	</div>
 </div>
 

@@ -12,10 +12,10 @@
 	let { contracts, title = 'Contracts', showHeaders = true }: Props = $props();
 </script>
 
-<div class="border-t border-border">
+<div class="border-t border-border h-full flex flex-col">
 	<!-- Header -->
 	{#if title}
-		<div class="flex items-center justify-between py-6">
+		<div class="flex items-center justify-between py-6 flex-shrink-0">
 			<div>
 				<h2 class="text-lg font-bold tracking-tight text-foreground">{title}</h2>
 				<p class="text-sm text-muted-foreground mt-1">
@@ -35,7 +35,7 @@
 		</div>
 	{:else}
 		<!-- Desktop Grid View: Scrolling container -->
-		<div class="hidden xl:block max-h-96 overflow-y-auto">
+		<div class="hidden xl:block flex-1 min-h-0 overflow-y-auto">
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
 				<div class="grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
