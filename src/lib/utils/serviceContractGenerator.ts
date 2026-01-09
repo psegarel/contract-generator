@@ -3,6 +3,8 @@ import Docxtemplater from 'docxtemplater';
 import type { ContractData } from '../schemas/contract';
 import { companyConfig } from '../config/company';
 import { translateToVietnamese } from './translate';
+import { formatCurrency } from './formatting';
+import { generateContractNumber } from './contractHelpers';
 
 export const generateServiceContract = async (data: ContractData): Promise<Blob> => {
 	try {
@@ -31,19 +33,7 @@ export const generateServiceContract = async (data: ContractData): Promise<Blob>
 		const taxAmount = grossFee - netFee;
 
 		// Contract Number: Date + Initials + Timestamp
-		const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-		const initials = data.clientName
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.toUpperCase();
-		const timestamp = Date.now().toString().slice(-3);
-		const contractNumber = `${dateStr}-${initials}-${timestamp}`;
-
-		// Format currency
-		const formatCurrency = (amount: number) => {
-			return new Intl.NumberFormat('vi-VN').format(amount);
-		};
+		const contractNumber = generateContractNumber(data.clientName);
 
 		// Translate fields
 		const jobNameVN = await translateToVietnamese(data.jobName);

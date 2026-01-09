@@ -1,5 +1,7 @@
 import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContract';
 import type { ZodType } from 'zod';
+import { formatCurrency as formatCurrencyUtil } from './formatting';
+import { generateContractNumber } from './contractHelpers';
 
 /**
  * Business logic utilities for event planning contract form
@@ -86,18 +88,10 @@ export function calculateFinalPayment(total: number, depositPercentage: number):
 
 /**
  * Format contract number from date and client company
- * Format: YYYYMMDD-INITIALS-TIMESTAMP
+ * Re-export from canonical contract helpers (limited to 3 initials for event planning)
  */
 export function formatContractNumber(clientCompany: string): string {
-	const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-	const initials = clientCompany
-		.split(' ')
-		.map((n) => n[0])
-		.join('')
-		.toUpperCase()
-		.slice(0, 3); // Limit to 3 characters
-	const timestamp = Date.now().toString().slice(-3);
-	return `${dateStr}-${initials}-${timestamp}`;
+	return generateContractNumber(clientCompany, 3);
 }
 
 /**
@@ -154,10 +148,9 @@ export function getInitialFormData(): EventPlanningContractData {
 
 /**
  * Format currency for display (Vietnamese locale)
+ * Re-export from canonical formatting utilities
  */
-export function formatCurrency(amount: number): string {
-	return new Intl.NumberFormat('vi-VN').format(amount);
-}
+export { formatCurrencyUtil as formatCurrency };
 
 /**
  * Format percentage for display

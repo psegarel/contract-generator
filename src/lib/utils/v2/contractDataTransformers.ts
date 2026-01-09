@@ -1,61 +1,9 @@
 import type { ServiceProvisionContract, EventPlanningContract } from '$lib/types/v2/contracts';
 import { companyConfig } from '$lib/config/company';
 import { translateToVietnamese } from '../translate';
+import { formatCurrency, formatDateVietnamese, formatDateEnglish } from '../formatting';
+import { generateContractNumber } from '../contractHelpers';
 import * as z from 'zod';
-
-/**
- * Format currency in Vietnamese locale
- * Example: 1000000 → "1.000.000"
- */
-export function formatCurrency(amount: number): string {
-	return new Intl.NumberFormat('vi-VN').format(amount);
-}
-
-/**
- * Format a date to Vietnamese format
- * Example: "2025-08-16" → "16 tháng 8 năm 2025"
- */
-export function formatDateVietnamese(dateString: string): string {
-	const date = new Date(dateString);
-	const day = date.getDate();
-	const month = date.getMonth() + 1;
-	const year = date.getFullYear();
-	return `${day} tháng ${month} năm ${year}`;
-}
-
-/**
- * Format a date to English format
- * Example: "2025-08-16" → "16 August 2025"
- */
-export function formatDateEnglish(dateString: string): string {
-	const date = new Date(dateString);
-	const day = date.getDate();
-	const month = date.toLocaleString('en-US', { month: 'long' });
-	const year = date.getFullYear();
-	return `${day} ${month} ${year}`;
-}
-
-/**
- * Generate contract number from client name and current date
- * Format: YYYYMMDD-INITIALS-TIMESTAMP
- * 
- * @param clientName - Client name to extract initials from
- * @param maxInitials - Maximum number of initials (default: unlimited, event planning uses 3)
- */
-export function generateContractNumber(
-	clientName: string,
-	maxInitials?: number
-): string {
-	const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-	const initials = clientName
-		.split(' ')
-		.map((n) => n[0])
-		.join('')
-		.toUpperCase();
-	const limitedInitials = maxInitials ? initials.slice(0, maxInitials) : initials;
-	const timestamp = Date.now().toString().slice(-3);
-	return `${dateStr}-${limitedInitials}-${timestamp}`;
-}
 
 /**
  * Calculate financial values for service provision contracts

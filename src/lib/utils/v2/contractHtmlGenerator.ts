@@ -9,7 +9,7 @@ import {
 } from './contractDataTransformers';
 import { companyConfig } from '$lib/config/company';
 import { translateToVietnamese } from '../translate';
-import { formatCurrency, formatDateVietnamese, formatDateEnglish } from './contractDataTransformers';
+import { formatCurrency, formatDateVietnamese, formatDateEnglish } from '../formatting';
 
 /**
  * Generate HTML preview from service provision contract

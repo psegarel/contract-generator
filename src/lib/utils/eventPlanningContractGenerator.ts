@@ -3,37 +3,8 @@ import Docxtemplater from 'docxtemplater';
 import type { EventPlanningContractData } from '../schemas/eventPlanningContract';
 import { companyConfig } from '../config/company';
 import { translateToVietnamese } from './translate';
-
-/**
- * Format a date to Vietnamese format
- * Example: "2025-08-16" → "16 tháng 8 năm 2025"
- */
-function formatDateVietnamese(dateString: string): string {
-	const date = new Date(dateString);
-	const day = date.getDate();
-	const month = date.getMonth() + 1;
-	const year = date.getFullYear();
-	return `${day} tháng ${month} năm ${year}`;
-}
-
-/**
- * Format a date to English format
- * Example: "2025-08-16" → "16 August 2025"
- */
-function formatDateEnglish(dateString: string): string {
-	const date = new Date(dateString);
-	const day = date.getDate();
-	const month = date.toLocaleString('en-US', { month: 'long' });
-	const year = date.getFullYear();
-	return `${day} ${month} ${year}`;
-}
-
-/**
- * Format currency in Vietnamese locale
- */
-function formatCurrency(amount: number): string {
-	return new Intl.NumberFormat('vi-VN').format(amount);
-}
+import { formatCurrency, formatDateVietnamese, formatDateEnglish } from './formatting';
+import { generateContractNumber } from './contractHelpers';
 
 /**
  * Generate event planning contract document from form data
@@ -59,15 +30,7 @@ export const generateEventPlanningContract = async (
 		});
 
 		// ===== GENERATE CONTRACT NUMBER =====
-		const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-		const initials = data.clientCompany
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.toUpperCase()
-			.slice(0, 3); // Limit to 3 characters
-		const timestamp = Date.now().toString().slice(-3);
-		const contractNumber = `${dateStr}-${initials}-${timestamp}`;
+		const contractNumber = generateContractNumber(data.clientCompany, 3);
 
 		// ===== TRANSLATE ENGLISH FIELDS TO VIETNAMESE =====
 		const [

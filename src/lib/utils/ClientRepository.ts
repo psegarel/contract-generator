@@ -97,8 +97,8 @@ export class ClientRepository {
 	 * Convert Firestore Timestamps to Dates for document metadata
 	 */
 	private convertTimestamps(documents?: {
-		image1?: any;
-		image2?: any;
+		image1?: Omit<DocumentMetadata, 'uploadedAt'> & { uploadedAt: unknown };
+		image2?: Omit<DocumentMetadata, 'uploadedAt'> & { uploadedAt: unknown };
 	}): { image1?: DocumentMetadata; image2?: DocumentMetadata } | undefined {
 		if (!documents) return undefined;
 
