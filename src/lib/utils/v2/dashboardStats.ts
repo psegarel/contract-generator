@@ -39,43 +39,6 @@ export function calculateDashboardStats(
 	const range = dateRange || getDefaultDateRange();
 	const filteredContracts = filterByDateRange(contracts, range.startDate, range.endDate);
 
-	// Debug: Log contract details for troubleshooting
-	const eventPlanningContracts = contracts.filter((c) => c.type === 'event-planning');
-	if (eventPlanningContracts.length > 0) {
-		console.log('Event Planning Contracts (detailed):', eventPlanningContracts.map((c) => {
-			const createdAtDate = c.createdAt.toDate();
-			const createdAtStr = createdAtDate.toISOString().split('T')[0];
-			const startDateObj = new Date(range.startDate);
-			const endDateObj = new Date(range.endDate + 'T23:59:59.999Z');
-			const inRange = createdAtDate >= startDateObj && createdAtDate <= endDateObj;
-			
-			return {
-				id: c.id,
-				contractValue: c.contractValue,
-				paymentDirection: c.paymentDirection,
-				paymentStatus: c.paymentStatus,
-				createdAt: createdAtStr,
-				dateRange: range,
-				inDateRange: inRange,
-				reason: inRange 
-					? 'IN RANGE' 
-					: `OUT OF RANGE - createdAt ${createdAtStr} not between ${range.startDate} and ${range.endDate}`
-			};
-		}));
-	}
-	
-	console.log('Dashboard Stats Calculation:', {
-		totalContracts: contracts.length,
-		filteredContracts: filteredContracts.length,
-		dateRange: range,
-		eventPlanningContracts: eventPlanningContracts.length,
-		filteredEventPlanning: filteredContracts.filter((c) => c.type === 'event-planning').length,
-		receivableContracts: filteredContracts.filter((c) => c.paymentDirection === 'receivable').length,
-		receivableValue: filteredContracts
-			.filter((c) => c.paymentDirection === 'receivable')
-			.reduce((sum, c) => sum + c.contractValue, 0)
-	});
-
 	// Total Received = total of all receivable contracts (regardless of payment status)
 	const netRevenue = filteredContracts
 		.filter((c) => c.paymentDirection === 'receivable')

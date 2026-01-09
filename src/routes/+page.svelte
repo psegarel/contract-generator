@@ -41,29 +41,6 @@
 		// ...clientServiceContractState.contracts
 	]);
 
-	// Debug: Log contract loading status
-	$effect(() => {
-		console.log('Contract States:', {
-			eventPlanning: {
-				count: eventPlanningContractState.contracts.length,
-				isLoading: eventPlanningContractState.isLoading,
-				error: eventPlanningContractState.error,
-				contracts: eventPlanningContractState.contracts.map((c) => ({
-					id: c.id,
-					contractValue: c.contractValue,
-					paymentDirection: c.paymentDirection,
-					eventDate: c.eventDate
-				}))
-			},
-			serviceProvision: {
-				count: serviceProvisionContractState.contracts.length,
-				isLoading: serviceProvisionContractState.isLoading,
-				error: serviceProvisionContractState.error
-			},
-			totalContracts: allContracts.length
-		});
-	});
-
 	// Calculate dashboard stats from all contracts (filtered by date range)
 	let stats = $derived(calculateDashboardStats(allContracts));
 
