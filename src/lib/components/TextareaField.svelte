@@ -3,36 +3,30 @@
 	 * TextareaField - Small, Dumb, Reusable Textarea Component
 	 *
 	 * Uses pure Tailwind utilities - no custom CSS classes
+	 * Uses $bindable for modern Svelte 5 two-way binding
 	 */
 
 	let {
 		id,
 		label,
-		value = '',
+		value = $bindable(''),
 		required = false,
 		placeholder = '',
 		rows = 4,
 		error = '',
 		helperText = '',
-		class: className = '',
-		onInput
+		class: className = ''
 	}: {
 		id: string;
 		label: string;
-		value?: string | null;
+		value?: string;
 		required?: boolean;
 		placeholder?: string;
 		rows?: number;
 		error?: string;
 		helperText?: string;
 		class?: string;
-		onInput: (value: string) => void;
 	} = $props();
-
-	function handleInput(e: Event) {
-		const target = e.currentTarget as HTMLTextAreaElement;
-		onInput(target.value);
-	}
 </script>
 
 <div class="flex flex-col gap-2 {className}">
@@ -44,10 +38,9 @@
 	</label>
 	<textarea
 		{id}
-		{value}
+		bind:value
 		{placeholder}
 		{rows}
-		oninput={handleInput}
 		class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none text-sm resize-y min-h-25 {error
 			? 'ring-4 ring-destructive/10'
 			: ''}"

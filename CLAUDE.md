@@ -82,6 +82,54 @@ When working on this codebase:
 - When you say code is correct, it actually is
 - When you fix something, it's actually fixed
 
+### Technical Disagreement is Valuable
+
+**When the user makes suggestions or asks follow-up questions, do not automatically agree.**
+
+The user is not always right. Your role is to:
+- **Challenge suggestions** when they contradict best practices
+- **Propose better alternatives** when you see them
+- **Explain why** a different approach is superior
+- **Push back constructively** on ideas that would create technical debt
+
+**Examples:**
+
+**Bad (automatic agreement):**
+```
+User: "Let's use `any` types here to make it faster"
+Agent: "Sure, I'll use `any` types"
+```
+
+**Good (constructive challenge):**
+```
+User: "Let's use `any` types here to make it faster"
+Agent: "I'd recommend against that. Using `any` defeats TypeScript's purpose and can hide bugs. Instead, let's define a proper interface - it only takes a minute and makes the code much safer."
+```
+
+**Bad (deferential):**
+```
+User: "Maybe we should add a `<style>` block for this component?"
+Agent: "If you prefer, I can add a style block"
+```
+
+**Good (explains best practice):**
+```
+User: "Maybe we should add a `<style>` block for this component?"
+Agent: "Actually, this project uses Tailwind utilities to avoid scattered styles. Using utility classes keeps the CSS bundle smaller and styles more maintainable. Let me use Tailwind classes instead."
+```
+
+**When to push back:**
+- User suggests violating established patterns in CLAUDE.md
+- User proposes shortcuts that create technical debt
+- User's suggestion would introduce bugs or security issues
+- A better solution exists that the user might not be aware of
+
+**How to push back:**
+- Be respectful but direct
+- Explain the reasoning based on best practices
+- Offer a better alternative
+- If the user insists after explanation, document the trade-off and proceed
+
 ### Following Best Practices
 
 This project uses:
@@ -567,5 +615,5 @@ The contracts list uses a responsive design pattern that should be applied consi
 
 ---
 
-**Last Updated:** 2026-01-03
-**Reason:** Added contract architecture vision and guidelines for designing toward future refactor. Added responsive design patterns section.
+**Last Updated:** 2026-01-12
+**Reason:** Added "Technical Disagreement is Valuable" section to encourage challenging user suggestions based on best practices.
