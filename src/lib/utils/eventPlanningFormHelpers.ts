@@ -1,7 +1,6 @@
 import type { EventPlanningContractData } from '$lib/schemas/eventPlanningContract';
 import type { ZodType } from 'zod';
 import { formatCurrency as formatCurrencyUtil } from './formatting';
-import { generateContractNumber } from './contractHelpers';
 
 /**
  * Business logic utilities for event planning contract form
@@ -84,14 +83,6 @@ export function calculateDepositAmount(total: number, percentage: number): numbe
 export function calculateFinalPayment(total: number, depositPercentage: number): number {
 	const finalPaymentPercentage = 100 - depositPercentage;
 	return Math.round(total * (finalPaymentPercentage / 100));
-}
-
-/**
- * Format contract number from date and client company
- * Re-export from canonical contract helpers (limited to 3 initials for event planning)
- */
-export function formatContractNumber(clientCompany: string): string {
-	return generateContractNumber(clientCompany, 3);
 }
 
 /**
