@@ -1,17 +1,16 @@
 <script lang="ts">
+	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
+
 	interface Props {
-		contractValue: number;
-		taxRate: number;
-		oncontractValueChange: (value: number) => void;
-		ontaxRateChange: (value: number) => void;
+		formState: ServiceProvisionContractFormState;
 	}
 
-	let { contractValue, taxRate, oncontractValueChange, ontaxRateChange }: Props = $props();
+	let { formState }: Props = $props();
 
 	// Calculate derived values for display
 	// Gross amount = contractValue / (1 - taxRate/100)
-	let grossAmount = $derived(Math.round(contractValue / (1 - taxRate / 100)));
-	let taxAmount = $derived(grossAmount - contractValue);
+	let grossAmount = $derived(Math.round(formState.contractValue / (1 - formState.taxRate / 100)));
+	let taxAmount = $derived(grossAmount - formState.contractValue);
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -28,8 +27,7 @@
 			<input
 				id="contractValue"
 				type="number"
-				value={contractValue}
-				oninput={(e) => oncontractValueChange(Number(e.currentTarget.value))}
+				bind:value={formState.contractValue}
 				min="0"
 				step="1000"
 				required
@@ -45,8 +43,7 @@
 			<input
 				id="taxRate"
 				type="number"
-				value={taxRate}
-				oninput={(e) => ontaxRateChange(Number(e.currentTarget.value))}
+				bind:value={formState.taxRate}
 				min="0"
 				max="100"
 				step="0.1"
@@ -60,10 +57,10 @@
 			<div class="grid gap-2 text-sm">
 				<div class="flex justify-between">
 					<span class="text-gray-600">Contract Value (before tax):</span>
-					<span class="font-semibold text-gray-900">{formatCurrency(contractValue)}</span>
+					<span class="font-semibold text-gray-900">{formatCurrency(formState.contractValue)}</span>
 				</div>
 				<div class="flex justify-between">
-					<span class="text-gray-600">Tax Amount ({taxRate}%):</span>
+					<span class="text-gray-600">Tax Amount ({formState.taxRate}%):</span>
 					<span class="font-semibold text-gray-900">{formatCurrency(taxAmount)}</span>
 				</div>
 				<div class="flex justify-between pt-2 border-t border-gray-300">

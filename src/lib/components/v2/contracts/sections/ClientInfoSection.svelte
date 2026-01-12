@@ -1,29 +1,11 @@
 <script lang="ts">
+	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
+
 	interface Props {
-		clientEmail: string;
-		clientAddress: string;
-		clientPhone: string;
-		clientIdDocument: string;
-		clientTaxId: string;
-		onclientEmailChange: (value: string) => void;
-		onclientAddressChange: (value: string) => void;
-		onclientPhoneChange: (value: string) => void;
-		onclientIdDocumentChange: (value: string) => void;
-		onclientTaxIdChange: (value: string) => void;
+		formState: ServiceProvisionContractFormState;
 	}
 
-	let {
-		clientEmail,
-		clientAddress,
-		clientPhone,
-		clientIdDocument,
-		clientTaxId,
-		onclientEmailChange,
-		onclientAddressChange,
-		onclientPhoneChange,
-		onclientIdDocumentChange,
-		onclientTaxIdChange
-	}: Props = $props();
+	let { formState }: Props = $props();
 </script>
 
 <div class="bg-white p-6 rounded-lg border border-gray-200">
@@ -36,8 +18,7 @@
 			<input
 				id="clientEmail"
 				type="email"
-				value={clientEmail}
-				oninput={(e) => onclientEmailChange(e.currentTarget.value)}
+				bind:value={formState.clientEmail}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="client@example.com"
@@ -51,8 +32,7 @@
 			<input
 				id="clientPhone"
 				type="tel"
-				value={clientPhone}
-				oninput={(e) => onclientPhoneChange(e.currentTarget.value)}
+				bind:value={formState.clientPhone}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="+84 123 456 789"
@@ -66,8 +46,7 @@
 			<input
 				id="clientAddress"
 				type="text"
-				value={clientAddress}
-				oninput={(e) => onclientAddressChange(e.currentTarget.value)}
+				bind:value={formState.clientAddress}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="123 Main St, Ho Chi Minh City"
@@ -81,8 +60,7 @@
 			<input
 				id="clientIdDocument"
 				type="text"
-				value={clientIdDocument}
-				oninput={(e) => onclientIdDocumentChange(e.currentTarget.value)}
+				bind:value={formState.clientIdDocument}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="ID or Passport number"
@@ -96,8 +74,7 @@
 			<input
 				id="clientTaxId"
 				type="text"
-				value={clientTaxId}
-				oninput={(e) => onclientTaxIdChange(e.currentTarget.value)}
+				bind:value={formState.clientTaxId}
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="Tax identification number"
 			/>

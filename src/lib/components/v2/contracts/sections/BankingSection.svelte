@@ -1,12 +1,11 @@
 <script lang="ts">
+	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
+
 	interface Props {
-		bankName: string;
-		accountNumber: string;
-		onbankNameChange: (value: string) => void;
-		onaccountNumberChange: (value: string) => void;
+		formState: ServiceProvisionContractFormState;
 	}
 
-	let { bankName, accountNumber, onbankNameChange, onaccountNumberChange }: Props = $props();
+	let { formState }: Props = $props();
 </script>
 
 <div class="bg-white p-6 rounded-lg border border-gray-200">
@@ -19,8 +18,7 @@
 			<input
 				id="bankName"
 				type="text"
-				value={bankName}
-				oninput={(e) => onbankNameChange(e.currentTarget.value)}
+				bind:value={formState.bankName}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="Vietcombank, Techcombank, etc."
@@ -34,8 +32,7 @@
 			<input
 				id="accountNumber"
 				type="text"
-				value={accountNumber}
-				oninput={(e) => onaccountNumberChange(e.currentTarget.value)}
+				bind:value={formState.accountNumber}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="1234567890"

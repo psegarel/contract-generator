@@ -3,36 +3,30 @@
 	 * TextField - Small, Dumb, Reusable Input Component
 	 *
 	 * Uses pure Tailwind utilities - no custom CSS classes
+	 * Uses $bindable for modern Svelte 5 two-way binding
 	 */
 
 	let {
 		id,
 		label,
-		value = '',
+		value = $bindable(''),
 		type = 'text',
 		required = false,
 		placeholder = '',
 		error = '',
 		helperText = '',
-		class: className = '',
-		onInput
+		class: className = ''
 	}: {
 		id: string;
 		label: string;
-		value?: string | null;
+		value?: string;
 		type?: string;
 		required?: boolean;
 		placeholder?: string;
 		error?: string;
 		helperText?: string;
 		class?: string;
-		onInput: (value: string) => void;
 	} = $props();
-
-	function handleInput(e: Event) {
-		const target = e.currentTarget as HTMLInputElement;
-		onInput(target.value);
-	}
 </script>
 
 <div class="flex flex-col gap-2 {className}">
@@ -45,9 +39,8 @@
 	<input
 		{id}
 		{type}
-		{value}
+		bind:value
 		{placeholder}
-		oninput={handleInput}
 		class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none text-sm {error
 			? 'ring-4 ring-destructive/10'
 			: ''}"

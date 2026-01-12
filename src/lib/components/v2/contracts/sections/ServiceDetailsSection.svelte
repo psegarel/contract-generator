@@ -1,37 +1,11 @@
 <script lang="ts">
+	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
+
 	interface Props {
-		jobName: string;
-		jobContent: string;
-		numberOfPerformances: number;
-		firstPerformanceTime: string;
-		startDate: string;
-		endDate: string;
-		eventLocation: string;
-		onjobNameChange: (value: string) => void;
-		onjobContentChange: (value: string) => void;
-		onnumberOfPerformancesChange: (value: number) => void;
-		onfirstPerformanceTimeChange: (value: string) => void;
-		onstartDateChange: (value: string) => void;
-		onendDateChange: (value: string) => void;
-		oneventLocationChange: (value: string) => void;
+		formState: ServiceProvisionContractFormState;
 	}
 
-	let {
-		jobName,
-		jobContent,
-		numberOfPerformances,
-		firstPerformanceTime,
-		startDate,
-		endDate,
-		eventLocation,
-		onjobNameChange,
-		onjobContentChange,
-		onnumberOfPerformancesChange,
-		onfirstPerformanceTimeChange,
-		onstartDateChange,
-		onendDateChange,
-		oneventLocationChange
-	}: Props = $props();
+	let { formState }: Props = $props();
 </script>
 
 <div class="bg-white p-6 rounded-lg border border-gray-200">
@@ -44,8 +18,7 @@
 			<input
 				id="jobName"
 				type="text"
-				value={jobName}
-				oninput={(e) => onjobNameChange(e.currentTarget.value)}
+				bind:value={formState.jobName}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="DJ Services, Sound System Rental, etc."
@@ -58,8 +31,7 @@
 			</label>
 			<textarea
 				id="jobContent"
-				value={jobContent}
-				oninput={(e) => onjobContentChange(e.currentTarget.value)}
+				bind:value={formState.jobContent}
 				required
 				rows="4"
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
@@ -74,8 +46,7 @@
 			<input
 				id="numberOfPerformances"
 				type="number"
-				value={numberOfPerformances}
-				oninput={(e) => onnumberOfPerformancesChange(Number(e.currentTarget.value))}
+				bind:value={formState.numberOfPerformances}
 				min="1"
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
@@ -89,8 +60,7 @@
 			<input
 				id="firstPerformanceTime"
 				type="time"
-				value={firstPerformanceTime}
-				oninput={(e) => onfirstPerformanceTimeChange(e.currentTarget.value)}
+				bind:value={formState.firstPerformanceTime}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 			/>
@@ -103,8 +73,7 @@
 			<input
 				id="startDate"
 				type="date"
-				value={startDate}
-				oninput={(e) => onstartDateChange(e.currentTarget.value)}
+				bind:value={formState.startDate}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 			/>
@@ -117,8 +86,7 @@
 			<input
 				id="endDate"
 				type="date"
-				value={endDate}
-				oninput={(e) => onendDateChange(e.currentTarget.value)}
+				bind:value={formState.endDate}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 			/>
@@ -131,8 +99,7 @@
 			<input
 				id="eventLocation"
 				type="text"
-				value={eventLocation}
-				oninput={(e) => oneventLocationChange(e.currentTarget.value)}
+				bind:value={formState.eventLocation}
 				required
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				placeholder="123 Main St, Ho Chi Minh City"
