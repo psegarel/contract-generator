@@ -19,6 +19,7 @@ import {
 	serviceProvisionContractInputSchema,
 	type ServiceProvisionContractInput
 } from '$lib/schemas/v2';
+import { logger } from '../logger';
 
 const COLLECTION_NAME = 'service-provision-contracts';
 
@@ -41,7 +42,7 @@ export function subscribeToServiceProvisionContracts(
 			callback(contracts);
 		},
 		(error) => {
-			console.error('Error in service provision contracts subscription:', error);
+			logger.error('Error in service provision contracts subscription:', error);
 			onError(error);
 		}
 	);
@@ -56,7 +57,7 @@ export async function saveServiceProvisionContract(
 	try {
 		const validationResult = serviceProvisionContractInputSchema.safeParse(contractData);
 		if (!validationResult.success) {
-			console.error('Validation error:', validationResult.error);
+			logger.error('Validation error:', validationResult.error);
 			throw new Error('Invalid contract data: ' + validationResult.error.message);
 		}
 
@@ -69,7 +70,7 @@ export async function saveServiceProvisionContract(
 		const docRef = await addDoc(collection(db, COLLECTION_NAME), toWrite);
 		return docRef.id;
 	} catch (error) {
-		console.error('Error saving service provision contract:', error);
+		logger.error('Error saving service provision contract:', error);
 		throw new Error('Failed to save service provision contract');
 	}
 }
@@ -93,7 +94,7 @@ export async function getServiceProvisionContractById(
 			...docSnap.data()
 		} as ServiceProvisionContract;
 	} catch (error) {
-		console.error('Error fetching service provision contract:', error);
+		logger.error('Error fetching service provision contract:', error);
 		throw new Error('Failed to fetch service provision contract');
 	}
 }
@@ -111,7 +112,7 @@ export async function getServiceProvisionContracts(): Promise<ServiceProvisionCo
 			...doc.data()
 		})) as ServiceProvisionContract[];
 	} catch (error) {
-		console.error('Error fetching service provision contracts:', error);
+		logger.error('Error fetching service provision contracts:', error);
 		throw new Error('Failed to fetch service provision contracts');
 	}
 }
@@ -135,7 +136,7 @@ export async function getServiceProvisionContractsByEventId(
 			...doc.data()
 		})) as ServiceProvisionContract[];
 	} catch (error) {
-		console.error('Error fetching service provision contracts by event:', error);
+		logger.error('Error fetching service provision contracts by event:', error);
 		throw new Error('Failed to fetch service provision contracts');
 	}
 }
@@ -163,7 +164,7 @@ export async function updateServiceProvisionContractPaymentStatus(
 			updatedAt: serverTimestamp()
 		});
 	} catch (error) {
-		console.error('Error updating payment status:', error);
+		logger.error('Error updating payment status:', error);
 		throw new Error('Failed to update payment status');
 	}
 }
@@ -188,7 +189,7 @@ export async function updateServiceProvisionContract(
 			updatedAt: serverTimestamp()
 		});
 	} catch (error) {
-		console.error('Error updating service provision contract:', error);
+		logger.error('Error updating service provision contract:', error);
 		throw new Error('Failed to update service provision contract');
 	}
 }
@@ -201,7 +202,7 @@ export async function deleteServiceProvisionContract(contractId: string): Promis
 		const docRef = doc(db, COLLECTION_NAME, contractId);
 		await deleteDoc(docRef);
 	} catch (error) {
-		console.error('Error deleting service provision contract:', error);
+		logger.error('Error deleting service provision contract:', error);
 		throw new Error('Failed to delete service provision contract');
 	}
 }

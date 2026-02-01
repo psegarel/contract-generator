@@ -16,6 +16,7 @@ import {
 import { db } from '$lib/config/firebase';
 import type { SubcontractorContract } from '$lib/types/v2';
 import { subcontractorContractInputSchema } from '$lib/schemas/v2';
+import { logger } from '../logger';
 
 const COLLECTION_NAME = 'subcontractor-contracts';
 
@@ -38,7 +39,7 @@ export function subscribeToSubcontractorContracts(
 			callback(contracts);
 		},
 		(error) => {
-			console.error('Error in subcontractor contracts subscription:', error);
+			logger.error('Error in subcontractor contracts subscription:', error);
 			onError(error);
 		}
 	);
@@ -54,7 +55,7 @@ export async function saveSubcontractorContract(
 		// Validate with schema
 		const validationResult = subcontractorContractInputSchema.safeParse(contractData);
 		if (!validationResult.success) {
-			console.error('Validation error:', validationResult.error);
+			logger.error('Validation error:', validationResult.error);
 			throw new Error('Invalid contract data: ' + validationResult.error.message);
 		}
 
@@ -67,7 +68,7 @@ export async function saveSubcontractorContract(
 		const docRef = await addDoc(collection(db, COLLECTION_NAME), toWrite);
 		return docRef.id;
 	} catch (error) {
-		console.error('Error saving subcontractor contract:', error);
+		logger.error('Error saving subcontractor contract:', error);
 		throw new Error('Failed to save subcontractor contract');
 	}
 }
@@ -91,7 +92,7 @@ export async function getSubcontractorContractById(
 			...docSnap.data()
 		} as SubcontractorContract;
 	} catch (error) {
-		console.error('Error fetching subcontractor contract:', error);
+		logger.error('Error fetching subcontractor contract:', error);
 		throw new Error('Failed to fetch subcontractor contract');
 	}
 }
@@ -109,7 +110,7 @@ export async function getSubcontractorContracts(): Promise<SubcontractorContract
 			...doc.data()
 		})) as SubcontractorContract[];
 	} catch (error) {
-		console.error('Error fetching subcontractor contracts:', error);
+		logger.error('Error fetching subcontractor contracts:', error);
 		throw new Error('Failed to fetch subcontractor contracts');
 	}
 }
@@ -133,7 +134,7 @@ export async function getSubcontractorContractsByEventId(
 			...doc.data()
 		})) as SubcontractorContract[];
 	} catch (error) {
-		console.error('Error fetching subcontractor contracts by event:', error);
+		logger.error('Error fetching subcontractor contracts by event:', error);
 		throw new Error('Failed to fetch subcontractor contracts');
 	}
 }
@@ -161,7 +162,7 @@ export async function updateSubcontractorContractPaymentStatus(
 			updatedAt: serverTimestamp()
 		});
 	} catch (error) {
-		console.error('Error updating payment status:', error);
+		logger.error('Error updating payment status:', error);
 		throw new Error('Failed to update payment status');
 	}
 }
@@ -174,7 +175,7 @@ export async function deleteSubcontractorContract(contractId: string): Promise<v
 		const docRef = doc(db, COLLECTION_NAME, contractId);
 		await deleteDoc(docRef);
 	} catch (error) {
-		console.error('Error deleting subcontractor contract:', error);
+		logger.error('Error deleting subcontractor contract:', error);
 		throw new Error('Failed to delete subcontractor contract');
 	}
 }

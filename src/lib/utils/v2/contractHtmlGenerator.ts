@@ -10,6 +10,7 @@ import {
 import { companyConfig } from '$lib/config/company';
 import { translateToVietnamese } from '../translate';
 import { formatCurrency, formatDateVietnamese, formatDateEnglish } from '../formatting';
+import { logger } from '../logger';
 
 /**
  * Generate HTML preview from service provision contract
@@ -126,7 +127,7 @@ export async function generateServiceProvisionContractHtml(
 
 		return sanitizedHtml;
 	} catch (error) {
-		console.error('Error generating service provision contract HTML:', error);
+		logger.error('Error generating service provision contract HTML:', error);
 		throw error;
 	}
 }
@@ -270,7 +271,7 @@ export async function generateEventPlanningContractHtml(
 
 		return sanitizedHtml;
 	} catch (error) {
-		console.error('Error generating event planning contract HTML:', error);
+		logger.error('Error generating event planning contract HTML:', error);
 		throw error;
 	}
 }

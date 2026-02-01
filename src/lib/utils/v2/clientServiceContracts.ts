@@ -16,6 +16,7 @@ import {
 import { db } from '$lib/config/firebase';
 import type { ClientServiceContract } from '$lib/types/v2';
 import { clientServiceContractInputSchema } from '$lib/schemas/v2';
+import { logger } from '../logger';
 
 const COLLECTION_NAME = 'client-service-contracts';
 
@@ -38,7 +39,7 @@ export function subscribeToClientServiceContracts(
 			callback(contracts);
 		},
 		(error) => {
-			console.error('Error in client service contracts subscription:', error);
+			logger.error('Error in client service contracts subscription:', error);
 			onError(error);
 		}
 	);
@@ -54,7 +55,7 @@ export async function saveClientServiceContract(
 		// Validate with schema
 		const validationResult = clientServiceContractInputSchema.safeParse(contractData);
 		if (!validationResult.success) {
-			console.error('Validation error:', validationResult.error);
+			logger.error('Validation error:', validationResult.error);
 			throw new Error('Invalid contract data: ' + validationResult.error.message);
 		}
 
@@ -67,7 +68,7 @@ export async function saveClientServiceContract(
 		const docRef = await addDoc(collection(db, COLLECTION_NAME), toWrite);
 		return docRef.id;
 	} catch (error) {
-		console.error('Error saving client service contract:', error);
+		logger.error('Error saving client service contract:', error);
 		throw new Error('Failed to save client service contract');
 	}
 }
@@ -91,7 +92,7 @@ export async function getClientServiceContractById(
 			...docSnap.data()
 		} as ClientServiceContract;
 	} catch (error) {
-		console.error('Error fetching client service contract:', error);
+		logger.error('Error fetching client service contract:', error);
 		throw new Error('Failed to fetch client service contract');
 	}
 }
@@ -109,7 +110,7 @@ export async function getClientServiceContracts(): Promise<ClientServiceContract
 			...doc.data()
 		})) as ClientServiceContract[];
 	} catch (error) {
-		console.error('Error fetching client service contracts:', error);
+		logger.error('Error fetching client service contracts:', error);
 		throw new Error('Failed to fetch client service contracts');
 	}
 }
@@ -133,7 +134,7 @@ export async function getClientServiceContractsByEventId(
 			...doc.data()
 		})) as ClientServiceContract[];
 	} catch (error) {
-		console.error('Error fetching client service contracts by event:', error);
+		logger.error('Error fetching client service contracts by event:', error);
 		throw new Error('Failed to fetch client service contracts');
 	}
 }
@@ -161,7 +162,7 @@ export async function updateClientServiceContractPaymentStatus(
 			updatedAt: serverTimestamp()
 		});
 	} catch (error) {
-		console.error('Error updating payment status:', error);
+		logger.error('Error updating payment status:', error);
 		throw new Error('Failed to update payment status');
 	}
 }
@@ -174,7 +175,7 @@ export async function deleteClientServiceContract(contractId: string): Promise<v
 		const docRef = doc(db, COLLECTION_NAME, contractId);
 		await deleteDoc(docRef);
 	} catch (error) {
-		console.error('Error deleting client service contract:', error);
+		logger.error('Error deleting client service contract:', error);
 		throw new Error('Failed to delete client service contract');
 	}
 }

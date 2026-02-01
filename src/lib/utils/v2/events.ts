@@ -16,6 +16,7 @@ import {
 import { db } from '$lib/config/firebase';
 import type { Event, EventInput } from '$lib/types/v2';
 import { eventInputSchema } from '$lib/schemas/v2';
+import { logger } from '../logger';
 
 const COLLECTION_NAME = 'events';
 
@@ -38,7 +39,7 @@ export function subscribeToEvents(
 			callback(events);
 		},
 		(error) => {
-			console.error('Error in events subscription:', error);
+			logger.error('Error in events subscription:', error);
 			onError(error);
 		}
 	);
@@ -51,7 +52,7 @@ export async function saveEvent(eventData: EventInput): Promise<string> {
 	try {
 		const validationResult = eventInputSchema.safeParse(eventData);
 		if (!validationResult.success) {
-			console.error('Validation error:', validationResult.error);
+			logger.error('Validation error:', validationResult.error);
 			throw new Error('Invalid event data: ' + validationResult.error.message);
 		}
 
@@ -68,7 +69,7 @@ export async function saveEvent(eventData: EventInput): Promise<string> {
 		const docRef = await addDoc(collection(db, COLLECTION_NAME), toWrite);
 		return docRef.id;
 	} catch (error) {
-		console.error('Error saving event:', error);
+		logger.error('Error saving event:', error);
 		throw new Error('Failed to save event');
 	}
 }
@@ -90,7 +91,7 @@ export async function getEventById(eventId: string): Promise<Event | null> {
 			...docSnap.data()
 		} as Event;
 	} catch (error) {
-		console.error('Error fetching event:', error);
+		logger.error('Error fetching event:', error);
 		throw new Error('Failed to fetch event');
 	}
 }
@@ -108,7 +109,7 @@ export async function getEvents(): Promise<Event[]> {
 			...doc.data()
 		})) as Event[];
 	} catch (error) {
-		console.error('Error fetching events:', error);
+		logger.error('Error fetching events:', error);
 		throw new Error('Failed to fetch events');
 	}
 }
@@ -130,7 +131,7 @@ export async function getEventsByOwner(ownerUid: string): Promise<Event[]> {
 			...doc.data()
 		})) as Event[];
 	} catch (error) {
-		console.error('Error fetching events by owner:', error);
+		logger.error('Error fetching events by owner:', error);
 		throw new Error('Failed to fetch events');
 	}
 }
@@ -152,7 +153,7 @@ export async function updateEvent(eventId: string, updates: Partial<Event>): Pro
 			updatedAt: serverTimestamp()
 		});
 	} catch (error) {
-		console.error('Error updating event:', error);
+		logger.error('Error updating event:', error);
 		throw new Error('Failed to update event');
 	}
 }
@@ -190,7 +191,7 @@ export async function addContractToEvent(
 			netRevenue
 		});
 	} catch (error) {
-		console.error('Error adding contract to event:', error);
+		logger.error('Error adding contract to event:', error);
 		throw new Error('Failed to add contract to event');
 	}
 }
@@ -228,7 +229,7 @@ export async function removeContractFromEvent(
 			netRevenue
 		});
 	} catch (error) {
-		console.error('Error removing contract from event:', error);
+		logger.error('Error removing contract from event:', error);
 		throw new Error('Failed to remove contract from event');
 	}
 }
@@ -241,7 +242,7 @@ export async function deleteEvent(eventId: string): Promise<void> {
 		const docRef = doc(db, COLLECTION_NAME, eventId);
 		await deleteDoc(docRef);
 	} catch (error) {
-		console.error('Error deleting event:', error);
+		logger.error('Error deleting event:', error);
 		throw new Error('Failed to delete event');
 	}
 }

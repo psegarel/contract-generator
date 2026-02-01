@@ -26,6 +26,7 @@ import {
 	clientCounterpartySchema,
 	supplierCounterpartySchema
 } from '$lib/schemas/v2';
+import { logger } from '../logger';
 
 const COLLECTION_NAME = 'counterparties';
 
@@ -49,7 +50,7 @@ export function subscribeToCounterparties(
 					const result = counterpartyListSchema.safeParse(data);
 
 					if (!result.success) {
-						console.error('Invalid counterparty data:', {
+						logger.error('Invalid counterparty data:', {
 							id: doc.id,
 							error: result.error.format()
 						});
@@ -66,7 +67,7 @@ export function subscribeToCounterparties(
 			callback(counterparties);
 		},
 		(error) => {
-			console.error('Error in counterparties subscription:', error);
+			logger.error('Error in counterparties subscription:', error);
 			onError(error);
 		}
 	);
@@ -80,7 +81,7 @@ export async function saveCounterparty(counterpartyData: CounterpartyInput): Pro
 		// Validate complete data (timestamps from form are present)
 		const validationResult = counterpartySchema.safeParse(counterpartyData);
 		if (!validationResult.success) {
-			console.error('Validation error:', validationResult.error);
+			logger.error('Validation error:', validationResult.error);
 			throw new Error('Invalid counterparty data: ' + validationResult.error.message);
 		}
 
@@ -94,7 +95,7 @@ export async function saveCounterparty(counterpartyData: CounterpartyInput): Pro
 		const docRef = await addDoc(collection(db, COLLECTION_NAME), toWrite);
 		return docRef.id;
 	} catch (error) {
-		console.error('Error saving counterparty:', error);
+		logger.error('Error saving counterparty:', error);
 		throw new Error('Failed to save counterparty');
 	}
 }
@@ -115,7 +116,7 @@ export async function getCounterpartyById(counterpartyId: string): Promise<Count
 
 		// Check type first to use the correct schema
 		if (!data.type || typeof data.type !== 'string') {
-			console.error('Counterparty type is missing or invalid:', data.type, counterpartyId);
+			logger.error('Counterparty type is missing or invalid:', data.type, counterpartyId);
 			throw new Error('Counterparty type is missing');
 		}
 
@@ -141,7 +142,7 @@ export async function getCounterpartyById(counterpartyId: string): Promise<Count
 				result = supplierCounterpartySchema.safeParse(data);
 				break;
 			default:
-				console.error(
+				logger.error(
 					'Unknown counterparty type:',
 					normalizedType,
 					'original:',
@@ -152,7 +153,7 @@ export async function getCounterpartyById(counterpartyId: string): Promise<Count
 		}
 
 		if (!result.success) {
-			console.error('Invalid counterparty data:', result.error, counterpartyId);
+			logger.error('Invalid counterparty data:', result.error, counterpartyId);
 			throw new Error('Invalid counterparty data: ' + result.error.message);
 		}
 
@@ -162,7 +163,7 @@ export async function getCounterpartyById(counterpartyId: string): Promise<Count
 			...result.data
 		} as Counterparty;
 	} catch (error) {
-		console.error('Error fetching counterparty:', error);
+		logger.error('Error fetching counterparty:', error);
 		throw new Error('Failed to fetch counterparty');
 	}
 }
@@ -181,7 +182,7 @@ export async function getCounterparties(): Promise<Counterparty[]> {
 
 				// Check type first to use the correct schema
 				if (!data.type || typeof data.type !== 'string') {
-					console.error('Counterparty type is missing:', doc.id);
+					logger.error('Counterparty type is missing:', doc.id);
 					return null;
 				}
 
@@ -207,7 +208,7 @@ export async function getCounterparties(): Promise<Counterparty[]> {
 						result = supplierCounterpartySchema.safeParse(data);
 						break;
 					default:
-						console.error(
+						logger.error(
 							'Unknown counterparty type:',
 							normalizedType,
 							'original:',
@@ -218,7 +219,7 @@ export async function getCounterparties(): Promise<Counterparty[]> {
 				}
 
 				if (!result.success) {
-					console.error('Invalid counterparty data:', {
+					logger.error('Invalid counterparty data:', {
 						id: doc.id,
 						type: normalizedType,
 						error: result.error.format(),
@@ -239,7 +240,7 @@ export async function getCounterparties(): Promise<Counterparty[]> {
 			})
 			.filter((c): c is Counterparty => c !== null);
 	} catch (error) {
-		console.error('Error fetching counterparties:', error);
+		logger.error('Error fetching counterparties:', error);
 		throw new Error('Failed to fetch counterparties');
 	}
 }
@@ -287,7 +288,7 @@ export async function getCounterpartiesByType(
 				const result = schema.safeParse(data);
 
 				if (!result.success) {
-					console.error('Invalid counterparty data:', result.error, doc.id);
+					logger.error('Invalid counterparty data:', result.error, doc.id);
 					return null;
 				}
 
@@ -298,7 +299,7 @@ export async function getCounterpartiesByType(
 			})
 			.filter((c): c is Counterparty => c !== null);
 	} catch (error) {
-		console.error('Error fetching counterparties by type:', error);
+		logger.error('Error fetching counterparties by type:', error);
 		throw new Error('Failed to fetch counterparties');
 	}
 }
@@ -324,7 +325,7 @@ export async function getCounterpartiesByOwner(ownerUid: string): Promise<Counte
 				const result = counterpartyListSchema.safeParse(data);
 
 				if (!result.success) {
-					console.error('Invalid counterparty data:', {
+					logger.error('Invalid counterparty data:', {
 						id: doc.id,
 						error: result.error.format()
 					});
@@ -339,7 +340,7 @@ export async function getCounterpartiesByOwner(ownerUid: string): Promise<Counte
 			})
 			.filter((c): c is Counterparty => c !== null);
 	} catch (error) {
-		console.error('Error fetching counterparties by owner:', error);
+		logger.error('Error fetching counterparties by owner:', error);
 		throw new Error('Failed to fetch counterparties');
 	}
 }
@@ -368,7 +369,7 @@ export async function updateCounterparty(
 
 		await updateDoc(docRef, toWrite);
 	} catch (error) {
-		console.error('Error updating counterparty:', error);
+		logger.error('Error updating counterparty:', error);
 		throw new Error('Failed to update counterparty');
 	}
 }
@@ -381,7 +382,7 @@ export async function deleteCounterparty(counterpartyId: string): Promise<void> 
 		const docRef = doc(db, COLLECTION_NAME, counterpartyId);
 		await deleteDoc(docRef);
 	} catch (error) {
-		console.error('Error deleting counterparty:', error);
+		logger.error('Error deleting counterparty:', error);
 		throw new Error('Failed to delete counterparty');
 	}
 }
@@ -400,7 +401,7 @@ export async function counterpartyNameExists(name: string, ownerUid: string): Pr
 		const querySnapshot = await getDocs(q);
 		return !querySnapshot.empty;
 	} catch (error) {
-		console.error('Error checking counterparty name:', error);
+		logger.error('Error checking counterparty name:', error);
 		return false;
 	}
 }

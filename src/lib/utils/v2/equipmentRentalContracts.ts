@@ -16,6 +16,7 @@ import {
 import { db } from '$lib/config/firebase';
 import type { EquipmentRentalContract } from '$lib/types/v2';
 import { equipmentRentalContractInputSchema } from '$lib/schemas/v2';
+import { logger } from '../logger';
 
 const COLLECTION_NAME = 'equipment-rental-contracts';
 
@@ -38,7 +39,7 @@ export function subscribeToEquipmentRentalContracts(
 			callback(contracts);
 		},
 		(error) => {
-			console.error('Error in equipment rental contracts subscription:', error);
+			logger.error('Error in equipment rental contracts subscription:', error);
 			onError(error);
 		}
 	);
@@ -54,7 +55,7 @@ export async function saveEquipmentRentalContract(
 		// Validate with schema
 		const validationResult = equipmentRentalContractInputSchema.safeParse(contractData);
 		if (!validationResult.success) {
-			console.error('Validation error:', validationResult.error);
+			logger.error('Validation error:', validationResult.error);
 			throw new Error('Invalid contract data: ' + validationResult.error.message);
 		}
 
@@ -67,7 +68,7 @@ export async function saveEquipmentRentalContract(
 		const docRef = await addDoc(collection(db, COLLECTION_NAME), toWrite);
 		return docRef.id;
 	} catch (error) {
-		console.error('Error saving equipment rental contract:', error);
+		logger.error('Error saving equipment rental contract:', error);
 		throw new Error('Failed to save equipment rental contract');
 	}
 }
@@ -91,7 +92,7 @@ export async function getEquipmentRentalContractById(
 			...docSnap.data()
 		} as EquipmentRentalContract;
 	} catch (error) {
-		console.error('Error fetching equipment rental contract:', error);
+		logger.error('Error fetching equipment rental contract:', error);
 		throw new Error('Failed to fetch equipment rental contract');
 	}
 }
@@ -109,7 +110,7 @@ export async function getEquipmentRentalContracts(): Promise<EquipmentRentalCont
 			...doc.data()
 		})) as EquipmentRentalContract[];
 	} catch (error) {
-		console.error('Error fetching equipment rental contracts:', error);
+		logger.error('Error fetching equipment rental contracts:', error);
 		throw new Error('Failed to fetch equipment rental contracts');
 	}
 }
@@ -133,7 +134,7 @@ export async function getEquipmentRentalContractsByEventId(
 			...doc.data()
 		})) as EquipmentRentalContract[];
 	} catch (error) {
-		console.error('Error fetching equipment rental contracts by event:', error);
+		logger.error('Error fetching equipment rental contracts by event:', error);
 		throw new Error('Failed to fetch equipment rental contracts');
 	}
 }
@@ -161,7 +162,7 @@ export async function updateEquipmentRentalContractPaymentStatus(
 			updatedAt: serverTimestamp()
 		});
 	} catch (error) {
-		console.error('Error updating payment status:', error);
+		logger.error('Error updating payment status:', error);
 		throw new Error('Failed to update payment status');
 	}
 }
@@ -174,7 +175,7 @@ export async function deleteEquipmentRentalContract(contractId: string): Promise
 		const docRef = doc(db, COLLECTION_NAME, contractId);
 		await deleteDoc(docRef);
 	} catch (error) {
-		console.error('Error deleting equipment rental contract:', error);
+		logger.error('Error deleting equipment rental contract:', error);
 		throw new Error('Failed to delete equipment rental contract');
 	}
 }

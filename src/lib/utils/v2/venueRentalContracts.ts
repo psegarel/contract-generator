@@ -16,6 +16,7 @@ import {
 import { db } from '$lib/config/firebase';
 import type { VenueRentalContract } from '$lib/types/v2';
 import { venueRentalContractInputSchema } from '$lib/schemas/v2';
+import { logger } from '../logger';
 
 const COLLECTION_NAME = 'venue-rental-contracts';
 
@@ -38,7 +39,7 @@ export function subscribeToVenueRentalContracts(
 			callback(contracts);
 		},
 		(error) => {
-			console.error('Error in venue rental contracts subscription:', error);
+			logger.error('Error in venue rental contracts subscription:', error);
 			onError(error);
 		}
 	);
@@ -54,7 +55,7 @@ export async function saveVenueRentalContract(
 		// Validate with schema
 		const validationResult = venueRentalContractInputSchema.safeParse(contractData);
 		if (!validationResult.success) {
-			console.error('Validation error:', validationResult.error);
+			logger.error('Validation error:', validationResult.error);
 			throw new Error('Invalid contract data: ' + validationResult.error.message);
 		}
 
@@ -67,7 +68,7 @@ export async function saveVenueRentalContract(
 		const docRef = await addDoc(collection(db, COLLECTION_NAME), toWrite);
 		return docRef.id;
 	} catch (error) {
-		console.error('Error saving venue rental contract:', error);
+		logger.error('Error saving venue rental contract:', error);
 		throw new Error('Failed to save venue rental contract');
 	}
 }
@@ -91,7 +92,7 @@ export async function getVenueRentalContractById(
 			...docSnap.data()
 		} as VenueRentalContract;
 	} catch (error) {
-		console.error('Error fetching venue rental contract:', error);
+		logger.error('Error fetching venue rental contract:', error);
 		throw new Error('Failed to fetch venue rental contract');
 	}
 }
@@ -109,7 +110,7 @@ export async function getVenueRentalContracts(): Promise<VenueRentalContract[]> 
 			...doc.data()
 		})) as VenueRentalContract[];
 	} catch (error) {
-		console.error('Error fetching venue rental contracts:', error);
+		logger.error('Error fetching venue rental contracts:', error);
 		throw new Error('Failed to fetch venue rental contracts');
 	}
 }
@@ -133,7 +134,7 @@ export async function getVenueRentalContractsByEventId(
 			...doc.data()
 		})) as VenueRentalContract[];
 	} catch (error) {
-		console.error('Error fetching venue rental contracts by event:', error);
+		logger.error('Error fetching venue rental contracts by event:', error);
 		throw new Error('Failed to fetch venue rental contracts');
 	}
 }
@@ -161,7 +162,7 @@ export async function updateVenueRentalContractPaymentStatus(
 			updatedAt: serverTimestamp()
 		});
 	} catch (error) {
-		console.error('Error updating payment status:', error);
+		logger.error('Error updating payment status:', error);
 		throw new Error('Failed to update payment status');
 	}
 }
@@ -174,7 +175,7 @@ export async function deleteVenueRentalContract(contractId: string): Promise<voi
 		const docRef = doc(db, COLLECTION_NAME, contractId);
 		await deleteDoc(docRef);
 	} catch (error) {
-		console.error('Error deleting venue rental contract:', error);
+		logger.error('Error deleting venue rental contract:', error);
 		throw new Error('Failed to delete venue rental contract');
 	}
 }

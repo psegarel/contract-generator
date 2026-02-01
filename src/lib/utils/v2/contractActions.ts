@@ -5,6 +5,7 @@ import { deleteServiceProvisionContract } from './serviceProvisionContracts';
 import { deleteEventPlanningContract } from './eventPlanningContracts';
 import { generateServiceContract } from '../serviceContractGenerator';
 import { generateEventPlanningContract } from '../eventPlanningContractGenerator';
+import { logger } from '../logger';
 
 /**
  * Download a contract as a Word document
@@ -106,7 +107,7 @@ export async function downloadContract(contract: BaseContract): Promise<void> {
 			toast.success('Contract downloaded successfully!');
 		}
 	} catch (error) {
-		console.error('Error downloading contract:', error);
+		logger.error('Error downloading contract:', error);
 		toast.error('Failed to download contract');
 		throw error;
 	}
@@ -202,7 +203,7 @@ export async function deleteContract(
 
 		toast.success('Contract deleted successfully');
 	} catch (error) {
-		console.error('Error deleting contract:', error);
+		logger.error('Error deleting contract:', error);
 		toast.error('Failed to delete contract');
 		throw error;
 	}
