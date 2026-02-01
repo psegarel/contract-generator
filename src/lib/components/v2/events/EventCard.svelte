@@ -92,6 +92,6 @@
 	</Card.Content>
 
 	<Card.Footer>
-		<Button size="sm" href={`/v2/events/${event.id}`} class="w-full">View Details</Button>
+		<Button size="sm" href={`/events/${event.id}`} class="w-full">View Details</Button>
 	</Card.Footer>
 </Card.Root>

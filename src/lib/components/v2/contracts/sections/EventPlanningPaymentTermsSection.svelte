@@ -1,15 +1,12 @@
 <script lang="ts">
 	import type { EventPlanningContractFormState } from '$lib/state/v2/eventPlanningContractFormState.svelte';
+	import { formatCurrency } from '$lib/utils/formatting';
 
 	interface Props {
 		formState: EventPlanningContractFormState;
 	}
 
 	let { formState }: Props = $props();
-
-	const formatCurrency = (amount: number) => {
-		return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-	};
 
 	let depositAmount = $derived(
 		formState.contractValueVND * (formState.depositPercentage / 100)

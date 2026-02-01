@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
+	import { formatCurrency } from '$lib/utils/formatting';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -11,10 +12,6 @@
 	// Gross amount = contractValue / (1 - taxRate/100)
 	let grossAmount = $derived(Math.round(formState.contractValue / (1 - formState.taxRate / 100)));
 	let taxAmount = $derived(grossAmount - formState.contractValue);
-
-	const formatCurrency = (amount: number) => {
-		return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-	};
 </script>
 
 <div class="bg-white p-6 rounded-lg border border-gray-200">

@@ -14,6 +14,8 @@
 		onpublicLiabilityAmountChange: (value: number) => void;
 	}
 
+	import { formatCurrency } from '$lib/utils/formatting';
+
 	let {
 		contractValueVND,
 		vatRate,
@@ -28,10 +30,6 @@
 		onprofessionalIndemnityAmountChange,
 		onpublicLiabilityAmountChange
 	}: Props = $props();
-
-	const formatCurrency = (amount: number) => {
-		return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-	};
 
 	let depositAmount = $derived(contractValueVND * (depositPercentage / 100));
 	let finalPaymentAmount = $derived(contractValueVND * (finalPaymentPercentage / 100));

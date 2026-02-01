@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { formatCurrency } from '$lib/utils/formatting';
+
 	interface Props {
 		totalContractValue: number;
 		isLoading?: boolean;
@@ -14,10 +16,6 @@
 		title = 'Total Contracts Value',
 		class: className = ''
 	}: Props = $props();
-
-	const formatCurrency = (value: number) => {
-		return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
-	};
 </script>
 
 <div class={className}>

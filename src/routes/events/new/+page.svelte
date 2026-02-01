@@ -4,12 +4,12 @@
 
 	function handleSuccess(eventId: string) {
 		// Navigate to the event detail page
-		goto(`/v2/events/${eventId}`);
+		goto(`/events/${eventId}`);
 	}
 
 	function handleCancel() {
 		// Navigate back to events list
-		goto('/v2/events');
+		goto('/events');
 	}
 </script>
 
