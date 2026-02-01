@@ -1,10 +1,12 @@
 <script lang="ts">
-	import type { Event, EventInput, EventStatus } from '$lib/types/v2';
+	import type { Event, EventInput } from '$lib/types/v2';
 	import { eventSchema } from '$lib/schemas/v2';
 	import { saveEvent, updateEvent } from '$lib/utils/v2';
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState } from '$lib/state/v2';
+	import { EventFormState } from '$lib/state/v2/eventFormState.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		event?: Event | null;
@@ -15,85 +17,57 @@
 	let { event = null, onSuccess, onCancel }: Props = $props();
 
 	// Initialize counterparty state for venue selection
-	$effect(() => {
+	onMount(() => {
 		counterpartyState.init();
-		return () => counterpartyState.destroy();
+		return () => {
+			counterpartyState.destroy();
+		};
 	});
 
 	// Get venue counterparties for selection
 	const venues = $derived(counterpartyState.counterparties.filter((c) => c.type === 'venue'));
 
-	// Form state - initialize empty, sync with event prop via $effect
-	let name = $state('');
-	let eventType = $state('');
-	let description = $state('');
-	let locationAddress = $state('');
-	let locationName = $state('');
-	let venueCounterpartyId = $state('');
-	let eventDate = $state('');
-	let startTime = $state('');
-	let endTime = $state('');
-	let setupDateTime = $state('');
-	let teardownDateTime = $state('');
-	let expectedAttendance = $state<number | ''>('');
-	let status = $state<EventStatus>('planning');
-	let internalNotes = $state('');
+	// Create form state instance
+	const formState = new EventFormState();
 
-	// Sync form state with event prop (only on initial load or event change)
-	$effect(() => {
-		if (event) {
-			name = event.name;
-			eventType = event.eventType || '';
-			description = event.description || '';
-			locationAddress = event.locationAddress;
-			locationName = event.locationName || '';
-			venueCounterpartyId = event.venueCounterpartyId || '';
-			eventDate = event.eventDate;
-			startTime = event.startTime || '';
-			endTime = event.endTime || '';
-			setupDateTime = event.setupDateTime || '';
-			teardownDateTime = event.teardownDateTime || '';
-			expectedAttendance = event.expectedAttendance || '';
-			status = event.status;
-			internalNotes = event.internalNotes || '';
-		}
+	// Initialize form state from prop on mount
+	onMount(() => {
+		formState.init(event);
 	});
-
-	let isSubmitting = $state(false);
-	let error = $state<string | null>(null);
 
 	async function handleSubmit() {
 		if (!authState.user) {
-			error = 'You must be logged in to create an event';
+			formState.error = 'You must be logged in to create an event';
 			return;
 		}
 
-		isSubmitting = true;
-		error = null;
+		formState.isSubmitting = true;
+		formState.error = null;
 
 		try {
 			const eventData: EventInput = {
 				ownerUid: authState.user.uid,
-				name,
-				eventType: eventType || null,
-				description: description || null,
-				locationAddress,
-				locationName: locationName || null,
-				venueCounterpartyId: venueCounterpartyId || null,
-				eventDate,
-				startTime: startTime || null,
-				endTime: endTime || null,
-				setupDateTime: setupDateTime || null,
-				teardownDateTime: teardownDateTime || null,
-				expectedAttendance: typeof expectedAttendance === 'number' ? expectedAttendance : null,
-				status,
-				internalNotes: internalNotes || null
+				name: formState.name,
+				eventType: formState.eventType || null,
+				description: formState.description || null,
+				locationAddress: formState.locationAddress,
+				locationName: formState.locationName || null,
+				venueCounterpartyId: formState.venueCounterpartyId || null,
+				eventDate: formState.eventDate,
+				startTime: formState.startTime || null,
+				endTime: formState.endTime || null,
+				setupDateTime: formState.setupDateTime || null,
+				teardownDateTime: formState.teardownDateTime || null,
+				expectedAttendance:
+					typeof formState.expectedAttendance === 'number' ? formState.expectedAttendance : null,
+				status: formState.status,
+				internalNotes: formState.internalNotes || null
 			};
 
 			// Validate with schema
 			const validationResult = eventSchema.safeParse(eventData);
 			if (!validationResult.success) {
-				error = 'Validation error: ' + validationResult.error.issues[0].message;
+				formState.error = 'Validation error: ' + validationResult.error.issues[0].message;
 				return;
 			}
 
@@ -110,18 +84,18 @@
 			}
 		} catch (e) {
 			console.error('Error saving event:', e);
-			error = (e as Error).message;
+			formState.error = (e as Error).message;
 		} finally {
-			isSubmitting = false;
+			formState.isSubmitting = false;
 		}
 	}
 </script>
 
 <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
 	<!-- Error message -->
-	{#if error}
+	{#if formState.error}
 		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
-			{error}
+			{formState.error}
 		</div>
 	{/if}
 
@@ -136,7 +110,7 @@
 				<input
 					id="name"
 					type="text"
-					bind:value={name}
+					bind:value={formState.name}
 					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="ABC Corp Annual Gala 2026"
@@ -150,7 +124,7 @@
 				<input
 					id="eventType"
 					type="text"
-					bind:value={eventType}
+					bind:value={formState.eventType}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="Corporate Event, Wedding, Concert"
 				/>
@@ -162,7 +136,7 @@
 				</label>
 				<select
 					id="status"
-					bind:value={status}
+					bind:value={formState.status}
 					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
@@ -180,7 +154,7 @@
 				</label>
 				<textarea
 					id="description"
-					bind:value={description}
+					bind:value={formState.description}
 					rows="3"
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="Brief description of the event..."
@@ -200,7 +174,7 @@
 				<input
 					id="locationAddress"
 					type="text"
-					bind:value={locationAddress}
+					bind:value={formState.locationAddress}
 					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="123 Main St, Ho Chi Minh City"
@@ -214,7 +188,7 @@
 				<input
 					id="locationName"
 					type="text"
-					bind:value={locationName}
+					bind:value={formState.locationName}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="Grand Ballroom"
 				/>
@@ -226,11 +200,11 @@
 				</label>
 				<select
 					id="venueCounterpartyId"
-					bind:value={venueCounterpartyId}
+					bind:value={formState.venueCounterpartyId}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				>
 					<option value="">None (simple address)</option>
-					{#each venues as venue}
+					{#each venues as venue (venue.id)}
 						<option value={venue.id}>{venue.name}</option>
 					{/each}
 				</select>
@@ -249,7 +223,7 @@
 				<input
 					id="eventDate"
 					type="date"
-					bind:value={eventDate}
+					bind:value={formState.eventDate}
 					required
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				/>
@@ -262,7 +236,7 @@
 				<input
 					id="expectedAttendance"
 					type="number"
-					bind:value={expectedAttendance}
+					bind:value={formState.expectedAttendance}
 					min="0"
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="100"
@@ -276,7 +250,7 @@
 				<input
 					id="startTime"
 					type="time"
-					bind:value={startTime}
+					bind:value={formState.startTime}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				/>
 			</div>
@@ -288,7 +262,7 @@
 				<input
 					id="endTime"
 					type="time"
-					bind:value={endTime}
+					bind:value={formState.endTime}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				/>
 			</div>
@@ -300,7 +274,7 @@
 				<input
 					id="setupDateTime"
 					type="datetime-local"
-					bind:value={setupDateTime}
+					bind:value={formState.setupDateTime}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				/>
 			</div>
@@ -312,7 +286,7 @@
 				<input
 					id="teardownDateTime"
 					type="datetime-local"
-					bind:value={teardownDateTime}
+					bind:value={formState.teardownDateTime}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 				/>
 			</div>
@@ -324,7 +298,7 @@
 		<h3 class="text-lg font-semibold text-gray-900 mb-4">Internal Notes</h3>
 		<textarea
 			id="internalNotes"
-			bind:value={internalNotes}
+			bind:value={formState.internalNotes}
 			rows="4"
 			class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 			placeholder="Internal notes for planning, coordination, etc..."
@@ -337,14 +311,14 @@
 			<button
 				type="button"
 				onclick={onCancel}
-				disabled={isSubmitting}
+				disabled={formState.isSubmitting}
 				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
 			</button>
 		{/if}
-		<Button type="submit" disabled={isSubmitting} variant="dark">
-			{isSubmitting ? 'Saving...' : event ? 'Update Event' : 'Create Event'}
+		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
+			{formState.isSubmitting ? 'Saving...' : event ? 'Update Event' : 'Create Event'}
 		</Button>
 	</div>
 </form>
