@@ -150,13 +150,14 @@ Based on CLAUDE.md guidelines:
 
 ## Progress Tracking
 
-**Total Custom Components:** ~50+ (ui/ folder NOT included - shadcn components)
-**Checked:** 50+ (90%+)
+**Total Custom Components:** ~55+ (ui/ folder NOT included - shadcn components)
+**Checked:** 55+ (95%+)
 **Needs Review:** 0 (0%)
-**Not Checked:** ~5 (10%)
+**Not Checked:** ~3 (5%)
 
 **Recently Checked (2026-02-01):**
 - EventForm.svelte ✅ (fixed $effect anti-pattern)
+- Route components: +layout.svelte, +page.svelte, events/+page.svelte, counterparties/+page.svelte, login/+page.svelte ✅ (legitimate $effect usage for lifecycle)
 - ClientForm.svelte ✅
 - CounterpartiesList.svelte ✅
 - CounterpartyCard.svelte ✅
