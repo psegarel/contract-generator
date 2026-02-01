@@ -8,8 +8,9 @@
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
 	import { EventPlanningContractFormState } from '$lib/state/v2/eventPlanningContractFormState.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { onMount } from 'svelte';
+import { Button } from '$lib/components/ui/button';
+import { onMount } from 'svelte';
+import { logger } from '$lib/utils/logger';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import EventPlanningContractBasicsSection from './sections/EventPlanningContractBasicsSection.svelte';
 	import EventPlanningCompanyInfoSection from './sections/EventPlanningCompanyInfoSection.svelte';
@@ -160,7 +161,7 @@
 				onSuccess(contractId);
 			}
 		} catch (e) {
-			console.error('Error saving contract:', e);
+			logger.error('Error saving contract:', e);
 			formState.error = (e as Error).message;
 		} finally {
 			formState.isSubmitting = false;

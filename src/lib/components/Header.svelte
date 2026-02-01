@@ -7,13 +7,14 @@
 	import { LogOut, Sun, Moon, Users, FileText, CalendarCheck } from 'lucide-svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
+	import { logger } from '$lib/utils/logger';
 
 	async function handleSignOut() {
 		try {
 			await signOut();
 			goto(resolve('/'));
 		} catch (error) {
-			console.error('Error signing out:', error);
+			logger.error('Error signing out:', error);
 		}
 	}
 

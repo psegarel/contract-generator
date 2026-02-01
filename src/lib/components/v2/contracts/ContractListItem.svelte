@@ -6,6 +6,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
 	import { toast } from 'svelte-sonner';
+	import { logger } from '$lib/utils/logger';
 	import {
 		updateServiceProvisionContractPaymentStatus,
 		updateEventPlanningContractPaymentStatus,
@@ -112,7 +113,7 @@
 
 			toast.success(`Contract marked as ${newStatus}`);
 		} catch (error) {
-			console.error('Error updating payment status:', error);
+			logger.error('Error updating payment status:', error);
 			toast.error('Failed to update payment status');
 		} finally {
 			isMarkingAsPaid = false;

@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import { Timestamp } from 'firebase/firestore';
 	import { Button } from '$lib/components/ui/button';
+	import { logger } from '$lib/utils/logger';
 
 	interface Props {
 		client?: ClientCounterparty | null;
@@ -74,7 +75,7 @@
 				onSuccess(clientId);
 			}
 		} catch (e) {
-			console.error('Error saving client:', e);
+			logger.error('Error saving client:', e);
 			formState.error = (e as Error).message;
 		} finally {
 			formState.isSubmitting = false;

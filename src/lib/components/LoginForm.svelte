@@ -16,6 +16,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Alert, AlertTitle, AlertDescription } from '$lib/components/ui/alert';
 	import type { FirebaseError } from 'firebase/app';
+	import { logger } from '$lib/utils/logger';
 
 	let email = $state('');
 	let password = $state('');
@@ -38,7 +39,7 @@
 			await resetPassword(email);
 			successMessage = 'Password reset email sent! Check your inbox.';
 		} catch (err) {
-			console.error('Password reset error:', err);
+			logger.error('Password reset error:', err);
 			const firebaseError = err as FirebaseError;
 			if (firebaseError.code === 'auth/user-not-found') {
 				error = 'No account found with this email';
@@ -59,7 +60,7 @@
 			await signIn(email, password);
 			goto(resolve('/'));
 		} catch (err) {
-			console.error('Login error:', err);
+			logger.error('Login error:', err);
 			const firebaseError = err as FirebaseError;
 			if (firebaseError.code === 'auth/invalid-credential') {
 				error = 'Invalid email or password';

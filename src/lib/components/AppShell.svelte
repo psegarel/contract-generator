@@ -9,6 +9,7 @@
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import Sidebar from './Sidebar.svelte';
+	import { logger } from '$lib/utils/logger';
 
 	let { children } = $props();
 	let sidebarOpen = $state(false);
@@ -54,7 +55,7 @@
 			await signOut();
 			goto(resolve('/login'));
 		} catch (error) {
-			console.error('Error signing out:', error);
+			logger.error('Error signing out:', error);
 		}
 	}
 

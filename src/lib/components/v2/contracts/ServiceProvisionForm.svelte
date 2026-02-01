@@ -13,6 +13,7 @@
 	import { Timestamp } from 'firebase/firestore';
 	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { logger } from '$lib/utils/logger';
 	import ContractBasicsSection from './sections/ContractBasicsSection.svelte';
 	import CreateProviderInline from './sections/CreateProviderInline.svelte';
 	import ServiceDetailsSection from './sections/ServiceDetailsSection.svelte';
@@ -110,7 +111,7 @@
 			// Reset form and hide
 			formState.resetNewProviderForm();
 		} catch (err) {
-			console.error('Error creating provider:', err);
+			logger.error('Error creating provider:', err);
 			toast.error('Failed to create service provider');
 		} finally {
 			formState.isCreatingProvider = false;
@@ -191,7 +192,7 @@
 				onSuccess(contractId);
 			}
 		} catch (e) {
-			console.error('Error saving contract:', e);
+			logger.error('Error saving contract:', e);
 			formState.error = (e as Error).message;
 		} finally {
 			formState.isSubmitting = false;

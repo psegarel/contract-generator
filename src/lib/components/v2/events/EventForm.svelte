@@ -5,8 +5,9 @@
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState } from '$lib/state/v2';
 	import { EventFormState } from '$lib/state/v2/eventFormState.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { onMount } from 'svelte';
+import { Button } from '$lib/components/ui/button';
+import { onMount } from 'svelte';
+import { logger } from '$lib/utils/logger';
 
 	interface Props {
 		event?: Event | null;
@@ -83,7 +84,7 @@
 				onSuccess(eventId);
 			}
 		} catch (e) {
-			console.error('Error saving event:', e);
+			logger.error('Error saving event:', e);
 			formState.error = (e as Error).message;
 		} finally {
 			formState.isSubmitting = false;

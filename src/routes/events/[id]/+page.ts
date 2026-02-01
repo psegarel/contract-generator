@@ -6,6 +6,7 @@ import {
 } from '$lib/utils/v2';
 import type { BaseContract } from '$lib/types/v2';
 import { error } from '@sveltejs/kit';
+import { logger } from '$lib/utils/logger';
 
 // Disable SSR - Firebase client SDK needs browser auth context
 export const ssr = false;
@@ -32,10 +33,10 @@ export const load: PageLoad = async ({ params }) => {
 
 		// Log errors but don't fail the page load
 		if (serviceContracts.status === 'rejected') {
-			console.error('Failed to load service provision contracts:', serviceContracts.reason);
+			logger.error('Failed to load service provision contracts:', serviceContracts.reason);
 		}
 		if (eventPlanningContracts.status === 'rejected') {
-			console.error('Failed to load event planning contracts:', eventPlanningContracts.reason);
+			logger.error('Failed to load event planning contracts:', eventPlanningContracts.reason);
 		}
 
 		// Merge all contract types - TypeScript inheritance makes this work!
@@ -52,7 +53,7 @@ export const load: PageLoad = async ({ params }) => {
 		if (e && typeof e === 'object' && 'status' in e) {
 			throw e; // Re-throw SvelteKit errors
 		}
-		console.error('Error loading event:', e);
+		logger.error('Error loading event:', e);
 		const errorMessage = e instanceof Error ? e.message : 'Unknown error';
 		throw error(500, `Failed to load event: ${errorMessage}`);
 	}
