@@ -25,14 +25,19 @@ export const equipmentRentalContractSchema = baseContractSchema
 		// Equipment list
 		equipment: z.array(equipmentItemSchema).min(1, 'At least one equipment item is required'),
 
+		// Rent
+		monthlyRent: z.number().min(0, 'Monthly rent must be positive'),
+
 		// Terms
 		securityDeposit: z.number().min(0, 'Security deposit must be positive'),
 		damageWaiver: z.boolean().default(false),
 		deliveryFee: z.number().min(0, 'Delivery fee must be positive'),
 
-		// Logistics
-		pickupLocation: z.string().nullable().optional(),
-		returnLocation: z.string().nullable().optional()
+		// Venue information (where equipment will be located/used)
+		venueName: z.string().min(1, 'Venue name (Vietnamese) is required'),
+		venueNameEnglish: z.string().min(1, 'Venue name (English) is required'),
+		venueAddress: z.string().min(1, 'Venue address (Vietnamese) is required'),
+		venueAddressEnglish: z.string().min(1, 'Venue address (English) is required')
 	})
 	.strict();
 

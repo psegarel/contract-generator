@@ -26,6 +26,7 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 |-----------|--------|--------------|-------|
 | ContractsList.svelte | ✅ | 2026-01-05 | Clean - no issues |
 | ContractListItem.svelte | ✅ | 2026-01-05 | Clean - no issues |
+| EquipmentRentalLogisticsSection.svelte | ✅ | 2026-02-01 | Clean - split venue fields to match template placeholders |
 
 ### Core Components (`src/lib/components/`)
 
@@ -156,6 +157,7 @@ Based on CLAUDE.md guidelines:
 **Not Checked:** ~3 (5%)
 
 **Recently Checked (2026-02-01):**
+- EquipmentRentalLogisticsSection.svelte ✅ (updated venueAddress split to Vietnamese/English)
 - EventForm.svelte ✅ (fixed $effect anti-pattern)
 - Route components: +layout.svelte, +page.svelte, events/+page.svelte, counterparties/+page.svelte, login/+page.svelte ✅ (legitimate $effect usage for lifecycle)
 - ClientForm.svelte ✅

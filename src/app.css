@@ -137,7 +137,7 @@
 
 /* Contract HTML Preview Styles */
 .contract-html-preview {
-	font-family: 'Times New Roman', Times, serif;
+	font-family: 'Titillium Web', system-ui, sans-serif;
 	color: #000;
 	line-height: 1.6;
 }
@@ -151,6 +151,8 @@
 .contract-html-preview h3 {
 	margin: 1em 0 0.5em 0;
 	font-weight: bold;
+	font-family: inherit;
+	letter-spacing: normal;
 }
 
 .contract-html-preview table {
@@ -168,6 +170,11 @@
 
 .contract-html-preview strong {
 	font-weight: bold;
+}
+
+.contract-html-preview em,
+.contract-html-preview i {
+	font-style: normal;
 }
 
 /* Print styles for contract preview */

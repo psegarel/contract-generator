@@ -1,91 +1,62 @@
-Option A: Quick Wins (1-2 hours total)
-
-These are high-impact, low-effort tasks that will improve code quality immediately:
-
-1. Push your commits to origin (5 minutes)
-
-
-    - You're 5 commits ahead of origin/main
-    - Get your recent work backed up
-
-2. Handle the untracked template file (2 minutes)
-
-# Either commit it or add to .gitignore
-
-git status  
- 3. Consolidate formatting utilities (30-45 minutes)  
- - The cleanup plan identified 5 duplicate formatCurrency implementations  
- - This is code duplication that affects 22 files  
- - Simple refactor: move all formatting to src/lib/utils/formatting.ts  
- - High impact: eliminates duplication, single source of truth  
- 4. Verify and archive outdated docs (15 minutes)  
- - Move completed plans from /docs to /docs/archive/  
- - Keep /docs focused on current/future work
-
----
-
-Option B: Component Quality (3-4 hours)
-
-Continue the systematic component validation you started:
-
-1. Complete Svelte autofixer validation (2-3 hours)
-
-
-    - Currently at 52% (19/36 components validated)
-    - 17 components remaining
-    - Systematic quality assurance
-    - Update AUTOFIXER_STATUS.md as you go
-
-2. Address any issues found (1 hour)
-
-
-    - Fix warnings/suggestions from autofixer
-    - Ensure all components follow best practices
-
-
----
-
-Option C: Major Cleanup (8-12 hours)
-
-Tackle the full cleanup plan items that are still relevant:
-
-1. Consolidate all utilities (3-4 hours)
-
-
-    - Formatting functions (already identified)
-    - Contract number generation (4 duplicate implementations)
-    - Create canonical utility modules
-
-2. Clean up debug code (2-3 hours)
-
-
-    - Plan identifies 66 console.log statements
-    - Remove or convert to proper logging
-
-3. Component size refactoring (3-5 hours)
-
-
-    - Plan identifies 2 components over 400 lines
-    - May already be done if forms were refactored
-
-
----
-
-🎯 My Recommendation
-
-Start with Option A (Quick Wins), specifically:
-
-1. Consolidate formatting utilities - This is in the cleanup plan, has clear action steps, and affects 22 files
-2. Push your commits - Backup your work
-3. Check if cleanup plan tasks are already done - The plan is from Jan 9, but you did form refactoring on Jan 12  
-
-
-Would you like me to:
-
-- Execute the formatting utilities consolidation task?
-- Check which cleanup plan items are already completed?
-- Start the component validation work?
-- Something else entirely?  
-
-
-What sounds most valuable to you right now?
+DANH SACH PLACEHOLDER / PLACEHOLDER LIST
+Contract Information
+{{contractNumber}} - Contract number (e.g., 20231105_01 - Insense)
+{{partyACompanyVietnamese}}
+{{partyACompanyEnglish}}
+{{partyARepresentative}}
+{{partyAEmail}}
+{{partyAPhone}}
+{{contractDateVietnamese}} - Contract date in Vietnamese (e.g., 5 tháng 11 năm 2023)
+{{contractDateEnglish}} - Contract date in English (e.g., 5th November 2023)
+Party A (Insense) Bank Details
+{{partyAAddressLine1}}
+{{partyAAddressLine2}}
+{{partyACity}}
+{{partyATaxCode}}
+{{partyABankName}} - Party A bank name (e.g., ACB)
+{{partyAAccountNumber}} - Party A bank account number (e.g., 56699688)
+Party B Information
+{{partyBCompanyVietnamese}} - Party B company name in Vietnamese
+{{partyBAddressLine1}}
+{{partyBAddressLine2}}
+{{partyBCity}}
+{{partyBCompanyEnglish}} - Party B company name in English
+{{partyBAddressVietnamese}} - Party B address in Vietnamese
+{{partyBAddressEnglish}} - Party B address in English
+{{partyBTaxCode}} - Party B tax code
+{{partyBAccountNumber}} - Party B bank account number
+{{partyBBankName}} - Party B bank name
+{{partyBBankBranch}} - Party B bank branch (e.g., CN Danang)
+{{partyBRepresentative}} - Party B representative name
+{{partyBPosition}} - Party B representative position
+{{partyBEmail}} - Party B email address
+{{partyBPhone}} - Party B phone number
+Venue Information
+{{venueName}} - Venue name in Vietnamese (e.g., Nhà hàng Ngon Thi Hoa)
+{{venueNameEnglish}} - Venue name in English (e.g., Ngon Thi Hoa Restaurant)
+{{venueAddress}} - Venue address in Vietnamese
+{{venueAddressEnglish}} - Venue address in English
+Rental Period
+{{rentalStartDateVietnamese}} - Rental start date in Vietnamese (e.g., 5 tháng 11 năm 2023)
+{{rentalStartDateEnglish}} - Rental start date in English (e.g., 5 November 2023)
+{{rentalEndDateVietnamese}} - Rental end date in Vietnamese (e.g., 4 tháng 11 năm 2024)
+{{rentalEndDateEnglish}} - Rental end date in English (e.g., 4 November 2024)
+Financial Terms
+{{monthlyRentVND}} - Monthly rent amount in VND (e.g., 15,000,000)
+{{monthlyRentInWords}} - Monthly rent in Vietnamese words (e.g., Mười lăm triệu đồng)
+{{monthlyRentInWordsEnglish}} - Monthly rent in English words (e.g., Fifteen million VND)
+{{depositVND}} - Deposit amount in VND (e.g., 15,000,000)
+{{depositInWords}} - Deposit in Vietnamese words
+{{depositInWordsEnglish}} - Deposit in English words
+Residual Value (computed from total equipment value)
+{{residualValueAmount}} - Total equipment value formatted (e.g., 50,000,000)
+{{residualValueCurrency}} - Always VND
+{{residualValueInWords}} - Equipment value in Vietnamese words (e.g., năm mươi triệu đồng)
+{{residualValueInWordsEnglish}} - Equipment value in English words (e.g., fifty million VND)
+Termination Terms
+{{terminationNoticeDays}} - Number of days for termination notice (e.g., 30)
+{{terminationNoticeDaysInWords}} - Days in Vietnamese words (e.g., ba mươi ngày)
+{{terminationNoticeDaysInWordsEnglish}} - Days in English words (e.g., thirty days)
+Equipment
+{{equipmentList}} - Detailed list of equipment being leased (formatted list)
+{{companyWard}} - Company ward

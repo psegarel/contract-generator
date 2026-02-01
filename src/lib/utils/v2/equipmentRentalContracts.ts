@@ -15,7 +15,10 @@ import {
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { EquipmentRentalContract } from '$lib/types/v2';
-import { equipmentRentalContractInputSchema } from '$lib/schemas/v2';
+import {
+	equipmentRentalContractInputSchema,
+	type EquipmentRentalContractInput
+} from '$lib/schemas/v2';
 import { logger } from '../logger';
 
 const COLLECTION_NAME = 'equipment-rental-contracts';
@@ -32,10 +35,14 @@ export function subscribeToEquipmentRentalContracts(
 	return onSnapshot(
 		q,
 		(snapshot) => {
-			const contracts = snapshot.docs.map((doc) => ({
-				id: doc.id,
-				...doc.data()
-			})) as EquipmentRentalContract[];
+			const contracts = snapshot.docs.map((doc) => {
+				const data = doc.data();
+				const migratedData = migrateContractData(data);
+				return {
+					id: doc.id,
+					...migratedData
+				};
+			}) as EquipmentRentalContract[];
 			callback(contracts);
 		},
 		(error) => {
@@ -49,7 +56,7 @@ export function subscribeToEquipmentRentalContracts(
  * Save a new equipment rental contract
  */
 export async function saveEquipmentRentalContract(
-	contractData: Omit<EquipmentRentalContract, 'id' | 'createdAt' | 'updatedAt'>
+	contractData: EquipmentRentalContractInput
 ): Promise<string> {
 	try {
 		// Validate with schema
@@ -59,8 +66,17 @@ export async function saveEquipmentRentalContract(
 			throw new Error('Invalid contract data: ' + validationResult.error.message);
 		}
 
+		// Convert null/undefined values to empty strings for Firestore compatibility
+		// Note: eventId and eventName can be null for standalone contracts
 		const toWrite = {
 			...contractData,
+			eventId: contractData.eventId || null, // Keep null if no event (standalone)
+			eventName: contractData.eventName || null, // Keep null if no event (standalone)
+			venueName: contractData.venueName || '',
+			venueNameEnglish: contractData.venueNameEnglish || '',
+			venueAddress: contractData.venueAddress || '',
+			venueAddressEnglish: contractData.venueAddressEnglish || '',
+			notes: contractData.notes || '',
 			createdAt: serverTimestamp(),
 			updatedAt: serverTimestamp()
 		};
@@ -71,6 +87,36 @@ export async function saveEquipmentRentalContract(
 		logger.error('Error saving equipment rental contract:', error);
 		throw new Error('Failed to save equipment rental contract');
 	}
+}
+
+/**
+ * Migrate old contract format to new format (backward compatibility)
+ * - Converts pickupLocation/returnLocation to equipmentLocation
+ * - Converts single venueAddress to venueAddressVietnamese/venueAddressEnglish
+ * - Ensures venueName is always a string
+ */
+function migrateContractData(data: any): any {
+	const migrated = { ...data };
+
+	// Migrate pickupLocation/returnLocation → equipmentLocation
+	if (migrated.equipmentLocation === undefined) {
+		migrated.equipmentLocation = data.pickupLocation || data.returnLocation || '';
+		migrated.pickupLocation = undefined;
+		migrated.returnLocation = undefined;
+	}
+
+	// Ensure venue fields exist (old docs may lack the English variants)
+	migrated.venueName = migrated.venueName || '';
+	migrated.venueNameEnglish = migrated.venueNameEnglish || migrated.venueName;
+	migrated.venueAddress = migrated.venueAddress || '';
+	migrated.venueAddressEnglish = migrated.venueAddressEnglish || migrated.venueAddress;
+
+	// Ensure monthlyRent exists (new field, defaults to 0 for legacy contracts)
+	if (migrated.monthlyRent === undefined) {
+		migrated.monthlyRent = 0;
+	}
+
+	return migrated;
 }
 
 /**
@@ -87,9 +133,12 @@ export async function getEquipmentRentalContractById(
 			return null;
 		}
 
+		const data = docSnap.data();
+		const migratedData = migrateContractData(data);
+
 		return {
 			id: docSnap.id,
-			...docSnap.data()
+			...migratedData
 		} as EquipmentRentalContract;
 	} catch (error) {
 		logger.error('Error fetching equipment rental contract:', error);
@@ -105,10 +154,14 @@ export async function getEquipmentRentalContracts(): Promise<EquipmentRentalCont
 		const q = query(collection(db, COLLECTION_NAME), orderBy('createdAt', 'desc'));
 		const querySnapshot = await getDocs(q);
 
-		return querySnapshot.docs.map((doc) => ({
-			id: doc.id,
-			...doc.data()
-		})) as EquipmentRentalContract[];
+		return querySnapshot.docs.map((doc) => {
+			const data = doc.data();
+			const migratedData = migrateContractData(data);
+			return {
+				id: doc.id,
+				...migratedData
+			};
+		}) as EquipmentRentalContract[];
 	} catch (error) {
 		logger.error('Error fetching equipment rental contracts:', error);
 		throw new Error('Failed to fetch equipment rental contracts');
@@ -129,10 +182,14 @@ export async function getEquipmentRentalContractsByEventId(
 		);
 
 		const querySnapshot = await getDocs(q);
-		return querySnapshot.docs.map((doc) => ({
-			id: doc.id,
-			...doc.data()
-		})) as EquipmentRentalContract[];
+		return querySnapshot.docs.map((doc) => {
+			const data = doc.data();
+			const migratedData = migrateContractData(data);
+			return {
+				id: doc.id,
+				...migratedData
+			};
+		}) as EquipmentRentalContract[];
 	} catch (error) {
 		logger.error('Error fetching equipment rental contracts by event:', error);
 		throw new Error('Failed to fetch equipment rental contracts');
@@ -164,6 +221,42 @@ export async function updateEquipmentRentalContractPaymentStatus(
 	} catch (error) {
 		logger.error('Error updating payment status:', error);
 		throw new Error('Failed to update payment status');
+	}
+}
+
+/**
+ * Update contract data (for editing)
+ */
+export async function updateEquipmentRentalContract(
+	contractId: string,
+	updates: EquipmentRentalContractInput
+): Promise<void> {
+	try {
+		const docRef = doc(db, COLLECTION_NAME, contractId);
+
+		const docSnap = await getDoc(docRef);
+		if (!docSnap.exists()) {
+			throw new Error('Equipment rental contract not found');
+		}
+
+		// Convert null/undefined values appropriately for Firestore compatibility
+		// Note: eventId and eventName can be null for standalone contracts
+		const toUpdate = {
+			...updates,
+			eventId: updates.eventId ?? null, // Keep null if no event (standalone)
+			eventName: updates.eventName ?? null, // Keep null if no event (standalone)
+			venueName: updates.venueName ?? '',
+			venueNameEnglish: updates.venueNameEnglish ?? '',
+			venueAddress: updates.venueAddress ?? '',
+			venueAddressEnglish: updates.venueAddressEnglish ?? '',
+			notes: updates.notes ?? '',
+			updatedAt: serverTimestamp()
+		};
+
+		await updateDoc(docRef, toUpdate);
+	} catch (error) {
+		logger.error('Error updating equipment rental contract:', error);
+		throw new Error('Failed to update equipment rental contract');
 	}
 }
 

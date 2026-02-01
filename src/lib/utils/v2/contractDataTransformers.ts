@@ -1,4 +1,8 @@
-import type { ServiceProvisionContract, EventPlanningContract } from '$lib/types/v2/contracts';
+import type {
+	ServiceProvisionContract,
+	EventPlanningContract,
+	EquipmentRentalContract
+} from '$lib/types/v2/contracts';
 import { companyConfig } from '$lib/config/company';
 import { translateToVietnamese } from '../translate';
 import { formatCurrency, formatDateVietnamese, formatDateEnglish } from '../formatting';
@@ -151,7 +155,7 @@ export async function transformServiceProvisionContractData(
 		companyCity: companyConfig.city,
 		companyTaxCode: companyConfig.taxCode,
 		companyRepresentative: companyConfig.representative,
-		companyFunction: companyConfig.function,
+		companyFunction: '', // No longer in config, use empty string for backward compatibility
 		companyRepresentativePhone: companyConfig.representativePhone,
 		companyRepresentativeEmail: companyConfig.representativeEmail,
 		clientName: contract.counterpartyName,
@@ -407,3 +411,213 @@ export async function transformEventPlanningContractData(
 	return eventPlanningContractViewDataSchema.parse(result);
 }
 
+/**
+ * Transformed data for equipment rental contract view/preview
+ * This matches the structure used by the document generator
+ */
+export interface EquipmentRentalContractViewData {
+	// Contract Information
+	contractNumber: string;
+	eventName: string;
+
+	// Company Information (Party A)
+	companyName: string;
+	companyNameVietnamese: string;
+	companyAddressLine1: string;
+	companyAddressLine2: string;
+	companyWard: string;
+	companyCity: string;
+	companyTaxCode: string;
+	companyRepresentative: string;
+	companyRepresentativePhone: string;
+	companyRepresentativeEmail: string;
+
+	// Counterparty Information (Party B)
+	counterpartyName: string;
+	counterpartyNameVietnamese: string;
+
+	// Rental Period
+	rentalStartDate: string;
+	rentalStartDateVietnamese: string;
+	rentalStartDateEnglish: string;
+	rentalEndDate: string;
+	rentalEndDateVietnamese: string;
+	rentalEndDateEnglish: string;
+
+	// Equipment List (formatted)
+	equipment: Array<{
+		name: string;
+		quantity: number;
+		unitPrice: string; // formatted currency
+		totalPrice: string; // formatted currency
+		serialNumbers: string; // comma-separated or 'N/A'
+	}>;
+	equipmentCount: number;
+	totalEquipmentValue: string; // formatted currency
+
+	// Terms (formatted)
+	securityDeposit: string; // formatted currency
+	damageWaiver: string; // 'Yes' or 'No'
+	damageWaiverVietnamese: string; // 'Có' or 'Không'
+	deliveryFee: string; // formatted currency
+
+	// Logistics
+	venueName: string;
+	venueNameEnglish: string;
+	venueAddress: string;
+	venueAddressEnglish: string;
+
+	// Financial (formatted)
+	contractValue: string; // formatted currency
+	totalContractValue: string; // formatted currency
+	currency: string;
+
+	// Payment
+	paymentDirection: string; // 'Receivable' or 'Payable'
+	paymentDirectionVietnamese: string; // 'Phải thu' or 'Phải trả'
+	paymentStatus: string; // 'Paid' or 'Unpaid'
+	paymentStatusVietnamese: string; // 'Đã thanh toán' or 'Chưa thanh toán'
+}
+
+/**
+ * Zod schema for validating equipment rental contract view data
+ */
+export const equipmentRentalContractViewDataSchema = z.object({
+	contractNumber: z.string().min(1),
+	eventName: z.string(), // Can be empty for standalone equipment rental contracts (no event)
+	companyName: z.string().min(1),
+	companyNameVietnamese: z.string().min(1),
+	companyAddressLine1: z.string().min(1),
+	companyAddressLine2: z.string().min(1),
+	companyWard: z.string().min(1),
+	companyCity: z.string().min(1),
+	companyTaxCode: z.string().min(1),
+	companyRepresentative: z.string().min(1),
+	companyRepresentativePhone: z.string().min(1),
+	companyRepresentativeEmail: z.string().email(),
+	counterpartyName: z.string().min(1),
+	counterpartyNameVietnamese: z.string().min(1),
+	rentalStartDate: z.string().min(1),
+	rentalStartDateVietnamese: z.string().min(1),
+	rentalStartDateEnglish: z.string().min(1),
+	rentalEndDate: z.string().min(1),
+	rentalEndDateVietnamese: z.string().min(1),
+	rentalEndDateEnglish: z.string().min(1),
+	equipment: z.array(
+		z.object({
+			name: z.string().min(1),
+			quantity: z.number().min(1),
+			unitPrice: z.string().min(1),
+			totalPrice: z.string().min(1),
+			serialNumbers: z.string()
+		})
+	),
+	equipmentCount: z.number().min(1),
+	totalEquipmentValue: z.string().min(1),
+	securityDeposit: z.string().min(1),
+	damageWaiver: z.enum(['Yes', 'No']),
+	damageWaiverVietnamese: z.enum(['Có', 'Không']),
+	venueName: z.string(), // Can be empty for legacy contracts
+	venueNameEnglish: z.string(), // Can be empty for legacy contracts
+	deliveryFee: z.string().min(1),
+	venueAddress: z.string(), // Can be empty for legacy contracts
+	venueAddressEnglish: z.string(), // Can be empty for legacy contracts
+	contractValue: z.string().min(1),
+	totalContractValue: z.string().min(1),
+	currency: z.string().min(1),
+	paymentDirection: z.enum(['Receivable', 'Payable']),
+	paymentDirectionVietnamese: z.enum(['Phải thu', 'Phải trả']),
+	paymentStatus: z.enum(['Paid', 'Unpaid']),
+	paymentStatusVietnamese: z.enum(['Đã thanh toán', 'Chưa thanh toán'])
+});
+
+/**
+ * Transform equipment rental contract data for view/preview
+ * This performs all calculations, formatting, and translations
+ * Normalizes null values to empty strings or 'N/A' for consistent display
+ */
+export async function transformEquipmentRentalContractData(
+	contract: EquipmentRentalContract
+): Promise<EquipmentRentalContractViewData> {
+	// Format dates
+	const rentalStartDateVietnamese = formatDateVietnamese(contract.rentalStartDate);
+	const rentalStartDateEnglish = formatDateEnglish(contract.rentalStartDate);
+	const rentalEndDateVietnamese = formatDateVietnamese(contract.rentalEndDate);
+	const rentalEndDateEnglish = formatDateEnglish(contract.rentalEndDate);
+
+	// Format equipment list
+	const equipmentList = contract.equipment.map((item) => {
+		const totalPrice = item.quantity * item.unitPrice;
+		const serialNumbersText =
+			item.serialNumbers.length > 0 ? item.serialNumbers.join(', ') : 'N/A';
+
+		return {
+			name: item.name,
+			quantity: item.quantity,
+			unitPrice: formatCurrency(item.unitPrice),
+			totalPrice: formatCurrency(totalPrice),
+			serialNumbers: serialNumbersText
+		};
+	});
+
+	// Calculate totals
+	const totalEquipmentValue = contract.equipment.reduce(
+		(sum, item) => sum + item.quantity * item.unitPrice,
+		0
+	);
+	const totalContractValue = totalEquipmentValue + contract.deliveryFee;
+
+	// Note: Counterparty name is a proper noun — NOT translated
+
+	// Format currency values
+	const deliveryFeeFormatted = formatCurrency(contract.deliveryFee);
+	const contractValueFormatted = formatCurrency(contract.contractValue);
+	const securityDepositFormatted = formatCurrency(contract.securityDeposit);
+	const totalContractValueFormatted = formatCurrency(totalContractValue);
+	const totalEquipmentValueFormatted = formatCurrency(totalEquipmentValue);
+
+	const result: EquipmentRentalContractViewData = {
+		contractNumber: contract.contractNumber ?? "",
+		eventName: contract.eventName ?? "", // Empty string if no event (standalone contract)
+		companyName: companyConfig.name,
+		companyNameVietnamese: companyConfig.nameVietnamese,
+		companyAddressLine1: companyConfig.addressLine1,
+		companyAddressLine2: companyConfig.addressLine2,
+		companyWard: companyConfig.ward,
+		companyCity: companyConfig.city,
+		companyTaxCode: companyConfig.taxCode,
+		companyRepresentative: companyConfig.representative,
+		companyRepresentativePhone: companyConfig.representativePhone,
+		companyRepresentativeEmail: companyConfig.representativeEmail,
+		counterpartyName: contract.counterpartyName,
+		counterpartyNameVietnamese: contract.counterpartyName,
+		rentalStartDate: contract.rentalStartDate,
+		rentalStartDateVietnamese: rentalStartDateVietnamese,
+		rentalStartDateEnglish: rentalStartDateEnglish,
+		rentalEndDate: contract.rentalEndDate,
+		rentalEndDateVietnamese: rentalEndDateVietnamese,
+		rentalEndDateEnglish: rentalEndDateEnglish,
+		equipment: equipmentList,
+		equipmentCount: contract.equipment.length,
+		totalEquipmentValue: totalEquipmentValueFormatted,
+		securityDeposit: securityDepositFormatted,
+		damageWaiver: contract.damageWaiver ? 'Yes' : 'No',
+		damageWaiverVietnamese: contract.damageWaiver ? 'Có' : 'Không',
+		venueName: contract.venueName,
+		venueNameEnglish: contract.venueNameEnglish,
+		deliveryFee: deliveryFeeFormatted,
+		venueAddress: contract.venueAddress,
+		venueAddressEnglish: contract.venueAddressEnglish,
+		contractValue: contractValueFormatted,
+		totalContractValue: totalContractValueFormatted,
+		currency: contract.currency,
+		paymentDirection: contract.paymentDirection === 'receivable' ? 'Receivable' : 'Payable',
+		paymentDirectionVietnamese:
+			contract.paymentDirection === 'receivable' ? 'Phải thu' : 'Phải trả',
+		paymentStatus: contract.paymentStatus === 'paid' ? 'Paid' : 'Unpaid',
+		paymentStatusVietnamese: contract.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'
+	};
+
+	// Validate transformed data
+	return equipmentRentalContractViewDataSchema.parse(result);
+}

@@ -69,14 +69,19 @@ export interface EquipmentRentalContract extends BaseContract {
 	// Equipment list
 	equipment: EquipmentItem[];
 
+	// Rent
+	monthlyRent: number;
+
 	// Terms
 	securityDeposit: number;
 	damageWaiver: boolean;
 	deliveryFee: number;
 
-	// Logistics
-	pickupLocation: string | null;
-	returnLocation: string | null;
+	// Logistics (empty string instead of null for Firestore compatibility)
+	venueName: string;
+	venueNameEnglish: string;
+	venueAddress: string;
+	venueAddressEnglish: string;
 }
 
 export interface EquipmentItem {
