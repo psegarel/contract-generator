@@ -151,11 +151,29 @@ Based on CLAUDE.md guidelines:
 ## Progress Tracking
 
 **Total Custom Components:** ~50+ (ui/ folder NOT included - shadcn components)
-**Checked:** 40+ (80%+)
+**Checked:** 50+ (90%+)
 **Needs Review:** 0 (0%)
-**Not Checked:** ~10 (20%)
+**Not Checked:** ~5 (10%)
 
 **Recently Checked (2026-02-01):**
+- EventForm.svelte ✅ (fixed $effect anti-pattern)
+- ClientForm.svelte ✅
+- CounterpartiesList.svelte ✅
+- CounterpartyCard.svelte ✅
+- CounterpartyListItem.svelte ✅
+- CounterpartyTypeSelector.svelte ✅ (fixed missing key in #each)
+- ServiceProviderForm.svelte ✅
+- DashboardCard.svelte ✅
+- SidebarMenuItem.svelte ✅
+- SidebarSubMenuItem.svelte ✅
+- EventCard.svelte ✅
+- EventListItem.svelte ✅
+- EventsList.svelte ✅
+- ContractCard.svelte ✅
+- ContractTypeSelector.svelte ✅
+- CreateProviderInline.svelte ✅
+
+**Previously Checked (2026-02-01):**
 - EventPlanningForm.svelte ✅
 - EventPlanningContractBasicsSection.svelte ✅
 - EventPlanningCompanyInfoSection.svelte ✅
