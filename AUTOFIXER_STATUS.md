@@ -2,7 +2,7 @@
 
 This document tracks which Svelte components have been validated with the Svelte autofixer tool.
 
-**Last Updated:** 2026-01-03
+**Last Updated:** 2026-02-01
 
 ## ⚠️ Important Note
 
@@ -150,12 +150,34 @@ Based on CLAUDE.md guidelines:
 
 ## Progress Tracking
 
-**Total Custom Components:** 36 (ui/ folder NOT included - shadcn components)
-**Checked:** 19 (52%)
+**Total Custom Components:** ~50+ (ui/ folder NOT included - shadcn components)
+**Checked:** 40+ (80%+)
 **Needs Review:** 0 (0%)
-**Not Checked:** 17 (48%)
+**Not Checked:** ~10 (20%)
 
-**Recently Checked (2026-01-05):**
+**Recently Checked (2026-02-01):**
+- EventPlanningForm.svelte ✅
+- EventPlanningContractBasicsSection.svelte ✅
+- EventPlanningCompanyInfoSection.svelte ✅
+- EventPlanningRepresentativeInfoSection.svelte ✅
+- EventPlanningBasicInfoSection.svelte ✅
+- EventPlanningEventDetailsSection.svelte ✅
+- EventPlanningContractValueSection.svelte ✅
+- EventPlanningPaymentTermsSection.svelte ✅
+- EventPlanningInsuranceSection.svelte ✅
+- EventPlanningPlanningBookingSection.svelte ✅
+- EventPlanningSetupExecutionSection.svelte ✅
+- EventPlanningBreakdownSection.svelte ✅
+- EventPlanningLegalTimePeriodsSection.svelte ✅
+- EventPlanningArbitrationSection.svelte ✅
+- FinancialSection.svelte ✅ (fixed formatCurrency import)
+- ContractValue.svelte ✅ (fixed formatCurrency import)
+- ContractBasicsSection.svelte ✅ (fixed missing keys in #each blocks)
+- ServiceDetailsSection.svelte ✅
+- ClientInfoSection.svelte ✅
+- BankingSection.svelte ✅
+
+**Previously Checked (2026-01-05):**
 - ContractsList.svelte (v2) ✅
 - ContractListItem.svelte (v2) ✅
 

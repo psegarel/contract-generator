@@ -65,7 +65,7 @@
 </script>
 
 <div class="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-	{#each contractTypes as contractType}
+	{#each contractTypes as contractType (contractType.value)}
 		<button
 			type="button"
 			onclick={() => handleSelect(contractType.value)}

@@ -54,7 +54,7 @@
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 			>
 				<option value="">Select an event</option>
-				{#each events as event}
+				{#each events as event (event.id)}
 					<option value={event.id}>{event.name} - {event.eventDate}</option>
 				{/each}
 			</select>
@@ -80,7 +80,7 @@
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 			>
 				<option value="">Select a service provider</option>
-				{#each serviceProviders as provider}
+				{#each serviceProviders as provider (provider.id)}
 					<option value={provider.id}>{provider.name}</option>
 				{/each}
 			</select>
