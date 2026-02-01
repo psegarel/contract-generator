@@ -246,5 +246,49 @@ service cloud.firestore {
       // Delete: only admins can delete
       allow delete: if isAdmin();
     }
+
+    // Event Planning Contracts (v2) - migrated from event-planning-contracts
+    match /event-planning-contracts/{contractId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in
+      allow create: if isSignedIn();
+
+      // Update: any authenticated user can update
+      // But only admins can update payment status
+      allow update: if isSignedIn()
+        && (
+          // Regular update (non-payment fields)
+          (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
+          // OR admin updating payment status
+          || isAdmin()
+        );
+
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
+    }
+
+    // Equipment Rental Contracts (v2)
+    match /equipment-rental-contracts/{contractId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in
+      allow create: if isSignedIn();
+
+      // Update: any authenticated user can update
+      // But only admins can update payment status
+      allow update: if isSignedIn()
+        && (
+          // Regular update (non-payment fields)
+          (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
+          // OR admin updating payment status
+          || isAdmin()
+        );
+
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
+    }
   }
 }

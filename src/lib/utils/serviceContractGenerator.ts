@@ -49,7 +49,7 @@ export const generateServiceContract = async (data: ContractData): Promise<Blob>
 			companyCity: companyConfig.city,
 			companyTaxCode: companyConfig.taxCode,
 			companyRepresentative: companyConfig.representative,
-			companyFunction: companyConfig.function,
+			companyFunction: '', // No longer in config, use empty string for backward compatibility
 			companyRepresentativePhone: companyConfig.representativePhone,
 			companyRepresentativeEmail: companyConfig.representativeEmail,
 			clientName: data.clientName,

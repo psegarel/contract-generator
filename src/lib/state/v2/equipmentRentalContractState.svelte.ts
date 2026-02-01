@@ -1,6 +1,7 @@
 import { subscribeToEquipmentRentalContracts } from '$lib/utils/v2/equipmentRentalContracts';
 import type { EquipmentRentalContract } from '$lib/types/v2';
 import type { Unsubscribe } from 'firebase/firestore';
+import { logger } from '$lib/utils/logger';
 
 export class EquipmentRentalContractState {
 	contracts = $state<EquipmentRentalContract[]>([]);
@@ -25,7 +26,7 @@ export class EquipmentRentalContractState {
 				}
 			);
 		} catch (e) {
-			console.error('Failed to init equipment rental contract subscription', e);
+			logger.error('Failed to init equipment rental contract subscription', e);
 			this.error = (e as Error).message;
 			this.isLoading = false;
 		}

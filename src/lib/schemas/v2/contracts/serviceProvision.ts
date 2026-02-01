@@ -43,16 +43,26 @@ const serviceProvisionFields = {
 /**
  * Service Provision Contract Schema (full schema with paidAt/paidBy)
  * Migrated from old service contract
+ * Note: Service Provision contracts require an event
  */
 export const serviceProvisionContractSchema = baseContractSchema
 	.extend(serviceProvisionFields)
+	.extend({
+		eventId: z.string().min(1, 'Event ID is required'), // Override: required for service provision
+		eventName: z.string().min(1, 'Event name is required') // Override: required for service provision
+	})
 	.strict();
 
 /**
  * Input schema for creation (no paidAt/paidBy fields)
+ * Note: Service Provision contracts require an event
  */
 export const serviceProvisionContractInputSchema = baseContractInputSchema
 	.extend(serviceProvisionFields)
+	.extend({
+		eventId: z.string().min(1, 'Event ID is required'), // Override: required for service provision
+		eventName: z.string().min(1, 'Event name is required') // Override: required for service provision
+	})
 	.strict();
 
 export type ServiceProvisionContractInput = z.infer<typeof serviceProvisionContractInputSchema>;

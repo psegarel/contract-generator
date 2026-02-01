@@ -81,9 +81,14 @@ const eventPlanningFields = {
  * Event Planning Contract Schema (full schema with paidAt/paidBy)
  * Migrated from old event-planning-contracts collection
  * Keep all fields from old schema for compatibility
+ * Note: Event Planning contracts require an event
  */
 export const eventPlanningContractSchema = baseContractSchema
 	.extend(eventPlanningFields)
+	.extend({
+		eventId: z.string().min(1, 'Event ID is required'), // Override: required for event planning
+		eventName: z.string().min(1, 'Event name is required') // Override: required for event planning
+	})
 	.strict()
 	.refine((data) => data.depositPercentage + data.finalPaymentPercentage === 100, {
 		message: 'Deposit and final payment percentages must sum to 100%',
@@ -92,9 +97,14 @@ export const eventPlanningContractSchema = baseContractSchema
 
 /**
  * Input schema for creation (no paidAt/paidBy fields)
+ * Note: Event Planning contracts require an event
  */
 export const eventPlanningContractInputSchema = baseContractInputSchema
 	.extend(eventPlanningFields)
+	.extend({
+		eventId: z.string().min(1, 'Event ID is required'), // Override: required for event planning
+		eventName: z.string().min(1, 'Event name is required') // Override: required for event planning
+	})
 	.strict()
 	.refine((data) => data.depositPercentage + data.finalPaymentPercentage === 100, {
 		message: 'Deposit and final payment percentages must sum to 100%',

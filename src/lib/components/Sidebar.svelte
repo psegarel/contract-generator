@@ -7,7 +7,8 @@
 		CalendarCheck,
 		FileCode,
 		Palette,
-		PanelLeft
+		PanelLeft,
+		Package
 	} from 'lucide-svelte';
 	import type { ComponentType } from 'svelte';
 	import SidebarMenuItem from './SidebarMenuItem.svelte';
@@ -50,6 +51,14 @@
 			subItems: [
 				{ label: 'List', href: resolve('/contracts/event-planning/list') },
 				{ label: 'Create', href: resolve('/contracts/event-planning') }
+			]
+		},
+		{
+			icon: Package,
+			label: 'Equipment Rental',
+			href: '#',
+			subItems: [
+				{ label: 'Create', href: resolve('/contracts/equipment-rental') }
 			]
 		},
 		{

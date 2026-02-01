@@ -1,30 +1,33 @@
 <script lang="ts">
 	import { authState } from '$lib/state/auth.svelte';
 	import { LatestContractsList } from '$lib/components/v2/contracts';
-	import { serviceProvisionContractState, eventPlanningContractState } from '$lib/state/v2';
+	import {
+		serviceProvisionContractState,
+		eventPlanningContractState,
+		equipmentRentalContractState
+	} from '$lib/state/v2';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import { calculateDashboardStats } from '$lib/utils/v2/dashboardStats';
 	import type { BaseContract } from '$lib/types/v2';
 	import { TrendingUp } from 'lucide-svelte';
 	import DashboardCard from '$lib/components/DashboardCard.svelte';
 
-	// Initialize only contract states that exist (event-planning and service-provision)
-	// Other contract types will be added as their collections are created
+	// Initialize contract states that have existing collections
 	$effect(() => {
-		// Only initialize contract states that have existing collections
 		serviceProvisionContractState.init();
 		eventPlanningContractState.init();
+		equipmentRentalContractState.init();
 
 		// TODO: Initialize these when their collections are created:
 		// venueRentalContractState.init();
 		// performerBookingContractState.init();
-		// equipmentRentalContractState.init();
 		// subcontractorContractState.init();
 		// clientServiceContractState.init();
 
 		return () => {
 			serviceProvisionContractState.destroy();
 			eventPlanningContractState.destroy();
+			equipmentRentalContractState.destroy();
 		};
 	});
 
@@ -32,11 +35,11 @@
 	// Only include contract states that are initialized
 	let allContracts = $derived<BaseContract[]>([
 		...serviceProvisionContractState.contracts,
-		...eventPlanningContractState.contracts
+		...eventPlanningContractState.contracts,
+		...equipmentRentalContractState.contracts
 		// Add other contract types when their collections exist:
 		// ...venueRentalContractState.contracts,
 		// ...performerBookingContractState.contracts,
-		// ...equipmentRentalContractState.contracts,
 		// ...subcontractorContractState.contracts,
 		// ...clientServiceContractState.contracts
 	]);

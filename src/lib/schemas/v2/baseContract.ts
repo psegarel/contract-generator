@@ -21,12 +21,12 @@ export const baseContractSchema = z.object({
 	ownerUid: z.string().min(1, 'Owner UID is required'),
 
 	// Relationships
-	eventId: z.string().min(1, 'Event ID is required'),
+	eventId: z.string().nullable().optional(), // Optional - some contracts are standalone
 	counterpartyId: z.string().min(1, 'Counterparty ID is required'),
 
 	// Denormalized fields (cached for list performance)
 	counterpartyName: z.string().min(1, 'Counterparty name is required'),
-	eventName: z.string().min(1, 'Event name is required'),
+	eventName: z.string().nullable().optional(), // Optional - null if no event (matches TypeScript interface)
 
 	// Payment
 	paymentDirection: z.enum(['receivable', 'payable']),

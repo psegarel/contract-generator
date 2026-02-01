@@ -1,19 +1,21 @@
 import type { BaseContract } from '$lib/types/v2';
-import type { ServiceProvisionContract, EventPlanningContract } from '$lib/types/v2/contracts';
+import type { ServiceProvisionContract, EventPlanningContract, EquipmentRentalContract } from '$lib/types/v2/contracts';
 import { toast } from 'svelte-sonner';
 import { deleteServiceProvisionContract } from './serviceProvisionContracts';
 import { deleteEventPlanningContract } from './eventPlanningContracts';
+import { deleteEquipmentRentalContract } from './equipmentRentalContracts';
 import { generateServiceContract } from '../serviceContractGenerator';
 import { generateEventPlanningContract } from '../eventPlanningContractGenerator';
+import { generateEquipmentRentalContract } from '../equipmentRentalContractGenerator';
 import { logger } from '../logger';
 
 /**
  * Download a contract as a Word document
- * Supports service-provision and event-planning contracts
+ * Supports service-provision, event-planning, and equipment-rental contracts
  */
 export async function downloadContract(contract: BaseContract): Promise<void> {
-	if (contract.type !== 'service-provision' && contract.type !== 'event-planning') {
-		toast.error('Download is only available for service-provision and event-planning contracts');
+	if (contract.type !== 'service-provision' && contract.type !== 'event-planning' && contract.type !== 'equipment-rental') {
+		toast.error('Download is only available for service-provision, event-planning, and equipment-rental contracts');
 		return;
 	}
 
@@ -105,6 +107,12 @@ export async function downloadContract(contract: BaseContract): Promise<void> {
 
 			await saveFile(blob, filename);
 			toast.success('Contract downloaded successfully!');
+		} else if (contract.type === 'equipment-rental') {
+			const equipmentRentalContract = contract as EquipmentRentalContract;
+			const blob = await generateEquipmentRentalContract(equipmentRentalContract);
+			const filename = `Equipment-Rental-Contract-${equipmentRentalContract.contractNumber}.docx`;
+			await saveFile(blob, filename);
+			toast.success('Contract downloaded successfully!');
 		}
 	} catch (error) {
 		logger.error('Error downloading contract:', error);
@@ -177,14 +185,15 @@ export async function deleteContract(
 		return;
 	}
 
-	if (contract.type !== 'service-provision' && contract.type !== 'event-planning') {
-		toast.error('Delete is only available for service-provision and event-planning contracts');
+	if (contract.type !== 'service-provision' && contract.type !== 'event-planning' && contract.type !== 'equipment-rental') {
+		toast.error('Delete is only available for service-provision, event-planning, and equipment-rental contracts');
 		return;
 	}
 
+	const contractName = contract.eventName || contract.contractNumber;
 	if (
 		!confirm(
-			`Are you sure you want to delete "${contract.eventName}"? This action cannot be undone.`
+			`Are you sure you want to delete "${contractName}"? This action cannot be undone.`
 		)
 	) {
 		return;
@@ -195,6 +204,8 @@ export async function deleteContract(
 			await deleteServiceProvisionContract(contract.id);
 		} else if (contract.type === 'event-planning') {
 			await deleteEventPlanningContract(contract.id);
+		} else if (contract.type === 'equipment-rental') {
+			await deleteEquipmentRentalContract(contract.id);
 		}
 
 		if (options.onDelete) {

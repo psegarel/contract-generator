@@ -36,3 +36,4 @@ export { counterpartyState, CounterpartyState } from './counterpartyState.svelte
 export { ServiceProviderFormState } from './serviceProviderFormState.svelte';
 export { ClientFormState } from './clientFormState.svelte';
 export { EventFormState } from './eventFormState.svelte';
+export { EquipmentRentalContractFormState } from './equipmentRentalContractFormState.svelte';
