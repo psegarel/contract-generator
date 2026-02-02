@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Eye, Edit, Download, Trash2 } from 'lucide-svelte';
+	import { Eye, Edit, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -16,7 +16,8 @@
 		updateSubcontractorContractPaymentStatus,
 		updateClientServiceContractPaymentStatus,
 		downloadContract,
-		deleteContract
+		deleteContract,
+		syncContractPaymentStatus
 	} from '$lib/utils/v2';
 	import ContractCard from './ContractCard.svelte';
 
@@ -98,6 +99,9 @@
 
 			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
 			await updateFunction(contract.id, newStatus, authState.user.uid);
+
+			// Sync payment records
+			await syncContractPaymentStatus(contract, newStatus, authState.user.uid);
 
 			// Update local contract state
 			const updatedContract: BaseContract = {
@@ -236,7 +240,7 @@
 			>
 				<Eye class="h-4 w-4" />
 			</Button>
-			{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+			{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental'}
 				<Button
 					variant="outline"
 					size="sm"
@@ -264,7 +268,7 @@
 		</div>
 
 		<!-- Delete Button -->
-		{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+		{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental'}
 			<div class="col-span-1 px-1 flex justify-center">
 				<Button
 					variant={authState.isAdmin ? 'destructive' : 'secondary'}

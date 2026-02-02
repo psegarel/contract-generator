@@ -8,6 +8,7 @@
 		saveEquipmentRentalContract,
 		updateEquipmentRentalContract
 	} from '$lib/utils/v2/equipmentRentalContracts';
+	import { createRecurringPayments, deletePaymentsByContract } from '$lib/utils/v2/payments';
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState } from '$lib/state/v2';
 	import { EquipmentRentalContractFormState } from '$lib/state/v2/equipmentRentalContractFormState.svelte';
@@ -204,6 +205,51 @@
 				contractId = contract.id;
 			} else {
 				contractId = await saveEquipmentRentalContract(contractData);
+			}
+
+			// Create/recreate payment records
+			try {
+				if (contract) {
+					await deletePaymentsByContract(contractId);
+				}
+				const startDate = new Date(formState.rentalStartDate);
+				const endDate = new Date(formState.rentalEndDate);
+				const installments: { label: string; dueDate: Date; amount: number }[] = [];
+				const current = new Date(startDate);
+				while (current <= endDate) {
+					const label = current.toLocaleDateString('en-US', {
+						month: 'long',
+						year: 'numeric'
+					});
+					installments.push({
+						label,
+						dueDate: new Date(current),
+						amount: formState.monthlyRent
+					});
+					current.setMonth(current.getMonth() + 1);
+				}
+				if (installments.length > 0) {
+					await createRecurringPayments(
+						{
+							id: contractId,
+							type: contractData.type,
+							contractNumber: contractData.contractNumber,
+							counterpartyName: contractData.counterpartyName,
+							paymentDirection: contractData.paymentDirection,
+							paymentStatus: contractData.paymentStatus,
+							contractValue: contractData.contractValue,
+							currency: contractData.currency,
+							ownerUid: contractData.ownerUid,
+							rentalStartDate: contractData.rentalStartDate,
+							rentalEndDate: contractData.rentalEndDate,
+							monthlyRent: formState.monthlyRent
+						} as any,
+						installments
+					);
+				}
+			} catch (paymentError) {
+				logger.error('Error creating payment records:', paymentError);
+				// Don't block the save — contract was saved successfully
 			}
 
 			toast.success(contract ? 'Contract updated successfully!' : 'Contract created successfully!');

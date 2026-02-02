@@ -4,6 +4,7 @@ import { toast } from 'svelte-sonner';
 import { deleteServiceProvisionContract } from './serviceProvisionContracts';
 import { deleteEventPlanningContract } from './eventPlanningContracts';
 import { deleteEquipmentRentalContract } from './equipmentRentalContracts';
+import { deletePaymentsByContract } from './payments';
 import { generateServiceContract } from '../serviceContractGenerator';
 import { generateEventPlanningContract } from '../eventPlanningContractGenerator';
 import { generateEquipmentRentalContract } from '../equipmentRentalContractGenerator';
@@ -207,6 +208,9 @@ export async function deleteContract(
 		} else if (contract.type === 'equipment-rental') {
 			await deleteEquipmentRentalContract(contract.id);
 		}
+
+		// Clean up associated payment records
+		await deletePaymentsByContract(contract.id);
 
 		if (options.onDelete) {
 			options.onDelete(contract.id);

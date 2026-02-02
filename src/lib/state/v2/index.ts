@@ -32,6 +32,9 @@ export {
 export { eventState, EventState } from './eventState.svelte';
 export { counterpartyState, CounterpartyState } from './counterpartyState.svelte';
 
+// Payment state
+export { paymentState, PaymentState } from './paymentState.svelte';
+
 // Form state exports
 export { ServiceProviderFormState } from './serviceProviderFormState.svelte';
 export { ClientFormState } from './clientFormState.svelte';

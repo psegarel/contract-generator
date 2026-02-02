@@ -5,6 +5,7 @@
 		type ServiceProvisionContractInput
 	} from '$lib/schemas/v2/contracts/serviceProvision';
 	import { saveServiceProvisionContract, updateServiceProvisionContract } from '$lib/utils/v2';
+	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
@@ -186,6 +187,26 @@
 				contractId = contract.id;
 			} else {
 				contractId = await saveServiceProvisionContract(contractData);
+			}
+
+			// Create/recreate payment record
+			try {
+				if (contract) {
+					await deletePaymentsByContract(contractId);
+				}
+				await createOneTimePayment({
+					id: contractId,
+					type: contractData.type,
+					contractNumber: contractData.contractNumber,
+					counterpartyName: contractData.counterpartyName,
+					paymentDirection: contractData.paymentDirection,
+					paymentStatus: contractData.paymentStatus,
+					contractValue: contractData.contractValue,
+					currency: contractData.currency,
+					ownerUid: contractData.ownerUid
+				} as any);
+			} catch (paymentError) {
+				logger.error('Error creating payment record:', paymentError);
 			}
 
 			if (onSuccess) {

@@ -4,48 +4,31 @@
 	import {
 		serviceProvisionContractState,
 		eventPlanningContractState,
-		equipmentRentalContractState
+		equipmentRentalContractState,
+		paymentState
 	} from '$lib/state/v2';
 	import { formatCurrency } from '$lib/utils/formatting';
-	import { calculateDashboardStats } from '$lib/utils/v2/dashboardStats';
-	import type { BaseContract } from '$lib/types/v2';
+	import { calculateDashboardStatsFromPayments } from '$lib/utils/v2/dashboardStats';
 	import { TrendingUp } from 'lucide-svelte';
 	import DashboardCard from '$lib/components/DashboardCard.svelte';
 
-	// Initialize contract states that have existing collections
+	// Initialize contract states (for LatestContractsList) and payment state (for dashboard stats)
 	$effect(() => {
 		serviceProvisionContractState.init();
 		eventPlanningContractState.init();
 		equipmentRentalContractState.init();
-
-		// TODO: Initialize these when their collections are created:
-		// venueRentalContractState.init();
-		// performerBookingContractState.init();
-		// subcontractorContractState.init();
-		// clientServiceContractState.init();
+		paymentState.init();
 
 		return () => {
 			serviceProvisionContractState.destroy();
 			eventPlanningContractState.destroy();
 			equipmentRentalContractState.destroy();
+			paymentState.destroy();
 		};
 	});
 
-	// Merge all contracts into a single array
-	// Only include contract states that are initialized
-	let allContracts = $derived<BaseContract[]>([
-		...serviceProvisionContractState.contracts,
-		...eventPlanningContractState.contracts,
-		...equipmentRentalContractState.contracts
-		// Add other contract types when their collections exist:
-		// ...venueRentalContractState.contracts,
-		// ...performerBookingContractState.contracts,
-		// ...subcontractorContractState.contracts,
-		// ...clientServiceContractState.contracts
-	]);
-
-	// Calculate dashboard stats from all contracts (filtered by date range)
-	let stats = $derived(calculateDashboardStats(allContracts));
+	// Calculate dashboard stats from payment records
+	let stats = $derived(calculateDashboardStatsFromPayments(paymentState.payments));
 
 	let netRevenue = $derived(stats.netRevenue);
 	let totalReceivable = $derived(stats.totalReceivable);

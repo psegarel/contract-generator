@@ -5,6 +5,7 @@
 		type EventPlanningContractInput
 	} from '$lib/schemas/v2/contracts/eventPlanning';
 	import { saveEventPlanningContract, updateEventPlanningContract } from '$lib/utils/v2';
+	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
 	import { EventPlanningContractFormState } from '$lib/state/v2/eventPlanningContractFormState.svelte';
@@ -155,6 +156,26 @@ import { logger } from '$lib/utils/logger';
 				contractId = contract.id;
 			} else {
 				contractId = await saveEventPlanningContract(contractData);
+			}
+
+			// Create/recreate payment record
+			try {
+				if (contract) {
+					await deletePaymentsByContract(contractId);
+				}
+				await createOneTimePayment({
+					id: contractId,
+					type: contractData.type,
+					contractNumber: contractData.contractNumber,
+					counterpartyName: contractData.counterpartyName,
+					paymentDirection: contractData.paymentDirection,
+					paymentStatus: contractData.paymentStatus,
+					contractValue: contractData.contractValue,
+					currency: contractData.currency,
+					ownerUid: contractData.ownerUid
+				} as any);
+			} catch (paymentError) {
+				logger.error('Error creating payment record:', paymentError);
 			}
 
 			if (onSuccess) {

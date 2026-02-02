@@ -16,6 +16,9 @@ export type {
 // Event types
 export type { Event, EventInput, EventStatus } from './event';
 
+// Payment types
+export type { Payment, PaymentType, PaymentRecordStatus } from './payment';
+
 // Contract types
 export type {
 	VenueRentalContract,

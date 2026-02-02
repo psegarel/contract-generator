@@ -1,4 +1,5 @@
 import type { BaseContract } from '$lib/types/v2';
+import type { Payment } from '$lib/types/v2/payment';
 import { getDefaultDateRange } from '$lib/config/dashboard';
 
 export interface DashboardStats {
@@ -59,6 +60,62 @@ export function calculateDashboardStats(
 	const totalPaid = filteredContracts
 		.filter((c) => c.paymentDirection === 'payable' && c.paymentStatus === 'paid')
 		.reduce((sum, c) => sum + c.contractValue, 0);
+
+	return {
+		netRevenue,
+		totalReceivable,
+		totalPayable,
+		totalPaid
+	};
+}
+
+/**
+ * Filter payments by date range based on createdAt timestamp
+ */
+function filterPaymentsByDateRange(
+	payments: Payment[],
+	startDate: string,
+	endDate: string
+): Payment[] {
+	const start = new Date(startDate).getTime();
+	const end = new Date(endDate + 'T23:59:59.999Z').getTime();
+
+	return payments.filter((payment) => {
+		const paymentTime = payment.createdAt.toMillis();
+		return paymentTime >= start && paymentTime <= end;
+	});
+}
+
+/**
+ * Calculate dashboard statistics from payment records
+ * This is the preferred method — derives stats from the payments collection.
+ */
+export function calculateDashboardStatsFromPayments(
+	payments: Payment[],
+	dateRange?: { startDate: string; endDate: string }
+): DashboardStats {
+	const range = dateRange || getDefaultDateRange();
+	const filtered = filterPaymentsByDateRange(payments, range.startDate, range.endDate);
+
+	// Total Received (net revenue) = receivable payments that are paid
+	const netRevenue = filtered
+		.filter((p) => p.direction === 'receivable' && p.status === 'paid')
+		.reduce((sum, p) => sum + p.amount, 0);
+
+	// Total Receivable = receivable payments still pending
+	const totalReceivable = filtered
+		.filter((p) => p.direction === 'receivable' && p.status === 'pending')
+		.reduce((sum, p) => sum + p.amount, 0);
+
+	// Total Payable = payable payments still pending
+	const totalPayable = filtered
+		.filter((p) => p.direction === 'payable' && p.status === 'pending')
+		.reduce((sum, p) => sum + p.amount, 0);
+
+	// Total Paid = payable payments that are paid
+	const totalPaid = filtered
+		.filter((p) => p.direction === 'payable' && p.status === 'paid')
+		.reduce((sum, p) => sum + p.amount, 0);
 
 	return {
 		netRevenue,

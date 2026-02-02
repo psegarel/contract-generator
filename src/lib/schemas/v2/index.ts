@@ -5,3 +5,6 @@ export * from './event';
 
 // Contract-specific schemas
 export * from './contracts';
+
+// Payment schemas
+export * from './payment';
