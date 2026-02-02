@@ -1,6 +1,6 @@
 # Current Status
 
-**Last Updated:** 2026-02-01
+**Last Updated:** 2026-02-02
 
 ---
 
@@ -32,6 +32,10 @@
    - Fixed broken `/v2/` route references (routes are at root level)
    - Updated EventCard, events/new page to use correct paths
 
+4. **Equipment Rental List Route** (February 2, 2026)
+   - Added `/contracts/equipment-rental/list/` route
+   - Enabled Edit/Download/Delete actions for equipment-rental contracts in ContractListItem
+
 ### 🔍 Active Routes
 - ✅ `/` - Dashboard working
 - ✅ `/contracts/service-provision/` - Service provision contracts
@@ -39,6 +43,9 @@
 - ✅ `/events/` - Events list
 - ✅ `/events/new/` - Create event
 - ✅ `/events/[id]/` - Event details
+- ✅ `/contracts/equipment-rental/` - Equipment rental contract form
+- ✅ `/contracts/equipment-rental/list/` - Equipment rental contracts list
+- ✅ `/contracts/equipment-rental/[id]/` - View equipment rental contract
 - ✅ `/counterparties/` - Counterparties list
 - ✅ `/counterparties/new/` - Create counterparty
 - ✅ `/counterparties/[id]/` - Counterparty details
@@ -54,7 +61,7 @@
 | 3 | Firestore Utilities | 9 | ✅ Complete | 100% |
 | 4 | State Management | 10 | ✅ Complete | 100% |
 | 5 | UI Components | 20/25 | 🔄 In Progress | 80% |
-| 6 | Routes | 8/11 | 🔄 In Progress | 70% |
+| 6 | Routes | 11/11 | ✅ Complete | 100% |
 | 7 | Migration Scripts | 5/5 | ✅ Complete | 100% |
 
 ---
@@ -151,6 +158,9 @@ npx tsx src/lib/migration/runMigration.ts --live
 - ✅ `/contracts/event-planning/list/` - Event planning contracts list
 - ✅ `/contracts/event-planning/[id]/` - View event planning contract
 - ✅ `/contracts/event-planning/[id]/edit/` - Edit event planning contract
+- ✅ `/contracts/equipment-rental/` - Equipment rental contract form
+- ✅ `/contracts/equipment-rental/list/` - Equipment rental contracts list
+- ✅ `/contracts/equipment-rental/[id]/` - View equipment rental contract
 - ✅ `/events/` - Events list
 - ✅ `/events/new/` - Create event
 - ✅ `/events/[id]/` - Event detail
@@ -217,7 +227,7 @@ npx tsx src/lib/migration/runMigration.ts --live
 - ✅ `event-planning-contracts` - Event planning contracts
 - ⏳ `venue-rental-contracts` - Planned (not yet implemented)
 - ⏳ `performer-booking-contracts` - Planned (not yet implemented)
-- ⏳ `equipment-rental-contracts` - Planned (not yet implemented)
+- ✅ `equipment-rental-contracts` - Equipment rental contracts
 - ⏳ `subcontractor-contracts` - Planned (not yet implemented)
 - ⏳ `client-service-contracts` - Planned (not yet implemented)
 
@@ -258,6 +268,8 @@ pnpm dev
 - http://localhost:5173/contracts/service-provision/list/ ✅ Service contracts list
 - http://localhost:5173/contracts/event-planning/ ✅ Create event planning contract
 - http://localhost:5173/contracts/event-planning/list/ ✅ Event planning contracts list
+- http://localhost:5173/contracts/equipment-rental/ ✅ Create equipment rental contract
+- http://localhost:5173/contracts/equipment-rental/list/ ✅ Equipment rental contracts list
 
 ---
 

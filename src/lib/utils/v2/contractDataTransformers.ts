@@ -565,7 +565,8 @@ export async function transformEquipmentRentalContractData(
 		(sum, item) => sum + item.quantity * item.unitPrice,
 		0
 	);
-	const totalContractValue = totalEquipmentValue + contract.deliveryFee;
+	// Total contract value is monthlyRent × months (already stored in contract.contractValue)
+	const totalContractValue = contract.contractValue;
 
 	// Note: Counterparty name is a proper noun — NOT translated
 

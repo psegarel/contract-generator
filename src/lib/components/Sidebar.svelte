@@ -58,6 +58,7 @@
 			label: 'Equipment Rental',
 			href: '#',
 			subItems: [
+				{ label: 'List', href: resolve('/contracts/equipment-rental/list') },
 				{ label: 'Create', href: resolve('/contracts/equipment-rental') }
 			]
 		},

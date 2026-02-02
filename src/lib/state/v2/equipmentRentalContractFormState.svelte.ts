@@ -190,16 +190,31 @@ export class EquipmentRentalContractFormState {
 
 	/**
 	 * Calculate total equipment value (sum of quantity * unitPrice for all items)
+	 * This represents the residual value of the physical assets.
 	 */
 	get totalEquipmentValue(): number {
 		return this.equipment.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
 	}
 
 	/**
-	 * Calculate total contract value (equipment value + delivery fee)
-	 * Note: Security deposit is separate, not included in contract value
+	 * Calculate rental duration in months between start and end dates.
+	 * Returns 0 if dates are missing or invalid.
+	 */
+	get rentalMonths(): number {
+		if (!this.rentalStartDate || !this.rentalEndDate) return 0;
+		const start = new Date(this.rentalStartDate);
+		const end = new Date(this.rentalEndDate);
+		if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+		const months =
+			(end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+		return Math.max(0, months);
+	}
+
+	/**
+	 * Calculate total contract value (monthlyRent × rental months)
+	 * This is the total revenue over the rental period.
 	 */
 	get calculatedContractValue(): number {
-		return this.totalEquipmentValue + this.deliveryFee;
+		return this.monthlyRent * this.rentalMonths;
 	}
 }

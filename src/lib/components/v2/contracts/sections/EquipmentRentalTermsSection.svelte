@@ -84,7 +84,11 @@
 					<span class="font-semibold text-gray-900">{formatCurrency(formState.monthlyRent)}</span>
 				</div>
 				<div class="flex justify-between">
-					<span class="text-gray-600">Total Equipment Value:</span>
+					<span class="text-gray-600">Rental Period:</span>
+					<span class="font-semibold text-gray-900">{formState.rentalMonths} month{formState.rentalMonths !== 1 ? 's' : ''}</span>
+				</div>
+				<div class="flex justify-between">
+					<span class="text-gray-600">Equipment Residual Value:</span>
 					<span class="font-semibold text-gray-900">{formatCurrency(formState.totalEquipmentValue)}</span>
 				</div>
 				<div class="flex justify-between">
