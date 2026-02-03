@@ -16,3 +16,6 @@ export * from './contractActions';
 
 // Payment utilities
 export * from './payments';
+
+// Migration utilities
+export { migrateExistingContractPayments } from './migratePayments';

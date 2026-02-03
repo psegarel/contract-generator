@@ -1,6 +1,6 @@
 # Project Progress
 
-**Last Updated:** 2026-02-01
+**Last Updated:** 2026-02-03
 
 ## Project Overview
 
@@ -233,7 +233,7 @@ BaseContract exists for UI component props only (not in Firestore).
 
 ## Technical Status
 
-**TypeScript:** ✅ 0 errors, 0 warnings (verified 2026-02-01)
+**TypeScript:** ✅ 0 errors, 0 warnings (verified 2026-02-03)
 
 **Command:** `pnpm check`
 
@@ -260,8 +260,24 @@ BaseContract exists for UI component props only (not in Firestore).
 
 ### February 2026
 
-1. **Navigation Fixes**
-   - Fixed broken `/v2/` route references (Feb 1)
+1. **Payment Tracking System** (Feb 2-3)
+   - New `payments` Firestore collection with types (`Payment`), schemas, and CRUD utilities
+   - `PaymentState` reactive state class with real-time Firestore subscriptions
+   - Auto-creation: one-time payments for service/event contracts, recurring monthly for equipment rental
+   - Dashboard stats (Received, Receivable, Payable, Paid) now derived from payment records
+   - Payment status toggle on contract list syncs to payment records via `syncContractPaymentStatus()`
+   - Contract deletion cascades to associated payment records
+   - Migration script (`migratePayments.ts`) backfills payment records for contracts created before the payment system
+   - Admin-only migration UI on dashboard with progress/error reporting
+   - Firestore security rules for `payments` collection (read/create: authenticated, update/delete: admin)
+   - Composite index for `payments` collection (`contractId` + `createdAt`)
+
+2. **Equipment Rental List Route** (Feb 2)
+   - Added `/contracts/equipment-rental/list/` route
+   - Enabled Edit/Download/Delete actions for equipment-rental contracts
+
+3. **Navigation Fixes** (Feb 1)
+   - Fixed broken `/v2/` route references
    - Updated EventCard to use correct event detail paths
    - Updated events/new page to use correct navigation
    - Verified all routes working correctly

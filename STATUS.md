@@ -1,6 +1,6 @@
 # Current Status
 
-**Last Updated:** 2026-02-02
+**Last Updated:** 2026-02-03
 
 ---
 
@@ -14,27 +14,32 @@
 
 ---
 
-## Recent Updates (January 2026)
+## Recent Updates
 
 ### ✅ Completed
-1. **V2 Migration Complete** - Successfully migrated from V1 to V2 architecture
-   - V1 routes and components removed
-   - All routes now use V2 components and utilities
-   - Migration scripts archived in `migrations-archive/`
+1. **Payment Tracking System** (February 2-3, 2026)
+   - Added `payments` Firestore collection with types, schemas, CRUD, and real-time subscriptions
+   - Payment records auto-created when saving contracts (one-time for service/event, recurring monthly for equipment rental)
+   - Dashboard stats (Received, Receivable, Payable, Paid) derived from payment records
+   - Payment status toggle on contracts syncs to payment records
+   - Contract deletion cascades to payment records
+   - **Migration script** (`migratePayments.ts`) backfills payment records for pre-existing contracts
+   - Admin-only migration UI on dashboard with result reporting
+   - Added Firestore security rules and composite index for `payments` collection
 
-2. **Form Modernization** (January 12, 2026)
-   - Refactored EventPlanningForm to use formState pattern
-   - Refactored ServiceProvisionForm with Svelte 5 patterns
-   - Eliminated all `$effect` anti-patterns
-   - Broke down large forms into smaller section components
+2. **Equipment Rental List Route** (February 2, 2026)
+   - Added `/contracts/equipment-rental/list/` route
+   - Enabled Edit/Download/Delete actions for equipment-rental contracts in ContractListItem
 
 3. **Navigation Fixes** (February 1, 2026)
    - Fixed broken `/v2/` route references (routes are at root level)
    - Updated EventCard, events/new page to use correct paths
 
-4. **Equipment Rental List Route** (February 2, 2026)
-   - Added `/contracts/equipment-rental/list/` route
-   - Enabled Edit/Download/Delete actions for equipment-rental contracts in ContractListItem
+4. **Form Modernization** (January 12, 2026)
+   - Refactored EventPlanningForm to use formState pattern
+   - Refactored ServiceProvisionForm with Svelte 5 patterns
+   - Eliminated all `$effect` anti-patterns
+   - Broke down large forms into smaller section components
 
 ### 🔍 Active Routes
 - ✅ `/` - Dashboard working
@@ -85,9 +90,12 @@
 - ✅ 7 contract CRUD files
 - ✅ Event CRUD
 - ✅ Counterparty CRUD
+- ✅ Payment CRUD (`payments.ts`) + migration (`migratePayments.ts`)
+- ✅ Dashboard stats from payments (`dashboardStats.ts`)
 
 **State Management (`src/lib/state/v2/`):**
 - ✅ All 9 state classes
+- ✅ PaymentState with real-time subscriptions
 
 ### UI Components (Phase 5) - 80% Complete
 
@@ -175,16 +183,20 @@ npx tsx src/lib/migration/runMigration.ts --live
 ## Active Enhancements
 
 ### In Progress
-1. **Component Quality Validation** - 52% of custom components checked with Svelte autofixer
+1. **Payment Tracking Enhancements**
+   - Pending: Dedicated `/payments` route for viewing/filtering individual payment records
+   - Pending: Per-installment tracking UI for equipment rental recurring payments
+   - Pending: Due date population and overdue alerts
+   - Pending: Payment notes UI
+
+2. **Component Quality Validation** - 52% of custom components checked with Svelte autofixer
    - Goal: 100% validation coverage
    - See `AUTOFIXER_STATUS.md` for tracking
 
-2. **Documentation Updates** - Keeping docs in sync with codebase changes
-
 ### Future Enhancements
-1. **Contract Templates** - Additional contract types (venue rental, performer booking, equipment rental)
+1. **Contract Templates** - Additional contract types (venue rental, performer booking)
 2. **Advanced Filtering** - Enhanced search and filter capabilities
-3. **Reporting** - Financial reports and analytics dashboards
+3. **Reporting** - Financial reports, payment export, analytics dashboards
 
 ---
 
@@ -225,9 +237,10 @@ npx tsx src/lib/migration/runMigration.ts --live
 - ✅ `counterparties` - Clients, venues, service providers, performers, suppliers
 - ✅ `service-provision-contracts` - Service contracts (DJ, AV, etc.)
 - ✅ `event-planning-contracts` - Event planning contracts
+- ✅ `equipment-rental-contracts` - Equipment rental contracts
+- ✅ `payments` - Payment records (one-time and recurring), drives dashboard stats
 - ⏳ `venue-rental-contracts` - Planned (not yet implemented)
 - ⏳ `performer-booking-contracts` - Planned (not yet implemented)
-- ✅ `equipment-rental-contracts` - Equipment rental contracts
 - ⏳ `subcontractor-contracts` - Planned (not yet implemented)
 - ⏳ `client-service-contracts` - Planned (not yet implemented)
 

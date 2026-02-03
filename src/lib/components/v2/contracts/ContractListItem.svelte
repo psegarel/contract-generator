@@ -98,10 +98,21 @@
 			}
 
 			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
-			await updateFunction(contract.id, newStatus, authState.user.uid);
+
+			try {
+				await updateFunction(contract.id, newStatus, authState.user.uid);
+			} catch (err) {
+				logger.error('Contract status update failed:', err);
+				throw err;
+			}
 
 			// Sync payment records
-			await syncContractPaymentStatus(contract, newStatus, authState.user.uid);
+			try {
+				await syncContractPaymentStatus(contract, newStatus, authState.user.uid);
+			} catch (err) {
+				logger.error('Payment sync failed:', err);
+				throw err;
+			}
 
 			// Update local contract state
 			const updatedContract: BaseContract = {

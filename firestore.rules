@@ -269,6 +269,21 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Payment Records (v2)
+    match /payments/{paymentId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in
+      allow create: if isSignedIn();
+
+      // Update: only admins can update payment status
+      allow update: if isAdmin();
+
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
+    }
+
     // Equipment Rental Contracts (v2)
     match /equipment-rental-contracts/{contractId} {
       // Any authenticated user can read
