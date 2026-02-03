@@ -5,8 +5,9 @@ import type { ContractType } from './base';
  * Payment type discriminator
  * - one-time: Single payment for the full contract value
  * - recurring: Monthly installment (e.g., equipment rental)
+ * - deposit: Upfront deposit payment
  */
-export type PaymentType = 'one-time' | 'recurring';
+export type PaymentType = 'one-time' | 'recurring' | 'deposit';
 
 /**
  * Payment record status

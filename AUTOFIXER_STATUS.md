@@ -2,7 +2,7 @@
 
 This document tracks which Svelte components have been validated with the Svelte autofixer tool.
 
-**Last Updated:** 2026-02-01
+**Last Updated:** 2026-02-03
 
 ## ⚠️ Important Note
 
@@ -25,7 +25,8 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | Component | Status | Last Checked | Notes |
 |-----------|--------|--------------|-------|
 | ContractsList.svelte | ✅ | 2026-01-05 | Clean - no issues |
-| ContractListItem.svelte | ✅ | 2026-01-05 | Clean - no issues |
+| ContractListItem.svelte | ✅ | 2026-02-03 | Refactored: removed payment toggle, added link badge |
+| ContractCard.svelte | ✅ | 2026-02-03 | Refactored: removed toggle props, added link badge |
 | EquipmentRentalLogisticsSection.svelte | ✅ | 2026-02-01 | Clean - split venue fields to match template placeholders |
 
 ### Core Components (`src/lib/components/`)
@@ -66,7 +67,8 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | Component | Status | Last Checked | Notes |
 |-----------|--------|--------------|-------|
 | +layout.svelte | ❌ | - | - |
-| +page.svelte (root) | ❌ | - | - |
+| +page.svelte (root) | ✅ | 2026-02-03 | Removed migration UI |
+| payments/+page.svelte | ✅ | 2026-02-03 | New — admin payments management route |
 | contacts/+page.svelte | ❌ | - | - |
 | contracts/+page.svelte | ❌ | - | - |
 | contracts/event-planning/+page.svelte | ❌ | - | - |
@@ -156,7 +158,13 @@ Based on CLAUDE.md guidelines:
 **Needs Review:** 0 (0%)
 **Not Checked:** ~3 (5%)
 
-**Recently Checked (2026-02-01):**
+**Recently Checked (2026-02-03):**
+- ContractListItem.svelte (v2) ✅ (removed payment toggle, added link badge)
+- ContractCard.svelte (v2) ✅ (removed toggle props, added link badge)
+- payments/+page.svelte ✅ (new admin payments management route)
+- +page.svelte (root) ✅ (removed migration UI)
+
+**Previously Checked (2026-02-01):**
 - EquipmentRentalLogisticsSection.svelte ✅ (updated venueAddress split to Vietnamese/English)
 - EventForm.svelte ✅ (fixed $effect anti-pattern)
 - Route components: +layout.svelte, +page.svelte, events/+page.svelte, counterparties/+page.svelte, login/+page.svelte ✅ (legitimate $effect usage for lifecycle)

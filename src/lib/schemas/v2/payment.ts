@@ -17,7 +17,7 @@ export const paymentSchema = z
 		]),
 		contractNumber: z.string().min(1, 'Contract number is required'),
 		counterpartyName: z.string().min(1, 'Counterparty name is required'),
-		paymentType: z.enum(['one-time', 'recurring']),
+		paymentType: z.enum(['one-time', 'recurring', 'deposit']),
 		amount: z.number().min(0, 'Amount must be positive'),
 		currency: z.literal('VND'),
 		direction: z.enum(['receivable', 'payable']),

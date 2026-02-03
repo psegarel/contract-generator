@@ -15,9 +15,16 @@ import {
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { Payment } from '$lib/types/v2/payment';
-import type { BaseContract } from '$lib/types/v2';
+import type { BaseContract, ContractType } from '$lib/types/v2';
 import { paymentInputSchema, type PaymentInput } from '$lib/schemas/v2/payment';
 import { logger } from '../logger';
+import { updateServiceProvisionContractPaymentStatus } from './serviceProvisionContracts';
+import { updateEventPlanningContractPaymentStatus } from './eventPlanningContracts';
+import { updateVenueRentalContractPaymentStatus } from './venueRentalContracts';
+import { updatePerformerBookingContractPaymentStatus } from './performerBookingContracts';
+import { updateEquipmentRentalContractPaymentStatus } from './equipmentRentalContracts';
+import { updateSubcontractorContractPaymentStatus } from './subcontractorContracts';
+import { updateClientServiceContractPaymentStatus } from './clientServiceContracts';
 
 const COLLECTION_NAME = 'payments';
 
@@ -172,6 +179,39 @@ export async function getPaymentsByContract(contractId: string): Promise<Payment
 		id: d.id,
 		...d.data()
 	})) as Payment[];
+}
+
+/**
+ * Sync contract-level paymentStatus based on payment records.
+ * If all payments are paid → contract is "paid".
+ * If any payment is pending → contract is "unpaid".
+ */
+export async function syncContractStatusFromPayments(
+	contractId: string,
+	contractType: ContractType,
+	adminUid: string
+): Promise<void> {
+	const payments = await getPaymentsByContract(contractId);
+
+	if (payments.length === 0) return;
+
+	const allPaid = payments.every((p) => p.status === 'paid');
+	const newStatus: 'paid' | 'unpaid' = allPaid ? 'paid' : 'unpaid';
+
+	const updateFunctions: Record<
+		ContractType,
+		(id: string, status: 'unpaid' | 'paid', uid: string) => Promise<void>
+	> = {
+		'service-provision': updateServiceProvisionContractPaymentStatus,
+		'event-planning': updateEventPlanningContractPaymentStatus,
+		'venue-rental': updateVenueRentalContractPaymentStatus,
+		'performer-booking': updatePerformerBookingContractPaymentStatus,
+		'equipment-rental': updateEquipmentRentalContractPaymentStatus,
+		subcontractor: updateSubcontractorContractPaymentStatus,
+		'client-service': updateClientServiceContractPaymentStatus
+	};
+
+	await updateFunctions[contractType](contractId, newStatus, adminUid);
 }
 
 /**

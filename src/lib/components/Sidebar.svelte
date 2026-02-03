@@ -8,7 +8,8 @@
 		FileCode,
 		Palette,
 		PanelLeft,
-		Package
+		Package,
+		Wallet
 	} from 'lucide-svelte';
 	import type { ComponentType } from 'svelte';
 	import SidebarMenuItem from './SidebarMenuItem.svelte';
@@ -62,6 +63,7 @@
 				{ label: 'Create', href: resolve('/contracts/equipment-rental') }
 			]
 		},
+		{ icon: Wallet, label: 'Payments', href: resolve('/payments') },
 		{
 			icon: CalendarCheck,
 			label: 'Events',

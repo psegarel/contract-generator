@@ -5,33 +5,19 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
-	import { toast } from 'svelte-sonner';
-	import { logger } from '$lib/utils/logger';
-	import {
-		updateServiceProvisionContractPaymentStatus,
-		updateEventPlanningContractPaymentStatus,
-		updateVenueRentalContractPaymentStatus,
-		updatePerformerBookingContractPaymentStatus,
-		updateEquipmentRentalContractPaymentStatus,
-		updateSubcontractorContractPaymentStatus,
-		updateClientServiceContractPaymentStatus,
-		downloadContract,
-		deleteContract,
-		syncContractPaymentStatus
-	} from '$lib/utils/v2';
+	import { downloadContract, deleteContract } from '$lib/utils/v2';
+	import { paymentState } from '$lib/state/v2/paymentState.svelte';
 	import ContractCard from './ContractCard.svelte';
 
 	interface Props {
 		contract: BaseContract;
 		index: number;
 		getLink?: (c: BaseContract) => string;
-		onPaymentStatusUpdate?: (contract: BaseContract) => void;
 		onDelete?: (contractId: string) => void;
 	}
 
-	let { contract, index, getLink, onPaymentStatusUpdate, onDelete }: Props = $props();
+	let { contract, index, getLink, onDelete }: Props = $props();
 
-	let isMarkingAsPaid = $state(false);
 	let isDownloading = $state(false);
 	let isDeleting = $state(false);
 
@@ -56,84 +42,25 @@
 		return `/contracts/${contract.type}/${contract.id}/edit`;
 	}
 
-	async function togglePaymentStatus() {
-		if (!authState.user?.uid) {
-			toast.error('You must be logged in to update payment status');
-			return;
+	let contractPayments = $derived(paymentState.getByContract(contract.id));
+
+	let paymentLabel = $derived.by(() => {
+		if (contractPayments.length === 0) {
+			return contract.paymentStatus === 'paid' ? 'Paid' : 'Unpaid';
 		}
-
-		isMarkingAsPaid = true;
-
-		try {
-			let updateFunction: (
-				contractId: string,
-				status: 'unpaid' | 'paid',
-				adminUid: string
-			) => Promise<void>;
-
-			switch (contract.type) {
-				case 'service-provision':
-					updateFunction = updateServiceProvisionContractPaymentStatus;
-					break;
-				case 'event-planning':
-					updateFunction = updateEventPlanningContractPaymentStatus;
-					break;
-				case 'venue-rental':
-					updateFunction = updateVenueRentalContractPaymentStatus;
-					break;
-				case 'performer-booking':
-					updateFunction = updatePerformerBookingContractPaymentStatus;
-					break;
-				case 'equipment-rental':
-					updateFunction = updateEquipmentRentalContractPaymentStatus;
-					break;
-				case 'subcontractor':
-					updateFunction = updateSubcontractorContractPaymentStatus;
-					break;
-				case 'client-service':
-					updateFunction = updateClientServiceContractPaymentStatus;
-					break;
-				default:
-					throw new Error(`Unknown contract type: ${contract.type}`);
-			}
-
-			const newStatus: 'unpaid' | 'paid' = contract.paymentStatus === 'paid' ? 'unpaid' : 'paid';
-
-			try {
-				await updateFunction(contract.id, newStatus, authState.user.uid);
-			} catch (err) {
-				logger.error('Contract status update failed:', err);
-				throw err;
-			}
-
-			// Sync payment records
-			try {
-				await syncContractPaymentStatus(contract, newStatus, authState.user.uid);
-			} catch (err) {
-				logger.error('Payment sync failed:', err);
-				throw err;
-			}
-
-			// Update local contract state
-			const updatedContract: BaseContract = {
-				...contract,
-				paymentStatus: newStatus,
-				paidAt: newStatus === 'paid' ? (new Date() as any) : null,
-				paidBy: newStatus === 'paid' ? authState.user.uid : null
-			};
-
-			if (onPaymentStatusUpdate) {
-				onPaymentStatusUpdate(updatedContract);
-			}
-
-			toast.success(`Contract marked as ${newStatus}`);
-		} catch (error) {
-			logger.error('Error updating payment status:', error);
-			toast.error('Failed to update payment status');
-		} finally {
-			isMarkingAsPaid = false;
+		const paidCount = contractPayments.filter((p) => p.status === 'paid').length;
+		const total = contractPayments.length;
+		if (total === 1) {
+			return paidCount === 1 ? 'Paid' : 'Unpaid';
 		}
-	}
+		return `${paidCount}/${total} paid`;
+	});
+
+	let paymentBadgeHref = $derived(
+		authState.isAdmin ? `/payments?contract=${contract.id}` : null
+	);
+
+	let isPaid = $derived(contract.paymentStatus === 'paid');
 
 	async function handleDownload() {
 		isDownloading = true;
@@ -175,10 +102,11 @@
 			{getContractTypeLabel}
 			{getDefaultContractLink}
 			getEditLink={getEditLink}
-			{isMarkingAsPaid}
+			{paymentBadgeHref}
+			{paymentLabel}
+			{isPaid}
 			{isDownloading}
 			{isDeleting}
-			onTogglePaymentStatus={togglePaymentStatus}
 			onDownload={handleDownload}
 			onDeleteClick={handleDelete}
 		/>
@@ -222,22 +150,23 @@
 			</Badge>
 		</div>
 
-		<!-- Payment Toggle Badge -->
+		<!-- Payment Badge -->
 		<div class="col-span-2 px-1 flex justify-center">
-			<button
-				onclick={togglePaymentStatus}
-				disabled={isMarkingAsPaid}
-				class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-				title={contract.paymentStatus === 'paid'
-					? 'Click to mark as Unpaid'
-					: 'Click to mark as Paid'}
-			>
-				{#if contract.paymentStatus === 'paid'}
-					<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">Paid</Badge>
+			{#if paymentBadgeHref}
+				<a href={paymentBadgeHref} title="Manage payments">
+					{#if isPaid}
+						<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">{paymentLabel}</Badge>
+					{:else}
+						<Badge variant="secondary" class="hover:bg-slate-200">{paymentLabel}</Badge>
+					{/if}
+				</a>
+			{:else}
+				{#if isPaid}
+					<Badge variant="default" class="bg-emerald-500">{paymentLabel}</Badge>
 				{:else}
-					<Badge variant="secondary">Unpaid</Badge>
+					<Badge variant="secondary">{paymentLabel}</Badge>
 				{/if}
-			</button>
+			{/if}
 		</div>
 
 		<!-- Actions -->

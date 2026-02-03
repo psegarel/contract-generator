@@ -137,6 +137,7 @@ const allContracts: BaseContract[] = $derived([
 - ✅ `/counterparties/[id]/` - Counterparty detail
 - ✅ `/counterparties/[id]/edit/` - Edit counterparty
 - ✅ `/counterparties/[id]/contracts/` - Counterparty contracts
+- ✅ `/payments/` - Admin payment management
 
 ### ✅ Phase 7: Migration Scripts (Complete)
 
@@ -264,13 +265,24 @@ BaseContract exists for UI component props only (not in Firestore).
    - New `payments` Firestore collection with types (`Payment`), schemas, and CRUD utilities
    - `PaymentState` reactive state class with real-time Firestore subscriptions
    - Auto-creation: one-time payments for service/event contracts, recurring monthly for equipment rental
-   - Dashboard stats (Received, Receivable, Payable, Paid) now derived from payment records
-   - Payment status toggle on contract list syncs to payment records via `syncContractPaymentStatus()`
+   - Dashboard stats (Received, Receivable, Payable, Paid) derived from payment records, constrained to fiscal year (Jan 1 – Dec 31)
    - Contract deletion cascades to associated payment records
-   - Migration script (`migratePayments.ts`) backfills payment records for contracts created before the payment system
-   - Admin-only migration UI on dashboard with progress/error reporting
    - Firestore security rules for `payments` collection (read/create: authenticated, update/delete: admin)
    - Composite index for `payments` collection (`contractId` + `createdAt`)
+   - Added `deposit` payment type for future use
+
+2. **Separate Payment Management** (Feb 3)
+   - Removed payment toggle from contract list items (ContractListItem, ContractCard)
+   - Contract list now shows read-only payment badge (admin: clickable link, non-admin: static)
+   - Badge shows "X/Y paid" for recurring payments, "Paid"/"Unpaid" for one-time
+   - New `/payments` admin-only route for all payment operations
+   - Payments grouped by contract with collapsible recurring installments
+   - Filters: status (all/pending/paid), direction (receivable/payable), contract type
+   - URL param `?contract={id}` pre-filters to specific contract
+   - Individual payment toggle with auto-sync of contract-level `paymentStatus` via `syncContractStatusFromPayments()`
+   - Payments displayed oldest-first (newest at bottom)
+   - Added "Payments" link to sidebar navigation (Wallet icon)
+   - Removed payment migration UI from dashboard; archived `migratePayments.ts` to `archive/`
 
 2. **Equipment Rental List Route** (Feb 2)
    - Added `/contracts/equipment-rental/list/` route

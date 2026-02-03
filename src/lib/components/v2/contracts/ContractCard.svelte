@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, User, Eye, Edit, Download, Trash2 } from 'lucide-svelte';
+	import { Calendar, Eye, Edit, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';
@@ -12,10 +12,11 @@
 		getContractTypeLabel: (type: BaseContract['type']) => string;
 		getDefaultContractLink: (contract: BaseContract) => string;
 		getEditLink: (contract: BaseContract) => string;
-		isMarkingAsPaid?: boolean;
+		paymentBadgeHref: string | null;
+		paymentLabel: string;
+		isPaid: boolean;
 		isDownloading?: boolean;
 		isDeleting?: boolean;
-		onTogglePaymentStatus?: () => void;
 		onDownload?: () => void;
 		onDeleteClick?: () => void;
 		backgroundColor?: string;
@@ -27,10 +28,11 @@
 		getContractTypeLabel,
 		getDefaultContractLink,
 		getEditLink,
-		isMarkingAsPaid = false,
+		paymentBadgeHref,
+		paymentLabel,
+		isPaid,
 		isDownloading = false,
 		isDeleting = false,
-		onTogglePaymentStatus,
 		onDownload,
 		onDeleteClick,
 		backgroundColor = 'bg-white'
@@ -75,25 +77,32 @@
 
 	<!-- Actions - All buttons on same line -->
 	<div class="pt-4 flex gap-2 flex-wrap">
-		<!-- Payment Status -->
-		<button
-			onclick={onTogglePaymentStatus}
-			disabled={isMarkingAsPaid}
-			class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
-		>
-			{#if isMarkingAsPaid}
-				<Badge variant="secondary" class="py-2 px-3">Updating...</Badge>
-			{:else if contract.paymentStatus === 'paid'}
-				<Badge
-					variant="default"
-					class="py-2 px-3 bg-emerald-500 hover:bg-emerald-600"
-				>
-					Paid
-				</Badge>
-			{:else}
-				<Badge variant="secondary" class="py-2 px-3">Unpaid</Badge>
-			{/if}
-		</button>
+		<!-- Payment Status Badge -->
+		{#if paymentBadgeHref}
+			<a href={paymentBadgeHref} class="shrink-0" title="Manage payments">
+				{#if isPaid}
+					<Badge variant="default" class="py-2 px-3 bg-emerald-500 hover:bg-emerald-600">
+						{paymentLabel}
+					</Badge>
+				{:else}
+					<Badge variant="secondary" class="py-2 px-3 hover:bg-slate-200">
+						{paymentLabel}
+					</Badge>
+				{/if}
+			</a>
+		{:else}
+			<span class="shrink-0">
+				{#if isPaid}
+					<Badge variant="default" class="py-2 px-3 bg-emerald-500">
+						{paymentLabel}
+					</Badge>
+				{:else}
+					<Badge variant="secondary" class="py-2 px-3">
+						{paymentLabel}
+					</Badge>
+				{/if}
+			</span>
+		{/if}
 
 		<Button
 			variant="success"
@@ -147,4 +156,3 @@
 		{/if}
 	</div>
 </div>
-
