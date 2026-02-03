@@ -20,12 +20,19 @@
 1. **Payment Tracking System** (February 2-3, 2026)
    - Added `payments` Firestore collection with types, schemas, CRUD, and real-time subscriptions
    - Payment records auto-created when saving contracts (one-time for service/event, recurring monthly for equipment rental)
-   - Dashboard stats (Received, Receivable, Payable, Paid) derived from payment records
-   - Payment status toggle on contracts syncs to payment records
+   - Dashboard stats (Received, Receivable, Payable, Paid) derived from payment records, constrained to fiscal year (Jan 1 – Dec 31)
    - Contract deletion cascades to payment records
-   - **Migration script** (`migratePayments.ts`) backfills payment records for pre-existing contracts
-   - Admin-only migration UI on dashboard with result reporting
    - Added Firestore security rules and composite index for `payments` collection
+   - Added `deposit` payment type for future use
+
+2. **Separate Payment Management** (February 3, 2026)
+   - New `/payments` admin-only route for all payment operations
+   - Removed payment toggle from contract list; badges now link to `/payments?contract={id}` (admin) or show read-only status (non-admin)
+   - Per-installment toggle for recurring payments with auto-sync to contract status
+   - Filters: status, direction, contract type; URL param `?contract={id}` pre-filter
+   - Payments displayed oldest-first, grouped by contract with collapsible sections
+   - Added "Payments" link to sidebar navigation
+   - Archived migration script (`migratePayments.ts`) and removed migration UI from dashboard
 
 2. **Equipment Rental List Route** (February 2, 2026)
    - Added `/contracts/equipment-rental/list/` route
@@ -54,6 +61,7 @@
 - ✅ `/counterparties/` - Counterparties list
 - ✅ `/counterparties/new/` - Create counterparty
 - ✅ `/counterparties/[id]/` - Counterparty details
+- ✅ `/payments/` - Admin payment management
 
 ---
 
@@ -90,7 +98,7 @@
 - ✅ 7 contract CRUD files
 - ✅ Event CRUD
 - ✅ Counterparty CRUD
-- ✅ Payment CRUD (`payments.ts`) + migration (`migratePayments.ts`)
+- ✅ Payment CRUD (`payments.ts`) incl. `syncContractStatusFromPayments()`
 - ✅ Dashboard stats from payments (`dashboardStats.ts`)
 
 **State Management (`src/lib/state/v2/`):**
@@ -177,6 +185,7 @@ npx tsx src/lib/migration/runMigration.ts --live
 - ✅ `/counterparties/[id]/` - Counterparty detail
 - ✅ `/counterparties/[id]/edit/` - Edit counterparty
 - ✅ `/counterparties/[id]/contracts/` - Counterparty contracts
+- ✅ `/payments/` - Admin payment management (filters, per-installment toggles)
 
 ---
 
@@ -184,12 +193,12 @@ npx tsx src/lib/migration/runMigration.ts --live
 
 ### In Progress
 1. **Payment Tracking Enhancements**
-   - Pending: Dedicated `/payments` route for viewing/filtering individual payment records
-   - Pending: Per-installment tracking UI for equipment rental recurring payments
+   - ✅ Dedicated `/payments` route with filtering and grouped display
+   - ✅ Per-installment tracking UI for recurring payments
    - Pending: Due date population and overdue alerts
    - Pending: Payment notes UI
 
-2. **Component Quality Validation** - 52% of custom components checked with Svelte autofixer
+2. **Component Quality Validation** - 95%+ of custom components checked with Svelte autofixer
    - Goal: 100% validation coverage
    - See `AUTOFIXER_STATUS.md` for tracking
 
@@ -253,6 +262,7 @@ npx tsx src/lib/migration/runMigration.ts --live
 - V1 → V2 migration complete
 - V1 collections preserved for reference
 - Migration scripts archived in `migrations-archive/`
+- Payment migration script archived in `archive/v2-utils/`
 
 ---
 
@@ -283,6 +293,7 @@ pnpm dev
 - http://localhost:5173/contracts/event-planning/list/ ✅ Event planning contracts list
 - http://localhost:5173/contracts/equipment-rental/ ✅ Create equipment rental contract
 - http://localhost:5173/contracts/equipment-rental/list/ ✅ Equipment rental contracts list
+- http://localhost:5173/payments/ ✅ Payment management (admin only)
 
 ---
 
