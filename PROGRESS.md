@@ -283,6 +283,12 @@ BaseContract exists for UI component props only (not in Firestore).
    - Payments displayed oldest-first (newest at bottom)
    - Added "Payments" link to sidebar navigation (Wallet icon)
    - Removed payment migration UI from dashboard; archived `migratePayments.ts` to `archive/`
+   - **Bug fix**: Dashboard "Total Received" was including payments from wrong fiscal year
+     - Root cause: Recurring payments filtered by `createdAt` (record creation) instead of `dueDate` (payment period)
+     - Fix: `filterPaymentsByDateRange` now uses `dueDate` for recurring payments, `createdAt` for one-time
+     - Fix: `createRecurringPayments` now properly saves `dueDate` (was hardcoded to `null`)
+     - Migrated existing recurring payments: `dueDate` populated from label (e.g., "November 2025" → Nov 5, 2025)
+     - Migration utility `migratePaymentDueDates()` retained in `src/lib/utils/v2/payments.ts`
 
 2. **Equipment Rental List Route** (Feb 2)
    - Added `/contracts/equipment-rental/list/` route

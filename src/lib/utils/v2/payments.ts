@@ -11,6 +11,7 @@ import {
 	onSnapshot,
 	deleteDoc,
 	writeBatch,
+	Timestamp,
 	type Unsubscribe
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
@@ -95,7 +96,7 @@ export async function createRecurringPayments(
 			direction: contract.paymentDirection,
 			status: 'pending',
 			label: installment.label,
-			dueDate: null,
+			dueDate: Timestamp.fromDate(installment.dueDate),
 			ownerUid: contract.ownerUid,
 			notes: null
 		});
@@ -240,4 +241,90 @@ export async function syncContractPaymentStatus(
 	for (const payment of payments) {
 		await updatePaymentStatus(payment.id, paymentStatus, adminUid);
 	}
+}
+
+// ----- Migration Utilities -----
+
+const MONTH_NAMES: Record<string, number> = {
+	january: 0,
+	february: 1,
+	march: 2,
+	april: 3,
+	may: 4,
+	june: 5,
+	july: 6,
+	august: 7,
+	september: 8,
+	october: 9,
+	november: 10,
+	december: 11
+};
+
+/**
+ * Parse a label like "November 2025" into a Date (5th of that month)
+ */
+function parseLabelToDate(label: string): Date | null {
+	const parts = label.trim().toLowerCase().split(/\s+/);
+	if (parts.length !== 2) return null;
+
+	const [monthName, yearStr] = parts;
+	const month = MONTH_NAMES[monthName];
+	const year = parseInt(yearStr, 10);
+
+	if (month === undefined || isNaN(year)) return null;
+
+	return new Date(year, month, 5);
+}
+
+export interface MigrationResult {
+	total: number;
+	migrated: number;
+	skipped: number;
+	errors: string[];
+}
+
+/**
+ * Migrate payment records that have a label but no dueDate.
+ * Parses the label (e.g., "November 2025") and sets dueDate to the 1st of that month.
+ */
+export async function migratePaymentDueDates(payments: Payment[]): Promise<MigrationResult> {
+	const result: MigrationResult = {
+		total: 0,
+		migrated: 0,
+		skipped: 0,
+		errors: []
+	};
+
+	// Filter payments needing migration (have label but no dueDate)
+	const paymentsToMigrate = payments.filter((p) => p.label && !p.dueDate);
+	result.total = paymentsToMigrate.length;
+
+	if (paymentsToMigrate.length === 0) {
+		return result;
+	}
+
+	// Process each payment
+	for (const payment of paymentsToMigrate) {
+		const parsedDate = parseLabelToDate(payment.label!);
+
+		if (!parsedDate) {
+			result.skipped++;
+			result.errors.push(`${payment.id}: Invalid label format "${payment.label}"`);
+			continue;
+		}
+
+		try {
+			const docRef = doc(db, COLLECTION_NAME, payment.id);
+			await updateDoc(docRef, {
+				dueDate: Timestamp.fromDate(parsedDate),
+				updatedAt: serverTimestamp()
+			});
+			result.migrated++;
+		} catch (error) {
+			result.skipped++;
+			result.errors.push(`${payment.id}: ${(error as Error).message}`);
+		}
+	}
+
+	return result;
 }

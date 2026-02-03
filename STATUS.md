@@ -195,7 +195,10 @@ npx tsx src/lib/migration/runMigration.ts --live
 1. **Payment Tracking Enhancements**
    - ✅ Dedicated `/payments` route with filtering and grouped display
    - ✅ Per-installment tracking UI for recurring payments
-   - Pending: Due date population and overdue alerts
+   - ✅ Fixed: Dashboard fiscal year filtering now uses `dueDate` for recurring payments (was incorrectly using `createdAt`)
+   - ✅ Fixed: `createRecurringPayments` now properly sets `dueDate` from installment data (was hardcoded to `null`)
+   - ✅ Migrated existing recurring payment records to populate `dueDate` (5th of month parsed from label)
+   - Pending: Overdue alerts
    - Pending: Payment notes UI
 
 2. **Component Quality Validation** - 95%+ of custom components checked with Svelte autofixer
@@ -263,6 +266,7 @@ npx tsx src/lib/migration/runMigration.ts --live
 - V1 collections preserved for reference
 - Migration scripts archived in `migrations-archive/`
 - Payment migration script archived in `archive/v2-utils/`
+- `migratePaymentDueDates()` utility available in `src/lib/utils/v2/payments.ts` for future use
 
 ---
 
