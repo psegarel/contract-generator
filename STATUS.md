@@ -198,6 +198,10 @@ npx tsx src/lib/migration/runMigration.ts --live
    - ✅ Fixed: Dashboard fiscal year filtering now uses `dueDate` for recurring payments (was incorrectly using `createdAt`)
    - ✅ Fixed: `createRecurringPayments` now properly sets `dueDate` from installment data (was hardcoded to `null`)
    - ✅ Migrated existing recurring payment records to populate `dueDate` (5th of month parsed from label)
+   - ✅ Added `paymentDueDate` field to all one-time payment contract types
+   - ✅ Updated forms (EventPlanning, ServiceProvision) with payment due date input
+   - ✅ Dashboard stats now filter ALL payments by `dueDate` (not just recurring)
+   - ✅ Migrated existing one-time payments to populate `dueDate` from contract dates
    - Pending: Overdue alerts
    - Pending: Payment notes UI
 

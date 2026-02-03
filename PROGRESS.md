@@ -290,7 +290,17 @@ BaseContract exists for UI component props only (not in Firestore).
      - Migrated existing recurring payments: `dueDate` populated from label (e.g., "November 2025" → Nov 5, 2025)
      - Migration utility `migratePaymentDueDates()` retained in `src/lib/utils/v2/payments.ts`
 
-2. **Equipment Rental List Route** (Feb 2)
+3. **Payment Due Date for One-Time Payments** (Feb 3)
+   - Added `paymentDueDate: string` field to all one-time payment contract types (EventPlanning, ServiceProvision, VenueRental, PerformerBooking, Subcontractor, ClientService)
+   - Updated Zod schemas to require `paymentDueDate`
+   - Updated form state classes with `paymentDueDate` field (defaults to contract's relevant date)
+   - Added payment due date input to EventPlanningPaymentTermsSection and FinancialSection (ServiceProvision)
+   - Updated `createOneTimePayment()` to accept `paymentDueDate` parameter and store as Firestore Timestamp
+   - Dashboard stats now filter ALL payments by `dueDate` (previously only recurring payments used dueDate)
+   - Migration utility `migrateOneTimePaymentDueDates()` added to backfill existing one-time payments
+   - Migrated 8 existing one-time payments using contract dates (eventDate/startDate)
+
+4. **Equipment Rental List Route** (Feb 2)
    - Added `/contracts/equipment-rental/list/` route
    - Enabled Edit/Download/Delete actions for equipment-rental contracts
 

@@ -37,6 +37,9 @@ export class EventPlanningContractFormState {
 	professionalIndemnityAmount = $state(0);
 	publicLiabilityAmount = $state(0);
 
+	// Payment terms
+	paymentDueDate = $state('');
+
 	// Timeline
 	planningMeetingDays = $state(7);
 	performerBookingDeadline = $state('');
@@ -113,6 +116,8 @@ export class EventPlanningContractFormState {
 		this.arbitrationLocation = contract.arbitrationLocation;
 		this.arbitrationLanguage = contract.arbitrationLanguage;
 		this.notes = contract.notes || '';
+		// Payment due date - fallback to eventDate for existing contracts without it
+		this.paymentDueDate = contract.paymentDueDate || contract.eventDate;
 	}
 
 	/**
@@ -155,6 +160,7 @@ export class EventPlanningContractFormState {
 		this.negotiationPeriodDays = 14;
 		this.arbitrationLocation = 'Ho Chi Minh City';
 		this.arbitrationLanguage = 'Vietnamese';
+		this.paymentDueDate = '';
 		this.notes = '';
 		this.error = null;
 	}

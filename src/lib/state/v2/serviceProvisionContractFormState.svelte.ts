@@ -27,6 +27,7 @@ export class ServiceProvisionContractFormState {
 	clientTaxId = $state('');
 	eventLocation = $state('');
 	paymentStatus = $state<'unpaid' | 'paid'>('unpaid');
+	paymentDueDate = $state('');
 	notes = $state('');
 
 	// UI state
@@ -80,6 +81,8 @@ export class ServiceProvisionContractFormState {
 		this.clientTaxId = contract.clientTaxId || '';
 		this.eventLocation = contract.eventLocation;
 		this.paymentStatus = contract.paymentStatus;
+		// Payment due date - fallback to startDate for existing contracts without it
+		this.paymentDueDate = contract.paymentDueDate || contract.startDate;
 		this.notes = contract.notes || '';
 	}
 
@@ -108,6 +111,7 @@ export class ServiceProvisionContractFormState {
 		this.clientTaxId = '';
 		this.eventLocation = '';
 		this.paymentStatus = 'unpaid';
+		this.paymentDueDate = '';
 		this.notes = '';
 		this.error = null;
 		this.resetNewProviderForm();

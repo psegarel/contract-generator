@@ -37,7 +37,10 @@ const serviceProvisionFields = {
 	clientTaxId: z.string().nullable().optional(),
 
 	// Event location
-	eventLocation: z.string().min(1, 'Event location is required')
+	eventLocation: z.string().min(1, 'Event location is required'),
+
+	// Payment terms
+	paymentDueDate: z.string().min(1, 'Payment due date is required')
 };
 
 /**

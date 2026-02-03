@@ -74,7 +74,10 @@ const eventPlanningFields = {
 		.min(1, 'Negotiation period must be at least 1 day')
 		.int('Negotiation period must be a whole number'),
 	arbitrationLocation: z.string().min(1, 'Arbitration location is required'),
-	arbitrationLanguage: z.string().min(1, 'Arbitration language is required')
+	arbitrationLanguage: z.string().min(1, 'Arbitration language is required'),
+
+	// Section 7: Payment Terms
+	paymentDueDate: z.string().min(1, 'Payment due date is required')
 };
 
 /**

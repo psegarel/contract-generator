@@ -140,7 +140,8 @@ import { logger } from '$lib/utils/logger';
 				terminationNoticeDays: formState.terminationNoticeDays,
 				negotiationPeriodDays: formState.negotiationPeriodDays,
 				arbitrationLocation: formState.arbitrationLocation,
-				arbitrationLanguage: formState.arbitrationLanguage
+				arbitrationLanguage: formState.arbitrationLanguage,
+				paymentDueDate: formState.paymentDueDate || formState.eventDate
 			};
 
 			// Validate with schema
@@ -163,17 +164,20 @@ import { logger } from '$lib/utils/logger';
 				if (contract) {
 					await deletePaymentsByContract(contractId);
 				}
-				await createOneTimePayment({
-					id: contractId,
-					type: contractData.type,
-					contractNumber: contractData.contractNumber,
-					counterpartyName: contractData.counterpartyName,
-					paymentDirection: contractData.paymentDirection,
-					paymentStatus: contractData.paymentStatus,
-					contractValue: contractData.contractValue,
-					currency: contractData.currency,
-					ownerUid: contractData.ownerUid
-				} as any);
+				await createOneTimePayment(
+					{
+						id: contractId,
+						type: contractData.type,
+						contractNumber: contractData.contractNumber,
+						counterpartyName: contractData.counterpartyName,
+						paymentDirection: contractData.paymentDirection,
+						paymentStatus: contractData.paymentStatus,
+						contractValue: contractData.contractValue,
+						currency: contractData.currency,
+						ownerUid: contractData.ownerUid
+					} as any,
+					contractData.paymentDueDate
+				);
 			} catch (paymentError) {
 				logger.error('Error creating payment record:', paymentError);
 			}

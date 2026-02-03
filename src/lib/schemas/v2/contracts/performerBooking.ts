@@ -20,7 +20,10 @@ export const performerBookingContractSchema = baseContractSchema
 
 		// Content
 		setList: z.string().nullable().optional(),
-		specialRequests: z.string().nullable().optional()
+		specialRequests: z.string().nullable().optional(),
+
+		// Payment terms
+		paymentDueDate: z.string().min(1, 'Payment due date is required')
 	})
 	.strict();
 

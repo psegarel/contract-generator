@@ -19,8 +19,14 @@ import type { Payment } from '$lib/types/v2/payment';
 import type { BaseContract, ContractType } from '$lib/types/v2';
 import { paymentInputSchema, type PaymentInput } from '$lib/schemas/v2/payment';
 import { logger } from '../logger';
-import { updateServiceProvisionContractPaymentStatus } from './serviceProvisionContracts';
-import { updateEventPlanningContractPaymentStatus } from './eventPlanningContracts';
+import {
+	updateServiceProvisionContractPaymentStatus,
+	getServiceProvisionContractById
+} from './serviceProvisionContracts';
+import {
+	updateEventPlanningContractPaymentStatus,
+	getEventPlanningContractById
+} from './eventPlanningContracts';
 import { updateVenueRentalContractPaymentStatus } from './venueRentalContracts';
 import { updatePerformerBookingContractPaymentStatus } from './performerBookingContracts';
 import { updateEquipmentRentalContractPaymentStatus } from './equipmentRentalContracts';
@@ -107,8 +113,16 @@ export async function createRecurringPayments(
 
 /**
  * Create a one-time payment record for a contract
+ * @param contract - Base contract data
+ * @param paymentDueDate - ISO date string for when payment is due
  */
-export async function createOneTimePayment(contract: BaseContract): Promise<string> {
+export async function createOneTimePayment(
+	contract: BaseContract,
+	paymentDueDate: string
+): Promise<string> {
+	// Convert ISO date string to Timestamp
+	const dueDate = Timestamp.fromDate(new Date(paymentDueDate));
+
 	return createPayment({
 		contractId: contract.id,
 		contractType: contract.type,
@@ -120,7 +134,7 @@ export async function createOneTimePayment(contract: BaseContract): Promise<stri
 		direction: contract.paymentDirection,
 		status: contract.paymentStatus === 'paid' ? 'paid' : 'pending',
 		label: null,
-		dueDate: null,
+		dueDate,
 		ownerUid: contract.ownerUid,
 		notes: null
 	});
@@ -221,7 +235,7 @@ export async function syncContractStatusFromPayments(
  * Updates all payment records for the contract to the new status.
  */
 export async function syncContractPaymentStatus(
-	contract: BaseContract,
+	contract: BaseContract & { paymentDueDate?: string },
 	newStatus: 'paid' | 'unpaid',
 	adminUid: string
 ): Promise<void> {
@@ -229,10 +243,16 @@ export async function syncContractPaymentStatus(
 
 	if (payments.length === 0) {
 		// Auto-create a one-time payment record
-		await createOneTimePayment({
-			...contract,
-			paymentStatus: newStatus === 'paid' ? 'paid' : 'unpaid'
-		});
+		// Use paymentDueDate if available, otherwise fallback to today's date
+		const dueDate =
+			contract.paymentDueDate || new Date().toISOString().split('T')[0];
+		await createOneTimePayment(
+			{
+				...contract,
+				paymentStatus: newStatus === 'paid' ? 'paid' : 'unpaid'
+			},
+			dueDate
+		);
 		return;
 	}
 
@@ -317,6 +337,75 @@ export async function migratePaymentDueDates(payments: Payment[]): Promise<Migra
 			const docRef = doc(db, COLLECTION_NAME, payment.id);
 			await updateDoc(docRef, {
 				dueDate: Timestamp.fromDate(parsedDate),
+				updatedAt: serverTimestamp()
+			});
+			result.migrated++;
+		} catch (error) {
+			result.skipped++;
+			result.errors.push(`${payment.id}: ${(error as Error).message}`);
+		}
+	}
+
+	return result;
+}
+
+/**
+ * Migrate one-time payment records that have no dueDate.
+ * Looks up the contract and uses the relevant date field:
+ * - event-planning: eventDate
+ * - service-provision: startDate
+ * - Other types: uses contract createdAt as fallback
+ */
+export async function migrateOneTimePaymentDueDates(
+	payments: Payment[]
+): Promise<MigrationResult> {
+	const result: MigrationResult = {
+		total: 0,
+		migrated: 0,
+		skipped: 0,
+		errors: []
+	};
+
+	// Filter one-time payments needing migration (no dueDate)
+	const paymentsToMigrate = payments.filter(
+		(p) => p.paymentType === 'one-time' && !p.dueDate
+	);
+	result.total = paymentsToMigrate.length;
+
+	if (paymentsToMigrate.length === 0) {
+		return result;
+	}
+
+	// Process each payment
+	for (const payment of paymentsToMigrate) {
+		try {
+			let dateStr: string | null = null;
+
+			// Look up contract based on type to get the relevant date
+			if (payment.contractType === 'event-planning') {
+				const contract = await getEventPlanningContractById(payment.contractId);
+				if (contract) {
+					dateStr = contract.eventDate;
+				}
+			} else if (payment.contractType === 'service-provision') {
+				const contract = await getServiceProvisionContractById(payment.contractId);
+				if (contract) {
+					dateStr = contract.startDate;
+				}
+			}
+
+			// Fallback: use payment createdAt if no date found
+			if (!dateStr) {
+				const createdAtDate = payment.createdAt.toDate();
+				dateStr = createdAtDate.toISOString().split('T')[0];
+				logger.warn(
+					`Payment ${payment.id}: Using createdAt as fallback for dueDate`
+				);
+			}
+
+			const docRef = doc(db, COLLECTION_NAME, payment.id);
+			await updateDoc(docRef, {
+				dueDate: Timestamp.fromDate(new Date(dateStr)),
 				updatedAt: serverTimestamp()
 			});
 			result.migrated++;

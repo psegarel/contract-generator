@@ -13,7 +13,10 @@ export const clientServiceContractSchema = baseContractSchema
 		serviceDescription: z.string().min(1, 'Service description is required'),
 		deliverables: z.array(z.string()).min(1, 'At least one deliverable is required'),
 		startDate: z.string().min(1, 'Start date is required'),
-		endDate: z.string().min(1, 'End date is required')
+		endDate: z.string().min(1, 'End date is required'),
+
+		// Payment terms
+		paymentDueDate: z.string().min(1, 'Payment due date is required')
 	})
 	.strict();
 

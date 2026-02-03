@@ -20,7 +20,10 @@ export const venueRentalContractSchema = baseContractSchema
 		setupRequirements: z.string().nullable().optional(),
 
 		// Terms
-		cancellationPolicy: z.string().nullable().optional()
+		cancellationPolicy: z.string().nullable().optional(),
+
+		// Payment terms
+		paymentDueDate: z.string().min(1, 'Payment due date is required')
 	})
 	.strict();
 

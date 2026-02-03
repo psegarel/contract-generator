@@ -19,7 +19,10 @@ export const subcontractorContractSchema = baseContractSchema
 
 		// Terms
 		paymentTerms: z.string().min(1, 'Payment terms are required'),
-		terminationClause: z.string().nullable().optional()
+		terminationClause: z.string().nullable().optional(),
+
+		// Payment terms
+		paymentDueDate: z.string().min(1, 'Payment due date is required')
 	})
 	.strict();
 

@@ -171,7 +171,8 @@
 				clientPhone: formState.clientPhone,
 				clientIdDocument: formState.clientIdDocument,
 				clientTaxId: formState.clientTaxId || null,
-				eventLocation: formState.eventLocation
+				eventLocation: formState.eventLocation,
+				paymentDueDate: formState.paymentDueDate || formState.startDate
 			};
 
 			// Validate with schema
@@ -194,17 +195,20 @@
 				if (contract) {
 					await deletePaymentsByContract(contractId);
 				}
-				await createOneTimePayment({
-					id: contractId,
-					type: contractData.type,
-					contractNumber: contractData.contractNumber,
-					counterpartyName: contractData.counterpartyName,
-					paymentDirection: contractData.paymentDirection,
-					paymentStatus: contractData.paymentStatus,
-					contractValue: contractData.contractValue,
-					currency: contractData.currency,
-					ownerUid: contractData.ownerUid
-				} as any);
+				await createOneTimePayment(
+					{
+						id: contractId,
+						type: contractData.type,
+						contractNumber: contractData.contractNumber,
+						counterpartyName: contractData.counterpartyName,
+						paymentDirection: contractData.paymentDirection,
+						paymentStatus: contractData.paymentStatus,
+						contractValue: contractData.contractValue,
+						currency: contractData.currency,
+						ownerUid: contractData.ownerUid
+					} as any,
+					contractData.paymentDueDate
+				);
 			} catch (paymentError) {
 				logger.error('Error creating payment record:', paymentError);
 			}

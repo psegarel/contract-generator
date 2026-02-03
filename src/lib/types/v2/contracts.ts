@@ -29,6 +29,9 @@ export interface VenueRentalContract extends BaseContract {
 
 	// Terms
 	cancellationPolicy: string | null;
+
+	// Payment terms
+	paymentDueDate: string; // ISO date - when payment is due (defaults to contract date)
 }
 
 /**
@@ -53,6 +56,9 @@ export interface PerformerBookingContract extends BaseContract {
 	// Content
 	setList: string | null;
 	specialRequests: string | null;
+
+	// Payment terms
+	paymentDueDate: string; // ISO date - when payment is due (defaults to performance date)
 }
 
 /**
@@ -130,6 +136,9 @@ export interface ServiceProvisionContract extends BaseContract {
 
 	// Event location (from old system)
 	eventLocation: string;
+
+	// Payment terms
+	paymentDueDate: string; // ISO date - when payment is due (defaults to start date)
 }
 
 /**
@@ -184,6 +193,9 @@ export interface EventPlanningContract extends BaseContract {
 	negotiationPeriodDays: number;
 	arbitrationLocation: string;
 	arbitrationLanguage: string;
+
+	// Payment terms
+	paymentDueDate: string; // ISO date - when payment is due (defaults to event date)
 }
 
 /**
@@ -205,6 +217,9 @@ export interface SubcontractorContract extends BaseContract {
 	// Terms
 	paymentTerms: string; // e.g., "50% upfront, 50% on completion"
 	terminationClause: string | null;
+
+	// Payment terms
+	paymentDueDate: string; // ISO date - when payment is due (defaults to completion date)
 }
 
 /**
@@ -219,6 +234,9 @@ export interface ClientServiceContract extends BaseContract {
 	deliverables: string[];
 	startDate: string;
 	endDate: string;
+
+	// Payment terms
+	paymentDueDate: string; // ISO date - when payment is due (defaults to end date)
 }
 
 /**

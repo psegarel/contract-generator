@@ -70,9 +70,9 @@ export function calculateDashboardStats(
 }
 
 /**
- * Filter payments by date range.
- * - Recurring payments: Use dueDate (the period the payment covers)
- * - One-time/deposit payments: Use createdAt (when the contract was created)
+ * Filter payments by date range using dueDate.
+ * All payments should have a dueDate set (migrated or set at creation).
+ * Falls back to createdAt only for legacy payments without dueDate.
  */
 function filterPaymentsByDateRange(
 	payments: Payment[],
@@ -83,12 +83,10 @@ function filterPaymentsByDateRange(
 	const end = new Date(endDate + 'T23:59:59.999Z').getTime();
 
 	return payments.filter((payment) => {
-		// For recurring payments, use dueDate if available (represents the period)
-		// For one-time/deposit, use createdAt
-		const relevantDate =
-			payment.paymentType === 'recurring' && payment.dueDate
-				? payment.dueDate.toMillis()
-				: payment.createdAt.toMillis();
+		// Use dueDate for all payments; fallback to createdAt for legacy data
+		const relevantDate = payment.dueDate
+			? payment.dueDate.toMillis()
+			: payment.createdAt.toMillis();
 
 		return relevantDate >= start && relevantDate <= end;
 	});
