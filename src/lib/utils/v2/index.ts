@@ -1,4 +1,4 @@
-// Contract utilities - all 7 contract types
+// Contract utilities - all 8 contract types
 export * from './venueRentalContracts';
 export * from './performerBookingContracts';
 export * from './equipmentRentalContracts';
@@ -6,6 +6,7 @@ export * from './serviceProvisionContracts';
 export * from './eventPlanningContracts';
 export * from './subcontractorContracts';
 export * from './clientServiceContracts';
+export * from './djResidencyContracts';
 
 // Core entity utilities
 export * from './events';

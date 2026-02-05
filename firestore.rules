@@ -305,5 +305,58 @@ service cloud.firestore {
       // Delete: only admins can delete
       allow delete: if isAdmin();
     }
+
+    // DJ Residency Contracts (v2)
+    match /dj-residency-contracts/{contractId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in
+      allow create: if isSignedIn();
+
+      // Update: any authenticated user can update
+      // But only admins can update payment status
+      allow update: if isSignedIn()
+        && (
+          // Regular update (non-payment fields)
+          (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
+          // OR admin updating payment status
+          || isAdmin()
+        );
+
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
+
+      // Performances subcollection
+      match /performances/{performanceId} {
+        // Any authenticated user can read
+        allow read: if isSignedIn();
+
+        // Any authenticated user can create performance logs
+        allow create: if isSignedIn();
+
+        // Any authenticated user can update (e.g., mark as invoiced)
+        allow update: if isSignedIn();
+
+        // Any authenticated user can delete (to correct mistakes)
+        // Only uninvoiced performances should be deletable (enforced in app logic)
+        allow delete: if isSignedIn();
+      }
+
+      // Invoices subcollection
+      match /invoices/{invoiceId} {
+        // Any authenticated user can read
+        allow read: if isSignedIn();
+
+        // Any authenticated user can create invoices
+        allow create: if isSignedIn();
+
+        // Any authenticated user can update (e.g., change status)
+        allow update: if isSignedIn();
+
+        // Only admins can delete invoices
+        allow delete: if isAdmin();
+      }
+    }
   }
 }

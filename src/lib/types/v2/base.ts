@@ -23,7 +23,8 @@ export type ContractType =
 	| 'service-provision' // We provide AV/tech services (receivable)
 	| 'event-planning' // We organize full event (receivable)
 	| 'subcontractor' // We hire subcontractor (payable)
-	| 'client-service'; // Generic client service contract (receivable)
+	| 'client-service' // Generic client service contract (receivable)
+	| 'dj-residency'; // DJ residency framework agreement (receivable)
 
 /**
  * Base contract interface - MINIMAL common fields for list display

@@ -1,4 +1,4 @@
-// Contract state exports - all 7 contract types
+// Contract state exports - all 8 contract types
 export {
 	venueRentalContractState,
 	VenueRentalContractState
@@ -27,6 +27,10 @@ export {
 	clientServiceContractState,
 	ClientServiceContractState
 } from './clientServiceContractState.svelte';
+export {
+	djResidencyContractState,
+	DjResidencyContractState
+} from './djResidencyContractState.svelte';
 
 // Core entity state exports
 export { eventState, EventState } from './eventState.svelte';

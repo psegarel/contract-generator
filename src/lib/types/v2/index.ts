@@ -29,5 +29,8 @@ export type {
 	EventPlanningContract,
 	SubcontractorContract,
 	ClientServiceContract,
+	DjResidencyContract,
+	PerformanceLog,
+	MonthlyInvoice,
 	Contract
 } from './contracts';

@@ -6,3 +6,4 @@ export * from './serviceProvision';
 export * from './eventPlanning';
 export * from './subcontractor';
 export * from './clientService';
+export * from './djResidency';

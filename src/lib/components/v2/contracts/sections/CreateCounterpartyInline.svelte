@@ -1,26 +1,52 @@
 <script lang="ts">
-	import type { EquipmentRentalContractFormState } from '$lib/state/v2/equipmentRentalContractFormState.svelte';
 	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 
-	interface Props {
-		formState: EquipmentRentalContractFormState;
-		onCancel: () => void;
-		onCreate: () => Promise<void>;
+	/**
+	 * Shared interface for form states that support inline counterparty creation.
+	 * Both EquipmentRentalContractFormState and DjResidencyContractFormState
+	 * implement these fields with identical names.
+	 */
+	interface InlineCounterpartyFormState {
+		newCounterpartyName: string;
+		newCounterpartyEmail: string;
+		newCounterpartyPhone: string;
+		newCounterpartyAddress: string;
+		newCounterpartyCompanyName: string;
+		newCounterpartyTaxId: string;
+		newCounterpartyRepresentativeName: string;
+		newCounterpartyRepresentativePosition: string;
+		newCounterpartyBankName: string;
+		newCounterpartyBankAccountNumber: string;
+		isCreatingCounterparty: boolean;
 	}
 
-	let { formState, onCancel, onCreate }: Props = $props();
+	interface Props {
+		formState: InlineCounterpartyFormState;
+		onCancel: () => void;
+		onCreate: () => Promise<void>;
+		title?: string;
+		createButtonLabel?: string;
+	}
+
+	let {
+		formState,
+		onCancel,
+		onCreate,
+		title = 'Create New Client',
+		createButtonLabel = 'Create Client'
+	}: Props = $props();
 </script>
 
 <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg space-y-6">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Create New Client</h3>
+	<h3 class="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
 
 	<!-- Basic Information -->
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<div class="col-span-full">
 			<TextField
 				id="newCounterpartyName"
-				label="Client Name"
+				label="Name"
 				bind:value={formState.newCounterpartyName}
 				placeholder="e.g., CÔNG TY TNHH C VƯỜN NHIỆT ĐỚI"
 				required
@@ -132,7 +158,7 @@
 			disabled={formState.isCreatingCounterparty}
 			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
 		>
-			{formState.isCreatingCounterparty ? 'Creating...' : 'Create Client'}
+			{formState.isCreatingCounterparty ? 'Creating...' : createButtonLabel}
 		</button>
 	</div>
 </div>

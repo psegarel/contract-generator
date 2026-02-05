@@ -12,7 +12,8 @@
 			'service-provision': '/contracts/service-provision',
 			'event-planning': '/contracts/event-planning',
 			subcontractor: '/contracts/subcontractor',
-			'client-service': '/contracts/client-service'
+			'client-service': '/contracts/client-service',
+			'dj-residency': '/contracts/dj-residency'
 		};
 
 		const route = routes[type];

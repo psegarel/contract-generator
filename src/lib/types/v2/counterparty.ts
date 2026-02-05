@@ -75,6 +75,12 @@ export interface PerformerCounterparty extends BaseCounterparty {
 	// Booking details
 	agentName: string | null;
 	agentContact: string | null;
+
+	// Payment details (needed for DJ Residency invoicing)
+	bankName: string | null;
+	bankAccountNumber: string | null;
+	idDocument: string | null;
+	taxId: string | null;
 }
 
 /**

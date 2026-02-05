@@ -240,6 +240,70 @@ export interface ClientServiceContract extends BaseContract {
 }
 
 /**
+ * DJ Residency Contract
+ * - Framework agreement for regular DJ performances at a venue
+ * - 3-month duration with monthly invoicing based on performances
+ * - Venue (Party B) pays us for DJ services
+ */
+export interface DjResidencyContract extends BaseContract {
+	type: 'dj-residency';
+	paymentDirection: 'receivable';
+
+	// Contract Duration
+	contractStartDate: string; // ISO date
+	contractEndDate: string; // ISO date (typically 3 months after start)
+	contractDurationMonths: number; // e.g., 3
+
+	// Performance Terms
+	performanceDays: string; // e.g., "Saturday and Sunday"
+	performanceDaysVietnamese: string; // e.g., "Thứ Bảy và Chủ Nhật"
+	performanceHoursPerSet: number; // e.g., 4
+	numberOfSetsPerDay: number; // e.g., 2
+
+	// Payment Terms
+	performanceFeeVND: number; // Fee per performance slot
+	terminationNoticeDays: number; // e.g., 7
+
+	// Status
+	residencyStatus: 'active' | 'completed' | 'terminated';
+}
+
+/**
+ * Performance log entry for DJ residency contracts
+ * Stored in subcollection: dj-residency-contracts/{id}/performances
+ */
+export interface PerformanceLog {
+	id: string;
+	date: string; // ISO date
+	performerId: string; // Counterparty ID of performer
+	performerName: string; // Denormalized
+	hoursWorked: number;
+	setsCompleted: number;
+	notes: string | null;
+	invoiced: boolean; // Has this been included in a monthly invoice?
+	invoiceMonth: string | null; // e.g., "2025-01"
+	createdAt: import('firebase/firestore').Timestamp;
+	updatedAt: import('firebase/firestore').Timestamp;
+}
+
+/**
+ * Monthly invoice record for DJ residency contracts
+ * Stored in subcollection: dj-residency-contracts/{id}/invoices
+ */
+export interface MonthlyInvoice {
+	id: string;
+	month: string; // e.g., "2025-01"
+	totalPerformances: number;
+	totalAmount: number;
+	serviceContractIds: string[]; // IDs of generated Service Provision contracts
+	invoiceDate: string; // When invoice was issued
+	paymentDueDate: string; // 2 weeks after invoiceDate
+	status: 'draft' | 'issued' | 'paid';
+	createdAt: import('firebase/firestore').Timestamp;
+	updatedAt: import('firebase/firestore').Timestamp;
+}
+
+/**
  * Union type for all contract types
  */
 export type Contract =
@@ -249,4 +313,5 @@ export type Contract =
 	| ServiceProvisionContract
 	| EventPlanningContract
 	| SubcontractorContract
-	| ClientServiceContract;
+	| ClientServiceContract
+	| DjResidencyContract;

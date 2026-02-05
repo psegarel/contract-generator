@@ -70,7 +70,13 @@ export const performerCounterpartySchema = baseCounterpartySchema
 
 		// Booking details
 		agentName: z.string().nullable().optional(),
-		agentContact: z.string().nullable().optional()
+		agentContact: z.string().nullable().optional(),
+
+		// Payment details (needed for DJ Residency invoicing)
+		bankName: z.string().nullable().optional(),
+		bankAccountNumber: z.string().nullable().optional(),
+		idDocument: z.string().nullable().optional(),
+		taxId: z.string().nullable().optional()
 	})
 	.strict();
 
@@ -143,10 +149,10 @@ export const supplierCounterpartySchema = baseCounterpartySchema
 	.strict();
 
 /**
- * List schema - only common fields for list operations
- * No .strict() - allows type-specific fields to be present but ignores them
+ * List schema - validates common fields, preserves type-specific fields
+ * Uses .passthrough() so fields like stageName, performerType etc. survive validation
  */
-export const counterpartyListSchema = baseCounterpartySchema;
+export const counterpartyListSchema = baseCounterpartySchema.passthrough();
 
 /**
  * Union schema for all counterparty types

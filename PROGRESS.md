@@ -1,6 +1,6 @@
 # Project Progress
 
-**Last Updated:** 2026-02-03
+**Last Updated:** 2026-02-05
 
 ## Project Overview
 
@@ -261,7 +261,17 @@ BaseContract exists for UI component props only (not in Firestore).
 
 ### February 2026
 
-1. **Payment Tracking System** (Feb 2-3)
+1. **DJ Residency Performer Management** (Feb 5)
+   - Added inline performer creation (`CreatePerformerInline.svelte`) to DJ Residency Performance Log
+   - "+ New" button next to performer dropdown creates performer counterparty and auto-selects it
+   - Fixed `counterpartyListSchema` to use `.passthrough()` so type-specific fields (stageName, performerType) survive subscription validation
+   - Created `/counterparties/convert` route for converting counterparty types (service-provider → performer)
+   - Convert page: select source counterparty, fill performer details, preview changes, then convert
+   - Handles field migration: sets performer fields, removes service-provider fields, preserves shared fields (banking, contact)
+   - Created `src/lib/config/counterpartyTypes.ts` with `PERFORMER_TYPES` and `SERVICE_TYPES` constants
+   - Performer type uses `<select>` from config (prevents typos vs free-text input)
+
+2. **Payment Tracking System** (Feb 2-3)
    - New `payments` Firestore collection with types (`Payment`), schemas, and CRUD utilities
    - `PaymentState` reactive state class with real-time Firestore subscriptions
    - Auto-creation: one-time payments for service/event contracts, recurring monthly for equipment rental

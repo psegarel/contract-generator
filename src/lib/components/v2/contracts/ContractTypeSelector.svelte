@@ -55,6 +55,12 @@
 			label: 'Client Service',
 			description: 'Generic client service contract',
 			direction: 'receivable'
+		},
+		{
+			value: 'dj-residency',
+			label: 'DJ Residency',
+			description: 'Framework agreement for regular DJ performances at a venue',
+			direction: 'receivable'
 		}
 	];
 

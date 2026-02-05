@@ -13,7 +13,8 @@ export const paymentSchema = z
 			'service-provision',
 			'event-planning',
 			'subcontractor',
-			'client-service'
+			'client-service',
+			'dj-residency'
 		]),
 		contractNumber: z.string().min(1, 'Contract number is required'),
 		counterpartyName: z.string().min(1, 'Counterparty name is required'),

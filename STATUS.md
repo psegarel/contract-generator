@@ -1,6 +1,6 @@
 # Current Status
 
-**Last Updated:** 2026-02-03
+**Last Updated:** 2026-02-05
 
 ---
 
@@ -17,7 +17,15 @@
 ## Recent Updates
 
 ### ✅ Completed
-1. **Payment Tracking System** (February 2-3, 2026)
+1. **DJ Residency Performer Management** (February 5, 2026)
+   - Added inline performer creation to DJ Residency Performance Log (CreatePerformerInline component)
+   - Fixed counterparty subscription to preserve type-specific fields (stageName, performerType) via `.passthrough()`
+   - Added `/counterparties/convert` route for converting service-provider counterparties to performer type
+   - Convert page with preview/dry-run, performer type select, and field migration (adds performer fields, removes service-provider fields)
+   - Created `PERFORMER_TYPES` and `SERVICE_TYPES` config constants (`src/lib/config/counterpartyTypes.ts`)
+   - Performer type field uses select dropdown (from config) instead of free text to prevent typos
+
+2. **Payment Tracking System** (February 2-3, 2026)
    - Added `payments` Firestore collection with types, schemas, CRUD, and real-time subscriptions
    - Payment records auto-created when saving contracts (one-time for service/event, recurring monthly for equipment rental)
    - Dashboard stats (Received, Receivable, Payable, Paid) derived from payment records, constrained to fiscal year (Jan 1 – Dec 31)
@@ -62,6 +70,7 @@
 - ✅ `/counterparties/new/` - Create counterparty
 - ✅ `/counterparties/[id]/` - Counterparty details
 - ✅ `/payments/` - Admin payment management
+- ✅ `/counterparties/convert/` - Convert counterparty type (service-provider → performer)
 
 ---
 
@@ -186,6 +195,7 @@ npx tsx src/lib/migration/runMigration.ts --live
 - ✅ `/counterparties/[id]/edit/` - Edit counterparty
 - ✅ `/counterparties/[id]/contracts/` - Counterparty contracts
 - ✅ `/payments/` - Admin payment management (filters, per-installment toggles)
+- ✅ `/counterparties/convert/` - Convert counterparty type (service-provider → performer)
 
 ---
 

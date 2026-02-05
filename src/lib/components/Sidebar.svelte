@@ -9,7 +9,8 @@
 		Palette,
 		PanelLeft,
 		Package,
-		Wallet
+		Wallet,
+		Disc
 	} from 'lucide-svelte';
 	import type { ComponentType } from 'svelte';
 	import SidebarMenuItem from './SidebarMenuItem.svelte';
@@ -61,6 +62,15 @@
 			subItems: [
 				{ label: 'List', href: resolve('/contracts/equipment-rental/list') },
 				{ label: 'Create', href: resolve('/contracts/equipment-rental') }
+			]
+		},
+		{
+			icon: Disc,
+			label: 'DJ Residency',
+			href: '#',
+			subItems: [
+				{ label: 'List', href: resolve('/contracts/dj-residency/list') },
+				{ label: 'Create', href: resolve('/contracts/dj-residency') }
 			]
 		},
 		{ icon: Wallet, label: 'Payments', href: resolve('/payments') },

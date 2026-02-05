@@ -223,7 +223,11 @@ export async function syncContractStatusFromPayments(
 		'performer-booking': updatePerformerBookingContractPaymentStatus,
 		'equipment-rental': updateEquipmentRentalContractPaymentStatus,
 		subcontractor: updateSubcontractorContractPaymentStatus,
-		'client-service': updateClientServiceContractPaymentStatus
+		'client-service': updateClientServiceContractPaymentStatus,
+		'dj-residency': async () => {
+			// DJ Residency contracts don't sync payment status directly
+			// Payments flow through child Service Provision contracts
+		}
 	};
 
 	await updateFunctions[contractType](contractId, newStatus, adminUid);
