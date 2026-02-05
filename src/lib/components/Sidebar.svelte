@@ -79,7 +79,15 @@
 			label: 'Events',
 			href: resolve('/events')
 		},
-		{ icon: Users, label: 'Counterparties', href: resolve('/counterparties') }
+		{
+			icon: Users,
+			label: 'Counterparties',
+			href: '#',
+			subItems: [
+				{ label: 'List', href: resolve('/counterparties') },
+				{ label: 'Convert', href: resolve('/counterparties/convert') }
+			]
+		}
 	];
 
 	let expandedItems = $state<Record<string, boolean>>(
