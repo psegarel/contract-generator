@@ -5,6 +5,7 @@
 		eventPlanningContractState,
 		equipmentRentalContractState
 	} from '$lib/state/v2';
+	import { getContractDateOrCreatedAt } from '$lib/utils/v2/contractDates';
 	import ContractsList from './ContractsList.svelte';
 	import { FileText } from 'lucide-svelte';
 
@@ -15,6 +16,7 @@
 	let { limit }: Props = $props();
 
 	// Merge all contract types into single array (TypeScript inheritance makes this work!)
+	// Sort by contract date (latest first), falling back to createdAt if no date field exists
 	let allContracts = $derived<BaseContract[]>(
 		[
 			...serviceProvisionContractState.contracts,
@@ -25,7 +27,11 @@
 			// ...performerBookingContractState.contracts,
 			// etc.
 		]
-			.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+			.sort((a, b) => {
+				const dateA = getContractDateOrCreatedAt(a).getTime();
+				const dateB = getContractDateOrCreatedAt(b).getTime();
+				return dateB - dateA; // Descending: latest first
+			})
 			.slice(0, limit)
 	);
 

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
+	import { getContractDateOrCreatedAt } from '$lib/utils/v2/contractDates';
 	import ContractListItem from './ContractListItem.svelte';
 	import { FileText } from 'lucide-svelte';
 
@@ -9,7 +10,16 @@
 		showHeaders?: boolean;
 	}
 
-	let { contracts, title = 'Contracts', showHeaders = true }: Props = $props();
+	let { contracts: unsortedContracts, title = 'Contracts', showHeaders = true }: Props = $props();
+
+	// Sort contracts by contract date (latest first), falling back to createdAt if no date field exists
+	let contracts = $derived(
+		[...unsortedContracts].sort((a, b) => {
+			const dateA = getContractDateOrCreatedAt(a).getTime();
+			const dateB = getContractDateOrCreatedAt(b).getTime();
+			return dateB - dateA; // Descending: latest first
+		})
+	);
 </script>
 
 <div class="border-t border-border h-full flex flex-col">

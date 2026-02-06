@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
+	import { getContractDateOrCreatedAt } from '$lib/utils/v2/contractDates';
 	import { Eye, Edit, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -141,7 +142,7 @@
 
 		<!-- Date -->
 		<div class="col-span-2 px-1 text-sm text-center tracking-wide">
-			{formatDateString(contract.createdAt.toDate().toISOString())}
+			{formatDateString(getContractDateOrCreatedAt(contract).toISOString())}
 		</div>
 
 		<!-- Type Badge -->

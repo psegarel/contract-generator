@@ -1,6 +1,6 @@
 # Current Status
 
-**Last Updated:** 2026-02-05
+**Last Updated:** 2026-02-06
 
 ---
 
@@ -17,7 +17,14 @@
 ## Recent Updates
 
 ### ✅ Completed
-1. **DJ Residency Performer Management** (February 5, 2026)
+1. **Dashboard & Contract List Improvements** (February 6, 2026)
+   - Fixed dashboard date filtering timezone inconsistency (start date now uses UTC to match payment timestamps)
+   - Improved contract list to display actual contract dates (eventDate, startDate, etc.) instead of createdAt
+   - Added contract date utility (`src/lib/utils/v2/contractDates.ts`) to extract relevant date for each contract type
+   - Updated contract list sorting to use contract date (latest first) instead of creation date
+   - All contract lists now show most recent contracts by actual contract/event date
+
+2. **DJ Residency Performer Management** (February 5, 2026)
    - Added inline performer creation to DJ Residency Performance Log (CreatePerformerInline component)
    - Fixed counterparty subscription to preserve type-specific fields (stageName, performerType) via `.passthrough()`
    - Added `/counterparties/convert` route for converting service-provider counterparties to performer type
@@ -334,6 +341,7 @@ pnpm dev
 
 **Utilities:**
 - `src/lib/utils/v2/` - Firestore CRUD operations
+- `src/lib/utils/v2/contractDates.ts` - Contract date extraction utility
 - `src/lib/utils/formatting.ts` - Display formatting utilities
 
 ---

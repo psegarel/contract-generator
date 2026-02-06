@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
+	import { getContractDateOrCreatedAt } from '$lib/utils/v2/contractDates';
 	import { Calendar, Eye, Edit, Download, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -63,7 +64,7 @@
 		<div class="flex items-center gap-2 text-muted-foreground">
 			<Calendar class="h-3.5 w-3.5 shrink-0" />
 			<span class="tracking-wide">
-				{formatDateString(contract.createdAt.toDate().toISOString())}
+				{formatDateString(getContractDateOrCreatedAt(contract).toISOString())}
 			</span>
 		</div>
 	</div>

@@ -79,7 +79,10 @@ function filterPaymentsByDateRange(
 	startDate: string,
 	endDate: string
 ): Payment[] {
-	const start = new Date(startDate).getTime();
+	// Use UTC for both start and end to match payment timestamps (dueDate.toMillis() is UTC)
+	// Start date: beginning of day in UTC (00:00:00.000Z)
+	const start = new Date(startDate + 'T00:00:00.000Z').getTime();
+	// End date: end of day in UTC (23:59:59.999Z)
 	const end = new Date(endDate + 'T23:59:59.999Z').getTime();
 
 	return payments.filter((payment) => {

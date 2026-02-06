@@ -1,6 +1,6 @@
 # Project Progress
 
-**Last Updated:** 2026-02-05
+**Last Updated:** 2026-02-06
 
 ## Project Overview
 
@@ -261,7 +261,16 @@ BaseContract exists for UI component props only (not in Firestore).
 
 ### February 2026
 
-1. **DJ Residency Performer Management** (Feb 5)
+1. **Dashboard & Contract List Improvements** (Feb 6)
+   - Fixed dashboard date filtering timezone bug: start date was using local timezone while end date and payment timestamps use UTC
+   - Solution: Both start and end dates now use UTC (`'T00:00:00.000Z'` and `'T23:59:59.999Z'`) to match payment timestamps
+   - Created `src/lib/utils/v2/contractDates.ts` utility with `getContractDate()` and `getContractDateOrCreatedAt()` functions
+   - Updated `ContractListItem.svelte` and `ContractCard.svelte` to display actual contract dates instead of `createdAt`
+   - Contract date mapping: Event Planning → `eventDate`, Service Provision → `startDate`, Equipment Rental → `rentalStartDate`, etc.
+   - Updated `ContractsList.svelte` and `LatestContractsList.svelte` to sort by contract date (latest first)
+   - All contract lists now show most recent contracts by actual contract/event date, making it easier to see recent activity
+
+2. **DJ Residency Performer Management** (Feb 5)
    - Added inline performer creation (`CreatePerformerInline.svelte`) to DJ Residency Performance Log
    - "+ New" button next to performer dropdown creates performer counterparty and auto-selects it
    - Fixed `counterpartyListSchema` to use `.passthrough()` so type-specific fields (stageName, performerType) survive subscription validation
