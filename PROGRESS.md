@@ -1,6 +1,6 @@
 # Project Progress
 
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-02-13
 
 ## Project Overview
 
@@ -261,7 +261,15 @@ BaseContract exists for UI component props only (not in Firestore).
 
 ### February 2026
 
-1. **Dashboard & Contract List Improvements** (Feb 6)
+1. **TextField Design System Refactor** (Feb 13)
+   - Fixed TextField component: invisible inputs (`border-none bg-background`) replaced with visible `border border-gray-300 rounded-md` styling
+   - Extended TextField to accept `string | number` values and forward native HTML attributes via `HTMLInputAttributes` and rest props (`...rest`)
+   - Migrated 15+ form sections from raw `<input>` to TextField: EquipmentRentalTermsSection, EquipmentRentalPeriodSection, ContractBasicsSection, FinancialSection, ClientInfoSection, BankingSection, ServiceDetailsSection, EventPlanningContractBasicsSection, EventPlanningEventDetailsSection, EventPlanningContractValueSection, EventPlanningInsuranceSection, EventPlanningLegalTimePeriodsSection, EventPlanningPlanningBookingSection, EventPlanningSetupExecutionSection, EventPlanningBreakdownSection, EventPlanningPaymentTermsSection, CreateProviderInline
+   - Added missing type re-exports (`CounterpartyDocuments`, `DocumentMetadata`) in `$lib/types/v2/index.ts`
+   - Fixed Firebase v9 API in `migrateCounterpartyDocuments.ts` (`getMetadata(ref)` instead of `ref.getMetadata()`)
+   - Remaining: 5 callback-pattern event planning sections and EquipmentRentalListSection (dynamic list) not yet migrated to TextField
+
+2. **Dashboard & Contract List Improvements** (Feb 6)
    - Fixed dashboard date filtering timezone bug: start date was using local timezone while end date and payment timestamps use UTC
    - Solution: Both start and end dates now use UTC (`'T00:00:00.000Z'` and `'T23:59:59.999Z'`) to match payment timestamps
    - Created `src/lib/utils/v2/contractDates.ts` utility with `getContractDate()` and `getContractDateOrCreatedAt()` functions

@@ -11,6 +11,10 @@
 	import { Timestamp } from 'firebase/firestore';
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
+	import FileUpload from '$lib/components/FileUpload.svelte';
+	import { CounterpartyDocumentManager } from '$lib/utils/counterpartyDocuments';
+	import { toast } from 'svelte-sonner';
+
 
 	interface Props {
 		serviceProvider?: ServiceProviderCounterparty | null;
@@ -23,10 +27,62 @@
 	// Create form state instance
 	const formState = new ServiceProviderFormState();
 
+	// Generate counterparty ID early for immediate upload capability (if creating new)
+	let counterpartyId = $state<string | null>(null);
+
 	// Initialize form state from prop (one-time initialization on mount)
 	onMount(() => {
 		formState.init(serviceProvider);
+		if (serviceProvider?.id) {
+			counterpartyId = serviceProvider.id;
+		} else if (typeof window !== 'undefined' && window.crypto?.randomUUID) {
+			// Generate ID for new counterparty to enable immediate uploads
+			counterpartyId = window.crypto.randomUUID();
+		}
 	});
+
+	// Document manager instance (created when counterpartyId is available)
+	let documentManager = $derived(
+		counterpartyId ? new CounterpartyDocumentManager(counterpartyId) : null
+	);
+
+	// Handle file upload for a specific image number
+	async function handleFileUpload(file: File, imageNumber: 1 | 2 | 3 | 4 | 5) {
+		if (!authState.user || !documentManager) {
+			toast.error('Unable to upload: missing authentication or counterparty ID');
+			return;
+		}
+
+		formState.setUploading(imageNumber, true);
+
+		try {
+			const metadata = await documentManager.uploadDocument(file, imageNumber, authState.user.uid);
+			formState.setDocument(imageNumber, metadata);
+			toast.success(`Document ${imageNumber} uploaded successfully`);
+		} catch (error) {
+			logger.error('Error uploading document:', error);
+			toast.error('Failed to upload document: ' + (error as Error).message);
+		} finally {
+			formState.setUploading(imageNumber, false);
+		}
+	}
+
+	// Handle file deletion for a specific image number
+	async function handleFileDelete(imageNumber: 1 | 2 | 3 | 4 | 5) {
+		if (!documentManager) {
+			toast.error('Unable to delete: missing counterparty ID');
+			return;
+		}
+
+		try {
+			await documentManager.deleteDocument(imageNumber);
+			formState.setDocument(imageNumber, undefined);
+			toast.success(`Document ${imageNumber} deleted`);
+		} catch (error) {
+			logger.error('Error deleting document:', error);
+			toast.error('Failed to delete document');
+		}
+	}
 
 	async function handleSubmit() {
 		if (!authState.user) {
@@ -56,6 +112,7 @@
 				bankAccountNumber: formState.bankAccountNumber || null,
 				idDocument: formState.idDocument || null,
 				notes: formState.notes || null,
+				documents: Object.keys(formState.documents).length > 0 ? formState.documents : undefined,
 				// Timestamps: when creating use Timestamp.now(), when editing preserve createdAt
 				createdAt: serviceProvider?.createdAt || Timestamp.now(),
 				updatedAt: Timestamp.now()
@@ -74,6 +131,8 @@
 				serviceProviderId = serviceProvider.id;
 			} else {
 				serviceProviderId = await saveCounterparty(serviceProviderData);
+				// Update counterpartyId for future reference
+				counterpartyId = serviceProviderId;
 			}
 
 			if (onSuccess) {
@@ -314,6 +373,94 @@
 				/>
 			</div>
 		</div>
+	</div>
+
+	<!-- Tax & Banking -->
+	<div class="bg-white p-6 rounded-lg border border-gray-200">
+		<h3 class="text-lg font-semibold text-gray-900 mb-4">Tax & Banking</h3>
+		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
+			<div>
+				<label for="taxId" class="block text-sm font-medium text-gray-700 mb-1">
+					Tax ID
+				</label>
+				<input
+					id="taxId"
+					type="text"
+					bind:value={formState.taxId}
+					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					placeholder="Tax identification number"
+				/>
+			</div>
+
+			<div>
+				<label for="idDocument" class="block text-sm font-medium text-gray-700 mb-1">
+					ID Document Number
+				</label>
+				<input
+					id="idDocument"
+					type="text"
+					bind:value={formState.idDocument}
+					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					placeholder="Passport/ID number"
+				/>
+			</div>
+
+			<div>
+				<label for="bankName" class="block text-sm font-medium text-gray-700 mb-1">
+					Bank Name
+				</label>
+				<input
+					id="bankName"
+					type="text"
+					bind:value={formState.bankName}
+					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					placeholder="Vietcombank"
+				/>
+			</div>
+
+			<div>
+				<label for="bankAccountNumber" class="block text-sm font-medium text-gray-700 mb-1">
+					Bank Account Number
+				</label>
+				<input
+					id="bankAccountNumber"
+					type="text"
+					bind:value={formState.bankAccountNumber}
+					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					placeholder="1234567890"
+				/>
+			</div>
+		</div>
+	</div>
+
+	<!-- ID Documents -->
+	<div class="bg-white p-6 rounded-lg border border-gray-200">
+		<h3 class="text-lg font-semibold text-gray-900 mb-4">ID Documents</h3>
+		<p class="text-sm text-gray-600 mb-4">
+			Upload images of ID/passport documents for validation. You can upload up to 5 documents.
+		</p>
+
+		{#if !counterpartyId}
+			<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
+				Please fill in the basic information first to enable document uploads.
+			</div>
+		{:else}
+			<div class="space-y-4">
+				{#each [1, 2, 3, 4, 5] as imageNum}
+					{@const imageNumber = imageNum as 1 | 2 | 3 | 4 | 5}
+					{@const document = formState.getDocument(imageNumber)}
+					{@const isUploading = formState.isUploading(imageNumber)}
+					<FileUpload
+						label={`Document ${imageNumber}`}
+						document={document}
+						onFileSelect={(file) => handleFileUpload(file, imageNumber)}
+						onFileDelete={() => handleFileDelete(imageNumber)}
+						uploading={isUploading}
+						disabled={formState.isSubmitting}
+					/>
+				{/each}
+			</div>
+		{/if}
 	</div>
 
 	<!-- Notes -->

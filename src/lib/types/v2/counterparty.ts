@@ -1,6 +1,28 @@
 import type { Timestamp } from 'firebase/firestore';
 
 /**
+ * Document metadata for uploaded images
+ */
+export type DocumentMetadata = {
+	url: string;
+	fileName: string;
+	uploadedAt: Date;
+	uploadedBy: string;
+	size: number;
+};
+
+/**
+ * Documents structure for counterparties (multiple images)
+ */
+export type CounterpartyDocuments = {
+	image1?: DocumentMetadata;
+	image2?: DocumentMetadata;
+	image3?: DocumentMetadata;
+	image4?: DocumentMetadata;
+	image5?: DocumentMetadata;
+};
+
+/**
  * Counterparty type discriminators
  */
 export type CounterpartyType = 'venue' | 'performer' | 'service-provider' | 'client' | 'supplier';
@@ -79,8 +101,11 @@ export interface PerformerCounterparty extends BaseCounterparty {
 	// Payment details (needed for DJ Residency invoicing)
 	bankName: string | null;
 	bankAccountNumber: string | null;
-	idDocument: string | null;
+	idDocument: string | null; // ID/passport number (text)
 	taxId: string | null;
+
+	// ID document images (for validation)
+	documents?: CounterpartyDocuments;
 }
 
 /**
@@ -106,7 +131,10 @@ export interface ServiceProviderCounterparty extends BaseCounterparty {
 	taxId: string | null;
 	bankName: string | null;
 	bankAccountNumber: string | null;
-	idDocument: string | null;
+	idDocument: string | null; // ID/passport number (text)
+
+	// ID document images (for validation)
+	documents?: CounterpartyDocuments;
 }
 
 /**

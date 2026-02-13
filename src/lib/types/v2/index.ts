@@ -10,7 +10,9 @@ export type {
 	ServiceProviderCounterparty,
 	ClientCounterparty,
 	SupplierCounterparty,
-	Counterparty
+	Counterparty,
+	CounterpartyDocuments,
+	DocumentMetadata
 } from './counterparty';
 
 // Event types

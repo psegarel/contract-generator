@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import { Upload, X, FileText, Image as ImageIcon } from 'lucide-svelte';
-	import type { DocumentMetadata } from '$lib/utils/clients';
+	import type { DocumentMetadata } from '$lib/types/v2/counterparty';
 
 	interface Props {
 		/** Label for the upload input */

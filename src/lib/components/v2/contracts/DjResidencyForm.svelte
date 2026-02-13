@@ -25,6 +25,7 @@
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import CreateCounterpartyInline from './sections/CreateCounterpartyInline.svelte';
+	import DjResidencyPerformanceLog from './DjResidencyPerformanceLog.svelte';
 
 	interface Props {
 		contract?: DjResidencyContract | null;
@@ -458,6 +459,13 @@
 			placeholder="Internal notes..."
 		/>
 	</div>
+
+	<!-- Performance Log (only show when editing existing contract) -->
+	{#if contract}
+		<div class="mt-6">
+			<DjResidencyPerformanceLog {contract} />
+		</div>
+	{/if}
 
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">

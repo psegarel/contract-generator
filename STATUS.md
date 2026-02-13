@@ -1,6 +1,6 @@
 # Current Status
 
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-02-13
 
 ---
 
@@ -17,7 +17,16 @@
 ## Recent Updates
 
 ### ✅ Completed
-1. **Dashboard & Contract List Improvements** (February 6, 2026)
+1. **TextField Design System Refactor** (February 13, 2026)
+   - Fixed TextField component styling: changed from invisible `border-none bg-background` to visible `border border-gray-300 rounded-md`
+   - Extended TextField to accept `string | number` values and forward native HTML attributes via `HTMLInputAttributes` + rest props
+   - Migrated 15+ form section components from raw `<input>` elements to TextField for design consistency
+   - All form inputs across service provision, event planning, and equipment rental forms now use the shared TextField component
+   - Fixed missing type exports (`CounterpartyDocuments`, `DocumentMetadata`) in `$lib/types/v2/index.ts`
+   - Fixed Firebase v9 API usage in migration script (`getMetadata` function import)
+   - Fixed Svelte warning in ServiceProviderForm (prop captured in initial state)
+
+2. **Dashboard & Contract List Improvements** (February 6, 2026)
    - Fixed dashboard date filtering timezone inconsistency (start date now uses UTC to match payment timestamps)
    - Improved contract list to display actual contract dates (eventDate, startDate, etc.) instead of createdAt
    - Added contract date utility (`src/lib/utils/v2/contractDates.ts`) to extract relevant date for each contract type

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
+	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -17,38 +18,28 @@
 <div class="bg-white p-6 rounded-lg border border-gray-200">
 	<h3 class="text-lg font-semibold text-gray-900 mb-4">Financial Details</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<label for="contractValue" class="block text-sm font-medium text-gray-700 mb-1">
-				Contract Value (before tax) <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="contractValue"
-				type="number"
-				bind:value={formState.contractValue}
-				min="0"
-				step="1000"
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="10000000"
-			/>
-		</div>
+		<TextField
+			id="contractValue"
+			label="Contract Value (before tax)"
+			type="number"
+			bind:value={formState.contractValue}
+			min="0"
+			step="1000"
+			required
+			placeholder="10000000"
+		/>
 
-		<div>
-			<label for="taxRate" class="block text-sm font-medium text-gray-700 mb-1">
-				Tax Rate (%) <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="taxRate"
-				type="number"
-				bind:value={formState.taxRate}
-				min="0"
-				max="100"
-				step="0.1"
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="10"
-			/>
-		</div>
+		<TextField
+			id="taxRate"
+			label="Tax Rate (%)"
+			type="number"
+			bind:value={formState.taxRate}
+			min="0"
+			max="100"
+			step="0.1"
+			required
+			placeholder="10"
+		/>
 
 		<div class="col-span-full p-4 bg-gray-50 rounded-md border border-gray-200">
 			<div class="grid gap-2 text-sm">
@@ -67,18 +58,14 @@
 			</div>
 		</div>
 
-		<div class="col-span-full">
-			<label for="paymentDueDate" class="block text-sm font-medium text-gray-700 mb-1">
-				Payment Due Date <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="paymentDueDate"
-				type="date"
-				bind:value={formState.paymentDueDate}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-			<p class="text-xs text-gray-500 mt-1">The date by which payment must be made</p>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="paymentDueDate"
+			label="Payment Due Date"
+			type="date"
+			bind:value={formState.paymentDueDate}
+			required
+			helperText="The date by which payment must be made"
+		/>
 	</div>
 </div>

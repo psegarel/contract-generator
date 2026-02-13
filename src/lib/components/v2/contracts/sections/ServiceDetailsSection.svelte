@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
+	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -11,19 +12,14 @@
 <div class="bg-white p-6 rounded-lg border border-gray-200">
 	<h3 class="text-lg font-semibold text-gray-900 mb-4">Service Details</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div class="col-span-full">
-			<label for="jobName" class="block text-sm font-medium text-gray-700 mb-1">
-				Job Name <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="jobName"
-				type="text"
-				bind:value={formState.jobName}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="DJ Services, Sound System Rental, etc."
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="jobName"
+			label="Job Name"
+			bind:value={formState.jobName}
+			required
+			placeholder="DJ Services, Sound System Rental, etc."
+		/>
 
 		<div class="col-span-full">
 			<label for="jobContent" class="block text-sm font-medium text-gray-700 mb-1">
@@ -39,71 +35,46 @@
 			></textarea>
 		</div>
 
-		<div>
-			<label for="numberOfPerformances" class="block text-sm font-medium text-gray-700 mb-1">
-				Number of Performances <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="numberOfPerformances"
-				type="number"
-				bind:value={formState.numberOfPerformances}
-				min="1"
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="numberOfPerformances"
+			label="Number of Performances"
+			type="number"
+			bind:value={formState.numberOfPerformances}
+			min="1"
+			required
+		/>
 
-		<div>
-			<label for="firstPerformanceTime" class="block text-sm font-medium text-gray-700 mb-1">
-				First Performance Time <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="firstPerformanceTime"
-				type="time"
-				bind:value={formState.firstPerformanceTime}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="firstPerformanceTime"
+			label="First Performance Time"
+			type="time"
+			bind:value={formState.firstPerformanceTime}
+			required
+		/>
 
-		<div>
-			<label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">
-				Start Date <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="startDate"
-				type="date"
-				bind:value={formState.startDate}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="startDate"
+			label="Start Date"
+			type="date"
+			bind:value={formState.startDate}
+			required
+		/>
 
-		<div>
-			<label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">
-				End Date <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="endDate"
-				type="date"
-				bind:value={formState.endDate}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="endDate"
+			label="End Date"
+			type="date"
+			bind:value={formState.endDate}
+			required
+		/>
 
-		<div class="col-span-full">
-			<label for="eventLocation" class="block text-sm font-medium text-gray-700 mb-1">
-				Event Location <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="eventLocation"
-				type="text"
-				bind:value={formState.eventLocation}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="123 Main St, Ho Chi Minh City"
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="eventLocation"
+			label="Event Location"
+			bind:value={formState.eventLocation}
+			required
+			placeholder="123 Main St, Ho Chi Minh City"
+		/>
 	</div>
 </div>

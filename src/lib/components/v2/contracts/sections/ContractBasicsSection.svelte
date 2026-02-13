@@ -2,6 +2,7 @@
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import type { Event } from '$lib/types/v2';
 	import type { ServiceProviderCounterparty } from '$lib/types/v2';
+	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -17,18 +18,13 @@
 <div class="bg-white p-6 rounded-lg border border-gray-200">
 	<h3 class="text-lg font-semibold text-gray-900 mb-4">Contract Basics</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<label for="contractNumber" class="block text-sm font-medium text-gray-700 mb-1">
-				Contract Number <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="contractNumber"
-				type="text"
-				bind:value={formState.contractNumber}
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="SVC-20260104-1234"
-			/>
-		</div>
+		<TextField
+			id="contractNumber"
+			label="Contract Number"
+			bind:value={formState.contractNumber}
+			required
+			placeholder="SVC-20260104-1234"
+		/>
 
 		<div>
 			<label for="status" class="block text-sm font-medium text-gray-700 mb-1">

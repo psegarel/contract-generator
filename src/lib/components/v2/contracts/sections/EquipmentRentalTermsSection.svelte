@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { EquipmentRentalContractFormState } from '$lib/state/v2/equipmentRentalContractFormState.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
+	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		formState: EquipmentRentalContractFormState;
@@ -12,56 +13,42 @@
 <div class="bg-white p-6 rounded-lg border border-gray-200">
 	<h3 class="text-lg font-semibold text-gray-900 mb-4">Rental Terms</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div class="col-span-full">
-			<label for="monthlyRent" class="block text-sm font-medium text-gray-700 mb-1">
-				Monthly Rent (VND) <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="monthlyRent"
-				type="number"
-				bind:value={formState.monthlyRent}
-				min="0"
-				step="1000"
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="10000000"
-			/>
-			<p class="text-xs text-gray-500 mt-1">{formatCurrency(formState.monthlyRent)}</p>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="monthlyRent"
+			label="Monthly Rent (VND)"
+			type="number"
+			bind:value={formState.monthlyRent}
+			min="0"
+			step="1000"
+			required
+			placeholder="10000000"
+			helperText={formatCurrency(formState.monthlyRent)}
+		/>
 
-		<div>
-			<label for="securityDeposit" class="block text-sm font-medium text-gray-700 mb-1">
-				Security Deposit (VND) <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="securityDeposit"
-				type="number"
-				bind:value={formState.securityDeposit}
-				min="0"
-				step="1000"
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="5000000"
-			/>
-			<p class="text-xs text-gray-500 mt-1">{formatCurrency(formState.securityDeposit)}</p>
-		</div>
+		<TextField
+			id="securityDeposit"
+			label="Security Deposit (VND)"
+			type="number"
+			bind:value={formState.securityDeposit}
+			min="0"
+			step="1000"
+			required
+			placeholder="5000000"
+			helperText={formatCurrency(formState.securityDeposit)}
+		/>
 
-		<div>
-			<label for="deliveryFee" class="block text-sm font-medium text-gray-700 mb-1">
-				Delivery Fee (VND) <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="deliveryFee"
-				type="number"
-				bind:value={formState.deliveryFee}
-				min="0"
-				step="1000"
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="1000000"
-			/>
-			<p class="text-xs text-gray-500 mt-1">{formatCurrency(formState.deliveryFee)}</p>
-		</div>
+		<TextField
+			id="deliveryFee"
+			label="Delivery Fee (VND)"
+			type="number"
+			bind:value={formState.deliveryFee}
+			min="0"
+			step="1000"
+			required
+			placeholder="1000000"
+			helperText={formatCurrency(formState.deliveryFee)}
+		/>
 
 		<div class="col-span-full">
 			<label class="flex items-center gap-2 cursor-pointer">

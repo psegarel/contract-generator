@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
+	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -13,57 +14,37 @@
 <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg">
 	<h3 class="text-lg font-semibold text-gray-900 mb-4">Create New Service Provider</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<label for="newProviderName" class="block text-sm font-medium text-gray-700 mb-1">
-				Provider Name <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="newProviderName"
-				type="text"
-				bind:value={formState.newProviderName}
-				placeholder="e.g., ABC Catering Services"
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="newProviderName"
+			label="Provider Name"
+			bind:value={formState.newProviderName}
+			required
+			placeholder="e.g., ABC Catering Services"
+		/>
 
-		<div>
-			<label for="newProviderServiceType" class="block text-sm font-medium text-gray-700 mb-1">
-				Service Type <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="newProviderServiceType"
-				type="text"
-				bind:value={formState.newProviderServiceType}
-				placeholder="e.g., Catering, Photography, AV Equipment"
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="newProviderServiceType"
+			label="Service Type"
+			bind:value={formState.newProviderServiceType}
+			required
+			placeholder="e.g., Catering, Photography, AV Equipment"
+		/>
 
-		<div>
-			<label for="newProviderEmail" class="block text-sm font-medium text-gray-700 mb-1">
-				Email
-			</label>
-			<input
-				id="newProviderEmail"
-				type="email"
-				bind:value={formState.newProviderEmail}
-				placeholder="provider@example.com"
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="newProviderEmail"
+			label="Email"
+			type="email"
+			bind:value={formState.newProviderEmail}
+			placeholder="provider@example.com"
+		/>
 
-		<div>
-			<label for="newProviderPhone" class="block text-sm font-medium text-gray-700 mb-1">
-				Phone
-			</label>
-			<input
-				id="newProviderPhone"
-				type="tel"
-				bind:value={formState.newProviderPhone}
-				placeholder="+84 123 456 789"
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="newProviderPhone"
+			label="Phone"
+			type="tel"
+			bind:value={formState.newProviderPhone}
+			placeholder="+84 123 456 789"
+		/>
 	</div>
 
 	<div class="flex gap-3 justify-end mt-4">

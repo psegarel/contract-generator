@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
+	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -11,73 +12,46 @@
 <div class="bg-white p-6 rounded-lg border border-gray-200">
 	<h3 class="text-lg font-semibold text-gray-900 mb-4">Client Information (for PDF)</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<label for="clientEmail" class="block text-sm font-medium text-gray-700 mb-1">
-				Client Email <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="clientEmail"
-				type="email"
-				bind:value={formState.clientEmail}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="client@example.com"
-			/>
-		</div>
+		<TextField
+			id="clientEmail"
+			label="Client Email"
+			type="email"
+			bind:value={formState.clientEmail}
+			required
+			placeholder="client@example.com"
+		/>
 
-		<div>
-			<label for="clientPhone" class="block text-sm font-medium text-gray-700 mb-1">
-				Client Phone <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="clientPhone"
-				type="tel"
-				bind:value={formState.clientPhone}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="+84 123 456 789"
-			/>
-		</div>
+		<TextField
+			id="clientPhone"
+			label="Client Phone"
+			type="tel"
+			bind:value={formState.clientPhone}
+			required
+			placeholder="+84 123 456 789"
+		/>
 
-		<div class="col-span-full">
-			<label for="clientAddress" class="block text-sm font-medium text-gray-700 mb-1">
-				Client Address <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="clientAddress"
-				type="text"
-				bind:value={formState.clientAddress}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="123 Main St, Ho Chi Minh City"
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="clientAddress"
+			label="Client Address"
+			bind:value={formState.clientAddress}
+			required
+			placeholder="123 Main St, Ho Chi Minh City"
+		/>
 
-		<div>
-			<label for="clientIdDocument" class="block text-sm font-medium text-gray-700 mb-1">
-				Client ID Document <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="clientIdDocument"
-				type="text"
-				bind:value={formState.clientIdDocument}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="ID or Passport number"
-			/>
-		</div>
+		<TextField
+			id="clientIdDocument"
+			label="Client ID Document"
+			bind:value={formState.clientIdDocument}
+			required
+			placeholder="ID or Passport number"
+		/>
 
-		<div>
-			<label for="clientTaxId" class="block text-sm font-medium text-gray-700 mb-1">
-				Client Tax ID
-			</label>
-			<input
-				id="clientTaxId"
-				type="text"
-				bind:value={formState.clientTaxId}
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="Tax identification number"
-			/>
-		</div>
+		<TextField
+			id="clientTaxId"
+			label="Client Tax ID"
+			bind:value={formState.clientTaxId}
+			placeholder="Tax identification number"
+		/>
 	</div>
 </div>

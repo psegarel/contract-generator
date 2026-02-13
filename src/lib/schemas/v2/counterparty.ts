@@ -2,6 +2,30 @@ import { z } from 'zod';
 import type { Timestamp } from 'firebase/firestore';
 
 /**
+ * Document metadata schema
+ */
+const documentMetadataSchema = z.object({
+	url: z.string().url('Invalid URL'),
+	fileName: z.string().min(1, 'File name is required'),
+	uploadedAt: z.custom<Date>(),
+	uploadedBy: z.string().min(1, 'Uploader UID is required'),
+	size: z.number().min(0, 'File size must be positive')
+});
+
+/**
+ * Counterparty documents schema (multiple images)
+ */
+const counterpartyDocumentsSchema = z
+	.object({
+		image1: documentMetadataSchema.optional(),
+		image2: documentMetadataSchema.optional(),
+		image3: documentMetadataSchema.optional(),
+		image4: documentMetadataSchema.optional(),
+		image5: documentMetadataSchema.optional()
+	})
+	.optional();
+
+/**
  * Base counterparty schema - common fields for all counterparty types
  */
 export const baseCounterpartySchema = z.object({
@@ -76,7 +100,10 @@ export const performerCounterpartySchema = baseCounterpartySchema
 		bankName: z.string().nullable().optional(),
 		bankAccountNumber: z.string().nullable().optional(),
 		idDocument: z.string().nullable().optional(),
-		taxId: z.string().nullable().optional()
+		taxId: z.string().nullable().optional(),
+
+		// ID document images (for validation)
+		documents: counterpartyDocumentsSchema
 	})
 	.strict();
 
@@ -103,7 +130,10 @@ export const serviceProviderCounterpartySchema = baseCounterpartySchema
 		taxId: z.string().nullable().optional(),
 		bankName: z.string().nullable().optional(),
 		bankAccountNumber: z.string().nullable().optional(),
-		idDocument: z.string().nullable().optional()
+		idDocument: z.string().nullable().optional(),
+
+		// ID document images (for validation)
+		documents: counterpartyDocumentsSchema
 	})
 	.strict();
 

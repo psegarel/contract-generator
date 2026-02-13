@@ -8,8 +8,8 @@ service firebase.storage {
       return request.auth != null;
     }
 
-    // Client documents
-    match /client-documents/{clientId}/{fileName} {
+    // Counterparty documents (renamed from client-documents)
+    match /counterparty-documents/{counterpartyId}/{fileName} {
       // Any authenticated user can read
       allow read: if isSignedIn();
 

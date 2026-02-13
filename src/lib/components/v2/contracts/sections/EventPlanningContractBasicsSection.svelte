@@ -17,37 +17,29 @@
 <div class="bg-white p-6 rounded-lg border border-gray-200">
 	<h3 class="text-lg font-semibold text-gray-900 mb-4">Contract Basics</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<TextField
-				id="contractNumber"
-				label="Contract Number"
-				bind:value={formState.contractNumber}
-				placeholder="EVT-20260104-1234"
-			/>
-		</div>
+		<TextField
+			id="contractNumber"
+			label="Contract Number"
+			bind:value={formState.contractNumber}
+			placeholder="EVT-20260104-1234"
+		/>
 
-		<div>
-			<label for="contractDate" class="block text-sm font-medium text-gray-700 mb-1">
-				Contract Date <span class="text-red-500">*</span>
-			</label>
-			<input
-				id="contractDate"
-				type="date"
-				bind:value={formState.contractDate}
-				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="contractDate"
+			label="Contract Date"
+			type="date"
+			bind:value={formState.contractDate}
+			required
+		/>
 
-		<div class="col-span-full">
-			<TextField
-				id="contractLocation"
-				label="Contract Location"
-				bind:value={formState.contractLocation}
-				required
-				placeholder="Ho Chi Minh City"
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="contractLocation"
+			label="Contract Location"
+			bind:value={formState.contractLocation}
+			required
+			placeholder="Ho Chi Minh City"
+		/>
 
 		<div>
 			<label for="eventId" class="block text-sm font-medium text-gray-700 mb-1">

@@ -1,10 +1,12 @@
 <script lang="ts">
 	/**
-	 * TextField - Small, Dumb, Reusable Input Component
+	 * TextField - Reusable Input Component (Design System)
 	 *
-	 * Uses pure Tailwind utilities - no custom CSS classes
-	 * Uses $bindable for modern Svelte 5 two-way binding
+	 * Styled wrapper around native <input>. Supports all input types
+	 * (text, number, date, etc.) and forwards additional HTML attributes.
 	 */
+
+	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	let {
 		id,
@@ -15,25 +17,22 @@
 		placeholder = '',
 		error = '',
 		helperText = '',
-		class: className = ''
-	}: {
+		class: className = '',
+		...rest
+	}: HTMLInputAttributes & {
 		id: string;
 		label: string;
-		value?: string;
-		type?: string;
-		required?: boolean;
-		placeholder?: string;
+		value?: string | number;
 		error?: string;
 		helperText?: string;
-		class?: string;
 	} = $props();
 </script>
 
-<div class="flex flex-col gap-2 {className}">
-	<label for={id} class="text-sm font-medium text-foreground ml-1">
+<div class="flex flex-col gap-1 {className}">
+	<label for={id} class="block text-sm font-medium text-gray-700 mb-1">
 		{label}
 		{#if required}
-			<span class="text-destructive">*</span>
+			<span class="text-red-500">*</span>
 		{/if}
 	</label>
 	<input
@@ -41,8 +40,10 @@
 		{type}
 		bind:value
 		{placeholder}
-		class="w-full px-4 py-3 bg-background rounded-2xl text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none text-sm {error
-			? 'ring-4 ring-destructive/10'
+		{required}
+		{...rest}
+		class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md text-foreground placeholder:text-muted-foreground/30 focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-sm {error
+			? 'border-red-500 focus:ring-red-500/10'
 			: ''}"
 	/>
 	{#if helperText && !error}
