@@ -26,7 +26,7 @@ import { logger } from '$lib/utils/logger';
 	});
 
 	// Get venue counterparties for selection
-	const venues = $derived(counterpartyState.counterparties.filter((c) => c.type === 'venue'));
+	const venues = $derived(counterpartyState.clients.filter((c) => c.clientType === 'company'));
 
 	// Create form state instance
 	const formState = new EventFormState();

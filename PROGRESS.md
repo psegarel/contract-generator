@@ -1,6 +1,6 @@
 # Project Progress
 
-**Last Updated:** 2026-02-13
+**Last Updated:** 2026-02-14
 
 ## Project Overview
 
@@ -36,7 +36,7 @@ For complete project architecture, tech stack, and design patterns, refer to [AI
 All TypeScript interfaces created with proper inheritance:
 
 - `base.ts` - BaseContract interface with minimal common fields
-- `counterparty.ts` - BaseCounterparty + 5 types (Venue, Performer, ServiceProvider, Client, Supplier)
+- `counterparty.ts` - BaseCounterparty + 2-tier model: Client (individual/company), Contractor (performer/service-provider)
 - `event.ts` - Event entity
 - `contracts.ts` - 7 contract types (VenueRental, PerformerBooking, EquipmentRental, ServiceProvision, EventPlanning, Subcontractor, ClientService)
 - `index.ts` - Re-exports
@@ -107,7 +107,7 @@ const allContracts: BaseContract[] = $derived([
 - ✅ EventPlanningForm.svelte - Event planning contract form with sections
 - ✅ ContractListItem, ContractsList, LatestContractsList
 - ✅ EventCard, CounterpartyCard
-- ✅ ClientForm, ServiceProviderForm, VenueForm
+- ✅ ClientForm, ServiceProviderForm, PerformerForm
 - ✅ Contract detail/view pages
 - ✅ Event detail pages
 - ✅ Counterparty detail pages
@@ -133,7 +133,8 @@ const allContracts: BaseContract[] = $derived([
 - ✅ `/events/new/` - Create event
 - ✅ `/events/[id]/` - Event detail
 - ✅ `/counterparties/` - Counterparties list
-- ✅ `/counterparties/new/` - Create counterparty
+- ✅ `/counterparties/new/client` - Create client counterparty
+- ✅ `/counterparties/new/contractor` - Create contractor counterparty
 - ✅ `/counterparties/[id]/` - Counterparty detail
 - ✅ `/counterparties/[id]/edit/` - Edit counterparty
 - ✅ `/counterparties/[id]/contracts/` - Counterparty contracts
@@ -261,7 +262,18 @@ BaseContract exists for UI component props only (not in Firestore).
 
 ### February 2026
 
-1. **TextField Design System Refactor** (Feb 13)
+1. **Counterparty Type Refactoring** (Feb 14)
+   - Restructured counterparty system from 5 flat types to 2-tier hierarchical model
+   - New model: Client (individual/company) and Contractor (performer/service-provider)
+   - Removed Venue and Supplier types (venue = company client, supplier unused)
+   - Updated all types, Zod schemas, Firestore utilities, state classes, form components, and routes
+   - Created PerformerForm.svelte, new creation routes (`/counterparties/new/client`, `/counterparties/new/contractor`)
+   - Updated DJ Residency components for new type structure
+   - Migration script with dry-run mode, executed and archived
+   - Removed `/counterparties/convert` route
+   - Plan: `~/.claude/plans/shiny-tinkering-sloth.md`
+
+2. **TextField Design System Refactor** (Feb 13)
    - Fixed TextField component: invisible inputs (`border-none bg-background`) replaced with visible `border border-gray-300 rounded-md` styling
    - Extended TextField to accept `string | number` values and forward native HTML attributes via `HTMLInputAttributes` and rest props (`...rest`)
    - Migrated 15+ form sections from raw `<input>` to TextField: EquipmentRentalTermsSection, EquipmentRentalPeriodSection, ContractBasicsSection, FinancialSection, ClientInfoSection, BankingSection, ServiceDetailsSection, EventPlanningContractBasicsSection, EventPlanningEventDetailsSection, EventPlanningContractValueSection, EventPlanningInsuranceSection, EventPlanningLegalTimePeriodsSection, EventPlanningPlanningBookingSection, EventPlanningSetupExecutionSection, EventPlanningBreakdownSection, EventPlanningPaymentTermsSection, CreateProviderInline

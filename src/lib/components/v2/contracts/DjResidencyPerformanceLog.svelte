@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { DjResidencyContract, PerformanceLog, PerformerCounterparty } from '$lib/types/v2';
+	import type { DjResidencyContract, PerformanceLog, PerformerContractor } from '$lib/types/v2';
 	import {
 		subscribeToPerformances,
 		addPerformance,
 		deletePerformance
 	} from '$lib/utils/v2/djResidencyContracts';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
-	import { performerCounterpartySchema } from '$lib/schemas/v2/counterparty';
-	import type { PerformerCounterpartyInput } from '$lib/schemas/v2/counterparty';
+	import { performerContractorSchema } from '$lib/schemas/v2/counterparty';
+	import type { PerformerContractorInput } from '$lib/schemas/v2/counterparty';
 	import { counterpartyState } from '$lib/state/v2';
 	import { authState } from '$lib/state/auth.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -61,7 +61,7 @@
 
 	// Get performer counterparties
 	let performerCounterparties = $derived(
-		counterpartyState.counterparties.filter((c) => c.type === 'performer') as PerformerCounterparty[]
+		counterpartyState.performers
 	);
 
 	let unsubscribe: Unsubscribe | null = null;
@@ -148,8 +148,9 @@
 
 		newPerformer.isSubmitting = true;
 		try {
-			const performerData: PerformerCounterpartyInput = {
-				type: 'performer',
+			const performerData: PerformerContractorInput = {
+				type: 'contractor',
+				contractorType: 'performer',
 				ownerUid: authState.user.uid,
 				name: newPerformer.name,
 				stageName: newPerformer.stageName,
@@ -172,7 +173,7 @@
 				updatedAt: Timestamp.now()
 			};
 
-			const validationResult = performerCounterpartySchema.safeParse(performerData);
+			const validationResult = performerContractorSchema.safeParse(performerData);
 			if (!validationResult.success) {
 				toast.error('Validation error: ' + validationResult.error.issues[0].message);
 				return;

@@ -34,6 +34,7 @@
 	let totalReceivable = $derived(stats.totalReceivable);
 	let totalPayable = $derived(stats.totalPayable);
 	let totalPaid = $derived(stats.totalPaid);
+
 </script>
 
 <div class="py-8">
@@ -100,5 +101,6 @@
 		<div class="mt-8">
 			<LatestContractsList limit={10} />
 		</div>
+
 	</div>
 </div>

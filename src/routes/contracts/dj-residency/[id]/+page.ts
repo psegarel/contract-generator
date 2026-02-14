@@ -1,6 +1,6 @@
 import { getDjResidencyContractById } from '$lib/utils/v2';
 import { getCounterpartyById } from '$lib/utils/v2/counterparties';
-import type { VenueCounterparty } from '$lib/types/v2';
+import type { ClientCounterparty } from '$lib/types/v2';
 import type { PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { logger } from '$lib/utils/logger';
@@ -26,17 +26,17 @@ export const load: PageLoad = async ({ params }) => {
 			residencyStatus: contract.residencyStatus
 		});
 
-		// Fetch the venue counterparty
+		// Fetch the venue/client counterparty
 		const counterparty = await getCounterpartyById(contract.counterpartyId);
 
-		if (!counterparty || counterparty.type !== 'venue') {
+		if (!counterparty || counterparty.type !== 'client') {
 			logger.error(`Counterparty not found for contract: ${contract.id}`);
 			throw error(404, 'Counterparty (Party B) not found');
 		}
 
 		return {
 			contract,
-			venueCounterparty: counterparty as VenueCounterparty
+			venueCounterparty: counterparty as ClientCounterparty
 		};
 	} catch (e) {
 		if (e && typeof e === 'object' && 'status' in e) {

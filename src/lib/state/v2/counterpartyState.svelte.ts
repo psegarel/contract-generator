@@ -1,5 +1,11 @@
 import { subscribeToCounterparties } from '$lib/utils/v2/counterparties';
-import type { Counterparty } from '$lib/types/v2';
+import type {
+	Counterparty,
+	ClientCounterparty,
+	ContractorCounterparty,
+	PerformerContractor,
+	ServiceProviderContractor
+} from '$lib/types/v2';
 import type { Unsubscribe } from 'firebase/firestore';
 
 export class CounterpartyState {
@@ -39,45 +45,41 @@ export class CounterpartyState {
 	}
 
 	/**
-	 * Get counterparties by type
-	 */
-	getByType(type: Counterparty['type']): Counterparty[] {
-		return this.counterparties.filter((c) => c.type === type);
-	}
-
-	/**
-	 * Get venues
-	 */
-	get venues(): Counterparty[] {
-		return this.getByType('venue');
-	}
-
-	/**
-	 * Get performers
-	 */
-	get performers(): Counterparty[] {
-		return this.getByType('performer');
-	}
-
-	/**
-	 * Get service providers
-	 */
-	get serviceProviders(): Counterparty[] {
-		return this.getByType('service-provider');
-	}
-
-	/**
 	 * Get clients
 	 */
-	get clients(): Counterparty[] {
-		return this.getByType('client');
+	get clients(): ClientCounterparty[] {
+		return this.counterparties.filter(
+			(c): c is ClientCounterparty => c.type === 'client'
+		);
 	}
 
 	/**
-	 * Get suppliers
+	 * Get all contractors
 	 */
-	get suppliers(): Counterparty[] {
-		return this.getByType('supplier');
+	get contractors(): ContractorCounterparty[] {
+		return this.counterparties.filter(
+			(c): c is ContractorCounterparty => c.type === 'contractor'
+		);
+	}
+
+	/**
+	 * Get performers (contractor subtype)
+	 */
+	get performers(): PerformerContractor[] {
+		return this.counterparties.filter(
+			(c): c is PerformerContractor =>
+				c.type === 'contractor' && 'contractorType' in c && c.contractorType === 'performer'
+		);
+	}
+
+	/**
+	 * Get service providers (contractor subtype)
+	 */
+	get serviceProviders(): ServiceProviderContractor[] {
+		return this.counterparties.filter(
+			(c): c is ServiceProviderContractor =>
+				c.type === 'contractor' && 'contractorType' in c && c.contractorType === 'service-provider'
+		);
 	}
 
 	/**

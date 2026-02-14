@@ -1,6 +1,6 @@
 # Current Status
 
-**Last Updated:** 2026-02-13
+**Last Updated:** 2026-02-14
 
 ---
 
@@ -17,7 +17,18 @@
 ## Recent Updates
 
 ### ✅ Completed
-1. **TextField Design System Refactor** (February 13, 2026)
+1. **Counterparty Type Refactoring** (February 14, 2026)
+   - Restructured counterparty system from 5 flat types (client, service-provider, performer, venue, supplier) to 2-tier hierarchical model
+   - New model: Client (individual/company) and Contractor (performer/service-provider)
+   - Updated types, schemas, form components, state classes, routes, and sidebar navigation
+   - Created new routes: `/counterparties/new/client` and `/counterparties/new/contractor`
+   - Created PerformerForm.svelte for performer contractor creation/editing
+   - Updated DJ Residency components (VenueCounterparty → ClientCounterparty, PerformerCounterparty → PerformerContractor)
+   - Migration script with dry-run support (`src/lib/migration/migrateCounterpartyTypes.ts`)
+   - Migration executed successfully, UI removed from dashboard, script archived for reference
+   - Removed `/counterparties/convert` route (no longer needed)
+
+2. **TextField Design System Refactor** (February 13, 2026)
    - Fixed TextField component styling: changed from invisible `border-none bg-background` to visible `border border-gray-300 rounded-md`
    - Extended TextField to accept `string | number` values and forward native HTML attributes via `HTMLInputAttributes` + rest props
    - Migrated 15+ form section components from raw `<input>` elements to TextField for design consistency
@@ -83,10 +94,10 @@
 - ✅ `/contracts/equipment-rental/list/` - Equipment rental contracts list
 - ✅ `/contracts/equipment-rental/[id]/` - View equipment rental contract
 - ✅ `/counterparties/` - Counterparties list
-- ✅ `/counterparties/new/` - Create counterparty
+- ✅ `/counterparties/new/client` - Create client counterparty
+- ✅ `/counterparties/new/contractor` - Create contractor counterparty
 - ✅ `/counterparties/[id]/` - Counterparty details
 - ✅ `/payments/` - Admin payment management
-- ✅ `/counterparties/convert/` - Convert counterparty type (service-provider → performer)
 
 ---
 
@@ -111,7 +122,7 @@
 **Types (`src/lib/types/v2/`):**
 - ✅ BaseContract interface
 - ✅ 7 contract types
-- ✅ 5 counterparty types
+- ✅ 2 counterparty types (client, contractor) with subtypes
 - ✅ Event entity
 
 **Schemas (`src/lib/schemas/v2/`):**
@@ -206,12 +217,12 @@ npx tsx src/lib/migration/runMigration.ts --live
 - ✅ `/events/new/` - Create event
 - ✅ `/events/[id]/` - Event detail
 - ✅ `/counterparties/` - Counterparties list
-- ✅ `/counterparties/new/` - Create counterparty
+- ✅ `/counterparties/new/client` - Create client counterparty
+- ✅ `/counterparties/new/contractor` - Create contractor counterparty
 - ✅ `/counterparties/[id]/` - Counterparty detail
 - ✅ `/counterparties/[id]/edit/` - Edit counterparty
 - ✅ `/counterparties/[id]/contracts/` - Counterparty contracts
 - ✅ `/payments/` - Admin payment management (filters, per-installment toggles)
-- ✅ `/counterparties/convert/` - Convert counterparty type (service-provider → performer)
 
 ---
 
@@ -276,7 +287,7 @@ npx tsx src/lib/migration/runMigration.ts --live
 
 **Active Collections:**
 - ✅ `events` - Event management and financial tracking
-- ✅ `counterparties` - Clients, venues, service providers, performers, suppliers
+- ✅ `counterparties` - Clients (individual/company), Contractors (performer/service-provider)
 - ✅ `service-provision-contracts` - Service contracts (DJ, AV, etc.)
 - ✅ `event-planning-contracts` - Event planning contracts
 - ✅ `equipment-rental-contracts` - Equipment rental contracts
@@ -297,6 +308,7 @@ npx tsx src/lib/migration/runMigration.ts --live
 - Migration scripts archived in `migrations-archive/`
 - Payment migration script archived in `archive/v2-utils/`
 - `migratePaymentDueDates()` utility available in `src/lib/utils/v2/payments.ts` for future use
+- Counterparty type migration complete (5 types → 2-tier model), script archived at `src/lib/migration/migrateCounterpartyTypes.ts`
 
 ---
 

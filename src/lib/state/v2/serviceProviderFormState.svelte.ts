@@ -1,4 +1,4 @@
-import type { ServiceProviderCounterparty, CounterpartyDocuments, DocumentMetadata } from '$lib/types/v2';
+import type { ServiceProviderContractor, CounterpartyDocuments, DocumentMetadata } from '$lib/types/v2';
 
 export class ServiceProviderFormState {
 	name = $state('');
@@ -32,7 +32,7 @@ export class ServiceProviderFormState {
 	/**
 	 * Initialize form state from a service provider
 	 */
-	init(serviceProvider: ServiceProviderCounterparty | null) {
+	init(serviceProvider: ServiceProviderContractor | null) {
 		if (!serviceProvider) {
 			this.reset();
 			return;

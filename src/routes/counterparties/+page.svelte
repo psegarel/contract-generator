@@ -7,37 +7,43 @@
 
 	let { data }: { data: PageData } = $props();
 
-	// Group counterparties by type
+	// Group counterparties by type/subtype
 	let groupedCounterparties = $derived({
-		venue: data.counterparties.filter((c) => c.type === 'venue'),
-		performer: data.counterparties.filter((c) => c.type === 'performer'),
-		'service-provider': data.counterparties.filter((c) => c.type === 'service-provider'),
 		client: data.counterparties.filter((c) => c.type === 'client'),
-		supplier: data.counterparties.filter((c) => c.type === 'supplier')
+		performer: data.counterparties.filter(
+			(c) => c.type === 'contractor' && 'contractorType' in c && c.contractorType === 'performer'
+		),
+		'service-provider': data.counterparties.filter(
+			(c) =>
+				c.type === 'contractor' &&
+				'contractorType' in c &&
+				c.contractorType === 'service-provider'
+		)
 	});
 
 	let selectedType = $state<string | 'all'>('all');
 
-	let filteredCounterparties = $derived(
-		selectedType === 'all'
-			? data.counterparties
-			: data.counterparties.filter((c) => c.type === selectedType)
-	);
+	let filteredCounterparties = $derived(() => {
+		if (selectedType === 'all') return data.counterparties;
+		if (selectedType === 'client') return groupedCounterparties.client;
+		if (selectedType === 'performer') return groupedCounterparties.performer;
+		if (selectedType === 'service-provider') return groupedCounterparties['service-provider'];
+		return data.counterparties;
+	});
 
-	/**
-	 * Get a human-readable label for the counterparty type
-	 */
-	function getTypeLabel(
-		type: 'venue' | 'performer' | 'service-provider' | 'client' | 'supplier'
-	): string {
-		const labels = {
-			venue: 'Venue',
-			performer: 'Performer',
-			'service-provider': 'Service Provider',
-			client: 'Client',
-			supplier: 'Supplier'
-		} as const;
-		return labels[type];
+	function getTypeLabel(type: string): string {
+		if (type === 'client') return 'Client';
+		if (type === 'contractor') return 'Contractor';
+		return type;
+	}
+
+	function getSubtypeLabel(counterparty: (typeof data.counterparties)[number]): string {
+		if (counterparty.type === 'client') return 'Client';
+		if (counterparty.type === 'contractor' && 'contractorType' in counterparty) {
+			if (counterparty.contractorType === 'performer') return 'Performer';
+			if (counterparty.contractorType === 'service-provider') return 'Service Provider';
+		}
+		return 'Unknown';
 	}
 </script>
 
@@ -58,34 +64,46 @@
 				</p>
 			</div>
 		</div>
-		<Button href="/counterparties/new">
-			<Plus class="w-4 h-4 mr-2" />
-			New Counterparty
-		</Button>
+		<div class="flex gap-2">
+			<Button href="/counterparties/new/client" variant="outline">
+				<Plus class="w-4 h-4 mr-2" />
+				New Client
+			</Button>
+			<Button href="/counterparties/new/contractor">
+				<Plus class="w-4 h-4 mr-2" />
+				New Contractor
+			</Button>
+		</div>
 	</div>
 
-	<!-- Type Filter (Neutral Select) -->
+	<!-- Type Filter -->
 	<div class="mb-6 flex-shrink-0 px-6 md:px-8">
 		<div class="flex items-center gap-3">
 			<span class="text-sm text-muted-foreground">Type</span>
 			<Select type="single" bind:value={selectedType}>
 				<SelectTrigger class="min-w-48">
 					<span data-slot="select-value">
-						{selectedType === 'all' ? 'All types' : getTypeLabel(selectedType as any)}
+						{#if selectedType === 'all'}
+							All types
+						{:else if selectedType === 'client'}
+							Clients
+						{:else if selectedType === 'performer'}
+							Performers
+						{:else if selectedType === 'service-provider'}
+							Service Providers
+						{/if}
 					</span>
 				</SelectTrigger>
 				<SelectContent>
 					<SelectItem value="all">All ({data.counterparties.length})</SelectItem>
-					<SelectItem value="venue">Venues ({groupedCounterparties.venue.length})</SelectItem>
+					<SelectItem value="client"
+						>Clients ({groupedCounterparties.client.length})</SelectItem
+					>
 					<SelectItem value="performer"
 						>Performers ({groupedCounterparties.performer.length})</SelectItem
 					>
 					<SelectItem value="service-provider"
 						>Service Providers ({groupedCounterparties['service-provider'].length})</SelectItem
-					>
-					<SelectItem value="client">Clients ({groupedCounterparties.client.length})</SelectItem>
-					<SelectItem value="supplier"
-						>Suppliers ({groupedCounterparties.supplier.length})</SelectItem
 					>
 				</SelectContent>
 			</Select>
@@ -94,7 +112,7 @@
 
 	<!-- Counterparties List -->
 	<div class="flex-1 min-h-0 px-6 md:px-8 pb-6 md:pb-8">
-		{#if filteredCounterparties.length === 0}
+		{#if filteredCounterparties().length === 0}
 			<div class="py-20 text-center text-muted-foreground">
 				<Building2 class="h-16 w-16 mx-auto mb-4 opacity-50" />
 				<h3 class="text-lg font-semibold mb-2">
@@ -106,7 +124,7 @@
 						: 'Try selecting a different type or create a new counterparty'}
 				</p>
 				{#if selectedType === 'all'}
-					<Button href="/counterparties/new">
+					<Button href="/counterparties/new/client">
 						<Plus class="w-4 h-4 mr-2" />
 						Create Counterparty
 					</Button>
@@ -114,10 +132,10 @@
 			</div>
 		{:else}
 			<CounterpartiesList
-				counterparties={filteredCounterparties}
+				counterparties={filteredCounterparties()}
 				title=""
 				showHeaders={true}
-				{getTypeLabel}
+				getTypeLabel={getSubtypeLabel}
 			/>
 		{/if}
 	</div>

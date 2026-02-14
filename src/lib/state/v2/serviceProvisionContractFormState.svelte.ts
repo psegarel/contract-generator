@@ -1,4 +1,4 @@
-import type { ServiceProvisionContract, ServiceProviderCounterparty } from '$lib/types/v2';
+import type { ServiceProvisionContract, ServiceProviderContractor } from '$lib/types/v2';
 
 /**
  * Form state class for Service Provision Contract forms
@@ -129,7 +129,7 @@ export class ServiceProvisionContractFormState {
 	/**
 	 * Auto-fill client details from selected service provider
 	 */
-	fillFromServiceProvider(provider: ServiceProviderCounterparty | null) {
+	fillFromServiceProvider(provider: ServiceProviderContractor | null) {
 		if (!provider) return;
 
 		// Handle null values from Firestore by converting to empty strings

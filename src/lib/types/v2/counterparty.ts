@@ -23,9 +23,19 @@ export type CounterpartyDocuments = {
 };
 
 /**
- * Counterparty type discriminators
+ * Top-level counterparty types (two-tier model)
  */
-export type CounterpartyType = 'venue' | 'performer' | 'service-provider' | 'client' | 'supplier';
+export type CounterpartyType = 'client' | 'contractor';
+
+/**
+ * Contractor subtypes
+ */
+export type ContractorType = 'performer' | 'service-provider';
+
+/**
+ * Client subtypes
+ */
+export type ClientType = 'individual' | 'company';
 
 /**
  * Base counterparty - MINIMAL common fields for list display
@@ -39,7 +49,7 @@ export interface BaseCounterparty {
 	type: CounterpartyType;
 
 	// Common fields for list display (ALL types must provide)
-	name: string; // "Grand Ballroom" or "DJ Smith" or "ABC Corp"
+	name: string;
 	email: string | null;
 	phone: string | null;
 	address: string | null;
@@ -54,98 +64,13 @@ export interface BaseCounterparty {
 }
 
 /**
- * Venue - a business entity with physical location and billing info
- * Used when we contract WITH a venue (we rent their space)
- */
-export interface VenueCounterparty extends BaseCounterparty {
-	type: 'venue';
-
-	// Venue-specific fields
-	venueName: string; // e.g., "Grand Ballroom" (may differ from business name)
-	venueAddress: string; // Physical venue location
-	ownerCompany: string | null; // e.g., "XYZ Entertainment Ltd"
-
-	// Business & billing
-	taxCode: string | null;
-	bankName: string | null;
-	bankAccountNumber: string | null;
-	representativeName: string | null;
-	representativePosition: string | null;
-
-	// Venue details
-	venueCapacity: number | null;
-	venueType: string | null; // e.g., "Conference Hall", "Outdoor Space"
-	amenities: string[]; // e.g., ["Parking", "WiFi", "Catering Kitchen"]
-}
-
-/**
- * Performer - individual or group providing entertainment
- */
-export interface PerformerCounterparty extends BaseCounterparty {
-	type: 'performer';
-
-	// Performer details
-	stageName: string; // May differ from legal name
-	performerType: string; // e.g., "Band", "DJ", "MC", "Dancer"
-	genre: string | null;
-
-	// Performance requirements
-	technicalRider: string | null; // Equipment/setup requirements
-	minPerformanceDuration: number | null; // minutes
-	travelRequirements: string | null;
-
-	// Booking details
-	agentName: string | null;
-	agentContact: string | null;
-
-	// Payment details (needed for DJ Residency invoicing)
-	bankName: string | null;
-	bankAccountNumber: string | null;
-	idDocument: string | null; // ID/passport number (text)
-	taxId: string | null;
-
-	// ID document images (for validation)
-	documents?: CounterpartyDocuments;
-}
-
-/**
- * Service Provider - company/individual providing services
- * (e.g., catering, photography, security, AV subcontractor)
- */
-export interface ServiceProviderCounterparty extends BaseCounterparty {
-	type: 'service-provider';
-
-	// Service details
-	serviceType: string; // e.g., "Catering", "Photography", "Security", "AV Equipment"
-	companyName: string | null;
-
-	// Deliverables
-	typicalDeliverables: string[]; // e.g., ["200 meals", "4 hours coverage"]
-	equipmentProvided: string[]; // e.g., ["Cameras", "Lighting rig"]
-
-	// Business info
-	businessLicense: string | null;
-	insuranceInfo: string | null;
-
-	// Tax & banking (same as client)
-	taxId: string | null;
-	bankName: string | null;
-	bankAccountNumber: string | null;
-	idDocument: string | null; // ID/passport number (text)
-
-	// ID document images (for validation)
-	documents?: CounterpartyDocuments;
-}
-
-/**
  * Client - entity that hires us
- * Replaces the old ClientData type
  */
 export interface ClientCounterparty extends BaseCounterparty {
 	type: 'client';
 
-	// Client type
-	clientType: 'individual' | 'company';
+	// Client subtype
+	clientType: ClientType;
 
 	// Company details (if applicable)
 	companyName: string | null;
@@ -153,7 +78,7 @@ export interface ClientCounterparty extends BaseCounterparty {
 	representativePosition: string | null;
 
 	// ID documents (for individuals)
-	idDocument: string | null; // Passport/ID number
+	idDocument: string | null;
 
 	// Tax info
 	taxId: string | null;
@@ -164,23 +89,67 @@ export interface ClientCounterparty extends BaseCounterparty {
 }
 
 /**
- * Supplier - entity that supplies equipment/goods
+ * Base fields shared by all contractor subtypes
  */
-export interface SupplierCounterparty extends BaseCounterparty {
-	type: 'supplier';
+interface BaseContractorFields extends BaseCounterparty {
+	type: 'contractor';
 
-	companyName: string;
-	productCategories: string[]; // e.g., ["Audio Equipment", "Lighting"]
-	paymentTerms: string | null; // e.g., "Net 30"
-	deliveryOptions: string[]; // e.g., ["Pickup", "Delivery"]
+	// Payment details
+	bankName: string | null;
+	bankAccountNumber: string | null;
+	idDocument: string | null;
+	taxId: string | null;
+
+	// ID document images
+	documents?: CounterpartyDocuments;
 }
+
+/**
+ * Performer contractor - individual or group providing entertainment
+ */
+export interface PerformerContractor extends BaseContractorFields {
+	contractorType: 'performer';
+
+	// Performer details
+	stageName: string;
+	performerType: string;
+	genre: string | null;
+
+	// Performance requirements
+	technicalRider: string | null;
+	minPerformanceDuration: number | null;
+	travelRequirements: string | null;
+
+	// Booking details
+	agentName: string | null;
+	agentContact: string | null;
+}
+
+/**
+ * Service provider contractor - company/individual providing services
+ */
+export interface ServiceProviderContractor extends BaseContractorFields {
+	contractorType: 'service-provider';
+
+	// Service details
+	serviceType: string;
+	companyName: string | null;
+
+	// Deliverables
+	typicalDeliverables: string[];
+	equipmentProvided: string[];
+
+	// Business info
+	businessLicense: string | null;
+	insuranceInfo: string | null;
+}
+
+/**
+ * Union of all contractor subtypes
+ */
+export type ContractorCounterparty = PerformerContractor | ServiceProviderContractor;
 
 /**
  * Union type for type-safe handling
  */
-export type Counterparty =
-	| VenueCounterparty
-	| PerformerCounterparty
-	| ServiceProviderCounterparty
-	| ClientCounterparty
-	| SupplierCounterparty;
+export type Counterparty = ClientCounterparty | ContractorCounterparty;

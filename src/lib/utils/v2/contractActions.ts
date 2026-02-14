@@ -1,4 +1,4 @@
-import type { BaseContract, VenueCounterparty } from '$lib/types/v2';
+import type { BaseContract, ClientCounterparty } from '$lib/types/v2';
 import type { ServiceProvisionContract, EventPlanningContract, EquipmentRentalContract, DjResidencyContract } from '$lib/types/v2/contracts';
 import { getCounterpartyById } from './counterparties';
 import { toast } from 'svelte-sonner';
@@ -120,11 +120,11 @@ export async function downloadContract(contract: BaseContract): Promise<void> {
 		} else if (contract.type === 'dj-residency') {
 			const djResidencyContract = contract as DjResidencyContract;
 			const venueCounterparty = await getCounterpartyById(djResidencyContract.counterpartyId);
-			if (!venueCounterparty || venueCounterparty.type !== 'venue') {
+			if (!venueCounterparty || venueCounterparty.type !== 'client') {
 				toast.error('Counterparty not found for this contract');
 				return;
 			}
-			const blob = await generateDjResidencyContract(djResidencyContract, venueCounterparty as VenueCounterparty);
+			const blob = await generateDjResidencyContract(djResidencyContract, venueCounterparty as ClientCounterparty);
 			const filename = `DJ-Residency-Contract-${djResidencyContract.contractNumber}.docx`;
 			await saveFile(blob, filename);
 			toast.success('Contract downloaded successfully!');

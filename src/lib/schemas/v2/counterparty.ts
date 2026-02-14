@@ -30,7 +30,7 @@ const counterpartyDocumentsSchema = z
  */
 export const baseCounterpartySchema = z.object({
 	// Identity
-	type: z.enum(['venue', 'performer', 'service-provider', 'client', 'supplier']),
+	type: z.enum(['client', 'contractor']),
 
 	// Common fields for list display
 	name: z.string().min(1, 'Name is required'),
@@ -48,94 +48,6 @@ export const baseCounterpartySchema = z.object({
 	createdAt: z.custom<Timestamp>(),
 	updatedAt: z.custom<Timestamp>()
 });
-
-/**
- * Venue counterparty schema
- */
-export const venueCounterpartySchema = baseCounterpartySchema
-	.extend({
-		type: z.literal('venue'),
-
-		// Venue-specific fields
-		venueName: z.string().min(1, 'Venue name is required'),
-		venueAddress: z.string().min(1, 'Venue address is required'),
-		ownerCompany: z.string().nullable().optional(),
-
-		// Business & billing
-		taxCode: z.string().nullable().optional(),
-		bankName: z.string().nullable().optional(),
-		bankAccountNumber: z.string().nullable().optional(),
-		representativeName: z.string().nullable().optional(),
-		representativePosition: z.string().nullable().optional(),
-
-		// Venue details
-		venueCapacity: z.number().nullable().optional(),
-		venueType: z.string().nullable().optional(),
-		amenities: z.array(z.string()).default([])
-	})
-	.strict();
-
-/**
- * Performer counterparty schema
- */
-export const performerCounterpartySchema = baseCounterpartySchema
-	.extend({
-		type: z.literal('performer'),
-
-		// Performer details
-		stageName: z.string().min(1, 'Stage name is required'),
-		performerType: z.string().min(1, 'Performer type is required'),
-		genre: z.string().nullable().optional(),
-
-		// Performance requirements
-		technicalRider: z.string().nullable().optional(),
-		minPerformanceDuration: z.number().nullable().optional(),
-		travelRequirements: z.string().nullable().optional(),
-
-		// Booking details
-		agentName: z.string().nullable().optional(),
-		agentContact: z.string().nullable().optional(),
-
-		// Payment details (needed for DJ Residency invoicing)
-		bankName: z.string().nullable().optional(),
-		bankAccountNumber: z.string().nullable().optional(),
-		idDocument: z.string().nullable().optional(),
-		taxId: z.string().nullable().optional(),
-
-		// ID document images (for validation)
-		documents: counterpartyDocumentsSchema
-	})
-	.strict();
-
-/**
- * Service Provider counterparty schema
- */
-export const serviceProviderCounterpartySchema = baseCounterpartySchema
-	.extend({
-		type: z.literal('service-provider'),
-
-		// Service details
-		serviceType: z.string().min(1, 'Service type is required'),
-		companyName: z.string().nullable().optional(),
-
-		// Deliverables
-		typicalDeliverables: z.array(z.string()).default([]),
-		equipmentProvided: z.array(z.string()).default([]),
-
-		// Business info
-		businessLicense: z.string().nullable().optional(),
-		insuranceInfo: z.string().nullable().optional(),
-
-		// Tax & banking (same as client)
-		taxId: z.string().nullable().optional(),
-		bankName: z.string().nullable().optional(),
-		bankAccountNumber: z.string().nullable().optional(),
-		idDocument: z.string().nullable().optional(),
-
-		// ID document images (for validation)
-		documents: counterpartyDocumentsSchema
-	})
-	.strict();
 
 /**
  * Client counterparty schema
@@ -165,43 +77,103 @@ export const clientCounterpartySchema = baseCounterpartySchema
 	.strict();
 
 /**
- * Supplier counterparty schema
+ * Performer contractor schema
  */
-export const supplierCounterpartySchema = baseCounterpartySchema
+export const performerContractorSchema = baseCounterpartySchema
 	.extend({
-		type: z.literal('supplier'),
+		type: z.literal('contractor'),
+		contractorType: z.literal('performer'),
 
-		companyName: z.string().min(1, 'Company name is required'),
-		productCategories: z.array(z.string()).min(1, 'At least one product category is required'),
-		paymentTerms: z.string().nullable().optional(),
-		deliveryOptions: z.array(z.string()).default([])
+		// Performer details
+		stageName: z.string().min(1, 'Stage name is required'),
+		performerType: z.string().min(1, 'Performer type is required'),
+		genre: z.string().nullable().optional(),
+
+		// Performance requirements
+		technicalRider: z.string().nullable().optional(),
+		minPerformanceDuration: z.number().nullable().optional(),
+		travelRequirements: z.string().nullable().optional(),
+
+		// Booking details
+		agentName: z.string().nullable().optional(),
+		agentContact: z.string().nullable().optional(),
+
+		// Payment details
+		bankName: z.string().nullable().optional(),
+		bankAccountNumber: z.string().nullable().optional(),
+		idDocument: z.string().nullable().optional(),
+		taxId: z.string().nullable().optional(),
+
+		// ID document images
+		documents: counterpartyDocumentsSchema
 	})
 	.strict();
 
 /**
- * List schema - validates common fields, preserves type-specific fields
- * Uses .passthrough() so fields like stageName, performerType etc. survive validation
+ * Service Provider contractor schema
  */
-export const counterpartyListSchema = baseCounterpartySchema.passthrough();
+export const serviceProviderContractorSchema = baseCounterpartySchema
+	.extend({
+		type: z.literal('contractor'),
+		contractorType: z.literal('service-provider'),
+
+		// Service details
+		serviceType: z.string().min(1, 'Service type is required'),
+		companyName: z.string().nullable().optional(),
+
+		// Deliverables
+		typicalDeliverables: z.array(z.string()).default([]),
+		equipmentProvided: z.array(z.string()).default([]),
+
+		// Business info
+		businessLicense: z.string().nullable().optional(),
+		insuranceInfo: z.string().nullable().optional(),
+
+		// Tax & banking
+		taxId: z.string().nullable().optional(),
+		bankName: z.string().nullable().optional(),
+		bankAccountNumber: z.string().nullable().optional(),
+		idDocument: z.string().nullable().optional(),
+
+		// ID document images
+		documents: counterpartyDocumentsSchema
+	})
+	.strict();
+
+/**
+ * Contractor schema (union of performer and service-provider)
+ */
+export const contractorCounterpartySchema = z.discriminatedUnion('contractorType', [
+	performerContractorSchema,
+	serviceProviderContractorSchema
+]);
+
+/**
+ * List schema - validates common fields plus optional contractor subtype
+ */
+export const counterpartyListSchema = baseCounterpartySchema.extend({
+	clientType: z.enum(['individual', 'company']).optional(),
+	contractorType: z.enum(['performer', 'service-provider']).optional()
+});
 
 /**
  * Union schema for all counterparty types
+ *
+ * Note: We can't use discriminatedUnion on 'type' here because both contractor subtypes
+ * share type: 'contractor'. Instead we use a manual union with z.union.
  */
-export const counterpartySchema = z.discriminatedUnion('type', [
-	venueCounterpartySchema,
-	performerCounterpartySchema,
-	serviceProviderCounterpartySchema,
+export const counterpartySchema = z.union([
 	clientCounterpartySchema,
-	supplierCounterpartySchema
+	performerContractorSchema,
+	serviceProviderContractorSchema
 ]);
 
 /**
  * TypeScript types inferred from schemas
  */
 export type CounterpartyListItem = z.infer<typeof counterpartyListSchema>;
-export type VenueCounterpartyInput = z.infer<typeof venueCounterpartySchema>;
-export type PerformerCounterpartyInput = z.infer<typeof performerCounterpartySchema>;
-export type ServiceProviderCounterpartyInput = z.infer<typeof serviceProviderCounterpartySchema>;
 export type ClientCounterpartyInput = z.infer<typeof clientCounterpartySchema>;
-export type SupplierCounterpartyInput = z.infer<typeof supplierCounterpartySchema>;
+export type PerformerContractorInput = z.infer<typeof performerContractorSchema>;
+export type ServiceProviderContractorInput = z.infer<typeof serviceProviderContractorSchema>;
+export type ContractorCounterpartyInput = z.infer<typeof contractorCounterpartySchema>;
 export type CounterpartyInput = z.infer<typeof counterpartySchema>;

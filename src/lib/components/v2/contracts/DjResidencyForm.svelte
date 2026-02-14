@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { DjResidencyContract, VenueCounterparty } from '$lib/types/v2';
+	import type { DjResidencyContract, ClientCounterparty } from '$lib/types/v2';
 	import {
 		djResidencyContractInputSchema,
 		type DjResidencyContractInput
@@ -10,8 +10,8 @@
 	} from '$lib/utils/v2/djResidencyContracts';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import {
-		venueCounterpartySchema,
-		type VenueCounterpartyInput
+		clientCounterpartySchema,
+		type ClientCounterpartyInput
 	} from '$lib/schemas/v2/counterparty';
 	import { Timestamp } from 'firebase/firestore';
 	import { authState } from '$lib/state/auth.svelte';
@@ -45,7 +45,7 @@
 
 	// Get available venue counterparties for selection
 	const venueCounterparties = $derived(
-		counterpartyState.counterparties.filter((c) => c.type === 'venue') as VenueCounterparty[]
+		counterpartyState.clients.filter((c) => c.clientType === 'company') as ClientCounterparty[]
 	);
 
 	// Create form state instance
@@ -83,36 +83,33 @@
 
 		formState.isCreatingCounterparty = true;
 		try {
-			const venueData: VenueCounterpartyInput = {
-				type: 'venue',
+			const clientData: ClientCounterpartyInput = {
+				type: 'client',
+				clientType: 'company',
 				ownerUid: authState.user.uid,
 				name: formState.newCounterpartyName,
 				email: formState.newCounterpartyEmail || null,
 				phone: formState.newCounterpartyPhone || null,
 				address: formState.newCounterpartyAddress || null,
-				venueName: formState.newCounterpartyName,
-				venueAddress: formState.newCounterpartyAddress || '',
-				ownerCompany: formState.newCounterpartyCompanyName || null,
-				taxCode: formState.newCounterpartyTaxId || null,
+				companyName: formState.newCounterpartyCompanyName || null,
+				taxId: formState.newCounterpartyTaxId || null,
 				bankName: formState.newCounterpartyBankName || null,
 				bankAccountNumber: formState.newCounterpartyBankAccountNumber || null,
 				representativeName: formState.newCounterpartyRepresentativeName || null,
 				representativePosition: formState.newCounterpartyRepresentativePosition || null,
-				venueCapacity: null,
-				venueType: null,
-				amenities: [],
+				idDocument: null,
 				notes: null,
 				createdAt: Timestamp.now(),
 				updatedAt: Timestamp.now()
 			};
 
-			const validationResult = venueCounterpartySchema.safeParse(venueData);
+			const validationResult = clientCounterpartySchema.safeParse(clientData);
 			if (!validationResult.success) {
 				toast.error('Validation error: ' + validationResult.error.issues[0].message);
 				return;
 			}
 
-			const counterpartyId = await saveCounterparty(venueData);
+			const counterpartyId = await saveCounterparty(clientData);
 
 			toast.success('Counterparty created successfully!');
 

@@ -6,7 +6,7 @@
 
 	interface Props {
 		counterparty: Counterparty;
-		getTypeLabel: (type: Counterparty['type']) => string;
+		getTypeLabel: (counterparty: Counterparty) => string;
 		backgroundColor?: string;
 	}
 
@@ -31,7 +31,7 @@
 			{/if}
 		</div>
 		<Badge variant="outline" class="shrink-0">
-			{getTypeLabel(counterparty.type)}
+			{getTypeLabel(counterparty)}
 		</Badge>
 	</div>
 

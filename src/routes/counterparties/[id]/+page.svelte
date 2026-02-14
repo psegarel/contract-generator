@@ -1,37 +1,39 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import type { Counterparty, ClientCounterparty, ServiceProviderCounterparty } from '$lib/types/v2';
+	import type {
+		Counterparty,
+		ClientCounterparty,
+		ServiceProviderContractor,
+		PerformerContractor
+	} from '$lib/types/v2';
 	import { Button } from '$lib/components/ui/button';
-	import { ArrowLeft, FileText, Edit, Mail, Phone, MapPin, Building2 } from 'lucide-svelte';
+	import { ArrowLeft, FileText, Edit } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 
 	let { data }: { data: PageData } = $props();
 
 	let counterparty = $derived(data.counterparty as Counterparty);
 
-	function getTypeLabel(type: Counterparty['type']): string {
-		const labels = {
-			venue: 'Venue',
-			performer: 'Performer',
-			'service-provider': 'Service Provider',
-			client: 'Client',
-			supplier: 'Supplier'
-		} as const;
-		return labels[type];
+	function getDisplayType(cp: Counterparty): string {
+		if (cp.type === 'client') return 'Client';
+		if (cp.type === 'contractor' && 'contractorType' in cp) {
+			if (cp.contractorType === 'performer') return 'Performer';
+			if (cp.contractorType === 'service-provider') return 'Service Provider';
+		}
+		return 'Unknown';
 	}
 
-	function getTypeBadge(type: Counterparty['type']) {
-		const badges = {
-			venue: { variant: 'default' as const, label: 'Venue', class: 'bg-purple-500' },
-			performer: { variant: 'default' as const, label: 'Performer', class: 'bg-pink-500' },
-			'service-provider': { variant: 'default' as const, label: 'Service Provider', class: 'bg-blue-500' },
-			client: { variant: 'default' as const, label: 'Client', class: 'bg-emerald-500' },
-			supplier: { variant: 'default' as const, label: 'Supplier', class: 'bg-amber-500' }
-		} as const;
-		return badges[type];
+	function getTypeBadgeClass(cp: Counterparty): string {
+		if (cp.type === 'client') return 'bg-emerald-500';
+		if (cp.type === 'contractor' && 'contractorType' in cp) {
+			if (cp.contractorType === 'performer') return 'bg-pink-500';
+			if (cp.contractorType === 'service-provider') return 'bg-blue-500';
+		}
+		return 'bg-gray-500';
 	}
 
-	let typeBadge = $derived(getTypeBadge(counterparty.type));
+	let displayType = $derived(getDisplayType(counterparty));
+	let badgeClass = $derived(getTypeBadgeClass(counterparty));
 </script>
 
 {#key counterparty.id}
@@ -50,11 +52,11 @@
 			</div>
 			<div>
 				<h1 class="text-3xl font-bold tracking-tight text-foreground">{counterparty.name}</h1>
-				<p class="text-muted-foreground mt-1 text-sm">{getTypeLabel(counterparty.type)}</p>
+				<p class="text-muted-foreground mt-1 text-sm">{displayType}</p>
 			</div>
 		</div>
 		<div class="flex items-center gap-3">
-			<Badge {...typeBadge} class={typeBadge.class}>{typeBadge.label}</Badge>
+			<Badge variant="default" class={badgeClass}>{displayType}</Badge>
 			<Button href={`/counterparties/${counterparty.id}/edit`}>
 				<Edit class="w-4 h-4 mr-2" />
 				Edit
@@ -62,7 +64,7 @@
 		</div>
 	</div>
 
-	<!-- View-only content (list-style design) -->
+	<!-- View-only content -->
 	<div class="border-t border-border">
 		<!-- Basic Information -->
 		<div class="border-b border-border">
@@ -171,8 +173,8 @@
 		{/if}
 
 		<!-- Service Provider-specific fields -->
-		{#if counterparty.type === 'service-provider'}
-			{@const provider = counterparty as ServiceProviderCounterparty}
+		{#if counterparty.type === 'contractor' && 'contractorType' in counterparty && counterparty.contractorType === 'service-provider'}
+			{@const provider = counterparty as ServiceProviderContractor}
 			<div class="border-b border-border">
 				<div class="px-4 py-3 bg-slate-100">
 					<div class="text-sm font-semibold text-foreground">Service Provider Details</div>
@@ -215,18 +217,39 @@
 							</div>
 						</div>
 					{/if}
+				</div>
+			</div>
+		{/if}
 
-					{#if provider.businessLicense}
+		<!-- Performer-specific fields -->
+		{#if counterparty.type === 'contractor' && 'contractorType' in counterparty && counterparty.contractorType === 'performer'}
+			{@const performer = counterparty as PerformerContractor}
+			<div class="border-b border-border">
+				<div class="px-4 py-3 bg-slate-100">
+					<div class="text-sm font-semibold text-foreground">Performer Details</div>
+				</div>
+				<div class="px-4 py-3 space-y-3">
+					<div>
+						<div class="text-xs text-muted-foreground mb-1">Stage Name</div>
+						<div class="text-sm text-foreground">{performer.stageName}</div>
+					</div>
+
+					<div>
+						<div class="text-xs text-muted-foreground mb-1">Performer Type</div>
+						<div class="text-sm text-foreground">{performer.performerType}</div>
+					</div>
+
+					{#if performer.genre}
 						<div>
-							<div class="text-xs text-muted-foreground mb-1">Business License</div>
-							<div class="text-sm text-foreground">{provider.businessLicense}</div>
+							<div class="text-xs text-muted-foreground mb-1">Genre</div>
+							<div class="text-sm text-foreground">{performer.genre}</div>
 						</div>
 					{/if}
 
-					{#if provider.insuranceInfo}
+					{#if performer.technicalRider}
 						<div>
-							<div class="text-xs text-muted-foreground mb-1">Insurance Information</div>
-							<div class="text-sm text-foreground">{provider.insuranceInfo}</div>
+							<div class="text-xs text-muted-foreground mb-1">Technical Rider</div>
+							<div class="text-sm text-foreground whitespace-pre-wrap">{performer.technicalRider}</div>
 						</div>
 					{/if}
 				</div>

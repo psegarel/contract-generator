@@ -85,7 +85,8 @@
 			href: '#',
 			subItems: [
 				{ label: 'List', href: resolve('/counterparties') },
-				{ label: 'Convert', href: resolve('/counterparties/convert') }
+				{ label: 'New Client', href: resolve('/counterparties/new/client') },
+				{ label: 'New Contractor', href: resolve('/counterparties/new/contractor') }
 			]
 		}
 	];

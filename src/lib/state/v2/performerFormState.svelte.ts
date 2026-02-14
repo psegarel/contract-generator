@@ -1,4 +1,4 @@
-import type { PerformerCounterparty } from '$lib/types/v2';
+import type { PerformerContractor } from '$lib/types/v2';
 
 export class PerformerFormState {
 	// Basic info
@@ -37,7 +37,7 @@ export class PerformerFormState {
 	/**
 	 * Initialize form state from a performer
 	 */
-	init(performer: PerformerCounterparty | null) {
+	init(performer: PerformerContractor | null) {
 		if (!performer) {
 			this.reset();
 			return;

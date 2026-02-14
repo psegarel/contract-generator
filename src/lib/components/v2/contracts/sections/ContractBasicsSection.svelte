@@ -1,13 +1,13 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import type { Event } from '$lib/types/v2';
-	import type { ServiceProviderCounterparty } from '$lib/types/v2';
+	import type { ServiceProviderContractor } from '$lib/types/v2';
 	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
 		events: Event[];
-		serviceProviders: ServiceProviderCounterparty[];
+		serviceProviders: ServiceProviderContractor[];
 		onCreateProviderClick: () => void;
 		onCounterpartyChange?: () => void;
 	}

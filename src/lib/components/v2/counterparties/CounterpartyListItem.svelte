@@ -8,7 +8,7 @@
 	interface Props {
 		counterparty: Counterparty;
 		index: number;
-		getTypeLabel: (type: Counterparty['type']) => string;
+		getTypeLabel: (counterparty: Counterparty) => string;
 	}
 
 	let { counterparty, index, getTypeLabel }: Props = $props();
@@ -55,7 +55,7 @@
 		<!-- Type Badge -->
 		<div class="col-span-2 px-1 flex justify-center">
 			<Badge variant="outline">
-				{getTypeLabel(counterparty.type)}
+				{getTypeLabel(counterparty)}
 			</Badge>
 		</div>
 

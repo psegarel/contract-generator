@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { ServiceProviderCounterparty } from '$lib/types/v2';
+	import type { ServiceProviderContractor } from '$lib/types/v2';
 	import {
-		serviceProviderCounterpartySchema,
-		type ServiceProviderCounterpartyInput
+		serviceProviderContractorSchema,
+		type ServiceProviderContractorInput
 	} from '$lib/schemas/v2';
 	import { saveCounterparty, updateCounterparty } from '$lib/utils/v2';
 	import { authState } from '$lib/state/auth.svelte';
@@ -17,7 +17,7 @@
 
 
 	interface Props {
-		serviceProvider?: ServiceProviderCounterparty | null;
+		serviceProvider?: ServiceProviderContractor | null;
 		onSuccess?: (serviceProviderId: string) => void;
 		onCancel?: () => void;
 	}
@@ -94,8 +94,9 @@
 		formState.error = null;
 
 		try {
-			const serviceProviderData: ServiceProviderCounterpartyInput = {
-				type: 'service-provider',
+			const serviceProviderData: ServiceProviderContractorInput = {
+				type: 'contractor',
+				contractorType: 'service-provider',
 				ownerUid: authState.user.uid,
 				name: formState.name,
 				email: formState.email || null,
@@ -119,7 +120,7 @@
 			};
 
 			// Validate with schema
-			const validationResult = serviceProviderCounterpartySchema.safeParse(serviceProviderData);
+			const validationResult = serviceProviderContractorSchema.safeParse(serviceProviderData);
 			if (!validationResult.success) {
 				formState.error = 'Validation error: ' + validationResult.error.issues[0].message;
 				return;

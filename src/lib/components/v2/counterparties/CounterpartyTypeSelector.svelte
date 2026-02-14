@@ -15,34 +15,16 @@
 		icon: string;
 	}> = [
 		{
-			value: 'venue',
-			label: 'Venue',
-			description: 'A business with a physical event space and billing info',
-			icon: '🏢'
-		},
-		{
-			value: 'performer',
-			label: 'Performer',
-			description: 'Individual or group providing entertainment',
-			icon: '🎭'
-		},
-		{
-			value: 'service-provider',
-			label: 'Service Provider',
-			description: 'Company/individual providing services (catering, photography, etc.)',
-			icon: '🔧'
-		},
-		{
 			value: 'client',
 			label: 'Client',
 			description: 'Entity that hires us for events or services',
 			icon: '👤'
 		},
 		{
-			value: 'supplier',
-			label: 'Supplier',
-			description: 'Entity that supplies equipment or goods',
-			icon: '📦'
+			value: 'contractor',
+			label: 'Contractor',
+			description: 'Performer, service provider, or other entity we pay',
+			icon: '🔧'
 		}
 	];
 
@@ -52,7 +34,7 @@
 	}
 </script>
 
-<div class="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+<div class="grid gap-3 grid-cols-1 md:grid-cols-2">
 	{#each counterpartyTypes as counterpartyType (counterpartyType.value)}
 		<button
 			type="button"

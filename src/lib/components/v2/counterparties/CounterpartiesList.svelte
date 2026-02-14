@@ -7,7 +7,7 @@
 		counterparties: Counterparty[];
 		title?: string;
 		showHeaders?: boolean;
-		getTypeLabel: (type: Counterparty['type']) => string;
+		getTypeLabel: (counterparty: Counterparty) => string;
 	}
 
 	let { counterparties, title = 'Counterparties', showHeaders = true, getTypeLabel }: Props = $props();

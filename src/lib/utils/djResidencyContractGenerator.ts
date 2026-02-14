@@ -1,6 +1,6 @@
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
-import type { DjResidencyContract, VenueCounterparty } from '../types/v2';
+import type { DjResidencyContract, ClientCounterparty } from '../types/v2';
 import { companyConfig } from '../config/company';
 import { formatCurrency, formatDateVietnamese, formatDateEnglish } from './formatting';
 import { logger } from './logger';
@@ -62,7 +62,7 @@ function formatNumberWithLeadingZero(num: number): string {
  */
 export const generateDjResidencyContract = async (
 	contract: DjResidencyContract,
-	venueCounterparty: VenueCounterparty
+	venueCounterparty: ClientCounterparty
 ): Promise<Blob> => {
 	try {
 		// Load the DJ residency contract template
@@ -153,8 +153,8 @@ export const generateDjResidencyContract = async (
 			numberToVietnameseWords(contract.performanceFeeVND) + ' đồng Việt Nam';
 
 		// ===== DERIVE PARTY B VALUES FROM COUNTERPARTY =====
-		const partyBCompanyName = venueCounterparty.ownerCompany || venueCounterparty.venueName || venueCounterparty.name;
-		const partyBAddress = venueCounterparty.venueAddress || venueCounterparty.address || '';
+		const partyBCompanyName = venueCounterparty.companyName || venueCounterparty.name;
+		const partyBAddress = venueCounterparty.address || '';
 
 		// ===== RENDER DOCUMENT WITH ALL PLACEHOLDERS =====
 		try {
@@ -185,7 +185,7 @@ export const generateDjResidencyContract = async (
 				partyBAddressLine1: partyBAddress,
 				partyBAddressLine2: '',
 				partyBCity: '',
-				partyBTaxCode: venueCounterparty.taxCode || '',
+				partyBTaxCode: venueCounterparty.taxId || '',
 				partyBRepresentative: venueCounterparty.representativeName || '',
 				partyBRepresentativePosition: venueCounterparty.representativePosition || '',
 

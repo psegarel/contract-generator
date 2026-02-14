@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type {
 		DjResidencyContract,
-		VenueCounterparty,
+		ClientCounterparty,
 		PerformanceLog,
 		MonthlyInvoice,
-		PerformerCounterparty
+		PerformerContractor
 	} from '$lib/types/v2';
 	import {
 		subscribeToPerformances,
@@ -28,7 +28,7 @@
 
 	interface Props {
 		contract: DjResidencyContract;
-		venueCounterparty: VenueCounterparty;
+		venueCounterparty: ClientCounterparty;
 	}
 
 	let { contract, venueCounterparty }: Props = $props();
@@ -134,7 +134,7 @@
 	 * Validate that a performer has all required payment fields
 	 */
 	function validatePerformerPaymentFields(
-		performer: PerformerCounterparty
+		performer: PerformerContractor
 	): { valid: true } | { valid: false; missing: string[] } {
 		const missing: string[] = [];
 
@@ -165,13 +165,13 @@
 		try {
 			// First, fetch and validate all performer data
 			const performerIds = Object.keys(performancesByPerformer);
-			const performerDataMap: Map<string, PerformerCounterparty> = new Map();
+			const performerDataMap: Map<string, PerformerContractor> = new Map();
 			const invalidPerformers: { name: string; missing: string[] }[] = [];
 
 			for (const performerId of performerIds) {
 				const performer = await getCounterpartyById(performerId);
 
-				if (!performer || performer.type !== 'performer') {
+				if (!performer || performer.type !== 'contractor') {
 					invalidPerformers.push({
 						name: performancesByPerformer[performerId].performerName,
 						missing: ['performer record not found']
@@ -179,14 +179,14 @@
 					continue;
 				}
 
-				const validation = validatePerformerPaymentFields(performer as PerformerCounterparty);
+				const validation = validatePerformerPaymentFields(performer as PerformerContractor);
 				if (!validation.valid) {
 					invalidPerformers.push({
 						name: performer.name,
 						missing: validation.missing
 					});
 				} else {
-					performerDataMap.set(performerId, performer as PerformerCounterparty);
+					performerDataMap.set(performerId, performer as PerformerContractor);
 				}
 			}
 
@@ -247,7 +247,7 @@
 					currency: 'VND',
 					notes: `Generated from DJ Residency contract ${contract.contractNumber}`,
 					jobName: 'DJ Performance',
-					jobContent: `${totalSets} DJ sets at ${venueCounterparty.ownerCompany || venueCounterparty.venueName || venueCounterparty.name}`,
+					jobContent: `${totalSets} DJ sets at ${venueCounterparty.companyName || venueCounterparty.name}`,
 					numberOfPerformances: totalSets,
 					firstPerformanceTime: '20:00',
 					startDate,
@@ -259,11 +259,11 @@
 					bankName: performer.bankName!,
 					accountNumber: performer.bankAccountNumber!,
 					clientEmail: performer.email!,
-					clientAddress: performer.address || venueCounterparty.venueAddress || venueCounterparty.address || '',
+					clientAddress: performer.address || venueCounterparty.address || '',
 					clientPhone: performer.phone!,
 					clientIdDocument: performer.idDocument!,
 					clientTaxId: performer.taxId || null,
-					eventLocation: venueCounterparty.venueAddress || venueCounterparty.address || '',
+					eventLocation: venueCounterparty.address || '',
 					paymentDueDate
 				});
 

@@ -5,11 +5,12 @@ export type { BaseContract, PaymentDirection, PaymentStatus, ContractType } from
 export type {
 	BaseCounterparty,
 	CounterpartyType,
-	VenueCounterparty,
-	PerformerCounterparty,
-	ServiceProviderCounterparty,
+	ContractorType,
+	ClientType,
 	ClientCounterparty,
-	SupplierCounterparty,
+	PerformerContractor,
+	ServiceProviderContractor,
+	ContractorCounterparty,
 	Counterparty,
 	CounterpartyDocuments,
 	DocumentMetadata

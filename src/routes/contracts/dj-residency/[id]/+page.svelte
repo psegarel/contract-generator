@@ -95,19 +95,19 @@
 				<div>
 					<p class="text-sm text-gray-500">Company Name</p>
 					<p class="font-medium">
-						{data.venueCounterparty.ownerCompany || data.venueCounterparty.venueName || data.venueCounterparty.name}
+						{data.venueCounterparty.companyName || data.venueCounterparty.name}
 					</p>
 				</div>
 				<div>
 					<p class="text-sm text-gray-500">Address</p>
 					<p class="font-medium">
-						{data.venueCounterparty.venueAddress || data.venueCounterparty.address || '—'}
+						{data.venueCounterparty.address || '—'}
 					</p>
 				</div>
-				{#if data.venueCounterparty.taxCode}
+				{#if data.venueCounterparty.taxId}
 					<div>
 						<p class="text-sm text-gray-500">Tax Code</p>
-						<p class="font-medium">{data.venueCounterparty.taxCode}</p>
+						<p class="font-medium">{data.venueCounterparty.taxId}</p>
 					</div>
 				{/if}
 				{#if data.venueCounterparty.representativeName}

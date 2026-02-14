@@ -45,7 +45,7 @@
 	// Get available events and service providers for selection
 	const events = $derived(eventState.events);
 	const serviceProviders = $derived(
-		counterpartyState.counterparties.filter((c) => c.type === 'service-provider')
+		counterpartyState.serviceProviders
 	);
 
 	// Create form state instance
@@ -87,7 +87,8 @@
 		formState.isCreatingProvider = true;
 		try {
 			const providerId = await saveCounterparty({
-				type: 'service-provider',
+				type: 'contractor',
+				contractorType: 'service-provider',
 				name: formState.newProviderName,
 				serviceType: formState.newProviderServiceType,
 				email: formState.newProviderEmail || null,
@@ -100,6 +101,10 @@
 				equipmentProvided: [],
 				businessLicense: null,
 				insuranceInfo: null,
+				taxId: null,
+				bankName: null,
+				bankAccountNumber: null,
+				idDocument: null,
 				createdAt: Timestamp.now(),
 				updatedAt: Timestamp.now()
 			});
