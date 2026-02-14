@@ -15,9 +15,7 @@
 		),
 		'service-provider': data.counterparties.filter(
 			(c) =>
-				c.type === 'contractor' &&
-				'contractorType' in c &&
-				c.contractorType === 'service-provider'
+				c.type === 'contractor' && 'contractorType' in c && c.contractorType === 'service-provider'
 		)
 	});
 
@@ -49,7 +47,7 @@
 
 <div class="h-full flex flex-col -m-6 md:-m-8">
 	<!-- Header -->
-	<div class="flex items-center justify-between mb-8 flex-shrink-0 px-6 md:px-8 pt-6 md:pt-8">
+	<div class="flex items-center justify-between mb-8 shrink-0 px-6 md:px-8 pt-6 md:pt-8">
 		<div class="flex items-center gap-3">
 			<div
 				class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"
@@ -77,7 +75,7 @@
 	</div>
 
 	<!-- Type Filter -->
-	<div class="mb-6 flex-shrink-0 px-6 md:px-8">
+	<div class="mb-6 shrink-0 px-6 md:px-8">
 		<div class="flex items-center gap-3">
 			<span class="text-sm text-muted-foreground">Type</span>
 			<Select type="single" bind:value={selectedType}>
@@ -96,9 +94,7 @@
 				</SelectTrigger>
 				<SelectContent>
 					<SelectItem value="all">All ({data.counterparties.length})</SelectItem>
-					<SelectItem value="client"
-						>Clients ({groupedCounterparties.client.length})</SelectItem
-					>
+					<SelectItem value="client">Clients ({groupedCounterparties.client.length})</SelectItem>
 					<SelectItem value="performer"
 						>Performers ({groupedCounterparties.performer.length})</SelectItem
 					>

@@ -10,13 +10,18 @@
 		getTypeLabel: (counterparty: Counterparty) => string;
 	}
 
-	let { counterparties, title = 'Counterparties', showHeaders = true, getTypeLabel }: Props = $props();
+	let {
+		counterparties,
+		title = 'Counterparties',
+		showHeaders = true,
+		getTypeLabel
+	}: Props = $props();
 </script>
 
 <div class="border-t border-border h-full flex flex-col">
 	<!-- Header -->
 	{#if title}
-		<div class="flex items-center justify-between py-6 flex-shrink-0">
+		<div class="flex items-center justify-between py-6 shrink-0">
 			<div>
 				<h2 class="text-lg font-bold tracking-tight text-foreground">{title}</h2>
 				<p class="text-sm text-muted-foreground mt-1">
@@ -75,5 +80,3 @@
 		</div>
 	{/if}
 </div>
-
-
