@@ -58,6 +58,25 @@ function formatNumberWithLeadingZero(num: number): string {
 }
 
 /**
+ * Format a date for the contract body in abbreviated English.
+ * e.g. "2026-02-10" → "10 Feb 2026"
+ */
+function formatDateBodyEnglish(dateString: string): string {
+	const [year, month, day] = dateString.split('-').map(Number);
+	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	return `${formatNumberWithLeadingZero(day)} ${months[month - 1]} ${year}`;
+}
+
+/**
+ * Format a date for the contract body in Vietnamese with zero-padded month.
+ * e.g. "2026-02-10" → "10 tháng 02 năm 2026"
+ */
+function formatDateBodyVietnamese(dateString: string): string {
+	const [year, month, day] = dateString.split('-').map(Number);
+	return `${formatNumberWithLeadingZero(day)} tháng ${formatNumberWithLeadingZero(month)} năm ${year}`;
+}
+
+/**
  * Generate DJ residency contract document from contract data and venue counterparty
  */
 export const generateDjResidencyContract = async (
@@ -66,7 +85,7 @@ export const generateDjResidencyContract = async (
 ): Promise<Blob> => {
 	try {
 		// Load the DJ residency contract template
-		const response = await fetch('/_djResidency.docx');
+		const response = await fetch('/djResidency_updated.docx');
 		if (!response.ok) {
 			throw new Error(`Failed to load template: ${response.statusText}`);
 		}
@@ -124,6 +143,12 @@ export const generateDjResidencyContract = async (
 		const contractDateVietnamese = formatDateVietnamese(contract.contractStartDate);
 		const contractDateEnglish = formatDateEnglish(contract.contractStartDate);
 
+		// Body dates (abbreviated English month, zero-padded Vietnamese month)
+		const contractStartDateEnglish = formatDateBodyEnglish(contract.contractStartDate);
+		const contractStartDateVietnamese = formatDateBodyVietnamese(contract.contractStartDate);
+		const contractEndDateEnglish = formatDateBodyEnglish(contract.contractEndDate);
+		const contractEndDateVietnamese = formatDateBodyVietnamese(contract.contractEndDate);
+
 		// ===== FORMAT NUMBERS =====
 		// Contract duration
 		const contractDurationMonths = smallNumberToEnglishWords(contract.contractDurationMonths);
@@ -163,6 +188,10 @@ export const generateDjResidencyContract = async (
 				contractNumber: contract.contractNumber,
 				contractDateEnglish,
 				contractDateVietnamese,
+				contractStartDateEnglish,
+				contractStartDateVietnamese,
+				contractEndDateEnglish,
+				contractEndDateVietnamese,
 
 				// Party A (Insense) Information
 				partyACompanyVietnamese: companyConfig.nameVietnamese,

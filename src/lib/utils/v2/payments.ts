@@ -158,6 +158,17 @@ export async function updatePaymentStatus(
 }
 
 /**
+ * Update the amount on a payment record
+ */
+export async function updatePaymentAmount(paymentId: string, amount: number): Promise<void> {
+	const docRef = doc(db, COLLECTION_NAME, paymentId);
+	await updateDoc(docRef, {
+		amount,
+		updatedAt: serverTimestamp()
+	});
+}
+
+/**
  * Delete a single payment record
  */
 export async function deletePayment(paymentId: string): Promise<void> {

@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { DjResidencyContract, PerformanceLog, MonthlyInvoice } from '$lib/types/v2';
+import { createPayment } from './payments';
 import {
 	djResidencyContractInputSchema,
 	performanceLogInputSchema,
@@ -580,5 +581,63 @@ export async function deleteInvoice(contractId: string, invoiceId: string): Prom
 	} catch (error) {
 		logger.error('Error deleting invoice:', error);
 		throw new Error('Failed to delete invoice');
+	}
+}
+
+// ==========================================
+// Monthly Payment Records
+// ==========================================
+
+/**
+ * Create recurring monthly payment records for a DJ residency contract.
+ * One 'receivable' Payment record (amount = 0) is created per calendar month.
+ * Actual amounts are updated manually on the payments page once confirmed at month end.
+ *
+ * Call this after saving or updating a contract (delete old records first on update).
+ */
+export async function createDjResidencyMonthlyPayments(contract: {
+	id: string;
+	contractNumber: string;
+	counterpartyName: string;
+	paymentDirection: 'receivable';
+	paymentStatus: 'unpaid' | 'paid';
+	contractValue: number;
+	currency: 'VND';
+	ownerUid: string;
+	contractStartDate: string;
+	contractEndDate: string;
+	performanceFeeVND: number;
+	numberOfSetsPerDay: number;
+}): Promise<void> {
+	try {
+		// Amount starts at 0 — actual amounts are entered on the payments page once confirmed at month end
+		const estimatedMonthlyAmount = 0;
+
+		const startDate = new Date(contract.contractStartDate);
+		const endDate = new Date(contract.contractEndDate);
+		const current = new Date(startDate);
+
+		while (current <= endDate) {
+			const label = current.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+			await createPayment({
+				contractId: contract.id,
+				contractType: 'dj-residency',
+				contractNumber: contract.contractNumber,
+				counterpartyName: contract.counterpartyName,
+				paymentType: 'recurring',
+				amount: estimatedMonthlyAmount,
+				currency: 'VND',
+				direction: 'receivable',
+				status: 'pending',
+				label,
+				dueDate: null,
+				ownerUid: contract.ownerUid,
+				notes: null
+			});
+			current.setMonth(current.getMonth() + 1);
+		}
+	} catch (error) {
+		logger.error('Error creating DJ residency monthly payments:', error);
+		throw new Error('Failed to create monthly payment records');
 	}
 }

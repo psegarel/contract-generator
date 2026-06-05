@@ -4,7 +4,11 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { authState } from '$lib/state/auth.svelte';
 	import { paymentState } from '$lib/state/v2/paymentState.svelte';
-	import { updatePaymentStatus, syncContractStatusFromPayments } from '$lib/utils/v2/payments';
+	import {
+		updatePaymentStatus,
+		updatePaymentAmount,
+		syncContractStatusFromPayments
+	} from '$lib/utils/v2/payments';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -24,6 +28,8 @@
 	let contractIdFilter = $state<string | null>(null);
 	let togglingPaymentId = $state<string | null>(null);
 	let expandedContracts = new SvelteSet<string>();
+	let editingAmountId = $state<string | null>(null);
+	let editingAmountValue = $state(0);
 
 	onMount(() => {
 		if (!authState.isAdmin) {
@@ -113,6 +119,24 @@
 			toast.error('Failed to update payment status');
 		} finally {
 			togglingPaymentId = null;
+		}
+	}
+
+	function startEditAmount(payment: Payment) {
+		editingAmountId = payment.id;
+		editingAmountValue = payment.amount;
+	}
+
+	async function saveAmount(payment: Payment) {
+		if (editingAmountId !== payment.id) return;
+		editingAmountId = null;
+		if (editingAmountValue === payment.amount) return;
+		try {
+			await updatePaymentAmount(payment.id, editingAmountValue);
+			toast.success('Amount updated');
+		} catch (error) {
+			logger.error('Failed to update amount:', error);
+			toast.error('Failed to update amount');
 		}
 	}
 
@@ -285,7 +309,24 @@
 										<span class="text-sm">{payment.label ?? 'Payment'}</span>
 									</div>
 									<div class="text-sm tabular-nums text-muted-foreground shrink-0">
-										{formatCurrency(payment.amount)}
+										{#if editingAmountId === payment.id}
+											<input
+												type="number"
+												bind:value={editingAmountValue}
+												onblur={() => saveAmount(payment)}
+												onkeydown={(e) => { if (e.key === 'Enter') saveAmount(payment); if (e.key === 'Escape') editingAmountId = null; }}
+												class="w-32 px-2 py-0.5 border border-blue-400 rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+												{@attach (node) => { node.focus(); }}
+											/>
+										{:else}
+											<button
+												onclick={() => group.contractType === 'dj-residency' && startEditAmount(payment)}
+												class="tabular-nums {group.contractType === 'dj-residency' ? 'hover:underline cursor-pointer' : 'cursor-default'}"
+												title={group.contractType === 'dj-residency' ? 'Click to edit amount' : undefined}
+											>
+												{formatCurrency(payment.amount)}
+											</button>
+										{/if}
 									</div>
 									<div class="shrink-0">
 										{#if payment.status === 'paid'}
