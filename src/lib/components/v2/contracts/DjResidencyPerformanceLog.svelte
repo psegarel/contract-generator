@@ -13,7 +13,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Plus, Trash2, Calendar, Clock, User } from 'lucide-svelte';
-	import { formatCurrency, formatDateString } from '$lib/utils/formatting';
+	import { formatCurrency, formatDateString, formatMonthLabel } from '$lib/utils/formatting';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 	import { Timestamp, type Unsubscribe } from 'firebase/firestore';
@@ -93,6 +93,15 @@
 	// Get uninvoiced performances
 	let uninvoicedPerformances = $derived(performances.filter((p) => !p.invoiced));
 	let invoicedPerformances = $derived(performances.filter((p) => p.invoiced));
+
+	// Set of months that have been locked (contracts generated)
+	let lockedMonths = $derived(
+		new Set(
+			performances
+				.filter((p) => p.invoiced && p.invoiceMonth)
+				.map((p) => p.invoiceMonth as string)
+		)
+	);
 
 	// Calculate totals
 	let totalUninvoicedAmount = $derived(
@@ -201,6 +210,15 @@
 			toast.error('Please select a date');
 			return;
 		}
+
+		const selectedMonth = performanceDate.substring(0, 7);
+		if (lockedMonths.has(selectedMonth)) {
+			toast.error(
+				`Cannot log a performance for ${formatMonthLabel(selectedMonth)} — contracts have already been generated for this period.`
+			);
+			return;
+		}
+
 		if (!performerId) {
 			toast.error('Please select a performer');
 			return;

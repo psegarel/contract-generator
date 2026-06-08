@@ -287,23 +287,6 @@ export interface PerformanceLog {
 }
 
 /**
- * Monthly invoice record for DJ residency contracts
- * Stored in subcollection: dj-residency-contracts/{id}/invoices
- */
-export interface MonthlyInvoice {
-	id: string;
-	month: string; // e.g., "2025-01"
-	totalPerformances: number;
-	totalAmount: number;
-	serviceContractIds: string[]; // IDs of generated Service Provision contracts
-	invoiceDate: string; // When invoice was issued
-	paymentDueDate: string; // 2 weeks after invoiceDate
-	status: 'draft' | 'issued' | 'paid';
-	createdAt: import('firebase/firestore').Timestamp;
-	updatedAt: import('firebase/firestore').Timestamp;
-}
-
-/**
  * Union type for all contract types
  */
 export type Contract =

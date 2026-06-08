@@ -34,6 +34,5 @@ export type {
 	ClientServiceContract,
 	DjResidencyContract,
 	PerformanceLog,
-	MonthlyInvoice,
 	Contract
 } from './contracts';

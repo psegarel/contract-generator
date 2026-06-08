@@ -6,10 +6,8 @@
 	} from '$lib/schemas/v2/contracts/djResidency';
 	import {
 		saveDjResidencyContract,
-		updateDjResidencyContract,
-		createDjResidencyMonthlyPayments
+		updateDjResidencyContract
 	} from '$lib/utils/v2/djResidencyContracts';
-	import { deletePaymentsByContract } from '$lib/utils/v2/payments';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import {
 		clientCounterpartySchema,
@@ -199,28 +197,6 @@
 				contractId = contract.id;
 			} else {
 				contractId = await saveDjResidencyContract(contractData);
-			}
-
-			// Create (or recreate) monthly payment records — same pattern as equipment rental
-			try {
-				await deletePaymentsByContract(contractId);
-				await createDjResidencyMonthlyPayments({
-					id: contractId,
-					contractNumber: contractData.contractNumber,
-					counterpartyName,
-					paymentDirection: 'receivable',
-					paymentStatus: contractData.paymentStatus,
-					contractValue: contractData.contractValue,
-					currency: 'VND',
-					ownerUid: authState.user.uid,
-					contractStartDate: contractData.contractStartDate,
-					contractEndDate: contractData.contractEndDate,
-					performanceFeeVND: contractData.performanceFeeVND,
-					numberOfSetsPerDay: contractData.numberOfSetsPerDay
-				});
-			} catch (paymentError) {
-				logger.error('Error creating monthly payment records:', paymentError);
-				// Don't block — contract was saved successfully
 			}
 
 			toast.success(

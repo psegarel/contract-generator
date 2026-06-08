@@ -8,7 +8,7 @@
 	import { toast } from 'svelte-sonner';
 	import { logger } from '$lib/utils/logger';
 	import DjResidencyPerformanceLog from '$lib/components/v2/contracts/DjResidencyPerformanceLog.svelte';
-	import DjResidencyMonthlyInvoice from '$lib/components/v2/contracts/DjResidencyMonthlyInvoice.svelte';
+	import DjResidencyGenerateContracts from '$lib/components/v2/contracts/DjResidencyGenerateContracts.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -197,8 +197,8 @@
 		<DjResidencyPerformanceLog contract={data.contract} />
 	</div>
 
-	<!-- Monthly Invoicing -->
+	<!-- Generate Contracts -->
 	<div class="mt-6">
-		<DjResidencyMonthlyInvoice contract={data.contract} venueCounterparty={data.venueCounterparty} />
+		<DjResidencyGenerateContracts contract={data.contract} venueCounterparty={data.venueCounterparty} />
 	</div>
 </div>

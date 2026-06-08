@@ -22,25 +22,6 @@ export const performanceLogInputSchema = performanceLogSchema;
 export type PerformanceLogInput = z.infer<typeof performanceLogInputSchema>;
 
 /**
- * Monthly Invoice Schema
- * Stored in subcollection: dj-residency-contracts/{id}/invoices
- */
-export const monthlyInvoiceSchema = z
-	.object({
-		month: z.string().min(1, 'Invoice month is required'),
-		totalPerformances: z.number().min(0, 'Total performances must be positive'),
-		totalAmount: z.number().min(0, 'Total amount must be positive'),
-		serviceContractIds: z.array(z.string()).default([]),
-		invoiceDate: z.string().min(1, 'Invoice date is required'),
-		paymentDueDate: z.string().min(1, 'Payment due date is required'),
-		status: z.enum(['draft', 'issued', 'paid'])
-	})
-	.strict();
-
-export const monthlyInvoiceInputSchema = monthlyInvoiceSchema;
-export type MonthlyInvoiceInput = z.infer<typeof monthlyInvoiceInputSchema>;
-
-/**
  * DJ Residency Contract Schema
  */
 export const djResidencyContractSchema = baseContractSchema

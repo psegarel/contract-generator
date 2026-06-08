@@ -11,24 +11,26 @@ import {
 	serverTimestamp,
 	onSnapshot,
 	deleteDoc,
+	Timestamp,
 	type Unsubscribe
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
-import type { DjResidencyContract, PerformanceLog, MonthlyInvoice } from '$lib/types/v2';
+import type { DjResidencyContract, PerformanceLog, PerformerContractor } from '$lib/types/v2';
+import type { ClientCounterparty } from '$lib/types/v2';
 import { createPayment } from './payments';
+import { getCounterpartyById } from './counterparties';
+import { saveServiceProvisionContract } from './serviceProvisionContracts';
 import {
 	djResidencyContractInputSchema,
 	performanceLogInputSchema,
-	monthlyInvoiceInputSchema,
 	type DjResidencyContractInput,
-	type PerformanceLogInput,
-	type MonthlyInvoiceInput
+	type PerformanceLogInput
 } from '$lib/schemas/v2';
+import { formatMonthLabel } from '$lib/utils/formatting';
 import { logger } from '../logger';
 
 const COLLECTION_NAME = 'dj-residency-contracts';
 const PERFORMANCES_SUBCOLLECTION = 'performances';
-const INVOICES_SUBCOLLECTION = 'invoices';
 
 // ==========================================
 // DJ Residency Contract CRUD
@@ -242,13 +244,6 @@ export async function deleteDjResidencyContract(contractId: string): Promise<voi
 			await deleteDoc(perfDoc.ref);
 		}
 
-		// Delete all invoices in subcollection
-		const invoicesRef = collection(db, COLLECTION_NAME, contractId, INVOICES_SUBCOLLECTION);
-		const invoicesSnap = await getDocs(invoicesRef);
-		for (const invDoc of invoicesSnap.docs) {
-			await deleteDoc(invDoc.ref);
-		}
-
 		// Delete the contract document
 		const docRef = doc(db, COLLECTION_NAME, contractId);
 		await deleteDoc(docRef);
@@ -344,29 +339,7 @@ export async function getPerformances(contractId: string): Promise<PerformanceLo
 }
 
 /**
- * Get uninvoiced performances for a contract
- */
-export async function getUninvoicedPerformances(contractId: string): Promise<PerformanceLog[]> {
-	try {
-		const q = query(
-			collection(db, COLLECTION_NAME, contractId, PERFORMANCES_SUBCOLLECTION),
-			where('invoiced', '==', false),
-			orderBy('date', 'asc')
-		);
-		const querySnapshot = await getDocs(q);
-
-		return querySnapshot.docs.map((d) => ({
-			id: d.id,
-			...d.data()
-		})) as PerformanceLog[];
-	} catch (error) {
-		logger.error('Error fetching uninvoiced performances:', error);
-		throw new Error('Failed to fetch uninvoiced performances');
-	}
-}
-
-/**
- * Mark performances as invoiced
+ * Mark performances as invoiced (locks the month)
  */
 export async function markPerformancesAsInvoiced(
 	contractId: string,
@@ -441,203 +414,170 @@ export async function deletePerformance(contractId: string, performanceId: strin
 }
 
 // ==========================================
-// Monthly Invoice Subcollection
+// Monthly Contract Generation
 // ==========================================
 
 /**
- * Subscribe to invoices for a contract (real-time updates)
- */
-export function subscribeToInvoices(
-	contractId: string,
-	callback: (invoices: MonthlyInvoice[]) => void,
-	onError: (error: Error) => void
-): Unsubscribe {
-	const q = query(
-		collection(db, COLLECTION_NAME, contractId, INVOICES_SUBCOLLECTION),
-		orderBy('month', 'desc')
-	);
-
-	return onSnapshot(
-		q,
-		(snapshot) => {
-			const invoices = snapshot.docs.map((d) => ({
-				id: d.id,
-				...d.data()
-			})) as MonthlyInvoice[];
-			callback(invoices);
-		},
-		(error) => {
-			logger.error('Error in invoices subscription:', error);
-			onError(error);
-		}
-	);
-}
-
-/**
- * Add a monthly invoice record
- */
-export async function addMonthlyInvoice(
-	contractId: string,
-	invoiceData: MonthlyInvoiceInput
-): Promise<string> {
-	try {
-		const validationResult = monthlyInvoiceInputSchema.safeParse(invoiceData);
-		if (!validationResult.success) {
-			logger.error('Invoice validation error:', validationResult.error);
-			throw new Error('Invalid invoice data: ' + validationResult.error.message);
-		}
-
-		const toWrite = {
-			...validationResult.data,
-			createdAt: serverTimestamp(),
-			updatedAt: serverTimestamp()
-		};
-
-		const invoicesRef = collection(db, COLLECTION_NAME, contractId, INVOICES_SUBCOLLECTION);
-		const docRef = await addDoc(invoicesRef, toWrite);
-		return docRef.id;
-	} catch (error) {
-		logger.error('Error adding monthly invoice:', error);
-		throw new Error('Failed to add monthly invoice');
-	}
-}
-
-/**
- * Get all invoices for a contract
- */
-export async function getInvoices(contractId: string): Promise<MonthlyInvoice[]> {
-	try {
-		const q = query(
-			collection(db, COLLECTION_NAME, contractId, INVOICES_SUBCOLLECTION),
-			orderBy('month', 'desc')
-		);
-		const querySnapshot = await getDocs(q);
-
-		return querySnapshot.docs.map((d) => ({
-			id: d.id,
-			...d.data()
-		})) as MonthlyInvoice[];
-	} catch (error) {
-		logger.error('Error fetching invoices:', error);
-		throw new Error('Failed to fetch invoices');
-	}
-}
-
-/**
- * Update invoice status
- */
-export async function updateInvoiceStatus(
-	contractId: string,
-	invoiceId: string,
-	status: 'draft' | 'issued' | 'paid'
-): Promise<void> {
-	try {
-		const docRef = doc(db, COLLECTION_NAME, contractId, INVOICES_SUBCOLLECTION, invoiceId);
-
-		await updateDoc(docRef, {
-			status,
-			updatedAt: serverTimestamp()
-		});
-	} catch (error) {
-		logger.error('Error updating invoice status:', error);
-		throw new Error('Failed to update invoice status');
-	}
-}
-
-/**
- * Add service contract IDs to an invoice
- */
-export async function addServiceContractToInvoice(
-	contractId: string,
-	invoiceId: string,
-	serviceContractId: string
-): Promise<void> {
-	try {
-		const docRef = doc(db, COLLECTION_NAME, contractId, INVOICES_SUBCOLLECTION, invoiceId);
-		const docSnap = await getDoc(docRef);
-
-		if (!docSnap.exists()) {
-			throw new Error('Invoice not found');
-		}
-
-		const currentIds = docSnap.data().serviceContractIds || [];
-		await updateDoc(docRef, {
-			serviceContractIds: [...currentIds, serviceContractId],
-			updatedAt: serverTimestamp()
-		});
-	} catch (error) {
-		logger.error('Error adding service contract to invoice:', error);
-		throw new Error('Failed to add service contract to invoice');
-	}
-}
-
-/**
- * Delete a monthly invoice
- */
-export async function deleteInvoice(contractId: string, invoiceId: string): Promise<void> {
-	try {
-		const docRef = doc(db, COLLECTION_NAME, contractId, INVOICES_SUBCOLLECTION, invoiceId);
-		await deleteDoc(docRef);
-	} catch (error) {
-		logger.error('Error deleting invoice:', error);
-		throw new Error('Failed to delete invoice');
-	}
-}
-
-// ==========================================
-// Monthly Payment Records
-// ==========================================
-
-/**
- * Create recurring monthly payment records for a DJ residency contract.
- * One 'receivable' Payment record (amount = 0) is created per calendar month.
- * Actual amounts are updated manually on the payments page once confirmed at month end.
+ * Generate service provision contracts and payment records for a completed month.
  *
- * Call this after saving or updating a contract (delete old records first on update).
+ * For a given month:
+ * - Groups the provided uninvoiced performances by performer
+ * - Validates each performer has required payment fields (email, phone, bank, ID)
+ * - Creates one service provision contract per performer
+ * - Creates one payable payment record per service contract (we owe performers)
+ * - Creates one receivable payment record on the DJ residency contract (venue owes us)
+ * - Marks all performances as invoiced, locking the month
+ *
+ * @param contractId - The DJ residency contract ID
+ * @param month - Month string "YYYY-MM"
+ * @param contract - The DJ residency contract
+ * @param venueCounterparty - The venue/client counterparty
+ * @param ownerUid - UID of the user performing the action
+ * @param uninvoicedMonthPerformances - Pre-filtered uninvoiced performances for this month
+ * @returns Count of service contracts created and total month amount
  */
-export async function createDjResidencyMonthlyPayments(contract: {
-	id: string;
-	contractNumber: string;
-	counterpartyName: string;
-	paymentDirection: 'receivable';
-	paymentStatus: 'unpaid' | 'paid';
-	contractValue: number;
-	currency: 'VND';
-	ownerUid: string;
-	contractStartDate: string;
-	contractEndDate: string;
-	performanceFeeVND: number;
-	numberOfSetsPerDay: number;
-}): Promise<void> {
-	try {
-		// Amount starts at 0 — actual amounts are entered on the payments page once confirmed at month end
-		const estimatedMonthlyAmount = 0;
-
-		const startDate = new Date(contract.contractStartDate);
-		const endDate = new Date(contract.contractEndDate);
-		const current = new Date(startDate);
-
-		while (current <= endDate) {
-			const label = current.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-			await createPayment({
-				contractId: contract.id,
-				contractType: 'dj-residency',
-				contractNumber: contract.contractNumber,
-				counterpartyName: contract.counterpartyName,
-				paymentType: 'recurring',
-				amount: estimatedMonthlyAmount,
-				currency: 'VND',
-				direction: 'receivable',
-				status: 'pending',
-				label,
-				dueDate: null,
-				ownerUid: contract.ownerUid,
-				notes: null
-			});
-			current.setMonth(current.getMonth() + 1);
-		}
-	} catch (error) {
-		logger.error('Error creating DJ residency monthly payments:', error);
-		throw new Error('Failed to create monthly payment records');
+export async function generateMonthlyContracts(
+	contractId: string,
+	month: string,
+	contract: DjResidencyContract,
+	venueCounterparty: ClientCounterparty,
+	ownerUid: string,
+	uninvoicedMonthPerformances: PerformanceLog[]
+): Promise<{ serviceContractCount: number; totalAmount: number }> {
+	if (uninvoicedMonthPerformances.length === 0) {
+		throw new Error('No uninvoiced performances for this month');
 	}
+
+	// Group performances by performer
+	const byPerformer: Record<string, { performerName: string; performances: PerformanceLog[] }> = {};
+	for (const perf of uninvoicedMonthPerformances) {
+		if (!byPerformer[perf.performerId]) {
+			byPerformer[perf.performerId] = { performerName: perf.performerName, performances: [] };
+		}
+		byPerformer[perf.performerId].performances.push(perf);
+	}
+
+	// Fetch and validate all performer counterparties before writing anything
+	const performerDataMap = new Map<string, PerformerContractor>();
+	for (const [performerId, data] of Object.entries(byPerformer)) {
+		const counterparty = await getCounterpartyById(performerId);
+		if (!counterparty || counterparty.type !== 'contractor') {
+			throw new Error(`Performer "${data.performerName}" not found in counterparties`);
+		}
+		const performer = counterparty as PerformerContractor;
+		const missing: string[] = [];
+		if (!performer.email) missing.push('email');
+		if (!performer.phone) missing.push('phone');
+		if (!performer.bankName) missing.push('bank name');
+		if (!performer.bankAccountNumber) missing.push('bank account number');
+		if (!performer.idDocument) missing.push('ID document');
+		if (missing.length > 0) {
+			throw new Error(
+				`Cannot generate contracts — ${performer.name} is missing: ${missing.join(', ')}`
+			);
+		}
+		performerDataMap.set(performerId, performer);
+	}
+
+	// Calculate total month amount and payment due date (2 weeks from today)
+	const totalMonthAmount = uninvoicedMonthPerformances.reduce(
+		(sum, p) => sum + p.setsCompleted * contract.performanceFeeVND,
+		0
+	);
+	const dueDate = new Date();
+	dueDate.setDate(dueDate.getDate() + 14);
+	const paymentDueDateStr = dueDate.toISOString().split('T')[0];
+	const paymentDueTimestamp = Timestamp.fromDate(dueDate);
+	const monthLabel = formatMonthLabel(month);
+
+	// Create service provision contracts and payable payment records for each performer
+	for (const [performerId, perfData] of Object.entries(byPerformer)) {
+		const performer = performerDataMap.get(performerId)!;
+		const totalSets = perfData.performances.reduce((sum, p) => sum + p.setsCompleted, 0);
+		const totalAmount = totalSets * contract.performanceFeeVND;
+
+		const dates = perfData.performances.map((p) => p.date).sort();
+		const startDate = dates[0];
+		const endDate = dates[dates.length - 1];
+		const serviceContractNumber = `${contract.contractNumber}-${month}-${performerId.slice(-4)}`;
+
+		const serviceContractId = await saveServiceProvisionContract({
+			type: 'service-provision',
+			ownerUid,
+			contractNumber: serviceContractNumber,
+			eventId: `djr-${contractId}-${month}`,
+			counterpartyId: performerId,
+			counterpartyName: performer.stageName || performer.name,
+			eventName: `DJ Residency ${monthLabel}`,
+			paymentDirection: 'payable',
+			paymentStatus: 'unpaid',
+			contractValue: totalAmount,
+			currency: 'VND',
+			notes: `Generated from DJ Residency contract ${contract.contractNumber}`,
+			jobName: 'DJ Performance',
+			jobContent: `${totalSets} DJ sets at ${venueCounterparty.companyName || venueCounterparty.name}`,
+			numberOfPerformances: totalSets,
+			firstPerformanceTime: '20:00',
+			startDate,
+			endDate,
+			taxRate: 10,
+			netFee: totalAmount * 0.9,
+			status: 'generated',
+			bankName: performer.bankName!,
+			accountNumber: performer.bankAccountNumber!,
+			clientEmail: performer.email!,
+			clientAddress: performer.address || venueCounterparty.address || '',
+			clientPhone: performer.phone!,
+			clientIdDocument: performer.idDocument!,
+			clientTaxId: performer.taxId || null,
+			eventLocation: venueCounterparty.address || '',
+			paymentDueDate: paymentDueDateStr
+		});
+
+		// Payable payment record: we owe the performer
+		await createPayment({
+			contractId: serviceContractId,
+			contractType: 'service-provision',
+			contractNumber: serviceContractNumber,
+			counterpartyName: performer.stageName || performer.name,
+			paymentType: 'one-time',
+			amount: totalAmount,
+			currency: 'VND',
+			direction: 'payable',
+			status: 'pending',
+			label: null,
+			dueDate: paymentDueTimestamp,
+			ownerUid,
+			notes: null
+		});
+	}
+
+	// Receivable payment record: venue owes us for the month
+	await createPayment({
+		contractId,
+		contractType: 'dj-residency',
+		contractNumber: contract.contractNumber,
+		counterpartyName: contract.counterpartyName,
+		paymentType: 'one-time',
+		amount: totalMonthAmount,
+		currency: 'VND',
+		direction: 'receivable',
+		status: 'pending',
+		label: monthLabel,
+		dueDate: paymentDueTimestamp,
+		ownerUid,
+		notes: null
+	});
+
+	// Lock the month: mark all performances as invoiced
+	await markPerformancesAsInvoiced(
+		contractId,
+		uninvoicedMonthPerformances.map((p) => p.id),
+		month
+	);
+
+	return {
+		serviceContractCount: Object.keys(byPerformer).length,
+		totalAmount: totalMonthAmount
+	};
 }

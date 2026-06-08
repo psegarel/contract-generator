@@ -48,6 +48,18 @@ export function formatDateEnglish(dateString: string): string {
 }
 
 /**
+ * Format a "YYYY-MM" month string to a human-readable label
+ * @param month - Month string in "YYYY-MM" format
+ * @returns Formatted label (e.g., "February 2026")
+ * @example formatMonthLabel('2026-02') // "February 2026"
+ */
+export function formatMonthLabel(month: string): string {
+	const [year, monthNum] = month.split('-');
+	const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1);
+	return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+/**
  * Format a number as Vietnamese Dong currency
  * @param amount - The amount to format
  * @returns Formatted currency string (e.g., "₫1,000,000")
