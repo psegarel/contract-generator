@@ -171,11 +171,13 @@ export const generateDjResidencyContract = async (
 		const numberOfSetsVietnamese = smallNumberToVietnameseWords(contract.numberOfSetsPerDay);
 		const numberOfSetsNumber = contract.numberOfSetsPerDay.toString();
 
-		// Performance fee
-		const performanceFeeVND = formatCurrency(contract.performanceFeeVND);
-		const performanceFeeInWords = numberToEnglishWords(contract.performanceFeeVND) + ' Vietnamese Dong';
+		// Performance fee — per-slot amount shown in client contract
+		// Computed from hourly rate × hours per set so it auto-adjusts when set duration changes
+		const slotFeeVND = contract.performanceFeeVND * contract.performanceHoursPerSet;
+		const performanceFeeVND = formatCurrency(slotFeeVND);
+		const performanceFeeInWords = numberToEnglishWords(slotFeeVND) + ' Vietnamese Dong';
 		const performanceFeeInWordsVietnamese =
-			numberToVietnameseWords(contract.performanceFeeVND) + ' đồng Việt Nam';
+			numberToVietnameseWords(slotFeeVND) + ' đồng Việt Nam';
 
 		// ===== DERIVE PARTY B VALUES FROM COUNTERPARTY =====
 		const partyBCompanyName = venueCounterparty.companyName || venueCounterparty.name;

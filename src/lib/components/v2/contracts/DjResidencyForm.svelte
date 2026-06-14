@@ -143,7 +143,7 @@
 		}
 
 		if (!formState.performanceFeeVND || formState.performanceFeeVND <= 0) {
-			formState.error = 'Please set a valid performance fee';
+			formState.error = 'Please set a valid hourly rate';
 			return;
 		}
 
@@ -385,7 +385,7 @@
 		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
 			<div>
 				<label for="performanceFeeVND" class="block text-sm font-medium text-gray-700 mb-1">
-					Fee per Performance (VND) <span class="text-red-500">*</span>
+					Hourly Rate — Client (VND) <span class="text-red-500">*</span>
 				</label>
 				<input
 					id="performanceFeeVND"
@@ -410,14 +410,14 @@
 				/>
 			</div>
 		</div>
-		<div class="mt-4 p-4 bg-gray-50 rounded-lg">
+		<div class="mt-4 p-4 bg-gray-50 rounded-lg space-y-1">
 			<p class="text-sm text-gray-600">
-				<strong>Estimated Monthly Value:</strong>
+				<strong>Est. monthly revenue (client):</strong>
 				{formatCurrency(formState.estimatedMonthlyValue)}
-				<span class="text-gray-400">(~8 performances/month)</span>
+				<span class="text-gray-400">(~8 sets/month)</span>
 			</p>
-			<p class="text-sm text-gray-600 mt-1">
-				<strong>Estimated Total Contract Value:</strong>
+			<p class="text-sm text-gray-600">
+				<strong>Est. total contract revenue:</strong>
 				{formatCurrency(formState.estimatedTotalValue)}
 			</p>
 		</div>

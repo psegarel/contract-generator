@@ -1,8 +1,9 @@
 <script lang="ts">
-	import type { DjResidencyContract, PerformanceLog, PerformerContractor } from '$lib/types/v2';
+	import type { DjResidencyContract, PerformanceLog } from '$lib/types/v2';
 	import {
 		subscribeToPerformances,
 		addPerformance,
+		updatePerformance,
 		deletePerformance
 	} from '$lib/utils/v2/djResidencyContracts';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
@@ -11,9 +12,8 @@
 	import { counterpartyState } from '$lib/state/v2';
 	import { authState } from '$lib/state/auth.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Plus, Trash2, Calendar, Clock, User } from 'lucide-svelte';
-	import { formatCurrency, formatDateString, formatMonthLabel } from '$lib/utils/formatting';
+	import { Plus, Trash2, Pencil, Calendar, Clock, User } from 'lucide-svelte';
+	import { formatCurrency, formatDateString } from '$lib/utils/formatting';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 	import { Timestamp, type Unsubscribe } from 'firebase/firestore';
@@ -32,6 +32,20 @@
 	let showAddForm = $state(false);
 	let isSubmitting = $state(false);
 	let showCreatePerformer = $state(false);
+
+	// Edit state — only uninvoiced performances can be edited
+	let editingId = $state<string | null>(null);
+	let editDate = $state('');
+	let editPerformerId = $state('');
+	let editHoursWorked = $state(0);
+	let editSetsCompleted = $state(0);
+	let editPerformerSharePercentage = $state(60);
+	let editNotes = $state('');
+	let isEditSubmitting = $state(false);
+
+	let editPerformerPayVND = $derived(
+		Math.round(editHoursWorked * contract.performanceFeeVND * (editPerformerSharePercentage / 100))
+	);
 
 	// Inline performer creation form state
 	let newPerformer = $state({
@@ -57,7 +71,13 @@
 	let performerId = $state('');
 	let hoursWorked = $state(4); // Will be reset to contract defaults via resetForm
 	let setsCompleted = $state(2); // Will be reset to contract defaults via resetForm
+	let performerSharePercentage = $state(60); // Reset to contract default via resetForm
 	let notes = $state('');
+
+	// Computed performer pay for this log entry — internal only
+	let performerPayVND = $derived(
+		Math.round(hoursWorked * contract.performanceFeeVND * (performerSharePercentage / 100))
+	);
 
 	// Get performer counterparties
 	let performerCounterparties = $derived(
@@ -68,9 +88,10 @@
 
 	onMount(() => {
 		counterpartyState.init();
-		// Initialize form fields with contract defaults
+		// Initialize form fields — default to 1 set per log entry
+		setsCompleted = 1;
 		hoursWorked = defaultHoursPerSet;
-		setsCompleted = defaultSetsPerDay;
+		performerSharePercentage = 60;
 
 		unsubscribe = subscribeToPerformances(
 			contract.id,
@@ -90,32 +111,17 @@
 		};
 	});
 
-	// Get uninvoiced performances
-	let uninvoicedPerformances = $derived(performances.filter((p) => !p.invoiced));
-	let invoicedPerformances = $derived(performances.filter((p) => p.invoiced));
-
-	// Set of months that have been locked (contracts generated)
-	let lockedMonths = $derived(
-		new Set(
-			performances
-				.filter((p) => p.invoiced && p.invoiceMonth)
-				.map((p) => p.invoiceMonth as string)
-		)
-	);
-
-	// Calculate totals
-	let totalUninvoicedAmount = $derived(
-		uninvoicedPerformances.reduce(
-			(sum, p) => sum + p.setsCompleted * contract.performanceFeeVND,
-			0
-		)
+	// DJ pay total — matches the service contract amounts
+	let totalAmount = $derived(
+		performances.reduce((sum, p) => sum + (p.performerPayVND ?? 0), 0)
 	);
 
 	function resetForm() {
 		performanceDate = '';
 		performerId = '';
+		setsCompleted = 1;
 		hoursWorked = defaultHoursPerSet;
-		setsCompleted = defaultSetsPerDay;
+		performerSharePercentage = 60;
 		notes = '';
 		showAddForm = false;
 	}
@@ -211,14 +217,6 @@
 			return;
 		}
 
-		const selectedMonth = performanceDate.substring(0, 7);
-		if (lockedMonths.has(selectedMonth)) {
-			toast.error(
-				`Cannot log a performance for ${formatMonthLabel(selectedMonth)} — contracts have already been generated for this period.`
-			);
-			return;
-		}
-
 		if (!performerId) {
 			toast.error('Please select a performer');
 			return;
@@ -238,6 +236,8 @@
 				performerName: performer.stageName || performer.name,
 				hoursWorked,
 				setsCompleted,
+				performerSharePercentage,
+				performerPayVND,
 				notes: notes || null,
 				invoiced: false,
 				invoiceMonth: null
@@ -264,6 +264,52 @@
 			toast.error('Failed to delete performance');
 		}
 	}
+
+	function startEdit(performance: PerformanceLog) {
+		editingId = performance.id;
+		editDate = performance.date;
+		editPerformerId = performance.performerId;
+		editSetsCompleted = performance.setsCompleted;
+		// Normalize hours from sets × hoursPerSet so stale stored values are corrected
+		editHoursWorked = performance.setsCompleted * contract.performanceHoursPerSet;
+		editPerformerSharePercentage = performance.performerSharePercentage ?? 60;
+		editNotes = performance.notes ?? '';
+		showAddForm = false; // Close add form if open
+	}
+
+	function cancelEdit() {
+		editingId = null;
+	}
+
+	async function handleSaveEdit() {
+		if (!editingId) return;
+
+		const performer = performerCounterparties.find((p) => p.id === editPerformerId);
+		if (!performer) {
+			toast.error('Performer not found');
+			return;
+		}
+
+		isEditSubmitting = true;
+		try {
+			await updatePerformance(contract.id, editingId, {
+				date: editDate,
+				performerId: editPerformerId,
+				performerName: performer.stageName || performer.name,
+				hoursWorked: editHoursWorked,
+				setsCompleted: editSetsCompleted,
+				performerSharePercentage: editPerformerSharePercentage,
+				performerPayVND: editPerformerPayVND,
+				notes: editNotes || null
+			});
+			toast.success('Performance updated');
+			editingId = null;
+		} catch (error) {
+			toast.error('Failed to update performance');
+		} finally {
+			isEditSubmitting = false;
+		}
+	}
 </script>
 
 <div class="bg-white rounded-lg border border-gray-200 p-6">
@@ -271,7 +317,7 @@
 		<div>
 			<h3 class="text-lg font-semibold text-gray-900">Performance Log</h3>
 			<p class="text-sm text-gray-500 mt-1">
-				{uninvoicedPerformances.length} uninvoiced performances totaling {formatCurrency(totalUninvoicedAmount)}
+				{performances.length} performance{performances.length !== 1 ? 's' : ''} · {formatCurrency(totalAmount)} DJ pay
 			</p>
 		</div>
 		<Button variant="outline" onclick={() => (showAddForm = !showAddForm)}>
@@ -341,11 +387,29 @@
 						id="setsCompleted"
 						type="number"
 						bind:value={setsCompleted}
+						onchange={() => { hoursWorked = setsCompleted * contract.performanceHoursPerSet; }}
 						min="0"
 						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					/>
 				</div>
-				<div class="md:col-span-2">
+				<div>
+					<label for="performerSharePercentage" class="block text-sm font-medium text-gray-700 mb-1">
+						Performer Share (%)
+					</label>
+					<input
+						id="performerSharePercentage"
+						type="number"
+						bind:value={performerSharePercentage}
+						min="0"
+						max="100"
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					/>
+				</div>
+				<div class="flex flex-col justify-end pb-0.5">
+					<p class="text-sm text-gray-500">Performer pay</p>
+					<p class="font-medium text-gray-700">{formatCurrency(performerPayVND)}</p>
+				</div>
+				<div class="md:col-span-2 lg:col-span-3">
 					<label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
 						Notes
 					</label>
@@ -388,36 +452,124 @@
 	{:else}
 		<div class="space-y-3">
 			{#each performances as performance (performance.id)}
-				<div
-					class="flex items-center justify-between p-4 rounded-lg border {performance.invoiced
-						? 'bg-gray-50 border-gray-200'
-						: 'bg-white border-gray-200'}"
-				>
-					<div class="flex items-center gap-4">
-						<div class="flex items-center gap-2 text-gray-600">
-							<Calendar class="w-4 h-4" />
-							<span class="font-medium">{formatDateString(performance.date)}</span>
+				{#if editingId === performance.id}
+					<!-- Inline edit form -->
+					<div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+						<h4 class="font-medium text-gray-900 mb-4">Edit Performance</h4>
+						<div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+							<div>
+								<label for="editDate-{performance.id}" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+								<input
+									id="editDate-{performance.id}"
+									type="date"
+									bind:value={editDate}
+									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								/>
+							</div>
+							<div>
+								<label for="editPerformerId-{performance.id}" class="block text-sm font-medium text-gray-700 mb-1">Performer</label>
+								<select
+									id="editPerformerId-{performance.id}"
+									bind:value={editPerformerId}
+									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								>
+									{#each performerCounterparties as p (p.id)}
+										<option value={p.id}>{p.stageName || p.name}</option>
+									{/each}
+								</select>
+							</div>
+							<div>
+								<label for="editHours-{performance.id}" class="block text-sm font-medium text-gray-700 mb-1">Hours Worked</label>
+								<input
+									id="editHours-{performance.id}"
+									type="number"
+									bind:value={editHoursWorked}
+									min="0"
+									step="0.5"
+									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								/>
+							</div>
+							<div>
+								<label for="editSets-{performance.id}" class="block text-sm font-medium text-gray-700 mb-1">Sets Completed</label>
+								<input
+									id="editSets-{performance.id}"
+									type="number"
+									bind:value={editSetsCompleted}
+									onchange={() => { editHoursWorked = editSetsCompleted * contract.performanceHoursPerSet; }}
+									min="0"
+									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								/>
+							</div>
+							<div>
+								<label for="editShare-{performance.id}" class="block text-sm font-medium text-gray-700 mb-1">Performer Share (%)</label>
+								<input
+									id="editShare-{performance.id}"
+									type="number"
+									bind:value={editPerformerSharePercentage}
+									min="0"
+									max="100"
+									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								/>
+							</div>
+							<div class="flex flex-col justify-end pb-0.5">
+								<p class="text-sm text-gray-500">Performer pay</p>
+								<p class="font-medium text-gray-700">{formatCurrency(editPerformerPayVND)}</p>
+							</div>
+							<div class="md:col-span-2 lg:col-span-3">
+								<label for="editNotes-{performance.id}" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+								<input
+									id="editNotes-{performance.id}"
+									type="text"
+									bind:value={editNotes}
+									placeholder="Optional notes..."
+									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								/>
+							</div>
 						</div>
-						<div class="flex items-center gap-2 text-gray-600">
-							<User class="w-4 h-4" />
-							<span>{performance.performerName}</span>
+						<div class="flex gap-2 mt-4">
+							<Button variant="dark" onclick={handleSaveEdit} disabled={isEditSubmitting}>
+								{isEditSubmitting ? 'Saving...' : 'Save Changes'}
+							</Button>
+							<Button variant="outline" onclick={cancelEdit}>Cancel</Button>
 						</div>
-						<div class="flex items-center gap-2 text-gray-600">
-							<Clock class="w-4 h-4" />
-							<span>{performance.hoursWorked}h / {performance.setsCompleted} sets</span>
-						</div>
-						{#if performance.notes}
-							<span class="text-sm text-gray-500 italic">{performance.notes}</span>
-						{/if}
 					</div>
-					<div class="flex items-center gap-3">
-						<span class="font-medium text-emerald-600">
-							{formatCurrency(performance.setsCompleted * contract.performanceFeeVND)}
-						</span>
-						{#if performance.invoiced}
-							<Badge variant="secondary">{performance.invoiceMonth}</Badge>
-						{:else}
-							<Badge class="bg-amber-500">Uninvoiced</Badge>
+				{:else}
+					<div
+						class="flex items-center justify-between p-4 rounded-lg border {performance.invoiced
+							? 'bg-gray-50 border-gray-200'
+							: 'bg-white border-gray-200'}"
+					>
+						<div class="flex items-center gap-4">
+							<div class="flex items-center gap-2 text-gray-600">
+								<Calendar class="w-4 h-4" />
+								<span class="font-medium">{formatDateString(performance.date)}</span>
+							</div>
+							<div class="flex items-center gap-2 text-gray-600">
+								<User class="w-4 h-4" />
+								<span>{performance.performerName}</span>
+							</div>
+							<div class="flex items-center gap-2 text-gray-600">
+								<Clock class="w-4 h-4" />
+								<span>{performance.hoursWorked}h / {performance.setsCompleted} sets</span>
+							</div>
+							{#if performance.notes}
+								<span class="text-sm text-gray-500 italic">{performance.notes}</span>
+							{/if}
+						</div>
+						<div class="flex items-center gap-3">
+							<div class="text-right">
+								<p class="font-medium text-emerald-600">
+									{formatCurrency(performance.performerPayVND ?? 0)}
+								</p>
+							</div>
+							<Button
+								variant="ghost"
+								size="sm"
+								onclick={() => startEdit(performance)}
+								class="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+							>
+								<Pencil class="w-4 h-4" />
+							</Button>
 							<Button
 								variant="ghost"
 								size="sm"
@@ -426,9 +578,9 @@
 							>
 								<Trash2 class="w-4 h-4" />
 							</Button>
-						{/if}
+						</div>
 					</div>
-				</div>
+				{/if}
 			{/each}
 		</div>
 	{/if}

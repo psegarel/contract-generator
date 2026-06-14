@@ -2,12 +2,13 @@
 	import type { DjResidencyContract, ClientCounterparty, PerformanceLog } from '$lib/types/v2';
 	import {
 		subscribeToPerformances,
-		generateMonthlyContracts
+		generateMonthlyContracts,
+		unlockMonth
 	} from '$lib/utils/v2/djResidencyContracts';
 	import { authState } from '$lib/state/auth.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import { FileText, Lock } from 'lucide-svelte';
+	import { FileText, Lock, LockOpen } from 'lucide-svelte';
 	import { formatCurrency, formatMonthLabel } from '$lib/utils/formatting';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
@@ -24,6 +25,7 @@
 	let performances = $state<PerformanceLog[]>([]);
 	let isLoading = $state(true);
 	let generatingMonth = $state<string | null>(null);
+	let unlockingMonth = $state<string | null>(null);
 
 	let unsubscribe: Unsubscribe | null = null;
 
@@ -64,6 +66,26 @@
 	});
 
 	let availableMonths = $derived(Object.keys(uninvoicedByMonth).sort());
+
+	async function handleUnlockMonth(month: string) {
+		if (
+			!confirm(
+				`Unlock ${formatMonthLabel(month)}?\n\nThis will delete all generated service contracts and payment records for this month, and allow the performance logs to be edited and re-invoiced.`
+			)
+		) {
+			return;
+		}
+
+		unlockingMonth = month;
+		try {
+			await unlockMonth(contract.id, month);
+			toast.success(`${formatMonthLabel(month)} unlocked — performances can now be edited`);
+		} catch (error) {
+			toast.error((error as Error).message || 'Failed to unlock month');
+		} finally {
+			unlockingMonth = null;
+		}
+	}
 
 	async function handleGenerateContracts(month: string) {
 		if (!authState.user) {
@@ -110,7 +132,7 @@
 				{#each availableMonths as month (month)}
 					{@const monthPerfs = uninvoicedByMonth[month]}
 					{@const total = monthPerfs.reduce(
-						(sum, p) => sum + p.setsCompleted * contract.performanceFeeVND,
+						(sum, p) => sum + p.hoursWorked * contract.performanceFeeVND,
 						0
 					)}
 					{@const performerCount = new Set(monthPerfs.map((p) => p.performerId)).size}
@@ -153,7 +175,7 @@
 					{#each lockedMonths as month (month)}
 						{@const monthPerfs = performances.filter((p) => p.invoiceMonth === month)}
 						{@const total = monthPerfs.reduce(
-							(sum, p) => sum + p.setsCompleted * contract.performanceFeeVND,
+							(sum, p) => sum + p.hoursWorked * contract.performanceFeeVND,
 							0
 						)}
 						<div
@@ -168,7 +190,22 @@
 									</p>
 								</div>
 							</div>
-							<Badge variant="secondary">Contracts generated</Badge>
+							<div class="flex items-center gap-2">
+								<Badge variant="secondary">Contracts generated</Badge>
+								<Button
+									variant="ghost"
+									size="sm"
+									onclick={() => handleUnlockMonth(month)}
+									disabled={unlockingMonth === month}
+									class="text-gray-500 hover:text-amber-600 hover:bg-amber-50"
+								>
+									{#if unlockingMonth === month}
+										Unlocking...
+									{:else}
+										<LockOpen class="w-4 h-4" />
+									{/if}
+								</Button>
+							</div>
 						</div>
 					{/each}
 				</div>

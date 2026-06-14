@@ -180,14 +180,12 @@ export class DjResidencyContractFormState {
 	}
 
 	/**
-	 * Get estimated monthly value based on performance fee and expected performances
-	 * Assumes 4 performance days per week (if Saturday and Sunday)
+	 * Estimated monthly revenue from client.
+	 * performanceFeeVND is the hourly rate; ~8 sets/month at the contract's hours per set.
 	 */
 	get estimatedMonthlyValue(): number {
-		// Approximate 4-5 weeks per month, 2 days per week = 8-10 performances
-		// This is just an estimate for display purposes
-		const performancesPerMonth = 8; // Conservative estimate
-		return this.performanceFeeVND * performancesPerMonth;
+		const setsPerMonth = 8; // Conservative estimate
+		return this.performanceFeeVND * this.performanceHoursPerSet * setsPerMonth;
 	}
 
 	/**

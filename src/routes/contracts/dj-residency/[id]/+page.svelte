@@ -173,7 +173,10 @@
 				<div>
 					<p class="text-sm text-gray-500">Fee per Performance</p>
 					<p class="font-medium text-emerald-600 text-lg">
-						{formatCurrency(data.contract.performanceFeeVND)}
+						{formatCurrency(data.contract.performanceFeeVND * data.contract.performanceHoursPerSet)}
+					</p>
+					<p class="text-xs text-gray-400">
+						{formatCurrency(data.contract.performanceFeeVND)}/hr × {data.contract.performanceHoursPerSet}h
 					</p>
 				</div>
 				<div>

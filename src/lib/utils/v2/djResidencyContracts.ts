@@ -11,15 +11,20 @@ import {
 	serverTimestamp,
 	onSnapshot,
 	deleteDoc,
+	writeBatch,
 	Timestamp,
 	type Unsubscribe
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { DjResidencyContract, PerformanceLog, PerformerContractor } from '$lib/types/v2';
 import type { ClientCounterparty } from '$lib/types/v2';
-import { createPayment } from './payments';
+import { createPayment, getPaymentsByContract, deletePayment, deletePaymentsByContract } from './payments';
 import { getCounterpartyById } from './counterparties';
-import { saveServiceProvisionContract } from './serviceProvisionContracts';
+import {
+	saveServiceProvisionContract,
+	getServiceProvisionContractsByEventId,
+	deleteServiceProvisionContract
+} from './serviceProvisionContracts';
 import {
 	djResidencyContractInputSchema,
 	performanceLogInputSchema,
@@ -418,22 +423,25 @@ export async function deletePerformance(contractId: string, performanceId: strin
 // ==========================================
 
 /**
- * Generate service provision contracts and payment records for a completed month.
+ * Generate (or regenerate) service provision contracts and payment records for a month.
+ *
+ * Idempotent: deletes any previously generated contracts for the month before creating new ones,
+ * so it is safe to call multiple times (e.g. after correcting performance logs).
  *
  * For a given month:
- * - Groups the provided uninvoiced performances by performer
+ * - Groups the provided performances by performer
  * - Validates each performer has required payment fields (email, phone, bank, ID)
  * - Creates one service provision contract per performer
  * - Creates one payable payment record per service contract (we owe performers)
  * - Creates one receivable payment record on the DJ residency contract (venue owes us)
- * - Marks all performances as invoiced, locking the month
+ * - Performances are NOT locked — they remain editable for future corrections
  *
  * @param contractId - The DJ residency contract ID
  * @param month - Month string "YYYY-MM"
  * @param contract - The DJ residency contract
  * @param venueCounterparty - The venue/client counterparty
  * @param ownerUid - UID of the user performing the action
- * @param uninvoicedMonthPerformances - Pre-filtered uninvoiced performances for this month
+ * @param uninvoicedMonthPerformances - Performances for this month
  * @returns Count of service contracts created and total month amount
  */
 export async function generateMonthlyContracts(
@@ -445,7 +453,22 @@ export async function generateMonthlyContracts(
 	uninvoicedMonthPerformances: PerformanceLog[]
 ): Promise<{ serviceContractCount: number; totalAmount: number }> {
 	if (uninvoicedMonthPerformances.length === 0) {
-		throw new Error('No uninvoiced performances for this month');
+		throw new Error('No performances for this month');
+	}
+
+	// Upsert: delete any previously generated contracts for this month before recreating
+	const eventId = `djr-${contractId}-${month}`;
+	const existingServiceContracts = await getServiceProvisionContractsByEventId(eventId);
+	for (const sc of existingServiceContracts) {
+		await deletePaymentsByContract(sc.id);
+		await deleteServiceProvisionContract(sc.id);
+	}
+	const existingPayments = await getPaymentsByContract(contractId);
+	const existingMonthPayment = existingPayments.find(
+		(p) => p.label === formatMonthLabel(month) && p.direction === 'receivable'
+	);
+	if (existingMonthPayment) {
+		await deletePayment(existingMonthPayment.id);
 	}
 
 	// Group performances by performer
@@ -479,9 +502,9 @@ export async function generateMonthlyContracts(
 		performerDataMap.set(performerId, performer);
 	}
 
-	// Calculate total month amount and payment due date (2 weeks from today)
+	// Client billing for the month: hours worked × hourly rate
 	const totalMonthAmount = uninvoicedMonthPerformances.reduce(
-		(sum, p) => sum + p.setsCompleted * contract.performanceFeeVND,
+		(sum, p) => sum + p.hoursWorked * contract.performanceFeeVND,
 		0
 	);
 	const dueDate = new Date();
@@ -494,7 +517,8 @@ export async function generateMonthlyContracts(
 	for (const [performerId, perfData] of Object.entries(byPerformer)) {
 		const performer = performerDataMap.get(performerId)!;
 		const totalSets = perfData.performances.reduce((sum, p) => sum + p.setsCompleted, 0);
-		const totalAmount = totalSets * contract.performanceFeeVND;
+		// Use the per-log performer pay locked at logging time — not the client rate
+		const totalAmount = perfData.performances.reduce((sum, p) => sum + p.performerPayVND, 0);
 
 		const dates = perfData.performances.map((p) => p.date).sort();
 		const startDate = dates[0];
@@ -569,15 +593,51 @@ export async function generateMonthlyContracts(
 		notes: null
 	});
 
-	// Lock the month: mark all performances as invoiced
-	await markPerformancesAsInvoiced(
-		contractId,
-		uninvoicedMonthPerformances.map((p) => p.id),
-		month
-	);
-
 	return {
 		serviceContractCount: Object.keys(byPerformer).length,
 		totalAmount: totalMonthAmount
 	};
+}
+
+/**
+ * Unlock a previously invoiced month.
+ *
+ * Reverses generateMonthlyContracts():
+ * - Deletes service provision contracts generated for this month (and their payment records)
+ * - Deletes the receivable payment record on the DJ residency contract for this month
+ * - Resets all performances for the month back to uninvoiced
+ */
+export async function unlockMonth(contractId: string, month: string): Promise<void> {
+	// 1. Find and delete service provision contracts created for this month
+	const eventId = `djr-${contractId}-${month}`;
+	const serviceContracts = await getServiceProvisionContractsByEventId(eventId);
+	for (const sc of serviceContracts) {
+		await deletePaymentsByContract(sc.id);
+		await deleteServiceProvisionContract(sc.id);
+	}
+
+	// 2. Delete the receivable payment record for this month on the DJ residency contract
+	const monthLabel = formatMonthLabel(month);
+	const allPayments = await getPaymentsByContract(contractId);
+	const monthPayment = allPayments.find(
+		(p) => p.label === monthLabel && p.direction === 'receivable'
+	);
+	if (monthPayment) {
+		await deletePayment(monthPayment.id);
+	}
+
+	// 3. Reset performances for this month to uninvoiced
+	const performancesRef = collection(db, COLLECTION_NAME, contractId, PERFORMANCES_SUBCOLLECTION);
+	const perfQuery = query(performancesRef, where('invoiceMonth', '==', month));
+	const snapshot = await getDocs(perfQuery);
+
+	const batch = writeBatch(db);
+	snapshot.docs.forEach((d) => {
+		batch.update(d.ref, {
+			invoiced: false,
+			invoiceMonth: null,
+			updatedAt: serverTimestamp()
+		});
+	});
+	await batch.commit();
 }

@@ -261,7 +261,7 @@ export interface DjResidencyContract extends BaseContract {
 	numberOfSetsPerDay: number; // e.g., 2
 
 	// Payment Terms
-	performanceFeeVND: number; // Fee per performance slot
+	performanceFeeVND: number; // Hourly client rate (appears in client contract)
 	terminationNoticeDays: number; // e.g., 7
 
 	// Status
@@ -279,6 +279,9 @@ export interface PerformanceLog {
 	performerName: string; // Denormalized
 	hoursWorked: number;
 	setsCompleted: number;
+	// Internal pay fields — never exposed in client-facing documents
+	performerSharePercentage: number; // % used for this log (defaults from contract, overridable)
+	performerPayVND: number; // Locked at logging time: hoursWorked × clientHourlyRate × (share / 100)
 	notes: string | null;
 	invoiced: boolean; // Has this been included in a monthly invoice?
 	invoiceMonth: string | null; // e.g., "2025-01"
