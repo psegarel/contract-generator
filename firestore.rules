@@ -192,6 +192,17 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // App Configuration (shared, non-sensitive config)
+    // ============================================================
+
+    // Bank list cache — read by all signed-in users, writable by any signed-in
+    // user since the data is public (sourced from the VietQR public API).
+    match /app-config/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // ============================================================
     // V2 Collections (New Architecture)
     // ============================================================
 

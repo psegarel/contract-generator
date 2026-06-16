@@ -42,11 +42,10 @@
 		};
 	});
 
-	// Get available events and service providers for selection
+	// Get available events and contractors for selection
+	// Includes both service-provider and performer contractor types
 	const events = $derived(eventState.events);
-	const serviceProviders = $derived(
-		counterpartyState.serviceProviders
-	);
+	const serviceProviders = $derived(counterpartyState.contractors);
 
 	// Create form state instance
 	const formState = new ServiceProvisionContractFormState();
@@ -57,7 +56,14 @@
 	});
 
 	// Get selected event and counterparty names for submission
-	let eventName = $derived(events.find((e) => e.id === formState.eventId)?.name || '');
+	// '__standalone__' sentinel = recurring contract with no specific event
+	// Fall back to contract.eventName for synthetic IDs (e.g. djr-... from DJ residency generation)
+	// that don't correspond to a real event document
+	let eventName = $derived(
+		formState.eventId === '__standalone__'
+			? 'Recurring'
+			: events.find((e) => e.id === formState.eventId)?.name || contract?.eventName || ''
+	);
 	let counterpartyName = $derived(
 		serviceProviders.find((c) => c.id === formState.counterpartyId)?.name || ''
 	);

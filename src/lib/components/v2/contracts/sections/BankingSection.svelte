@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import TextField from '$lib/components/TextField.svelte';
+	import BankNameCombobox from '$lib/components/v2/forms/BankNameCombobox.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -12,12 +13,11 @@
 <div class="bg-white p-6 rounded-lg border border-gray-200">
 	<h3 class="text-lg font-semibold text-gray-900 mb-4">Banking Information</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<TextField
+		<BankNameCombobox
 			id="bankName"
 			label="Bank Name"
 			bind:value={formState.bankName}
 			required
-			placeholder="Vietcombank, Techcombank, etc."
 		/>
 
 		<TextField

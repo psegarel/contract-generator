@@ -1,4 +1,4 @@
-import type { ServiceProvisionContract, ServiceProviderContractor } from '$lib/types/v2';
+import type { ServiceProvisionContract, ContractorCounterparty } from '$lib/types/v2';
 
 /**
  * Form state class for Service Provision Contract forms
@@ -59,7 +59,8 @@ export class ServiceProvisionContractFormState {
 
 		// Load contract data
 		this.contractNumber = contract.contractNumber;
-		this.eventId = contract.eventId || '';
+		// Use sentinel when contract has no associated event (e.g. DJ residency recurring performance)
+		this.eventId = contract.eventId || '__standalone__';
 		this.counterpartyId = contract.counterpartyId;
 		this.jobName = contract.jobName;
 		this.jobContent = contract.jobContent;
@@ -129,7 +130,7 @@ export class ServiceProvisionContractFormState {
 	/**
 	 * Auto-fill client details from selected service provider
 	 */
-	fillFromServiceProvider(provider: ServiceProviderContractor | null) {
+	fillFromServiceProvider(provider: ContractorCounterparty | null) {
 		if (!provider) return;
 
 		// Handle null values from Firestore by converting to empty strings

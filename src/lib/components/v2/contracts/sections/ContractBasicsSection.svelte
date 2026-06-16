@@ -1,13 +1,12 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
-	import type { Event } from '$lib/types/v2';
-	import type { ServiceProviderContractor } from '$lib/types/v2';
+	import type { Event, ContractorCounterparty } from '$lib/types/v2';
 	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
 		events: Event[];
-		serviceProviders: ServiceProviderContractor[];
+		serviceProviders: ContractorCounterparty[];
 		onCreateProviderClick: () => void;
 		onCounterpartyChange?: () => void;
 	}
@@ -50,6 +49,7 @@
 				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 			>
 				<option value="">Select an event</option>
+				<option value="__standalone__">No specific event (recurring)</option>
 				{#each events as event (event.id)}
 					<option value={event.id}>{event.name} - {event.eventDate}</option>
 				{/each}
