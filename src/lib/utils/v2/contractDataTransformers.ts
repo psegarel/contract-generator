@@ -91,7 +91,7 @@ export const serviceProvisionContractViewDataSchema = z.object({
 	companyCity: z.string().min(1),
 	companyTaxCode: z.string().min(1),
 	companyRepresentative: z.string().min(1),
-	companyFunction: z.string().min(1),
+	companyFunction: z.string(), // Can be empty - field no longer in config
 	companyRepresentativePhone: z.string().min(1),
 	companyRepresentativeEmail: z.string().email(),
 	clientName: z.string().min(1),
