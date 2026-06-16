@@ -123,6 +123,10 @@ export interface PerformerContractor extends BaseContractorFields {
 	// Booking details
 	agentName: string | null;
 	agentContact: string | null;
+
+	// Personal income tax configuration
+	pitRate: number;
+	pitRatePolicy?: string | null;
 }
 
 /**

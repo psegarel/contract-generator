@@ -19,6 +19,7 @@
 	import { Timestamp, type Unsubscribe } from 'firebase/firestore';
 	import { logger } from '$lib/utils/logger';
 	import CreatePerformerInline from './sections/CreatePerformerInline.svelte';
+	import { companyConfig } from '$lib/config/company';
 
 	interface Props {
 		contract: DjResidencyContract;
@@ -59,19 +60,16 @@
 		bankAccountNumber: '',
 		idDocument: '',
 		taxId: '',
+		pitRate: String(companyConfig.defaultPerformerPitRate),
+		pitRatePolicy: companyConfig.defaultPerformerPitRatePolicy,
 		isSubmitting: false
 	});
 
-	// Default values from contract for form reset
-	let defaultHoursPerSet = $derived(contract.performanceHoursPerSet);
-	let defaultSetsPerDay = $derived(contract.numberOfSetsPerDay);
-
-	// Form fields - initialized with static defaults, reset uses derived defaults
 	let performanceDate = $state('');
 	let performerId = $state('');
-	let hoursWorked = $state(4); // Will be reset to contract defaults via resetForm
-	let setsCompleted = $state(2); // Will be reset to contract defaults via resetForm
-	let performerSharePercentage = $state(60); // Reset to contract default via resetForm
+	let hoursWorked = $state(0);
+	let setsCompleted = $state(1);
+	let performerSharePercentage = $state(60);
 	let notes = $state('');
 
 	// Computed performer pay for this log entry — internal only
@@ -90,7 +88,7 @@
 		counterpartyState.init();
 		// Initialize form fields — default to 1 set per log entry
 		setsCompleted = 1;
-		hoursWorked = defaultHoursPerSet;
+		hoursWorked = contract.performanceHoursPerSet;
 		performerSharePercentage = 60;
 
 		unsubscribe = subscribeToPerformances(
@@ -120,7 +118,7 @@
 		performanceDate = '';
 		performerId = '';
 		setsCompleted = 1;
-		hoursWorked = defaultHoursPerSet;
+		hoursWorked = contract.performanceHoursPerSet;
 		performerSharePercentage = 60;
 		notes = '';
 		showAddForm = false;
@@ -137,6 +135,8 @@
 		newPerformer.bankAccountNumber = '';
 		newPerformer.idDocument = '';
 		newPerformer.taxId = '';
+		newPerformer.pitRate = String(companyConfig.defaultPerformerPitRate);
+		newPerformer.pitRatePolicy = companyConfig.defaultPerformerPitRatePolicy;
 		showCreatePerformer = false;
 	}
 
@@ -183,6 +183,8 @@
 				bankAccountNumber: newPerformer.bankAccountNumber || null,
 				idDocument: newPerformer.idDocument || null,
 				taxId: newPerformer.taxId || null,
+				pitRate: newPerformer.pitRate ? Number(newPerformer.pitRate) : companyConfig.defaultPerformerPitRate,
+				pitRatePolicy: newPerformer.pitRatePolicy || companyConfig.defaultPerformerPitRatePolicy,
 				notes: null,
 				createdAt: Timestamp.now(),
 				updatedAt: Timestamp.now()

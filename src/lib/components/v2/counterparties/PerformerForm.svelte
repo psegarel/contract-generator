@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { Timestamp } from 'firebase/firestore';
 	import type { PerformerContractor } from '$lib/types/v2';
 	import {
 		performerContractorSchema,
@@ -7,8 +9,7 @@
 	import { saveCounterparty, updateCounterparty } from '$lib/utils/v2';
 	import { authState } from '$lib/state/auth.svelte';
 	import { PerformerFormState } from '$lib/state/v2/performerFormState.svelte';
-	import { onMount } from 'svelte';
-	import { Timestamp } from 'firebase/firestore';
+	import { companyConfig } from '$lib/config/company';
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
 
@@ -56,6 +57,8 @@
 				bankAccountNumber: formState.bankAccountNumber || null,
 				idDocument: formState.idDocument || null,
 				taxId: formState.taxId || null,
+				pitRate: formState.pitRate,
+				pitRatePolicy: formState.pitRatePolicy || companyConfig.defaultPerformerPitRatePolicy,
 				notes: formState.notes || null,
 				createdAt: performer?.createdAt || Timestamp.now(),
 				updatedAt: Timestamp.now()
@@ -324,6 +327,21 @@
 					bind:value={formState.taxId}
 					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="Tax identification number"
+				/>
+			</div>
+
+			<div>
+				<label for="pitRate" class="block text-sm font-medium text-gray-700 mb-1">
+					PIT Rate (%)
+				</label>
+				<input
+					id="pitRate"
+					type="number"
+					min="0"
+					max="100"
+					bind:value={formState.pitRate}
+					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					placeholder="10"
 				/>
 			</div>
 		</div>

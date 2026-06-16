@@ -13,6 +13,8 @@
 		bankAccountNumber: string;
 		idDocument: string;
 		taxId: string;
+		pitRate: string;
+		pitRatePolicy: string;
 		isSubmitting: boolean;
 	}
 
@@ -111,6 +113,15 @@
 			label="Tax ID"
 			bind:value={formState.taxId}
 			placeholder="Tax code"
+		/>
+		<TextField
+			id="performerPitRate"
+			label="PIT Rate (%)"
+			type="number"
+			bind:value={formState.pitRate}
+			min="0"
+			max="100"
+			placeholder="10"
 		/>
 	</div>
 

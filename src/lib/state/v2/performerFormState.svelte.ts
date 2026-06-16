@@ -1,4 +1,5 @@
 import type { PerformerContractor } from '$lib/types/v2';
+import { companyConfig } from '$lib/config/company';
 
 export class PerformerFormState {
 	// Basic info
@@ -26,6 +27,8 @@ export class PerformerFormState {
 	bankAccountNumber = $state('');
 	idDocument = $state('');
 	taxId = $state('');
+	pitRate = $state(companyConfig.defaultPerformerPitRate);
+	pitRatePolicy = $state(companyConfig.defaultPerformerPitRatePolicy);
 
 	// Notes
 	notes = $state('');
@@ -59,6 +62,8 @@ export class PerformerFormState {
 		this.bankAccountNumber = performer.bankAccountNumber || '';
 		this.idDocument = performer.idDocument || '';
 		this.taxId = performer.taxId || '';
+		this.pitRate = performer.pitRate ?? companyConfig.defaultPerformerPitRate;
+		this.pitRatePolicy = performer.pitRatePolicy ?? companyConfig.defaultPerformerPitRatePolicy;
 		this.notes = performer.notes || '';
 	}
 
@@ -82,6 +87,8 @@ export class PerformerFormState {
 		this.bankAccountNumber = '';
 		this.idDocument = '';
 		this.taxId = '';
+		this.pitRate = companyConfig.defaultPerformerPitRate;
+		this.pitRatePolicy = companyConfig.defaultPerformerPitRatePolicy;
 		this.notes = '';
 		this.error = null;
 	}

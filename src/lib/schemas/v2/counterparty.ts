@@ -103,6 +103,8 @@ export const performerContractorSchema = baseCounterpartySchema
 		bankAccountNumber: z.string().nullable().optional(),
 		idDocument: z.string().nullable().optional(),
 		taxId: z.string().nullable().optional(),
+		pitRate: z.number().min(0, 'PIT rate must be at least 0').max(100, 'PIT rate must be at most 100').default(10),
+		pitRatePolicy: z.string().nullable().optional(),
 
 		// ID document images
 		documents: counterpartyDocumentsSchema

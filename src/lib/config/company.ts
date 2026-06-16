@@ -18,10 +18,31 @@
  * - VITE_COMPANY_REPRESENTATIVE_EMAIL - Representative email address
  * - VITE_COMPANY_BANK_NAME - Company bank name (e.g., "ACB")
  * - VITE_COMPANY_BANK_ACCOUNT_NUMBER - Company bank account number
+ * - VITE_DEFAULT_PERFORMER_PIT_RATE - Default PIT rate for performers when no explicit rate is set
+ * - VITE_DEFAULT_PERFORMER_PIT_RATE_POLICY - Default performer PIT policy key for new performers
+ * - VITE_PERFORMER_PIT_RATE_POLICIES - Comma-separated mapping of performer PIT policy keys to numeric rates
  * - VITE_EQUIPMENT_RENTAL_TAX_RATE - Default tax rate for equipment rental contracts (default: 8)
- * 
+ *
  * Note: taxRates array is for Service Provision contracts (10, 20 for individuals; 8 for companies)
  */
+
+const parseRatePolicies = (value?: string) => {
+	if (!value) return {} as Record<string, number>;
+
+	return Object.fromEntries(
+		value
+			.split(',')
+			.map((entry) => entry.trim())
+			.map((entry) => {
+				const [key, rawRate] = entry.split(':').map((part) => part.trim());
+				const rate = Number(rawRate);
+				if (!key || Number.isNaN(rate)) return null;
+				return [key, rate] as const;
+			})
+			.filter((item): item is readonly [string, number] => item !== null)
+	);
+};
+
 export const companyConfig = {
 	name: import.meta.env.VITE_COMPANY_NAME || 'INSENSE COMPANY LIMITED',
 	nameVietnamese: import.meta.env.VITE_COMPANY_NAME_VIETNAMESE || 'CÔNG TY TNHH INSENSE',
@@ -35,6 +56,7 @@ export const companyConfig = {
 	representativeEmail: import.meta.env.VITE_COMPANY_REPRESENTATIVE_EMAIL || 'patrick@insense.vn',
 	bankName: import.meta.env.VITE_COMPANY_BANK_NAME || '',
 	bankAccountNumber: import.meta.env.VITE_COMPANY_BANK_ACCOUNT_NUMBER || '',
-	taxRates: [10, 20], // Service Provision contract tax rates (for individuals: 10, 20; for companies: 8)
-	equipmentRentalTaxRate: Number(import.meta.env.VITE_EQUIPMENT_RENTAL_TAX_RATE) || 8 // Default tax rate for equipment rental contracts
+	defaultPerformerPitRate: Number(import.meta.env.VITE_DEFAULT_PERFORMER_PIT_RATE) || 10,
+	defaultPerformerPitRatePolicy: import.meta.env.VITE_DEFAULT_PERFORMER_PIT_RATE_POLICY || 'standard',
+	performerPitRatePolicies: parseRatePolicies(import.meta.env.VITE_PERFORMER_PIT_RATE_POLICIES),
 };
