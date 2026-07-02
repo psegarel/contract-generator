@@ -278,7 +278,6 @@ export interface PerformanceLog {
 	performerId: string; // Counterparty ID of performer
 	performerName: string; // Denormalized
 	hoursWorked: number;
-	setsCompleted: number;
 	// Internal pay fields — never exposed in client-facing documents
 	performerSharePercentage: number; // % used for this log (defaults from contract, overridable)
 	performerPayVND: number; // Locked at logging time: hoursWorked × clientHourlyRate × (share / 100)

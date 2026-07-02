@@ -551,7 +551,7 @@ export async function generateMonthlyContracts(
 	// Create service provision contracts and payable payment records for each performer
 	for (const [performerId, perfData] of Object.entries(byPerformer)) {
 		const performer = performerDataMap.get(performerId)!;
-		const totalSets = perfData.performances.reduce((sum, p) => sum + p.setsCompleted, 0);
+		const totalPerformances = perfData.performances.length;
 		// Use the per-log performer pay locked at logging time — not the client rate
 		const totalAmount = perfData.performances.reduce((sum, p) => sum + p.performerPayVND, 0);
 
@@ -574,8 +574,8 @@ export async function generateMonthlyContracts(
 			currency: 'VND',
 			notes: `Generated from DJ Residency contract ${contract.contractNumber}`,
 			jobName: 'DJ Performance',
-			jobContent: `${totalSets} DJ sets at ${venueCounterparty.companyName || venueCounterparty.name}`,
-			numberOfPerformances: totalSets,
+			jobContent: `${totalPerformances} DJ performances at ${venueCounterparty.companyName || venueCounterparty.name}`,
+			numberOfPerformances: totalPerformances,
 			firstPerformanceTime: '20:00',
 			startDate,
 			endDate,

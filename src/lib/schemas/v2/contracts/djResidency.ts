@@ -11,7 +11,6 @@ export const performanceLogSchema = z
 		performerId: z.string().min(1, 'Performer ID is required'),
 		performerName: z.string().min(1, 'Performer name is required'),
 		hoursWorked: z.number().min(0, 'Hours worked must be positive'),
-		setsCompleted: z.number().min(0, 'Sets completed must be positive'),
 		// Internal pay fields — never exposed in client-facing documents
 		performerSharePercentage: z.number().min(0).max(100),
 		performerPayVND: z.number().min(0, 'Performer pay must be positive'),

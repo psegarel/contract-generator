@@ -40,7 +40,6 @@
 	let editDate = $state('');
 	let editPerformerId = $state('');
 	let editHoursWorked = $state(0);
-	let editSetsCompleted = $state(0);
 	let editPerformerSharePercentage = $state(60);
 	let editNotes = $state('');
 	let isEditSubmitting = $state(false);
@@ -69,7 +68,6 @@
 	let performanceDate = $state('');
 	let performerId = $state('');
 	let hoursWorked = $state(0);
-	let setsCompleted = $state(1);
 	let performerSharePercentage = $state(60);
 	let notes = $state('');
 
@@ -87,8 +85,6 @@
 
 	onMount(() => {
 		counterpartyState.init();
-		// Initialize form fields — default to 1 set per log entry
-		setsCompleted = 1;
 		hoursWorked = contract.performanceHoursPerSet;
 		performerSharePercentage = 60;
 
@@ -124,7 +120,6 @@
 	function resetForm() {
 		performanceDate = '';
 		performerId = '';
-		setsCompleted = 1;
 		hoursWorked = contract.performanceHoursPerSet;
 		performerSharePercentage = 60;
 		notes = '';
@@ -244,7 +239,6 @@
 				performerId,
 				performerName: performer.stageName || performer.name,
 				hoursWorked,
-				setsCompleted,
 				performerSharePercentage,
 				performerPayVND,
 				notes: notes || null,
@@ -280,9 +274,7 @@
 		editingId = performance.id;
 		editDate = performance.date;
 		editPerformerId = performance.performerId;
-		editSetsCompleted = performance.setsCompleted;
-		// Normalize hours from sets × hoursPerSet so stale stored values are corrected
-		editHoursWorked = performance.setsCompleted * contract.performanceHoursPerSet;
+		editHoursWorked = performance.hoursWorked;
 		editPerformerSharePercentage = performance.performerSharePercentage ?? 60;
 		editNotes = performance.notes ?? '';
 		showAddForm = false; // Close add form if open
@@ -308,7 +300,6 @@
 				performerId: editPerformerId,
 				performerName: performer.stageName || performer.name,
 				hoursWorked: editHoursWorked,
-				setsCompleted: editSetsCompleted,
 				performerSharePercentage: editPerformerSharePercentage,
 				performerPayVND: editPerformerPayVND,
 				notes: editNotes || null
@@ -386,19 +377,6 @@
 						bind:value={hoursWorked}
 						min="0"
 						step="0.5"
-						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					/>
-				</div>
-				<div>
-					<label for="setsCompleted" class="block text-sm font-medium text-gray-700 mb-1">
-						Sets Completed
-					</label>
-					<input
-						id="setsCompleted"
-						type="number"
-						bind:value={setsCompleted}
-						onchange={() => { hoursWorked = setsCompleted * contract.performanceHoursPerSet; }}
-						min="0"
 						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					/>
 				</div>
@@ -500,17 +478,6 @@
 								/>
 							</div>
 							<div>
-								<label for="editSets-{performance.id}" class="block text-sm font-medium text-gray-700 mb-1">Sets Completed</label>
-								<input
-									id="editSets-{performance.id}"
-									type="number"
-									bind:value={editSetsCompleted}
-									onchange={() => { editHoursWorked = editSetsCompleted * contract.performanceHoursPerSet; }}
-									min="0"
-									class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-								/>
-							</div>
-							<div>
 								<label for="editShare-{performance.id}" class="block text-sm font-medium text-gray-700 mb-1">Performer Share (%)</label>
 								<input
 									id="editShare-{performance.id}"
@@ -560,7 +527,7 @@
 							</div>
 							<div class="flex items-center gap-2 text-gray-600">
 								<Clock class="w-4 h-4" />
-								<span>{performance.hoursWorked}h / {performance.setsCompleted} sets</span>
+								<span>{performance.hoursWorked}h</span>
 							</div>
 							{#if performance.notes}
 								<span class="text-sm text-gray-500 italic">{performance.notes}</span>
