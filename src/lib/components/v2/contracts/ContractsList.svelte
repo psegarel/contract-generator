@@ -3,6 +3,8 @@
 	import { getContractDateOrCreatedAt } from '$lib/utils/v2/contractDates';
 	import ContractListItem from './ContractListItem.svelte';
 	import { FileText } from 'lucide-svelte';
+	import { paymentState } from '$lib/state/v2/paymentState.svelte';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		contracts: BaseContract[];
@@ -11,6 +13,12 @@
 	}
 
 	let { contracts: unsortedContracts, title = 'Contracts', showHeaders = true }: Props = $props();
+
+	// Ensure payment data is loaded so ContractListItem can show accurate payment labels
+	// regardless of which page renders this list.
+	onMount(() => {
+		paymentState.init();
+	});
 
 	// Sort contracts by contract date (latest first), falling back to createdAt if no date field exists
 	let contracts = $derived(

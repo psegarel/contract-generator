@@ -235,9 +235,14 @@ export async function syncContractStatusFromPayments(
 		'equipment-rental': updateEquipmentRentalContractPaymentStatus,
 		subcontractor: updateSubcontractorContractPaymentStatus,
 		'client-service': updateClientServiceContractPaymentStatus,
-		'dj-residency': async () => {
-			// DJ Residency contracts don't sync payment status directly
-			// Payments flow through child Service Provision contracts
+		'dj-residency': async (id: string, status: 'unpaid' | 'paid', uid: string) => {
+			// Inlined to avoid circular import (djResidencyContracts imports payments)
+			await updateDoc(doc(db, 'dj-residency-contracts', id), {
+				paymentStatus: status,
+				paidAt: status === 'paid' ? serverTimestamp() : null,
+				paidBy: status === 'paid' ? uid : null,
+				updatedAt: serverTimestamp()
+			});
 		}
 	};
 
