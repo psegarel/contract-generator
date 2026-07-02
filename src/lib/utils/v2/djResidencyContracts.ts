@@ -419,6 +419,41 @@ export async function deletePerformance(contractId: string, performanceId: strin
 }
 
 // ==========================================
+// Contract Value Sync
+// ==========================================
+
+/**
+ * Recompute contractValue on a DJ residency contract from its performance subcollection.
+ *
+ * Called after every performance add / update / delete, and on the detail page mount
+ * to lazily migrate contracts that were created before this field was tracked.
+ *
+ * Formula: sum of (hoursWorked × performanceFeeVND) for every performance log.
+ */
+export async function syncContractValue(
+	contractId: string,
+	performanceFeeVND: number
+): Promise<void> {
+	try {
+		const performancesRef = collection(db, COLLECTION_NAME, contractId, PERFORMANCES_SUBCOLLECTION);
+		const snapshot = await getDocs(performancesRef);
+
+		const totalClientBilling = snapshot.docs.reduce((sum, d) => {
+			const hoursWorked = (d.data().hoursWorked as number) ?? 0;
+			return sum + Math.round(hoursWorked * performanceFeeVND);
+		}, 0);
+
+		await updateDoc(doc(db, COLLECTION_NAME, contractId), {
+			contractValue: totalClientBilling,
+			updatedAt: serverTimestamp()
+		});
+	} catch (error) {
+		logger.error('Error syncing contract value:', error);
+		throw new Error('Failed to sync contract value');
+	}
+}
+
+// ==========================================
 // Monthly Contract Generation
 // ==========================================
 

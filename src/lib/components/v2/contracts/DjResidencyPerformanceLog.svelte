@@ -4,7 +4,8 @@
 		subscribeToPerformances,
 		addPerformance,
 		updatePerformance,
-		deletePerformance
+		deletePerformance,
+		syncContractValue
 	} from '$lib/utils/v2/djResidencyContracts';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import { performerContractorSchema } from '$lib/schemas/v2/counterparty';
@@ -102,6 +103,12 @@
 				isLoading = false;
 			}
 		);
+
+		// Lazy migration: sync contractValue from actual performance totals.
+		// Handles contracts created before this field was tracked.
+		syncContractValue(contract.id, contract.performanceFeeVND).catch((err) => {
+			logger.error('Failed to sync contract value on mount:', err);
+		});
 
 		return () => {
 			unsubscribe?.();
@@ -244,6 +251,7 @@
 				invoiced: false,
 				invoiceMonth: null
 			});
+			await syncContractValue(contract.id, contract.performanceFeeVND);
 
 			toast.success('Performance logged successfully!');
 			resetForm();
@@ -261,6 +269,7 @@
 
 		try {
 			await deletePerformance(contract.id, performanceId);
+			await syncContractValue(contract.id, contract.performanceFeeVND);
 			toast.success('Performance deleted');
 		} catch (error) {
 			toast.error('Failed to delete performance');
@@ -304,6 +313,7 @@
 				performerPayVND: editPerformerPayVND,
 				notes: editNotes || null
 			});
+			await syncContractValue(contract.id, contract.performanceFeeVND);
 			toast.success('Performance updated');
 			editingId = null;
 		} catch (error) {
@@ -348,25 +358,23 @@
 					<label for="performerId" class="block text-sm font-medium text-gray-700 mb-1">
 						Performer <span class="text-red-500">*</span>
 					</label>
-					<div class="flex gap-2">
-						<select
-							id="performerId"
-							bind:value={performerId}
-							class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-						>
-							<option value="">Select a performer</option>
-							{#each performerCounterparties as performer (performer.id)}
-								<option value={performer.id}>{performer.stageName || performer.name}</option>
-							{/each}
-						</select>
-						<button
-							type="button"
-							onclick={() => (showCreatePerformer = !showCreatePerformer)}
-							class="px-3 py-2 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100 whitespace-nowrap"
-						>
-							+ New
-						</button>
-					</div>
+					<select
+						id="performerId"
+						bind:value={performerId}
+						onchange={() => {
+							if (performerId === '__new__') {
+								performerId = '';
+								showCreatePerformer = true;
+							}
+						}}
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					>
+						<option value="">Select a performer</option>
+						<option value="__new__">+ New Performer</option>
+						{#each performerCounterparties as performer (performer.id)}
+							<option value={performer.id}>{performer.stageName || performer.name}</option>
+						{/each}
+					</select>
 				</div>
 				<div>
 					<label for="hoursWorked" class="block text-sm font-medium text-gray-700 mb-1">

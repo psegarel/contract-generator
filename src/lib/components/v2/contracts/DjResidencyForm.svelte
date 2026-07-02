@@ -161,7 +161,7 @@
 				eventName: null,
 				paymentDirection: 'receivable',
 				paymentStatus: formState.paymentStatus,
-				contractValue: 0, // DJ Residency has no fixed value initially
+				contractValue: 0, // Computed from performance logs via syncContractValue
 				currency: 'VND',
 				notes: formState.notes || null,
 
