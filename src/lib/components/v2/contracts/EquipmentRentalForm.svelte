@@ -243,7 +243,7 @@
 							rentalStartDate: contractData.rentalStartDate,
 							rentalEndDate: contractData.rentalEndDate,
 							monthlyRent: formState.monthlyRent
-						} as any,
+						},
 						installments
 					);
 				}

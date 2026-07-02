@@ -16,7 +16,24 @@ import {
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { Payment } from '$lib/types/v2/payment';
-import type { BaseContract, ContractType } from '$lib/types/v2';
+import type { BaseContract, ContractType, PaymentDirection, PaymentStatus } from '$lib/types/v2';
+
+/**
+ * Minimal contract fields needed to create payment records.
+ * Avoids requiring the full BaseContract (with timestamps, etc.)
+ * when creating payments from form data.
+ */
+export interface PaymentContractInput {
+	id: string;
+	type: ContractType;
+	contractNumber: string;
+	counterpartyName: string;
+	paymentDirection: PaymentDirection;
+	paymentStatus: PaymentStatus;
+	contractValue: number;
+	currency: 'VND';
+	ownerUid: string;
+}
 import { paymentInputSchema, type PaymentInput } from '$lib/schemas/v2/payment';
 import { logger } from '../logger';
 import {
@@ -86,7 +103,7 @@ export async function createPayment(data: PaymentInput): Promise<string> {
  * Create recurring (monthly) payment records for an equipment rental contract
  */
 export async function createRecurringPayments(
-	contract: BaseContract & { rentalStartDate: string; rentalEndDate: string; monthlyRent: number },
+	contract: PaymentContractInput & { rentalStartDate: string; rentalEndDate: string; monthlyRent: number },
 	installments: { label: string; dueDate: Date; amount: number }[]
 ): Promise<string[]> {
 	const ids: string[] = [];
@@ -117,7 +134,7 @@ export async function createRecurringPayments(
  * @param paymentDueDate - ISO date string for when payment is due
  */
 export async function createOneTimePayment(
-	contract: BaseContract,
+	contract: PaymentContractInput,
 	paymentDueDate: string
 ): Promise<string> {
 	// Convert ISO date string to Timestamp

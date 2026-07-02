@@ -175,7 +175,7 @@ import { logger } from '$lib/utils/logger';
 						contractValue: contractData.contractValue,
 						currency: contractData.currency,
 						ownerUid: contractData.ownerUid
-					} as any,
+					},
 					contractData.paymentDueDate
 				);
 			} catch (paymentError) {

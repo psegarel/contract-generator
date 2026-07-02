@@ -419,6 +419,96 @@ export async function deletePerformance(contractId: string, performanceId: strin
 }
 
 // ==========================================
+// Performance Log — High-Level Operations
+// ==========================================
+
+export interface PerformanceFormData {
+	date: string;
+	performerId: string;
+	hoursWorked: number;
+	performerSharePercentage: number;
+	notes: string;
+	performerPayVND: number;
+}
+
+function resolvePerformerName(
+	performerId: string,
+	performers: PerformerContractor[]
+): string {
+	const performer = performers.find((p) => p.id === performerId);
+	if (!performer) {
+		throw new Error('Performer not found');
+	}
+	return performer.stageName || performer.name;
+}
+
+/**
+ * Add a performance, then sync the contract value.
+ * Resolves performer name from the provided counterparties list.
+ */
+export async function addPerformanceAndSync(
+	contractId: string,
+	performanceFeeVND: number,
+	data: PerformanceFormData,
+	performers: PerformerContractor[]
+): Promise<void> {
+	if (!data.date) throw new Error('Please select a date');
+	if (!data.performerId) throw new Error('Please select a performer');
+
+	const performerName = resolvePerformerName(data.performerId, performers);
+
+	await addPerformance(contractId, {
+		date: data.date,
+		performerId: data.performerId,
+		performerName,
+		hoursWorked: data.hoursWorked,
+		performerSharePercentage: data.performerSharePercentage,
+		performerPayVND: data.performerPayVND,
+		notes: data.notes || null,
+		invoiced: false,
+		invoiceMonth: null
+	});
+	await syncContractValue(contractId, performanceFeeVND);
+}
+
+/**
+ * Update a performance, then sync the contract value.
+ * Resolves performer name from the provided counterparties list.
+ */
+export async function updatePerformanceAndSync(
+	contractId: string,
+	performanceId: string,
+	performanceFeeVND: number,
+	data: PerformanceFormData,
+	performers: PerformerContractor[]
+): Promise<void> {
+	const performerName = resolvePerformerName(data.performerId, performers);
+
+	await updatePerformance(contractId, performanceId, {
+		date: data.date,
+		performerId: data.performerId,
+		performerName,
+		hoursWorked: data.hoursWorked,
+		performerSharePercentage: data.performerSharePercentage,
+		performerPayVND: data.performerPayVND,
+		notes: data.notes || null
+	});
+	await syncContractValue(contractId, performanceFeeVND);
+}
+
+/**
+ * Delete a performance, then sync the contract value.
+ */
+export async function deletePerformanceAndSync(
+	contractId: string,
+	performanceId: string,
+	performanceFeeVND: number
+): Promise<void> {
+	await deletePerformance(contractId, performanceId);
+	await syncContractValue(contractId, performanceFeeVND);
+}
+
+// ==========================================
 // Contract Value Sync
 // ==========================================
 
