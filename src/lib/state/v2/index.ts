@@ -12,6 +12,10 @@ export {
 	EquipmentRentalContractState
 } from './equipmentRentalContractState.svelte';
 export {
+	equipmentRentalOneOffContractState,
+	EquipmentRentalOneOffContractState
+} from './equipmentRentalOneOffContractState.svelte';
+export {
 	serviceProvisionContractState,
 	ServiceProvisionContractState
 } from './serviceProvisionContractState.svelte';
@@ -44,3 +48,4 @@ export { ServiceProviderFormState } from './serviceProviderFormState.svelte';
 export { ClientFormState } from './clientFormState.svelte';
 export { EventFormState } from './eventFormState.svelte';
 export { EquipmentRentalContractFormState } from './equipmentRentalContractFormState.svelte';
+export { EquipmentRentalOneOffContractFormState } from './equipmentRentalOneOffContractFormState.svelte';

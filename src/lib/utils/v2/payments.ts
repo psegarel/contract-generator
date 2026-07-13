@@ -49,6 +49,7 @@ import { updatePerformerBookingContractPaymentStatus } from './performerBookingC
 import { updateEquipmentRentalContractPaymentStatus } from './equipmentRentalContracts';
 import { updateSubcontractorContractPaymentStatus } from './subcontractorContracts';
 import { updateClientServiceContractPaymentStatus } from './clientServiceContracts';
+import { updateEquipmentRentalOneOffContractPaymentStatus } from './equipmentRentalOneOffContracts';
 
 const COLLECTION_NAME = 'payments';
 
@@ -250,6 +251,7 @@ export async function syncContractStatusFromPayments(
 		'venue-rental': updateVenueRentalContractPaymentStatus,
 		'performer-booking': updatePerformerBookingContractPaymentStatus,
 		'equipment-rental': updateEquipmentRentalContractPaymentStatus,
+		'equipment-rental-oneoff': updateEquipmentRentalOneOffContractPaymentStatus,
 		subcontractor: updateSubcontractorContractPaymentStatus,
 		'client-service': updateClientServiceContractPaymentStatus,
 		'dj-residency': async (id: string, status: 'unpaid' | 'paid', uid: string) => {

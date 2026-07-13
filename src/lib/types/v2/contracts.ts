@@ -289,12 +289,60 @@ export interface PerformanceLog {
 }
 
 /**
+ * Equipment Rental One-Off Contract
+ * - Single-event equipment rental referencing an external quotation
+ * - Always receivable (we rent equipment out to clients)
+ * - All monetary amounts are NET of VAT (VAT added on invoice)
+ */
+export interface EquipmentRentalOneOffContract extends BaseContract {
+	type: 'equipment-rental-oneoff';
+	paymentDirection: 'receivable';
+
+	// External quotation reference
+	quotationReference: string; // Reference number linking to external quotation (PDF/Excel)
+
+	// Event details
+	eventName: string; // Name of the event
+	eventDate: string; // ISO date - the single event date
+
+	// Setup & collection (ISO datetime strings)
+	setupDateTime: string; // Deadline for delivery, install and test
+	collectionDateTime: string; // Deadline for dismantling and collection
+
+	// Venue/delivery location
+	venueName: string; // Vietnamese
+	venueNameEnglish: string;
+	venueAddress: string; // Vietnamese
+	venueAddressEnglish: string;
+
+	// Financial (all amounts NET of VAT)
+	deposit: number; // Deposit amount, net of VAT (VND)
+	vatRate: number; // VAT rate as integer (e.g., 8 for 8%)
+	replacementValue: number; // Total replacement value of equipment, net of VAT (VND)
+
+	// Payment terms
+	balancePaymentDays: number; // Days after event completion for balance payment
+	latePaymentPenaltyRate: number; // Daily late payment interest (e.g., 0.1 for 0.1%/day)
+	latePaymentPenaltyCap: number; // Cap on total late interest (e.g., 8 for 8%)
+
+	// Cancellation terms
+	cancellationTier1Days: number; // Cancel this many days+ before event
+	cancellationTier1Percent: number; // Fee owed (% of rental fee)
+	cancellationTier2Days: number; // Cancel within this many days of event
+	cancellationTier2Percent: number; // Fee owed (% of rental fee)
+
+	// Equipment list (Annex 1 body text)
+	equipmentList: string;
+}
+
+/**
  * Union type for all contract types
  */
 export type Contract =
 	| VenueRentalContract
 	| PerformerBookingContract
 	| EquipmentRentalContract
+	| EquipmentRentalOneOffContract
 	| ServiceProvisionContract
 	| EventPlanningContract
 	| SubcontractorContract

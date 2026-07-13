@@ -27,6 +27,7 @@
 			'venue-rental': 'Venue',
 			'performer-booking': 'Performer',
 			'equipment-rental': 'Equipment',
+			'equipment-rental-oneoff': 'Equipment (One-Off)',
 			'service-provision': 'Service',
 			'event-planning': 'Event Planning',
 			subcontractor: 'Subcontractor',

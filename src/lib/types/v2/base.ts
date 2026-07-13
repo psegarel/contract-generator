@@ -20,6 +20,7 @@ export type ContractType =
 	| 'venue-rental' // We rent a venue (payable)
 	| 'performer-booking' // We book a performer (payable or receivable)
 	| 'equipment-rental' // We rent equipment to/from someone
+	| 'equipment-rental-oneoff' // One-off equipment rental with external quotation (receivable)
 	| 'service-provision' // We provide AV/tech services (receivable)
 	| 'event-planning' // We organize full event (receivable)
 	| 'subcontractor' // We hire subcontractor (payable)

@@ -10,6 +10,7 @@ export const baseContractSchema = z.object({
 		'venue-rental',
 		'performer-booking',
 		'equipment-rental',
+		'equipment-rental-oneoff',
 		'service-provision',
 		'event-planning',
 		'subcontractor',

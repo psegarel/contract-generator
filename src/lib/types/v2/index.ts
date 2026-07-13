@@ -27,6 +27,7 @@ export type {
 	VenueRentalContract,
 	PerformerBookingContract,
 	EquipmentRentalContract,
+	EquipmentRentalOneOffContract,
 	EquipmentItem,
 	ServiceProvisionContract,
 	EventPlanningContract,

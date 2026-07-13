@@ -1,15 +1,17 @@
 import type { BaseContract, ClientCounterparty } from '$lib/types/v2';
-import type { ServiceProvisionContract, EventPlanningContract, EquipmentRentalContract, DjResidencyContract } from '$lib/types/v2/contracts';
+import type { ServiceProvisionContract, EventPlanningContract, EquipmentRentalContract, EquipmentRentalOneOffContract, DjResidencyContract } from '$lib/types/v2/contracts';
 import { getCounterpartyById } from './counterparties';
 import { toast } from 'svelte-sonner';
 import { deleteServiceProvisionContract } from './serviceProvisionContracts';
 import { deleteEventPlanningContract } from './eventPlanningContracts';
 import { deleteEquipmentRentalContract } from './equipmentRentalContracts';
+import { deleteEquipmentRentalOneOffContract } from './equipmentRentalOneOffContracts';
 import { deleteDjResidencyContract } from './djResidencyContracts';
 import { deletePaymentsByContract } from './payments';
 import { generateServiceContract } from '../serviceContractGenerator';
 import { generateEventPlanningContract } from '../eventPlanningContractGenerator';
 import { generateEquipmentRentalContract } from '../equipmentRentalContractGenerator';
+import { generateEquipmentRentalOneOffContract } from '../equipmentRentalOneOffContractGenerator';
 import { generateDjResidencyContract } from '../djResidencyContractGenerator';
 import { logger } from '../logger';
 
@@ -18,8 +20,8 @@ import { logger } from '../logger';
  * Supports service-provision, event-planning, and equipment-rental contracts
  */
 export async function downloadContract(contract: BaseContract): Promise<void> {
-	if (contract.type !== 'service-provision' && contract.type !== 'event-planning' && contract.type !== 'equipment-rental' && contract.type !== 'dj-residency') {
-		toast.error('Download is only available for service-provision, event-planning, equipment-rental, and dj-residency contracts');
+	if (contract.type !== 'service-provision' && contract.type !== 'event-planning' && contract.type !== 'equipment-rental' && contract.type !== 'equipment-rental-oneoff' && contract.type !== 'dj-residency') {
+		toast.error('Download is only available for service-provision, event-planning, equipment-rental, equipment-rental-oneoff, and dj-residency contracts');
 		return;
 	}
 
@@ -117,6 +119,12 @@ export async function downloadContract(contract: BaseContract): Promise<void> {
 			const filename = `Equipment-Rental-Contract-${equipmentRentalContract.contractNumber}.docx`;
 			await saveFile(blob, filename);
 			toast.success('Contract downloaded successfully!');
+		} else if (contract.type === 'equipment-rental-oneoff') {
+			const equipmentRentalOneOffContract = contract as EquipmentRentalOneOffContract;
+			const blob = await generateEquipmentRentalOneOffContract(equipmentRentalOneOffContract);
+			const filename = `Equipment-Rental-OneOff-${equipmentRentalOneOffContract.contractNumber}.docx`;
+			await saveFile(blob, filename);
+			toast.success('Contract downloaded successfully!');
 		} else if (contract.type === 'dj-residency') {
 			const djResidencyContract = contract as DjResidencyContract;
 			const venueCounterparty = await getCounterpartyById(djResidencyContract.counterpartyId);
@@ -200,8 +208,8 @@ export async function deleteContract(
 		return;
 	}
 
-	if (contract.type !== 'service-provision' && contract.type !== 'event-planning' && contract.type !== 'equipment-rental' && contract.type !== 'dj-residency') {
-		toast.error('Delete is only available for service-provision, event-planning, equipment-rental, and dj-residency contracts');
+	if (contract.type !== 'service-provision' && contract.type !== 'event-planning' && contract.type !== 'equipment-rental' && contract.type !== 'equipment-rental-oneoff' && contract.type !== 'dj-residency') {
+		toast.error('Delete is only available for service-provision, event-planning, equipment-rental, equipment-rental-oneoff, and dj-residency contracts');
 		return;
 	}
 
@@ -221,6 +229,8 @@ export async function deleteContract(
 			await deleteEventPlanningContract(contract.id);
 		} else if (contract.type === 'equipment-rental') {
 			await deleteEquipmentRentalContract(contract.id);
+		} else if (contract.type === 'equipment-rental-oneoff') {
+			await deleteEquipmentRentalOneOffContract(contract.id);
 		} else if (contract.type === 'dj-residency') {
 			await deleteDjResidencyContract(contract.id);
 		}

@@ -2,6 +2,7 @@
 export * from './venueRental';
 export * from './performerBooking';
 export * from './equipmentRental';
+export * from './equipmentRentalOneOff';
 export * from './serviceProvision';
 export * from './eventPlanning';
 export * from './subcontractor';

@@ -317,6 +317,28 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Equipment Rental One-Off Contracts (v2)
+    match /equipment-rental-oneoff-contracts/{contractId} {
+      // Any authenticated user can read
+      allow read: if isSignedIn();
+
+      // Create: must be signed-in
+      allow create: if isSignedIn();
+
+      // Update: any authenticated user can update
+      // But only admins can update payment status
+      allow update: if isSignedIn()
+        && (
+          // Regular update (non-payment fields)
+          (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
+          // OR admin updating payment status
+          || isAdmin()
+        );
+
+      // Delete: only admins can delete
+      allow delete: if isAdmin();
+    }
+
     // DJ Residency Contracts (v2)
     match /dj-residency-contracts/{contractId} {
       // Any authenticated user can read

@@ -33,6 +33,12 @@
 			direction: 'both'
 		},
 		{
+			value: 'equipment-rental-oneoff',
+			label: 'Equipment Rental (One-Off)',
+			description: 'One-off equipment rental with external quotation reference',
+			direction: 'receivable'
+		},
+		{
 			value: 'service-provision',
 			label: 'Service Provision',
 			description: 'We provide AV/technical services to a client',

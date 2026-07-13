@@ -4,6 +4,7 @@ import type {
 	ServiceProvisionContract,
 	VenueRentalContract,
 	EquipmentRentalContract,
+	EquipmentRentalOneOffContract,
 	PerformerBookingContract,
 	SubcontractorContract,
 	ClientServiceContract,
@@ -26,6 +27,8 @@ export function getContractDate(contract: BaseContract): string | null {
 			return venueDate ? venueDate.split('T')[0] : null;
 		case 'equipment-rental':
 			return (contract as EquipmentRentalContract).rentalStartDate;
+		case 'equipment-rental-oneoff':
+			return (contract as EquipmentRentalOneOffContract).eventDate;
 		case 'performer-booking':
 			return (contract as PerformerBookingContract).performanceDate;
 		case 'subcontractor':

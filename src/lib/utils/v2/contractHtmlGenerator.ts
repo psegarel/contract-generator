@@ -5,7 +5,8 @@ import DOMPurify from 'dompurify';
 import type {
 	ServiceProvisionContract,
 	EventPlanningContract,
-	EquipmentRentalContract
+	EquipmentRentalContract,
+	EquipmentRentalOneOffContract
 } from '$lib/types/v2/contracts';
 import {
 	transformServiceProvisionContractData,
@@ -680,6 +681,82 @@ export async function generateEquipmentRentalContractHtml(
 				stack: error.stack
 			});
 		}
+		throw error;
+	}
+}
+
+/**
+ * Generate HTML preview from equipment rental one-off contract
+ */
+export async function generateEquipmentRentalOneOffContractHtml(
+	contract: EquipmentRentalOneOffContract
+): Promise<string> {
+	try {
+		const response = await fetch('/_equipmentRentalOneOffTemplate.docx');
+		if (!response.ok) {
+			throw new Error(`Failed to load template: ${response.statusText}`);
+		}
+		const templateArrayBuffer = await response.arrayBuffer();
+		if (templateArrayBuffer.byteLength === 0) {
+			throw new Error('Template file is empty');
+		}
+
+		const zip = new PizZip(templateArrayBuffer);
+		const doc = new Docxtemplater(zip, {
+			paragraphLoop: true,
+			linebreaks: true,
+			delimiters: {
+				start: '{{',
+				end: '}}'
+			},
+			nullGetter() {
+				return '';
+			}
+		});
+
+		// Fetch counterparty data
+		const counterparty = contract.counterpartyId
+			? await getCounterpartyById(contract.counterpartyId)
+			: null;
+		const clientCounterparty =
+			counterparty?.type === 'client' ? (counterparty as any) : null;
+
+		// Import and use the shared render data builder
+		const { buildRenderData } = await import('../equipmentRentalOneOffContractGenerator');
+		const renderData = buildRenderData(contract, clientCounterparty);
+
+		doc.render(renderData);
+
+		const docxArrayBuffer = doc.getZip().generate({
+			type: 'arraybuffer'
+		});
+
+		const result = await mammoth.convertToHtml(
+			{ arrayBuffer: docxArrayBuffer },
+			{
+				styleMap: [
+					"p[style-name='Heading 1'] => h1:fresh",
+					"p[style-name='Heading 2'] => h2:fresh",
+					"p[style-name='Heading 3'] => h3:fresh"
+				]
+			}
+		);
+
+		const sanitizedHtml = DOMPurify.sanitize(result.value, {
+			USE_PROFILES: { html: true },
+			ALLOWED_TAGS: [
+				'p', 'br', 'strong', 'b', 'em', 'i', 'u',
+				'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+				'ul', 'ol', 'li',
+				'table', 'tr', 'td', 'th', 'tbody', 'thead',
+				'span', 'div'
+			],
+			ALLOWED_ATTR: ['style', 'class', 'colspan', 'rowspan', 'align']
+		});
+
+		return sanitizedHtml;
+	} catch (error) {
+		logger.error('Error generating equipment rental one-off contract HTML:', error);
 		throw error;
 	}
 }

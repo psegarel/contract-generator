@@ -1,7 +1,8 @@
-// Contract utilities - all 8 contract types
+// Contract utilities - all 9 contract types
 export * from './venueRentalContracts';
 export * from './performerBookingContracts';
 export * from './equipmentRentalContracts';
+export * from './equipmentRentalOneOffContracts';
 export * from './serviceProvisionContracts';
 export * from './eventPlanningContracts';
 export * from './subcontractorContracts';

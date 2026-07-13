@@ -3,12 +3,14 @@
 	import {
 		LayoutDashboard,
 		Users,
+		FilePlus,
 		FileText,
 		CalendarCheck,
 		FileCode,
 		Palette,
 		PanelLeft,
 		Package,
+		PackageOpen,
 		Wallet,
 		Disc
 	} from 'lucide-svelte';
@@ -37,6 +39,7 @@
 
 	const menuItems: MenuItem[] = [
 		{ icon: LayoutDashboard, label: 'Dashboard', href: resolve('/') },
+		{ icon: FilePlus, label: 'New Contract', href: resolve('/contracts') },
 		{
 			icon: FileText,
 			label: 'Service Contracts',
@@ -62,6 +65,15 @@
 			subItems: [
 				{ label: 'List', href: resolve('/contracts/equipment-rental/list') },
 				{ label: 'Create', href: resolve('/contracts/equipment-rental') }
+			]
+		},
+		{
+			icon: PackageOpen,
+			label: 'Equipment (One-Off)',
+			href: '#',
+			subItems: [
+				{ label: 'List', href: resolve('/contracts/equipment-rental-oneoff/list') },
+				{ label: 'Create', href: resolve('/contracts/equipment-rental-oneoff') }
 			]
 		},
 		{

@@ -10,6 +10,7 @@ export const paymentSchema = z
 			'venue-rental',
 			'performer-booking',
 			'equipment-rental',
+			'equipment-rental-oneoff',
 			'service-provision',
 			'event-planning',
 			'subcontractor',

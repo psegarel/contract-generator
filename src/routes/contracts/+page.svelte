@@ -9,6 +9,7 @@
 			'venue-rental': '/contracts/venue-rental',
 			'performer-booking': '/contracts/performer-booking',
 			'equipment-rental': '/contracts/equipment-rental',
+			'equipment-rental-oneoff': '/contracts/equipment-rental-oneoff',
 			'service-provision': '/contracts/service-provision',
 			'event-planning': '/contracts/event-planning',
 			subcontractor: '/contracts/subcontractor',
