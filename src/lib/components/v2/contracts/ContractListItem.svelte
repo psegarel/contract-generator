@@ -183,7 +183,7 @@
 			>
 				<Eye class="h-4 w-4" />
 			</Button>
-			{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'dj-residency'}
+			{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'equipment-rental-oneoff' || contract.type === 'dj-residency'}
 				<Button
 					variant="outline"
 					size="sm"
@@ -211,7 +211,7 @@
 		</div>
 
 		<!-- Delete Button -->
-		{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'dj-residency'}
+		{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'equipment-rental-oneoff' || contract.type === 'dj-residency'}
 			<div class="col-span-1 px-1 flex justify-center">
 				<Button
 					variant={authState.isAdmin ? 'destructive' : 'secondary'}

@@ -8,6 +8,7 @@
 		saveEquipmentRentalOneOffContract,
 		updateEquipmentRentalOneOffContract
 	} from '$lib/utils/v2/equipmentRentalOneOffContracts';
+	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState, eventState } from '$lib/state/v2';
 	import { EquipmentRentalOneOffContractFormState } from '$lib/state/v2/equipmentRentalOneOffContractFormState.svelte';
@@ -136,6 +137,29 @@
 				contractId = contract.id;
 			} else {
 				contractId = await saveEquipmentRentalOneOffContract(contractData);
+			}
+
+			// Create/recreate payment record
+			try {
+				if (contract) {
+					await deletePaymentsByContract(contractId);
+				}
+				await createOneTimePayment(
+					{
+						id: contractId,
+						type: contractData.type,
+						contractNumber: contractData.contractNumber,
+						counterpartyName: contractData.counterpartyName,
+						paymentDirection: contractData.paymentDirection,
+						paymentStatus: contractData.paymentStatus,
+						contractValue: contractData.contractValue,
+						currency: contractData.currency,
+						ownerUid: contractData.ownerUid
+					},
+					contractData.eventDate
+				);
+			} catch (paymentError) {
+				logger.error('Error creating payment record:', paymentError);
 			}
 
 			toast.success(

@@ -152,10 +152,12 @@
 			'venue-rental': 'Venue',
 			'performer-booking': 'Performer',
 			'equipment-rental': 'Equipment',
+			'equipment-rental-oneoff': 'Equipment (One-Off)',
 			'service-provision': 'Service',
 			'event-planning': 'Event Planning',
 			subcontractor: 'Subcontractor',
-			'client-service': 'Client Service'
+			'client-service': 'Client Service',
+			'dj-residency': 'DJ Residency'
 		};
 		return labels[type] ?? type;
 	}
@@ -210,10 +212,12 @@
 			<option value="venue-rental">Venue</option>
 			<option value="performer-booking">Performer</option>
 			<option value="equipment-rental">Equipment</option>
+			<option value="equipment-rental-oneoff">Equipment (One-Off)</option>
 			<option value="service-provision">Service</option>
 			<option value="event-planning">Event Planning</option>
 			<option value="subcontractor">Subcontractor</option>
 			<option value="client-service">Client Service</option>
+			<option value="dj-residency">DJ Residency</option>
 		</select>
 	</div>
 

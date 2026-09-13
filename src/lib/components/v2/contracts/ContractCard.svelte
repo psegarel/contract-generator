@@ -115,7 +115,7 @@
 			View
 		</Button>
 
-		{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+		{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'equipment-rental-oneoff' || contract.type === 'dj-residency'}
 			<Button
 				variant="outline"
 				size="sm"
@@ -141,7 +141,7 @@
 			</Button>
 		{/if}
 
-		{#if contract.type === 'service-provision' || contract.type === 'event-planning'}
+		{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'equipment-rental-oneoff' || contract.type === 'dj-residency'}
 			<Button
 				variant={authState.isAdmin ? 'destructive' : 'secondary'}
 				size="sm"
