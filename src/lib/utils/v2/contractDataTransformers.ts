@@ -282,9 +282,9 @@ export const eventPlanningContractViewDataSchema = z.object({
 	eventDurationEnglish: z.string(), // Can be empty
 	expectedAttendance: z.string(), // Normalized: always string (empty if null)
 	contractValueVND: z.string().min(1), // Formatted currency
-	vatRate: z.string().regex(/^\d+%$/), // Formatted as percentage
-	depositPercentage: z.string().regex(/^\d+%$/), // Formatted as percentage
-	finalPaymentPercentage: z.string().regex(/^\d+%$/), // Formatted as percentage
+	vatRate: z.string().regex(/^\d+$/), // Plain number — template adds % suffix
+	depositPercentage: z.string().regex(/^\d+$/), // Plain number — template adds % suffix
+	finalPaymentPercentage: z.string().regex(/^\d+$/), // Plain number — template adds % suffix
 	professionalIndemnityAmount: z.string().min(1), // Formatted currency
 	publicLiabilityAmount: z.string().min(1), // Formatted currency
 	planningMeetingDays: z.number().min(0),
@@ -322,7 +322,6 @@ export async function transformEventPlanningContractData(
 		eventThemeVN,
 		eventTypeVN,
 		eventDescriptionVN,
-		eventVenueVN,
 		eventDurationVN,
 		arbitrationLocationVN
 	] = (await Promise.all([
@@ -335,10 +334,9 @@ export async function transformEventPlanningContractData(
 		contract.eventDescription
 			? translateToVietnamese(contract.eventDescription)
 			: Promise.resolve(''),
-		translateToVietnamese(contract.eventVenue),
 		contract.eventDuration ? translateToVietnamese(contract.eventDuration) : Promise.resolve(''),
 		translateToVietnamese(contract.arbitrationLocation)
-	])) as [string, string, string, string, string, string, string, string, string, string];
+	])) as [string, string, string, string, string, string, string, string, string];
 
 	// Format dates
 	const contractDateVietnamese = formatDateVietnamese(contract.contractDate);
@@ -353,10 +351,10 @@ export async function transformEventPlanningContractData(
 	);
 	const publicLiabilityAmountFormatted = formatCurrency(contract.publicLiabilityAmount);
 
-	// Format percentages
-	const vatRateFormatted = `${contract.vatRate}%`;
-	const depositPercentageFormatted = `${contract.depositPercentage}%`;
-	const finalPaymentPercentageFormatted = `${contract.finalPaymentPercentage}%`;
+	// Percentage values — template already has the % suffix
+	const vatRateFormatted = `${contract.vatRate}`;
+	const depositPercentageFormatted = `${contract.depositPercentage}`;
+	const finalPaymentPercentageFormatted = `${contract.finalPaymentPercentage}`;
 
 	const result: EventPlanningContractViewData = {
 		contractNumber,
@@ -379,7 +377,7 @@ export async function transformEventPlanningContractData(
 		eventTypeEnglish: contract.eventType ?? '', // Normalize null to empty string
 		eventDescriptionVietnamese: eventDescriptionVN,
 		eventDescriptionEnglish: contract.eventDescription ?? '', // Normalize null to empty string
-		eventVenueVietnamese: eventVenueVN,
+		eventVenueVietnamese: contract.eventVenue,
 		eventVenueEnglish: contract.eventVenue,
 		eventDateVietnamese,
 		eventDateEnglish,

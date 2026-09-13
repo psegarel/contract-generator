@@ -41,7 +41,6 @@ export const generateEventPlanningContract = async (
 			eventThemeVN,
 			eventTypeVN,
 			eventDescriptionVN,
-			eventVenueVN,
 			eventDurationVN,
 			arbitrationLocationVN
 		] = await Promise.all([
@@ -52,7 +51,6 @@ export const generateEventPlanningContract = async (
 			data.eventTheme ? translateToVietnamese(data.eventTheme) : Promise.resolve(''),
 			data.eventType ? translateToVietnamese(data.eventType) : Promise.resolve(''),
 			data.eventDescription ? translateToVietnamese(data.eventDescription) : Promise.resolve(''),
-			translateToVietnamese(data.eventVenue),
 			data.eventDuration ? translateToVietnamese(data.eventDuration) : Promise.resolve(''),
 			translateToVietnamese(data.arbitrationLocation)
 		]);
@@ -90,7 +88,7 @@ export const generateEventPlanningContract = async (
 			eventTypeEnglish: data.eventType || '',
 			eventDescriptionVietnamese: eventDescriptionVN,
 			eventDescriptionEnglish: data.eventDescription || '',
-			eventVenueVietnamese: eventVenueVN,
+			eventVenueVietnamese: data.eventVenue,
 			eventVenueEnglish: data.eventVenue,
 			eventDateVietnamese,
 			eventDateEnglish,
@@ -100,9 +98,9 @@ export const generateEventPlanningContract = async (
 
 			// Financial Terms
 			contractValueVND: formatCurrency(data.contractValueVND),
-			vatRate: `${data.vatRate}%`,
-			depositPercentage: `${data.depositPercentage}%`,
-			finalPaymentPercentage: `${data.finalPaymentPercentage}%`,
+			vatRate: data.vatRate,
+			depositPercentage: data.depositPercentage,
+			finalPaymentPercentage: data.finalPaymentPercentage,
 			professionalIndemnityAmount: formatCurrency(data.professionalIndemnityAmount),
 			publicLiabilityAmount: formatCurrency(data.publicLiabilityAmount),
 
