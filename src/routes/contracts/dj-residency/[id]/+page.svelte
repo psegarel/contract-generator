@@ -5,6 +5,7 @@
 	import { Edit, Download, ArrowLeft } from 'lucide-svelte';
 	import { formatCurrency, formatDateString } from '$lib/utils/formatting';
 	import { generateDjResidencyContract } from '$lib/utils/djResidencyContractGenerator';
+	import { injectRepublicHeaderIntoDocx } from '$lib/utils/contractHeader';
 	import { toast } from 'svelte-sonner';
 	import { logger } from '$lib/utils/logger';
 	import DjResidencyPerformanceLog from '$lib/components/v2/contracts/DjResidencyPerformanceLog.svelte';
@@ -17,7 +18,8 @@
 	async function handleDownload() {
 		isDownloading = true;
 		try {
-			const blob = await generateDjResidencyContract(data.contract, data.venueCounterparty);
+			const rawBlob = await generateDjResidencyContract(data.contract, data.venueCounterparty);
+			const blob = await injectRepublicHeaderIntoDocx(rawBlob);
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement('a');
 			a.href = url;

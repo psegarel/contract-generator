@@ -14,6 +14,7 @@ import { generateEquipmentRentalContract } from '../equipmentRentalContractGener
 import { generateEquipmentRentalOneOffContract } from '../equipmentRentalOneOffContractGenerator';
 import { generateDjResidencyContract } from '../djResidencyContractGenerator';
 import { logger } from '../logger';
+import { injectRepublicHeaderIntoDocx } from '../contractHeader';
 
 /**
  * Download a contract as a Word document
@@ -147,7 +148,10 @@ export async function downloadContract(contract: BaseContract): Promise<void> {
 /**
  * Save a file using File System Access API with fallback to download
  */
-async function saveFile(blob: Blob, filename: string): Promise<void> {
+async function saveFile(rawBlob: Blob, filename: string): Promise<void> {
+	// Inject Vietnamese Republic header into the DOCX before saving
+	const blob = await injectRepublicHeaderIntoDocx(rawBlob);
+
 	// Try File System Access API
 	if ('showSaveFilePicker' in window) {
 		try {

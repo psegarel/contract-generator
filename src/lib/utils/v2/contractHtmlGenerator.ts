@@ -24,6 +24,38 @@ import {
 	daysToVietnameseWords,
 	daysToEnglishWords
 } from '../numberToWords';
+import { REPUBLIC_HEADER_HTML } from '../contractHeader';
+
+/**
+ * Shared pipeline: convert a rendered DOCX ArrayBuffer to sanitized HTML
+ * with the Vietnamese Republic header prepended.
+ */
+async function convertDocxToHtml(docxArrayBuffer: ArrayBuffer): Promise<string> {
+	const result = await mammoth.convertToHtml(
+		{ arrayBuffer: docxArrayBuffer },
+		{
+			styleMap: [
+				"p[style-name='Heading 1'] => h1:fresh",
+				"p[style-name='Heading 2'] => h2:fresh",
+				"p[style-name='Heading 3'] => h3:fresh"
+			]
+		}
+	);
+
+	const sanitizedHtml = DOMPurify.sanitize(result.value, {
+		USE_PROFILES: { html: true },
+		ALLOWED_TAGS: [
+			'p', 'br', 'strong', 'b', 'em', 'i', 'u',
+			'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+			'ul', 'ol', 'li',
+			'table', 'tr', 'td', 'th', 'tbody', 'thead',
+			'span', 'div'
+		],
+		ALLOWED_ATTR: ['style', 'class', 'colspan', 'rowspan', 'align']
+	});
+
+	return REPUBLIC_HEADER_HTML + sanitizedHtml;
+}
 
 /**
  * Generate HTML preview from service provision contract
@@ -89,56 +121,8 @@ export async function generateServiceProvisionContractHtml(
 			endDate: viewData.endDate
 		});
 
-		// Generate the rendered DOCX as an array buffer
-		const docxArrayBuffer = doc.getZip().generate({
-			type: 'arraybuffer'
-		});
-
-		// Convert DOCX to HTML using mammoth
-		const result = await mammoth.convertToHtml(
-			{ arrayBuffer: docxArrayBuffer },
-			{
-				styleMap: [
-					"p[style-name='Heading 1'] => h1:fresh",
-					"p[style-name='Heading 2'] => h2:fresh",
-					"p[style-name='Heading 3'] => h3:fresh"
-				]
-			}
-		);
-
-		// Sanitize HTML to prevent XSS attacks
-		const sanitizedHtml = DOMPurify.sanitize(result.value, {
-			USE_PROFILES: { html: true },
-			ALLOWED_TAGS: [
-				'p',
-				'br',
-				'strong',
-				'b',
-				'em',
-				'i',
-				'u',
-				'h1',
-				'h2',
-				'h3',
-				'h4',
-				'h5',
-				'h6',
-				'ul',
-				'ol',
-				'li',
-				'table',
-				'tr',
-				'td',
-				'th',
-				'tbody',
-				'thead',
-				'span',
-				'div'
-			],
-			ALLOWED_ATTR: ['style', 'class', 'colspan', 'rowspan', 'align']
-		});
-
-		return sanitizedHtml;
+		const docxArrayBuffer = doc.getZip().generate({ type: 'arraybuffer' });
+		return await convertDocxToHtml(docxArrayBuffer);
 	} catch (error) {
 		logger.error('Error generating service provision contract HTML:', error);
 		throw error;
@@ -233,56 +217,8 @@ export async function generateEventPlanningContractHtml(
 			arbitrationLanguage: viewData.arbitrationLanguage
 		});
 
-		// Generate the rendered DOCX as an array buffer
-		const docxArrayBuffer = doc.getZip().generate({
-			type: 'arraybuffer'
-		});
-
-		// Convert DOCX to HTML using mammoth
-		const result = await mammoth.convertToHtml(
-			{ arrayBuffer: docxArrayBuffer },
-			{
-				styleMap: [
-					"p[style-name='Heading 1'] => h1:fresh",
-					"p[style-name='Heading 2'] => h2:fresh",
-					"p[style-name='Heading 3'] => h3:fresh"
-				]
-			}
-		);
-
-		// Sanitize HTML to prevent XSS attacks
-		const sanitizedHtml = DOMPurify.sanitize(result.value, {
-			USE_PROFILES: { html: true },
-			ALLOWED_TAGS: [
-				'p',
-				'br',
-				'strong',
-				'b',
-				'em',
-				'i',
-				'u',
-				'h1',
-				'h2',
-				'h3',
-				'h4',
-				'h5',
-				'h6',
-				'ul',
-				'ol',
-				'li',
-				'table',
-				'tr',
-				'td',
-				'th',
-				'tbody',
-				'thead',
-				'span',
-				'div'
-			],
-			ALLOWED_ATTR: ['style', 'class', 'colspan', 'rowspan', 'align']
-		});
-
-		return sanitizedHtml;
+		const docxArrayBuffer = doc.getZip().generate({ type: 'arraybuffer' });
+		return await convertDocxToHtml(docxArrayBuffer);
 	} catch (error) {
 		logger.error('Error generating event planning contract HTML:', error);
 		throw error;
@@ -617,62 +553,13 @@ export async function generateEquipmentRentalContractHtml(
 			throw new Error(`Template rendering failed: ${renderError.message}. The error "Duplicate open tag" for {{contractNumber}} usually means the placeholder in the footer is split by formatting. To fix: 1) Go to the footer, 2) Select the entire {{contractNumber}} placeholder (including {{ and }}), 3) Remove any formatting (bold/italic), 4) If it's still split, delete it and retype it as one continuous string.`);
 		}
 
-		// Generate the rendered DOCX as an array buffer
 		logger.info('[Stage 7] Generating DOCX array buffer');
-		const docxArrayBuffer = doc.getZip().generate({
-			type: 'arraybuffer'
-		});
-		logger.info('[Stage 7] DOCX generated', { size: docxArrayBuffer.byteLength, sizeKB: Math.round(docxArrayBuffer.byteLength / 1024) });
+		const docxArrayBuffer = doc.getZip().generate({ type: 'arraybuffer' });
+		logger.info('[Stage 7] DOCX generated, converting to HTML');
 
-		// Convert DOCX to HTML using mammoth
-		logger.info('[Stage 7] Converting DOCX to HTML using mammoth');
-		const result = await mammoth.convertToHtml(
-			{ arrayBuffer: docxArrayBuffer },
-			{
-				styleMap: [
-					"p[style-name='Heading 1'] => h1:fresh",
-					"p[style-name='Heading 2'] => h2:fresh",
-					"p[style-name='Heading 3'] => h3:fresh"
-				]
-			}
-		);
-		logger.info('[Stage 7] DOCX converted to HTML', { htmlLength: result.value.length });
-
-		// Sanitize HTML to prevent XSS attacks
-		logger.info('[Stage 7] Sanitizing HTML');
-		const sanitizedHtml = DOMPurify.sanitize(result.value, {
-			USE_PROFILES: { html: true },
-			ALLOWED_TAGS: [
-				'p',
-				'br',
-				'strong',
-				'b',
-				'em',
-				'i',
-				'u',
-				'h1',
-				'h2',
-				'h3',
-				'h4',
-				'h5',
-				'h6',
-				'ul',
-				'ol',
-				'li',
-				'table',
-				'tr',
-				'td',
-				'th',
-				'tbody',
-				'thead',
-				'span',
-				'div'
-			],
-			ALLOWED_ATTR: ['style', 'class', 'colspan', 'rowspan', 'align']
-		});
-
-		logger.info('[Stage 7] HTML generation complete', { htmlLength: sanitizedHtml.length });
-		return sanitizedHtml;
+		const html = await convertDocxToHtml(docxArrayBuffer);
+		logger.info('[Stage 7] HTML generation complete', { htmlLength: html.length });
+		return html;
 	} catch (error) {
 		logger.error('[FATAL] Error generating equipment rental contract HTML:', error);
 		if (error instanceof Error) {
@@ -727,34 +614,8 @@ export async function generateEquipmentRentalOneOffContractHtml(
 
 		doc.render(renderData);
 
-		const docxArrayBuffer = doc.getZip().generate({
-			type: 'arraybuffer'
-		});
-
-		const result = await mammoth.convertToHtml(
-			{ arrayBuffer: docxArrayBuffer },
-			{
-				styleMap: [
-					"p[style-name='Heading 1'] => h1:fresh",
-					"p[style-name='Heading 2'] => h2:fresh",
-					"p[style-name='Heading 3'] => h3:fresh"
-				]
-			}
-		);
-
-		const sanitizedHtml = DOMPurify.sanitize(result.value, {
-			USE_PROFILES: { html: true },
-			ALLOWED_TAGS: [
-				'p', 'br', 'strong', 'b', 'em', 'i', 'u',
-				'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-				'ul', 'ol', 'li',
-				'table', 'tr', 'td', 'th', 'tbody', 'thead',
-				'span', 'div'
-			],
-			ALLOWED_ATTR: ['style', 'class', 'colspan', 'rowspan', 'align']
-		});
-
-		return sanitizedHtml;
+		const docxArrayBuffer = doc.getZip().generate({ type: 'arraybuffer' });
+		return await convertDocxToHtml(docxArrayBuffer);
 	} catch (error) {
 		logger.error('Error generating equipment rental one-off contract HTML:', error);
 		throw error;
