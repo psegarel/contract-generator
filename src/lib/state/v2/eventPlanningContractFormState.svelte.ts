@@ -1,4 +1,4 @@
-import type { EventPlanningContract, ClientCounterparty } from '$lib/types/v2';
+import type { EventPlanningContract, ClientCounterparty, Event } from '$lib/types/v2';
 
 /**
  * Form state class for Event Planning Contract forms
@@ -62,6 +62,31 @@ export class EventPlanningContractFormState {
 	// UI state
 	isSubmitting = $state(false);
 	error = $state<string | null>(null);
+
+	// Inline counterparty creation
+	showCreateCounterparty = $state(false);
+	isCreatingCounterparty = $state(false);
+	newCounterpartyName = $state('');
+	newCounterpartyEmail = $state('');
+	newCounterpartyPhone = $state('');
+	newCounterpartyAddress = $state('');
+	newCounterpartyCompanyName = $state('');
+	newCounterpartyTaxId = $state('');
+	newCounterpartyRepresentativeName = $state('');
+	newCounterpartyRepresentativePosition = $state('');
+	newCounterpartyBankName = $state('');
+	newCounterpartyBankAccountNumber = $state('');
+
+	// Inline event creation
+	showCreateEvent = $state(false);
+	isCreatingEvent = $state(false);
+	newEventName = $state('');
+	newEventDate = $state('');
+	newEventType = $state('');
+	newEventDescription = $state('');
+	newEventLocationAddress = $state('');
+	newEventLocationName = $state('');
+	newEventExpectedAttendance = $state<number | null>(null);
 
 	/**
 	 * Initialize form state from an event planning contract
@@ -163,6 +188,31 @@ export class EventPlanningContractFormState {
 		this.paymentDueDate = '';
 		this.notes = '';
 		this.error = null;
+
+		// Inline counterparty creation
+		this.showCreateCounterparty = false;
+		this.isCreatingCounterparty = false;
+		this.newCounterpartyName = '';
+		this.newCounterpartyEmail = '';
+		this.newCounterpartyPhone = '';
+		this.newCounterpartyAddress = '';
+		this.newCounterpartyCompanyName = '';
+		this.newCounterpartyTaxId = '';
+		this.newCounterpartyRepresentativeName = '';
+		this.newCounterpartyRepresentativePosition = '';
+		this.newCounterpartyBankName = '';
+		this.newCounterpartyBankAccountNumber = '';
+
+		// Inline event creation
+		this.showCreateEvent = false;
+		this.isCreatingEvent = false;
+		this.newEventName = '';
+		this.newEventDate = '';
+		this.newEventType = '';
+		this.newEventDescription = '';
+		this.newEventLocationAddress = '';
+		this.newEventLocationName = '';
+		this.newEventExpectedAttendance = null;
 	}
 
 	/**
@@ -186,5 +236,19 @@ export class EventPlanningContractFormState {
 		this.clientTaxCode = client.taxId || '';
 		this.clientRepresentativeName = client.representativeName || '';
 		this.clientRepresentativePosition = client.representativePosition || '';
+	}
+
+	/**
+	 * Auto-fill event details from selected event
+	 */
+	fillFromEvent(event: Event | null) {
+		if (!event) return;
+
+		this.eventDate = event.eventDate;
+		this.eventVenue = event.locationAddress || '';
+		this.eventType = event.eventType || '';
+		this.eventDescription = event.description || '';
+		this.expectedAttendance =
+			event.expectedAttendance != null ? String(event.expectedAttendance) : '';
 	}
 }

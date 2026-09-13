@@ -1,17 +1,26 @@
 <script lang="ts">
 	import type { EventPlanningContract } from '$lib/types/v2';
+	import type { EventInput } from '$lib/types/v2/event';
 	import {
 		eventPlanningContractInputSchema,
 		type EventPlanningContractInput
 	} from '$lib/schemas/v2/contracts/eventPlanning';
-	import { saveEventPlanningContract, updateEventPlanningContract } from '$lib/utils/v2';
+	import { saveEventPlanningContract, updateEventPlanningContract, saveEvent } from '$lib/utils/v2';
 	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
+	import { saveCounterparty } from '$lib/utils/v2/counterparties';
+	import {
+		clientCounterpartySchema,
+		type ClientCounterpartyInput
+	} from '$lib/schemas/v2/counterparty';
+	import { eventInputSchema } from '$lib/schemas/v2';
+	import { Timestamp } from 'firebase/firestore';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
 	import { EventPlanningContractFormState } from '$lib/state/v2/eventPlanningContractFormState.svelte';
-import { Button } from '$lib/components/ui/button';
-import { onMount } from 'svelte';
-import { logger } from '$lib/utils/logger';
+	import { Button } from '$lib/components/ui/button';
+	import { onMount } from 'svelte';
+	import { logger } from '$lib/utils/logger';
+	import { toast } from 'svelte-sonner';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import EventPlanningContractBasicsSection from './sections/EventPlanningContractBasicsSection.svelte';
 	import EventPlanningCompanyInfoSection from './sections/EventPlanningCompanyInfoSection.svelte';
@@ -65,14 +74,177 @@ import { logger } from '$lib/utils/logger';
 		clients.find((c) => c.id === formState.counterpartyId)?.name || ''
 	);
 
+	// Handle event change - auto-fill event details for new contracts only
+	function handleEventChange() {
+		if (!contract && formState.eventId && events.length > 0) {
+			const selectedEvent = events.find((e) => e.id === formState.eventId);
+			if (selectedEvent) {
+				formState.fillFromEvent(selectedEvent);
+			}
+		}
+	}
+
 	// Handle counterparty change - auto-fill client details for new contracts only
 	function handleClientChange() {
-		// Only auto-fill for new contracts
 		if (!contract && formState.counterpartyId && clients.length > 0) {
 			const selectedClient = clients.find((c) => c.id === formState.counterpartyId);
 			if (selectedClient && selectedClient.type === 'client') {
 				formState.fillFromClient(selectedClient);
 			}
+		}
+	}
+
+	// Inline event creation
+	async function handleCreateEvent() {
+		if (!authState.user) {
+			toast.error('You must be logged in to create an event');
+			return;
+		}
+
+		if (!formState.newEventName) {
+			toast.error('Please fill in event name');
+			return;
+		}
+
+		if (!formState.newEventDate) {
+			toast.error('Please fill in event date');
+			return;
+		}
+
+		if (!formState.newEventLocationAddress) {
+			toast.error('Please fill in location address');
+			return;
+		}
+
+		formState.isCreatingEvent = true;
+		try {
+			const eventData: EventInput = {
+				ownerUid: authState.user.uid,
+				name: formState.newEventName,
+				eventDate: formState.newEventDate,
+				eventType: formState.newEventType || null,
+				description: formState.newEventDescription || null,
+				locationAddress: formState.newEventLocationAddress,
+				locationName: formState.newEventLocationName || null,
+				venueCounterpartyId: null,
+				startTime: null,
+				endTime: null,
+				setupDateTime: null,
+				teardownDateTime: null,
+				expectedAttendance: formState.newEventExpectedAttendance,
+				status: 'planning',
+				internalNotes: null
+			};
+
+			const validationResult = eventInputSchema.safeParse(eventData);
+			if (!validationResult.success) {
+				toast.error('Validation error: ' + validationResult.error.issues[0].message);
+				return;
+			}
+
+			const eventId = await saveEvent(eventData);
+
+			toast.success('Event created successfully!');
+
+			// Select the newly created event and auto-fill fields
+			formState.eventId = eventId;
+			formState.fillFromEvent({
+				...eventData,
+				id: eventId,
+				createdAt: Timestamp.now(),
+				updatedAt: Timestamp.now(),
+				contractIds: [],
+				totalReceivable: 0,
+				totalPayable: 0,
+				netRevenue: 0
+			});
+
+			// Reset inline form and hide
+			formState.newEventName = '';
+			formState.newEventDate = '';
+			formState.newEventType = '';
+			formState.newEventDescription = '';
+			formState.newEventLocationAddress = '';
+			formState.newEventLocationName = '';
+			formState.newEventExpectedAttendance = null;
+			formState.showCreateEvent = false;
+		} catch (e) {
+			logger.error('Error creating event:', e);
+			toast.error('Failed to create event');
+		} finally {
+			formState.isCreatingEvent = false;
+		}
+	}
+
+	// Inline counterparty creation
+	async function handleCreateCounterparty() {
+		if (!authState.user) {
+			toast.error('You must be logged in to create a counterparty');
+			return;
+		}
+
+		if (!formState.newCounterpartyName) {
+			toast.error('Please fill in counterparty name');
+			return;
+		}
+
+		formState.isCreatingCounterparty = true;
+		try {
+			const clientData: ClientCounterpartyInput = {
+				type: 'client',
+				clientType: 'company',
+				ownerUid: authState.user.uid,
+				name: formState.newCounterpartyName,
+				email: formState.newCounterpartyEmail || null,
+				phone: formState.newCounterpartyPhone || null,
+				address: formState.newCounterpartyAddress || null,
+				companyName: formState.newCounterpartyCompanyName || null,
+				taxId: formState.newCounterpartyTaxId || null,
+				bankName: formState.newCounterpartyBankName || null,
+				bankAccountNumber: formState.newCounterpartyBankAccountNumber || null,
+				representativeName: formState.newCounterpartyRepresentativeName || null,
+				representativePosition: formState.newCounterpartyRepresentativePosition || null,
+				idDocument: null,
+				notes: null,
+				createdAt: Timestamp.now(),
+				updatedAt: Timestamp.now()
+			};
+
+			const validationResult = clientCounterpartySchema.safeParse(clientData);
+			if (!validationResult.success) {
+				toast.error('Validation error: ' + validationResult.error.issues[0].message);
+				return;
+			}
+
+			const counterpartyId = await saveCounterparty(clientData);
+
+			toast.success('Client created successfully!');
+
+			// Select the newly created counterparty and auto-fill directly from form fields
+			formState.counterpartyId = counterpartyId;
+			formState.clientCompany = formState.newCounterpartyCompanyName || formState.newCounterpartyName;
+			formState.clientAddress = formState.newCounterpartyAddress;
+			formState.clientTaxCode = formState.newCounterpartyTaxId;
+			formState.clientRepresentativeName = formState.newCounterpartyRepresentativeName;
+			formState.clientRepresentativePosition = formState.newCounterpartyRepresentativePosition;
+
+			// Reset inline form and hide
+			formState.newCounterpartyName = '';
+			formState.newCounterpartyEmail = '';
+			formState.newCounterpartyPhone = '';
+			formState.newCounterpartyAddress = '';
+			formState.newCounterpartyCompanyName = '';
+			formState.newCounterpartyTaxId = '';
+			formState.newCounterpartyRepresentativeName = '';
+			formState.newCounterpartyRepresentativePosition = '';
+			formState.newCounterpartyBankName = '';
+			formState.newCounterpartyBankAccountNumber = '';
+			formState.showCreateCounterparty = false;
+		} catch (e) {
+			logger.error('Error creating counterparty:', e);
+			toast.error('Failed to create client');
+		} finally {
+			formState.isCreatingCounterparty = false;
 		}
 	}
 
@@ -208,6 +380,9 @@ import { logger } from '$lib/utils/logger';
 		{events}
 		{clients}
 		onClientChange={handleClientChange}
+		onEventChange={handleEventChange}
+		onCreateCounterparty={handleCreateCounterparty}
+		onCreateEvent={handleCreateEvent}
 	/>
 
 	<!-- Client Information Sections -->
