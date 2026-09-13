@@ -8,7 +8,7 @@
 	import { authState } from '$lib/state/auth.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import { FileText, Lock, LockOpen } from 'lucide-svelte';
+	import { FileText, Lock, LockOpen } from '@lucide/svelte';
 	import { formatCurrency, formatMonthLabel } from '$lib/utils/formatting';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';

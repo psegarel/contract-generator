@@ -6,7 +6,7 @@
 	import ServiceProviderForm from '$lib/components/v2/counterparties/ServiceProviderForm.svelte';
 	import PerformerForm from '$lib/components/v2/counterparties/PerformerForm.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { ArrowLeft, FileText } from 'lucide-svelte';
+	import { ArrowLeft, FileText } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
 
 	let { data }: { data: PageData } = $props();

@@ -5,7 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page, navigating } from '$app/state';
-	import { LogOut, Menu } from 'lucide-svelte';
+	import { LogOut, Menu } from '@lucide/svelte';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import Sidebar from './Sidebar.svelte';

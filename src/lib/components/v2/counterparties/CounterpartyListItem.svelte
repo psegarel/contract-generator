@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Counterparty } from '$lib/types/v2';
-	import { Mail, Phone, Eye, Edit, FileText } from 'lucide-svelte';
+	import { Mail, Phone, Eye, Edit, FileText } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import CounterpartyCard from './CounterpartyCard.svelte';

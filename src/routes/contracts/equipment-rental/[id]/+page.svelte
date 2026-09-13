@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
-	import { Edit, Download } from 'lucide-svelte';
+	import { Edit, Download } from '@lucide/svelte';
 	import { downloadContract } from '$lib/utils/v2';
 
 	let { data }: { data: PageData } = $props();

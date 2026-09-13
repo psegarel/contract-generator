@@ -10,7 +10,7 @@
 	import type { PerformanceFormData } from '$lib/utils/v2/djResidencyContracts';
 	import { counterpartyState } from '$lib/state/v2';
 	import { Button } from '$lib/components/ui/button';
-	import { Plus } from 'lucide-svelte';
+	import { Plus } from '@lucide/svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';

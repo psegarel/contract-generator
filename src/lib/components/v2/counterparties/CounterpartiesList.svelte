@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Counterparty } from '$lib/types/v2';
 	import CounterpartyListItem from './CounterpartyListItem.svelte';
-	import { Building2 } from 'lucide-svelte';
+	import { Building2 } from '@lucide/svelte';
 
 	interface Props {
 		counterparties: Counterparty[];

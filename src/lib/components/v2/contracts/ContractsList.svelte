@@ -2,7 +2,7 @@
 	import type { BaseContract } from '$lib/types/v2';
 	import { getContractDateOrCreatedAt } from '$lib/utils/v2/contractDates';
 	import ContractListItem from './ContractListItem.svelte';
-	import { FileText } from 'lucide-svelte';
+	import { FileText } from '@lucide/svelte';
 	import { paymentState } from '$lib/state/v2/paymentState.svelte';
 	import { onMount } from 'svelte';
 

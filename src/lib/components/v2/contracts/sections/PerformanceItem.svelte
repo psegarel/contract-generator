@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PerformanceLog } from '$lib/types/v2';
 	import { Button } from '$lib/components/ui/button';
-	import { Pencil, Trash2, Calendar, Clock, User } from 'lucide-svelte';
+	import { Pencil, Trash2, Calendar, Clock, User } from '@lucide/svelte';
 	import { formatCurrency, formatDateString } from '$lib/utils/formatting';
 
 	interface Props {

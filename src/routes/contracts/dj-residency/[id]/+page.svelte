@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Edit, Download, ArrowLeft } from 'lucide-svelte';
+	import { Edit, Download, ArrowLeft } from '@lucide/svelte';
 	import { formatCurrency, formatDateString } from '$lib/utils/formatting';
 	import { generateDjResidencyContract } from '$lib/utils/djResidencyContractGenerator';
 	import { injectRepublicHeaderIntoDocx } from '$lib/utils/contractHeader';

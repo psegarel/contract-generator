@@ -2,7 +2,7 @@
 	import type { Event } from '$lib/types/v2';
 	import type { BaseContract } from '$lib/types/v2';
 	import EventListItem from './EventListItem.svelte';
-	import { Calendar } from 'lucide-svelte';
+	import { Calendar } from '@lucide/svelte';
 	import {
 		serviceProvisionContractState,
 		eventPlanningContractState

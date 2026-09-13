@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { ChevronRight } from 'lucide-svelte';
-	import type { ComponentType } from 'svelte';
+	import { ChevronRight } from '@lucide/svelte';
+	import type { Component } from 'svelte';
 	import { animate } from 'motion';
 	import SidebarSubMenuItem from './SidebarSubMenuItem.svelte';
 
@@ -19,7 +19,7 @@
 		expanded = $bindable(false),
 		currentPath = ''
 	}: {
-		icon: ComponentType;
+		icon: Component;
 		label: string;
 		href: string;
 		subItems?: SubItem[];

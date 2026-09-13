@@ -9,7 +9,7 @@
 	} from '$lib/state/v2';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import { calculateDashboardStatsFromPayments } from '$lib/utils/v2/dashboardStats';
-	import { TrendingUp } from 'lucide-svelte';
+	import { TrendingUp } from '@lucide/svelte';
 	import DashboardCard from '$lib/components/DashboardCard.svelte';
 	// Initialize contract states (for LatestContractsList) and payment state (for dashboard stats)
 	$effect(() => {

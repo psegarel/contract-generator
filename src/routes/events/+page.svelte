@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import { EventsList } from '$lib/components/v2/events';
 	import { Button } from '$lib/components/ui/button';
-	import { Calendar, Plus } from 'lucide-svelte';
+	import { Calendar, Plus } from '@lucide/svelte';
 	import {
 		serviceProvisionContractState,
 		eventPlanningContractState

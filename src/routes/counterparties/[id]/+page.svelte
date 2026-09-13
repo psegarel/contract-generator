@@ -7,7 +7,7 @@
 		PerformerContractor
 	} from '$lib/types/v2';
 	import { Button } from '$lib/components/ui/button';
-	import { ArrowLeft, FileText, Edit } from 'lucide-svelte';
+	import { ArrowLeft, FileText, Edit } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
 
 	let { data }: { data: PageData } = $props();

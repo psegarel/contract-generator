@@ -2,7 +2,7 @@
 	import { signIn, resetPassword } from '$lib/utils/auth';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { Eye, EyeOff } from 'lucide-svelte';
+	import { Eye, EyeOff } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 
 	import {

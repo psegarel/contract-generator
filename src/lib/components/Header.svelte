@@ -4,7 +4,7 @@
 	import { signOut } from '$lib/utils/auth';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { LogOut, Sun, Moon, Users, FileText, CalendarCheck } from 'lucide-svelte';
+	import { LogOut, Sun, Moon, Users, FileText, CalendarCheck } from '@lucide/svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { logger } from '$lib/utils/logger';

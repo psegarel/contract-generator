@@ -8,7 +8,7 @@
 	} from '$lib/state/v2';
 	import { getContractDateOrCreatedAt } from '$lib/utils/v2/contractDates';
 	import ContractsList from './ContractsList.svelte';
-	import { FileText } from 'lucide-svelte';
+	import { FileText } from '@lucide/svelte';
 
 	interface Props {
 		limit?: number;

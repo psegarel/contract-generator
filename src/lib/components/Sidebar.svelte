@@ -13,8 +13,8 @@
 		PackageOpen,
 		Wallet,
 		Disc
-	} from 'lucide-svelte';
-	import type { ComponentType } from 'svelte';
+	} from '@lucide/svelte';
+	import type { Component } from 'svelte';
 	import SidebarMenuItem from './SidebarMenuItem.svelte';
 
 	interface SubItem {
@@ -23,7 +23,7 @@
 	}
 
 	interface MenuItem {
-		icon: ComponentType;
+		icon: Component;
 		label: string;
 		href: string;
 		subItems?: SubItem[];

@@ -14,7 +14,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
 	import { logger } from '$lib/utils/logger';
-	import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-svelte';
+	import { ArrowLeft, ChevronDown, ChevronRight } from '@lucide/svelte';
 	import type { Payment } from '$lib/types/v2/payment';
 	import type { ContractType } from '$lib/types/v2';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';

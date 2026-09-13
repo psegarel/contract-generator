@@ -2,7 +2,7 @@
 	import type { BaseContract } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
 	import { getContractDateOrCreatedAt } from '$lib/utils/v2/contractDates';
-	import { Eye, Edit, Download, Trash2 } from 'lucide-svelte';
+	import { Eye, Edit, Download, Trash2 } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { authState } from '$lib/state/auth.svelte';

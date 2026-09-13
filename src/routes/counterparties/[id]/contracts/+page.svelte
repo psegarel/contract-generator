@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import { ContractsList } from '$lib/components/v2/contracts';
 	import { Button } from '$lib/components/ui/button';
-	import { ArrowLeft, FileText } from 'lucide-svelte';
+	import { ArrowLeft, FileText } from '@lucide/svelte';
 	import { onMount, onDestroy } from 'svelte';
 	import {
 		serviceProvisionContractState,

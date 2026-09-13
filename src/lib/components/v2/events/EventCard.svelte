@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Event } from '$lib/types/v2';
 	import { formatDateString, formatCurrency } from '$lib/utils/formatting';
-	import { Calendar, MapPin, TrendingUp, TrendingDown, DollarSign } from 'lucide-svelte';
+	import { Calendar, MapPin, TrendingUp, TrendingDown, DollarSign } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';

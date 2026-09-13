@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
 	import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
-	import { Building2, Plus } from 'lucide-svelte';
+	import { Building2, Plus } from '@lucide/svelte';
 	import CounterpartiesList from '$lib/components/v2/counterparties/CounterpartiesList.svelte';
 
 	let { data }: { data: PageData } = $props();
