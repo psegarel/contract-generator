@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FormSection from '$lib/components/FormSection.svelte';
+	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		planningMeetingDays: number;
@@ -38,106 +39,71 @@
 
 <FormSection title="Timeline">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<label for="planningMeetingDays" class="block text-sm font-medium text-foreground mb-1">
-				Planning Meeting Days <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="planningMeetingDays"
-				type="number"
-				value={planningMeetingDays}
-				oninput={(e) => onplanningMeetingDaysChange(Number(e.currentTarget.value))}
-				min="1"
-				step="1"
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="7"
-			/>
-		</div>
+		<TextField
+			id="planningMeetingDays"
+			label="Planning Meeting Days"
+			type="number"
+			value={planningMeetingDays}
+			oninput={(e) => onplanningMeetingDaysChange(Number(e.currentTarget.value))}
+			min={1}
+			step={1}
+			required
+			placeholder="7"
+		/>
 
-		<div>
-			<label for="performerBookingDeadline" class="block text-sm font-medium text-foreground mb-1">
-				Performer Booking Deadline <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="performerBookingDeadline"
-				type="date"
-				value={performerBookingDeadline}
-				oninput={(e) => onperformerBookingDeadlineChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-			/>
-		</div>
+		<TextField
+			id="performerBookingDeadline"
+			label="Performer Booking Deadline"
+			type="date"
+			value={performerBookingDeadline}
+			oninput={(e) => onperformerBookingDeadlineChange(e.currentTarget.value)}
+			required
+		/>
 
-		<div>
-			<label for="technicalSetupDate" class="block text-sm font-medium text-foreground mb-1">
-				Technical Setup Date <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="technicalSetupDate"
-				type="date"
-				value={technicalSetupDate}
-				oninput={(e) => ontechnicalSetupDateChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-			/>
-		</div>
+		<TextField
+			id="technicalSetupDate"
+			label="Technical Setup Date"
+			type="date"
+			value={technicalSetupDate}
+			oninput={(e) => ontechnicalSetupDateChange(e.currentTarget.value)}
+			required
+		/>
 
-		<div>
-			<label for="eventExecutionDate" class="block text-sm font-medium text-foreground mb-1">
-				Event Execution Date <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="eventExecutionDate"
-				type="date"
-				value={eventExecutionDate}
-				oninput={(e) => oneventExecutionDateChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-			/>
-		</div>
+		<TextField
+			id="eventExecutionDate"
+			label="Event Execution Date"
+			type="date"
+			value={eventExecutionDate}
+			oninput={(e) => oneventExecutionDateChange(e.currentTarget.value)}
+			required
+		/>
 
-		<div>
-			<label for="setupCommencementTime" class="block text-sm font-medium text-foreground mb-1">
-				Setup Commencement Time <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="setupCommencementTime"
-				type="time"
-				value={setupCommencementTime}
-				oninput={(e) => onsetupCommencementTimeChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-			/>
-		</div>
+		<TextField
+			id="setupCommencementTime"
+			label="Setup Commencement Time"
+			type="time"
+			value={setupCommencementTime}
+			oninput={(e) => onsetupCommencementTimeChange(e.currentTarget.value)}
+			required
+		/>
 
-		<div>
-			<label for="eventExecutionDuration" class="block text-sm font-medium text-foreground mb-1">
-				Event Execution Duration <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="eventExecutionDuration"
-				type="text"
-				value={eventExecutionDuration}
-				oninput={(e) => oneventExecutionDurationChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="8 hours, 2 days, etc."
-			/>
-		</div>
+		<TextField
+			id="eventExecutionDuration"
+			label="Event Execution Duration"
+			value={eventExecutionDuration}
+			oninput={(e) => oneventExecutionDurationChange(e.currentTarget.value)}
+			required
+			placeholder="8 hours, 2 days, etc."
+		/>
 
-		<div class="col-span-full">
-			<label for="breakdownCompletionDateTime" class="block text-sm font-medium text-foreground mb-1">
-				Breakdown Completion Date/Time <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="breakdownCompletionDateTime"
-				type="datetime-local"
-				value={breakdownCompletionDateTime}
-				oninput={(e) => onbreakdownCompletionDateTimeChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="breakdownCompletionDateTime"
+			label="Breakdown Completion Date/Time"
+			type="datetime-local"
+			value={breakdownCompletionDateTime}
+			oninput={(e) => onbreakdownCompletionDateTimeChange(e.currentTarget.value)}
+			required
+		/>
 	</div>
 </FormSection>

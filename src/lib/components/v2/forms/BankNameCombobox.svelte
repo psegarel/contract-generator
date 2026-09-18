@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Timestamp } from 'firebase/firestore';
+	import { Button } from '$lib/components/ui/button';
 	import { getBankConfig, refreshBankList } from '$lib/utils/v2/appConfig';
 	import { logger } from '$lib/utils/logger';
 
@@ -89,7 +90,7 @@
 		<input
 			{id}
 			type="text"
-			value={value}
+			{value}
 			oninput={handleInput}
 			onfocus={() => (isOpen = true)}
 			onblur={() => setTimeout(() => (isOpen = false), 150)}
@@ -109,15 +110,18 @@
 					{:else}
 						{#each filtered as bank (bank)}
 							<li>
-								<button
+								<Button
 									type="button"
-									onmousedown={() => selectBank(bank)}
-									class="w-full text-left px-3.5 py-2 text-sm {value === bank
+									variant="ghost"
+									size="sm"
+									class="h-auto w-full justify-start rounded-none px-3.5 py-2 text-left text-sm {value ===
+									bank
 										? 'bg-primary/10 text-primary font-medium'
 										: 'text-foreground hover:bg-accent'}"
+									onmousedown={() => selectBank(bank)}
 								>
 									{bank}
-								</button>
+								</Button>
 							</li>
 						{/each}
 					{/if}
@@ -131,14 +135,16 @@
 							Updated {formatLastRefreshed(lastRefreshed)}
 						{/if}
 					</span>
-					<button
+					<Button
 						type="button"
+						variant="link"
+						size="sm"
+						class="h-auto p-0 text-xs"
 						onmousedown={handleRefresh}
 						disabled={isRefreshing}
-						class="text-xs text-primary hover:text-primary/80 disabled:text-muted-foreground disabled:cursor-not-allowed"
 					>
 						{isRefreshing ? 'Refreshing...' : 'Refresh list'}
-					</button>
+					</Button>
 				</div>
 			</div>
 		{/if}

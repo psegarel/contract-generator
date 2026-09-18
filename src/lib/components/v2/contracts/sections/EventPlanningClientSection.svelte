@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FormSection from '$lib/components/FormSection.svelte';
+	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
 		clientCompany: string;
@@ -30,79 +31,52 @@
 
 <FormSection title="Client Information">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div class="col-span-full">
-			<label for="clientCompany" class="block text-sm font-medium text-foreground mb-1">
-				Company Name <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="clientCompany"
-				type="text"
-				value={clientCompany}
-				oninput={(e) => onclientCompanyChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="ABC Corporation Ltd"
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="clientCompany"
+			label="Company Name"
+			value={clientCompany}
+			oninput={(e) => onclientCompanyChange(e.currentTarget.value)}
+			required
+			placeholder="ABC Corporation Ltd"
+		/>
 
-		<div class="col-span-full">
-			<label for="clientAddress" class="block text-sm font-medium text-foreground mb-1">
-				Address <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="clientAddress"
-				type="text"
-				value={clientAddress}
-				oninput={(e) => onclientAddressChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="123 Main St, Ho Chi Minh City"
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="clientAddress"
+			label="Address"
+			value={clientAddress}
+			oninput={(e) => onclientAddressChange(e.currentTarget.value)}
+			required
+			placeholder="123 Main St, Ho Chi Minh City"
+		/>
 
-		<div>
-			<label for="clientTaxCode" class="block text-sm font-medium text-foreground mb-1">
-				Tax Code <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="clientTaxCode"
-				type="text"
-				value={clientTaxCode}
-				oninput={(e) => onclientTaxCodeChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="Tax identification number"
-			/>
-		</div>
+		<TextField
+			id="clientTaxCode"
+			label="Tax Code"
+			value={clientTaxCode}
+			oninput={(e) => onclientTaxCodeChange(e.currentTarget.value)}
+			required
+			placeholder="Tax identification number"
+		/>
 
-		<div>
-			<label for="clientRepresentativeName" class="block text-sm font-medium text-foreground mb-1">
-				Representative Name <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="clientRepresentativeName"
-				type="text"
-				value={clientRepresentativeName}
-				oninput={(e) => onclientRepresentativeNameChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="John Doe"
-			/>
-		</div>
+		<TextField
+			id="clientRepresentativeName"
+			label="Representative Name"
+			value={clientRepresentativeName}
+			oninput={(e) => onclientRepresentativeNameChange(e.currentTarget.value)}
+			required
+			placeholder="John Doe"
+		/>
 
-		<div class="col-span-full">
-			<label for="clientRepresentativePosition" class="block text-sm font-medium text-foreground mb-1">
-				Representative Position <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="clientRepresentativePosition"
-				type="text"
-				value={clientRepresentativePosition}
-				oninput={(e) => onclientRepresentativePositionChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="CEO, Director, etc."
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="clientRepresentativePosition"
+			label="Representative Position"
+			value={clientRepresentativePosition}
+			oninput={(e) => onclientRepresentativePositionChange(e.currentTarget.value)}
+			required
+			placeholder="CEO, Director, etc."
+		/>
 	</div>
 </FormSection>

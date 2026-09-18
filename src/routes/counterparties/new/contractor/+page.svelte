@@ -38,43 +38,47 @@
 	{#if !contractorType}
 		<!-- Contractor type selector -->
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<button
+			<Button
 				type="button"
 				onclick={() => selectType('performer')}
-				class="p-6 rounded-lg border-2 border-border hover:border-primary/60 bg-card text-left transition-all"
+				class="h-auto w-full justify-start rounded-lg border-2 p-6 text-left transition-all {contractorType ===
+				'performer'
+					? 'border-primary bg-primary/5 text-foreground'
+					: 'border-border bg-card hover:border-primary/60'}"
 			>
 				<div class="flex items-start gap-3">
 					<div class="text-3xl">🎭</div>
 					<div>
-						<h3 class="font-semibold text-foreground mb-1">Performer</h3>
+						<h3 class="mb-1 font-semibold text-foreground">Performer</h3>
 						<p class="text-sm text-muted-foreground">
 							DJ, band, MC, dancer, or other entertainment provider
 						</p>
 					</div>
 				</div>
-			</button>
+			</Button>
 
-			<button
+			<Button
 				type="button"
 				onclick={() => selectType('service-provider')}
-				class="p-6 rounded-lg border-2 border-border hover:border-primary/60 bg-card text-left transition-all"
+				class="h-auto w-full justify-start rounded-lg border-2 p-6 text-left transition-all {contractorType ===
+				'service-provider'
+					? 'border-primary bg-primary/5 text-foreground'
+					: 'border-border bg-card hover:border-primary/60'}"
 			>
 				<div class="flex items-start gap-3">
 					<div class="text-3xl">🔧</div>
 					<div>
-						<h3 class="font-semibold text-foreground mb-1">Service Provider</h3>
+						<h3 class="mb-1 font-semibold text-foreground">Service Provider</h3>
 						<p class="text-sm text-muted-foreground">
 							Catering, photography, security, AV, or other services
 						</p>
 					</div>
 				</div>
-			</button>
+			</Button>
 		</div>
 
 		<div class="mt-4">
-			<Button variant="ghost" onclick={handleCancel}>
-				Cancel
-			</Button>
+			<Button variant="ghost" onclick={handleCancel}>Cancel</Button>
 		</div>
 	{:else if contractorType === 'performer'}
 		<div class="mb-4">

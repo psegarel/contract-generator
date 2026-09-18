@@ -123,17 +123,19 @@
 							class="pr-10"
 							placeholder="••••••••"
 						/>
-						<button
+						<Button
 							type="button"
+							variant="ghost"
+							size="icon"
+							class="absolute inset-y-0 right-0 mr-1 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground"
 							onclick={() => (showPassword = !showPassword)}
-							class="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{#if showPassword}
 								<EyeOff class="h-4 w-4" />
 							{:else}
 								<Eye class="h-4 w-4" />
 							{/if}
-						</button>
+						</Button>
 					</div>
 				</div>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
 	import type { ContractType } from '$lib/types/v2';
 
 	interface Props {
@@ -78,18 +79,18 @@
 
 <div class="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 	{#each contractTypes as contractType (contractType.value)}
-		<button
+		<Button
 			type="button"
 			onclick={() => handleSelect(contractType.value)}
-			class="p-4 rounded-lg border-2 transition-all text-left {selectedType ===
+			class="h-auto w-full flex-col items-start justify-start rounded-lg border-2 p-4 text-left {selectedType ===
 			contractType.value
-				? 'border-primary bg-primary/5'
-				: 'border-border hover:border-border/80 bg-card'}"
+				? 'border-primary bg-primary/5 text-foreground'
+				: 'border-border bg-card hover:border-border/80'}"
 		>
-			<div class="flex items-start justify-between gap-2 mb-2">
+			<div class="mb-2 flex w-full items-start justify-between gap-2">
 				<h3 class="font-semibold text-foreground">{contractType.label}</h3>
 				<span
-					class="text-xs px-2 py-1 rounded-full {contractType.direction === 'receivable'
+					class="rounded-full px-2 py-1 text-xs {contractType.direction === 'receivable'
 						? 'bg-emerald-100 text-emerald-800'
 						: contractType.direction === 'payable'
 							? 'bg-red-100 text-red-800'
@@ -99,6 +100,6 @@
 				</span>
 			</div>
 			<p class="text-sm text-muted-foreground">{contractType.description}</p>
-		</button>
+		</Button>
 	{/each}
 </div>

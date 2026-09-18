@@ -151,10 +151,18 @@
 	}
 </script>
 
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
+<form
+	onsubmit={(e) => {
+		e.preventDefault();
+		handleSubmit();
+	}}
+	class="space-y-6"
+>
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+		<div
+			class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
+		>
 			{formState.error}
 		</div>
 	{/if}
@@ -234,11 +242,7 @@
 							class="flex-1 px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 							placeholder="e.g., 200 meals, 4 hours coverage"
 						/>
-						<Button
-							type="button"
-							variant="outline"
-							onclick={() => formState.addDeliverable()}
-						>
+						<Button type="button" variant="outline" onclick={() => formState.addDeliverable()}>
 							Add
 						</Button>
 					</div>
@@ -249,13 +253,15 @@
 									class="inline-flex items-center gap-1 px-3 py-1 bg-primary/5 text-primary rounded-md text-sm"
 								>
 									{deliverable}
-									<button
+									<Button
 										type="button"
+										variant="ghost"
+										size="sm"
+										class="ml-1 h-auto p-0 text-primary/60 hover:text-primary"
 										onclick={() => formState.removeDeliverable(index)}
-										class="ml-1 text-primary/60 hover:text-primary"
 									>
 										&times;
-									</button>
+									</Button>
 								</span>
 							{/each}
 						</div>
@@ -282,11 +288,7 @@
 							class="flex-1 px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 							placeholder="e.g., Cameras, Lighting rig"
 						/>
-						<Button
-							type="button"
-							variant="outline"
-							onclick={() => formState.addEquipment()}
-						>
+						<Button type="button" variant="outline" onclick={() => formState.addEquipment()}>
 							Add
 						</Button>
 					</div>
@@ -297,13 +299,15 @@
 									class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-md text-sm"
 								>
 									{equipment}
-									<button
+									<Button
 										type="button"
+										variant="ghost"
+										size="sm"
+										class="ml-1 h-auto p-0 text-emerald-500 hover:text-emerald-700"
 										onclick={() => formState.removeEquipment(index)}
-										class="ml-1 text-emerald-500 hover:text-emerald-700"
 									>
 										&times;
-									</button>
+									</Button>
 								</span>
 							{/each}
 						</div>
@@ -378,7 +382,7 @@
 					{@const isUploading = formState.isUploading(imageNumber)}
 					<FileUpload
 						label={`Document ${imageNumber}`}
-						document={document}
+						{document}
 						onFileSelect={(file) => handleFileUpload(file, imageNumber)}
 						onFileDelete={() => handleFileDelete(imageNumber)}
 						uploading={isUploading}
@@ -403,17 +407,16 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				type="button"
-				variant="outline"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button type="button" variant="outline" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
-			{formState.isSubmitting ? 'Saving...' : serviceProvider ? 'Update Service Provider' : 'Create Service Provider'}
+			{formState.isSubmitting
+				? 'Saving...'
+				: serviceProvider
+					? 'Update Service Provider'
+					: 'Create Service Provider'}
 		</Button>
 	</div>
 </form>

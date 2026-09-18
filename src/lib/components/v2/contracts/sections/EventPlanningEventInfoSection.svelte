@@ -1,5 +1,7 @@
 <script lang="ts">
 	import FormSection from '$lib/components/FormSection.svelte';
+	import TextField from '$lib/components/TextField.svelte';
+	import TextareaField from '$lib/components/TextareaField.svelte';
 
 	interface Props {
 		eventTheme: string;
@@ -38,103 +40,66 @@
 
 <FormSection title="Event Information">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<label for="eventTheme" class="block text-sm font-medium text-foreground mb-1">
-				Event Theme
-			</label>
-			<input
-				id="eventTheme"
-				type="text"
-				value={eventTheme}
-				oninput={(e) => oneventThemeChange(e.currentTarget.value)}
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="Corporate Gala, Wedding, etc."
-			/>
-		</div>
+		<TextField
+			id="eventTheme"
+			label="Event Theme"
+			value={eventTheme}
+			oninput={(e) => oneventThemeChange(e.currentTarget.value)}
+			placeholder="Corporate Gala, Wedding, etc."
+		/>
 
-		<div>
-			<label for="eventType" class="block text-sm font-medium text-foreground mb-1">
-				Event Type
-			</label>
-			<input
-				id="eventType"
-				type="text"
-				value={eventType}
-				oninput={(e) => oneventTypeChange(e.currentTarget.value)}
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="Conference, Celebration, etc."
-			/>
-		</div>
+		<TextField
+			id="eventType"
+			label="Event Type"
+			value={eventType}
+			oninput={(e) => oneventTypeChange(e.currentTarget.value)}
+			placeholder="Conference, Celebration, etc."
+		/>
 
-		<div class="col-span-full">
-			<label for="eventDescription" class="block text-sm font-medium text-foreground mb-1">
-				Event Description
-			</label>
-			<textarea
-				id="eventDescription"
-				value={eventDescription}
-				oninput={(e) => oneventDescriptionChange(e.currentTarget.value)}
-				rows="3"
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="Detailed description of the event..."
-			></textarea>
-		</div>
+		<TextareaField
+			class="col-span-full"
+			id="eventDescription"
+			label="Event Description"
+			value={eventDescription}
+			oninput={(e) => oneventDescriptionChange(e.currentTarget.value)}
+			rows={3}
+			placeholder="Detailed description of the event..."
+		/>
 
-		<div class="col-span-full">
-			<label for="eventVenue" class="block text-sm font-medium text-foreground mb-1">
-				Event Venue <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="eventVenue"
-				type="text"
-				value={eventVenue}
-				oninput={(e) => oneventVenueChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="Grand Ballroom, 123 Main St"
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="eventVenue"
+			label="Event Venue"
+			value={eventVenue}
+			oninput={(e) => oneventVenueChange(e.currentTarget.value)}
+			required
+			placeholder="Grand Ballroom, 123 Main St"
+		/>
 
-		<div>
-			<label for="eventDate" class="block text-sm font-medium text-foreground mb-1">
-				Event Date <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="eventDate"
-				type="date"
-				value={eventDate}
-				oninput={(e) => oneventDateChange(e.currentTarget.value)}
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-			/>
-		</div>
+		<TextField
+			id="eventDate"
+			label="Event Date"
+			type="date"
+			value={eventDate}
+			oninput={(e) => oneventDateChange(e.currentTarget.value)}
+			required
+		/>
 
-		<div>
-			<label for="eventDuration" class="block text-sm font-medium text-foreground mb-1">
-				Event Duration
-			</label>
-			<input
-				id="eventDuration"
-				type="text"
-				value={eventDuration}
-				oninput={(e) => oneventDurationChange(e.currentTarget.value)}
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="4 hours, 1 day, etc."
-			/>
-		</div>
+		<TextField
+			id="eventDuration"
+			label="Event Duration"
+			value={eventDuration}
+			oninput={(e) => oneventDurationChange(e.currentTarget.value)}
+			placeholder="4 hours, 1 day, etc."
+		/>
 
-		<div class="col-span-full">
-			<label for="expectedAttendance" class="block text-sm font-medium text-foreground mb-1">
-				Expected Attendance
-			</label>
-			<input
-				id="expectedAttendance"
-				type="text"
-				value={expectedAttendance}
-				oninput={(e) => onexpectedAttendanceChange(e.currentTarget.value)}
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="200 guests"
-			/>
-		</div>
+		<TextField
+			class="col-span-full"
+			id="expectedAttendance"
+			label="Expected Attendance"
+			value={expectedAttendance}
+			oninput={(e) => onexpectedAttendanceChange(e.currentTarget.value)}
+			placeholder="200 guests"
+		/>
 	</div>
 </FormSection>

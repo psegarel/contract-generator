@@ -68,7 +68,16 @@
 	});
 
 	let groupedPayments = $derived.by(() => {
-		const groups = new SvelteMap<string, { contractNumber: string; counterpartyName: string; contractType: ContractType; contractId: string; payments: Payment[] }>();
+		const groups = new SvelteMap<
+			string,
+			{
+				contractNumber: string;
+				counterpartyName: string;
+				contractType: ContractType;
+				contractId: string;
+				payments: Payment[];
+			}
+		>();
 
 		for (const payment of filteredPayments) {
 			const existing = groups.get(payment.contractId);
@@ -112,7 +121,11 @@
 
 		try {
 			await updatePaymentStatus(payment.id, newStatus, authState.user.uid);
-			await syncContractStatusFromPayments(payment.contractId, payment.contractType, authState.user.uid);
+			await syncContractStatusFromPayments(
+				payment.contractId,
+				payment.contractType,
+				authState.user.uid
+			);
 			toast.success(`Payment marked as ${newStatus === 'paid' ? 'paid' : 'pending'}`);
 		} catch (error) {
 			logger.error('Failed to toggle payment:', error);
@@ -186,19 +199,13 @@
 			</Button>
 		{/if}
 
-		<select
-			bind:value={statusFilter}
-			class="text-sm border border-input rounded-md px-3 py-1.5"
-		>
+		<select bind:value={statusFilter} class="text-sm border border-input rounded-md px-3 py-1.5">
 			<option value="all">All statuses</option>
 			<option value="pending">Pending</option>
 			<option value="paid">Paid</option>
 		</select>
 
-		<select
-			bind:value={directionFilter}
-			class="text-sm border border-input rounded-md px-3 py-1.5"
-		>
+		<select bind:value={directionFilter} class="text-sm border border-input rounded-md px-3 py-1.5">
 			<option value="all">All directions</option>
 			<option value="receivable">Receivable</option>
 			<option value="payable">Payable</option>
@@ -242,16 +249,19 @@
 					<!-- Contract Group Header -->
 					<div class="flex items-center gap-3 px-4 py-3">
 						{#if hasMultiple}
-							<button
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon-sm"
+								class="shrink-0 text-muted-foreground hover:text-foreground"
 								onclick={() => toggleExpanded(group.contractId)}
-								class="shrink-0 text-muted-foreground hover:text-foreground cursor-pointer"
 							>
 								{#if expanded}
 									<ChevronDown class="h-4 w-4" />
 								{:else}
 									<ChevronRight class="h-4 w-4" />
 								{/if}
-							</button>
+							</Button>
 						{:else}
 							<div class="w-4 shrink-0"></div>
 						{/if}
@@ -260,7 +270,9 @@
 							<div class="flex items-center gap-2 flex-wrap">
 								<span class="text-sm font-bold truncate">{group.counterpartyName}</span>
 								<span class="text-xs text-muted-foreground">{group.contractNumber}</span>
-								<Badge variant="outline" class="text-xs">{getContractTypeLabel(group.contractType)}</Badge>
+								<Badge variant="outline" class="text-xs"
+									>{getContractTypeLabel(group.contractType)}</Badge
+								>
 							</div>
 						</div>
 
@@ -306,7 +318,9 @@
 						<div class="border-t border-border">
 							{#each group.payments as payment, i (payment.id)}
 								<div
-									class="flex items-center gap-3 px-4 py-2.5 {i % 2 === 0 ? 'bg-slate-50' : 'bg-card'}"
+									class="flex items-center gap-3 px-4 py-2.5 {i % 2 === 0
+										? 'bg-slate-50'
+										: 'bg-card'}"
 								>
 									<div class="w-4 shrink-0"></div>
 									<div class="flex-1 min-w-0">
@@ -318,18 +332,32 @@
 												type="number"
 												bind:value={editingAmountValue}
 												onblur={() => saveAmount(payment)}
-												onkeydown={(e) => { if (e.key === 'Enter') saveAmount(payment); if (e.key === 'Escape') editingAmountId = null; }}
+												onkeydown={(e) => {
+													if (e.key === 'Enter') saveAmount(payment);
+													if (e.key === 'Escape') editingAmountId = null;
+												}}
 												class="w-32 px-2 py-0.5 border border-primary rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring"
-												{@attach (node) => { node.focus(); }}
+												{@attach (node) => {
+													node.focus();
+												}}
 											/>
 										{:else}
-											<button
-												onclick={() => group.contractType === 'dj-residency' && startEditAmount(payment)}
-												class="tabular-nums {group.contractType === 'dj-residency' ? 'hover:underline cursor-pointer' : 'cursor-default'}"
-												title={group.contractType === 'dj-residency' ? 'Click to edit amount' : undefined}
+											<Button
+												type="button"
+												variant="ghost"
+												size="sm"
+												class="h-auto p-0 text-sm tabular-nums {group.contractType ===
+												'dj-residency'
+													? 'hover:underline cursor-pointer'
+													: 'cursor-default'}"
+												title={group.contractType === 'dj-residency'
+													? 'Click to edit amount'
+													: undefined}
+												onclick={() =>
+													group.contractType === 'dj-residency' && startEditAmount(payment)}
 											>
 												{formatCurrency(payment.amount)}
-											</button>
+											</Button>
 										{/if}
 									</div>
 									<div class="shrink-0">

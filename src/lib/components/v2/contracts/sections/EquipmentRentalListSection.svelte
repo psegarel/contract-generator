@@ -64,17 +64,15 @@
 <div class="bg-card p-6 rounded-lg border border-border">
 	<div class="flex items-center justify-between mb-6">
 		<h3 class="text-lg font-semibold text-foreground">Equipment List</h3>
-		<Button
-			type="button"
-			size="sm"
-			onclick={() => formState.addEquipmentItem()}
-		>
+		<Button type="button" size="sm" onclick={() => formState.addEquipmentItem()}>
 			+ Add Equipment
 		</Button>
 	</div>
 
 	{#if formState.equipment.length === 0}
-		<p class="text-sm text-muted-foreground italic">No equipment items added yet. Click "Add Equipment" to get started.</p>
+		<p class="text-sm text-muted-foreground italic">
+			No equipment items added yet. Click "Add Equipment" to get started.
+		</p>
 	{:else}
 		<div class="space-y-4">
 			{#each formState.equipment as item, index (index)}
@@ -155,7 +153,9 @@
 
 					<div class="mt-4">
 						<div class="flex items-center justify-between mb-2">
-							<span class="block text-sm font-medium text-foreground">Serial Numbers (Optional)</span>
+							<span class="block text-sm font-medium text-foreground"
+								>Serial Numbers (Optional)</span
+							>
 							<Button
 								variant="link"
 								size="sm"
@@ -179,13 +179,15 @@
 											class="flex-1 px-3.5 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 											placeholder="Serial number"
 										/>
-										<button
+										<Button
 											type="button"
+											variant="ghost"
+											size="sm"
+											class="h-auto px-2 py-1 text-destructive hover:text-destructive/80"
 											onclick={() => removeSerialNumber(index, serialIndex)}
-											class="px-3 py-2 text-destructive hover:text-destructive/80 text-sm"
 										>
 											&times;
-										</button>
+										</Button>
 									</div>
 								{/each}
 							</div>
@@ -197,7 +199,9 @@
 			<div class="p-4 bg-muted rounded-md border border-border">
 				<div class="flex justify-between items-center">
 					<span class="text-sm font-medium text-foreground">Total Equipment Value:</span>
-					<span class="text-lg font-bold text-primary">{formatCurrency(formState.totalEquipmentValue)}</span>
+					<span class="text-lg font-bold text-primary"
+						>{formatCurrency(formState.totalEquipmentValue)}</span
+					>
 				</div>
 			</div>
 		</div>

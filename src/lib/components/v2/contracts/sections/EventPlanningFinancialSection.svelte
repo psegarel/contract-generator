@@ -1,4 +1,8 @@
 <script lang="ts">
+	import FormSection from '$lib/components/FormSection.svelte';
+	import TextField from '$lib/components/TextField.svelte';
+	import { formatCurrency } from '$lib/utils/formatting';
+
 	interface Props {
 		contractValueVND: number;
 		vatRate: number;
@@ -13,9 +17,6 @@
 		onprofessionalIndemnityAmountChange: (value: number) => void;
 		onpublicLiabilityAmountChange: (value: number) => void;
 	}
-
-	import FormSection from '$lib/components/FormSection.svelte';
-	import { formatCurrency } from '$lib/utils/formatting';
 
 	let {
 		contractValueVND,
@@ -39,121 +40,95 @@
 
 <FormSection title="Financial Terms">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<label for="contractValueVND" class="block text-sm font-medium text-foreground mb-1">
-				Contract Value (VND) <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="contractValueVND"
-				type="number"
-				value={contractValueVND}
-				oninput={(e) => oncontractValueVNDChange(Number(e.currentTarget.value))}
-				min="0"
-				step="1000000"
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="100000000"
-			/>
-		</div>
+		<TextField
+			id="contractValueVND"
+			label="Contract Value (VND)"
+			type="number"
+			value={contractValueVND}
+			oninput={(e) => oncontractValueVNDChange(Number(e.currentTarget.value))}
+			min={0}
+			step={1000000}
+			required
+			placeholder="100000000"
+		/>
+
+		<TextField
+			id="vatRate"
+			label="VAT Rate (%)"
+			type="number"
+			value={vatRate}
+			oninput={(e) => onvatRateChange(Number(e.currentTarget.value))}
+			min={0}
+			max={100}
+			step={0.1}
+			required
+			placeholder="10"
+		/>
 
 		<div>
-			<label for="vatRate" class="block text-sm font-medium text-foreground mb-1">
-				VAT Rate (%) <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="vatRate"
-				type="number"
-				value={vatRate}
-				oninput={(e) => onvatRateChange(Number(e.currentTarget.value))}
-				min="0"
-				max="100"
-				step="0.1"
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="10"
-			/>
-		</div>
-
-		<div>
-			<label for="depositPercentage" class="block text-sm font-medium text-foreground mb-1">
-				Deposit Percentage <span class="text-destructive">*</span>
-			</label>
-			<input
+			<TextField
 				id="depositPercentage"
+				label="Deposit Percentage"
 				type="number"
 				value={depositPercentage}
 				oninput={(e) => ondepositPercentageChange(Number(e.currentTarget.value))}
-				min="0"
-				max="100"
-				step="1"
+				min={0}
+				max={100}
+				step={1}
 				required
-				class="w-full px-3.5 py-2.5 border rounded-md {!paymentsSumTo100
-					? 'border-destructive'
-					: 'border-input'} focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
 				placeholder="50"
+				class={!paymentsSumTo100 ? 'border-destructive' : ''}
 			/>
 			<p class="text-xs text-muted-foreground mt-1">{formatCurrency(depositAmount)}</p>
 		</div>
 
 		<div>
-			<label for="finalPaymentPercentage" class="block text-sm font-medium text-foreground mb-1">
-				Final Payment Percentage <span class="text-destructive">*</span>
-			</label>
-			<input
+			<TextField
 				id="finalPaymentPercentage"
+				label="Final Payment Percentage"
 				type="number"
 				value={finalPaymentPercentage}
 				oninput={(e) => onfinalPaymentPercentageChange(Number(e.currentTarget.value))}
-				min="0"
-				max="100"
-				step="1"
+				min={0}
+				max={100}
+				step={1}
 				required
-				class="w-full px-3.5 py-2.5 border {!paymentsSumTo100
-					? 'border-destructive'
-					: 'border-input'} rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
 				placeholder="50"
+				class={!paymentsSumTo100 ? 'border-destructive' : ''}
 			/>
 			<p class="text-xs text-muted-foreground mt-1">{formatCurrency(finalPaymentAmount)}</p>
 		</div>
 
 		{#if !paymentsSumTo100}
-			<div class="col-span-full p-3 bg-destructive/5 border border-destructive/20 rounded-md text-destructive text-sm">
+			<div
+				class="col-span-full p-3 bg-destructive/5 border border-destructive/20 rounded-md text-destructive text-sm"
+			>
 				Deposit and final payment percentages must sum to 100%
 			</div>
 		{/if}
 
-		<div>
-			<label for="professionalIndemnityAmount" class="block text-sm font-medium text-foreground mb-1">
-				Professional Indemnity Amount <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="professionalIndemnityAmount"
-				type="number"
-				value={professionalIndemnityAmount}
-				oninput={(e) => onprofessionalIndemnityAmountChange(Number(e.currentTarget.value))}
-				min="0"
-				step="1000000"
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="5000000"
-			/>
-		</div>
+		<TextField
+			id="professionalIndemnityAmount"
+			label="Professional Indemnity Amount"
+			type="number"
+			value={professionalIndemnityAmount}
+			oninput={(e) => onprofessionalIndemnityAmountChange(Number(e.currentTarget.value))}
+			min={0}
+			step={1000000}
+			required
+			placeholder="5000000"
+		/>
 
-		<div>
-			<label for="publicLiabilityAmount" class="block text-sm font-medium text-foreground mb-1">
-				Public Liability Amount <span class="text-destructive">*</span>
-			</label>
-			<input
-				id="publicLiabilityAmount"
-				type="number"
-				value={publicLiabilityAmount}
-				oninput={(e) => onpublicLiabilityAmountChange(Number(e.currentTarget.value))}
-				min="0"
-				step="1000000"
-				required
-				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
-				placeholder="10000000"
-			/>
-		</div>
+		<TextField
+			id="publicLiabilityAmount"
+			label="Public Liability Amount"
+			type="number"
+			value={publicLiabilityAmount}
+			oninput={(e) => onpublicLiabilityAmountChange(Number(e.currentTarget.value))}
+			min={0}
+			step={1000000}
+			required
+			placeholder="10000000"
+		/>
 	</div>
 </FormSection>
