@@ -23,6 +23,8 @@
 	import { logger } from '$lib/utils/logger';
 	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
+	import SelectField from '$lib/components/SelectField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import CreateCounterpartyInline from './sections/CreateCounterpartyInline.svelte';
 	import DjResidencyPerformanceLog from './DjResidencyPerformanceLog.svelte';
@@ -226,14 +228,13 @@
 >
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
 			{formState.error}
 		</div>
 	{/if}
 
 	<!-- Contract Basics -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-6">Contract Information</h3>
+	<FormSection title="Contract Information">
 		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
 			<TextField
 				id="contractNumber"
@@ -242,32 +243,33 @@
 				required
 			/>
 			<div>
-				<label for="counterpartyId" class="block text-sm font-medium text-gray-700 mb-1">
-					Party B <span class="text-red-500">*</span>
+				<label for="counterpartyId" class="block text-sm font-medium text-foreground mb-1">
+					Party B <span class="text-destructive">*</span>
 				</label>
 				<div class="flex gap-2">
 					<select
 						id="counterpartyId"
 						bind:value={formState.counterpartyId}
 						required
-						class="flex-1 px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+						class="flex-1 px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 					>
 						<option value="">Select counterparty</option>
 						{#each venueCounterparties as venue (venue.id)}
 							<option value={venue.id}>{venue.name}</option>
 						{/each}
 					</select>
-					<button
+					<Button
 						type="button"
+						variant="outline"
 						onclick={() => (formState.showCreateCounterparty = !formState.showCreateCounterparty)}
-						class="px-3 py-2.5 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100 whitespace-nowrap"
+						class="whitespace-nowrap bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"
 					>
 						+ Create New
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Inline Counterparty Creation -->
 	{#if formState.showCreateCounterparty}
@@ -284,55 +286,39 @@
 	{/if}
 
 	<!-- Contract Duration -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-6">Contract Duration</h3>
+	<FormSection title="Contract Duration">
 		<div class="grid gap-6 grid-cols-1 md:grid-cols-3">
-			<div>
-				<label for="contractStartDate" class="block text-sm font-medium text-gray-700 mb-1">
-					Start Date <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="contractStartDate"
-					type="date"
-					bind:value={formState.contractStartDate}
-					onchange={handleStartDateChange}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
-			<div>
-				<label for="contractDurationMonths" class="block text-sm font-medium text-gray-700 mb-1">
-					Duration (months) <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="contractDurationMonths"
-					type="number"
-					bind:value={formState.contractDurationMonths}
-					onchange={handleDurationChange}
-					min="1"
-					max="24"
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
-			<div>
-				<label for="contractEndDate" class="block text-sm font-medium text-gray-700 mb-1">
-					End Date
-				</label>
-				<input
-					id="contractEndDate"
-					type="date"
-					bind:value={formState.contractEndDate}
-					readonly
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md bg-gray-50"
-				/>
-			</div>
+			<TextField
+				id="contractStartDate"
+				label="Start Date"
+				type="date"
+				bind:value={formState.contractStartDate}
+				onchange={handleStartDateChange}
+				required
+			/>
+			<TextField
+				id="contractDurationMonths"
+				label="Duration (months)"
+				type="number"
+				bind:value={formState.contractDurationMonths}
+				onchange={handleDurationChange}
+				min="1"
+				max="24"
+				required
+			/>
+			<TextField
+				id="contractEndDate"
+				label="End Date"
+				type="date"
+				bind:value={formState.contractEndDate}
+				readonly
+				class="[&_input]:bg-muted"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Performance Terms -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-6">Performance Terms</h3>
+	<FormSection title="Performance Terms">
 		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
 			<TextField
 				id="performanceDays"
@@ -348,106 +334,78 @@
 				placeholder="e.g., Thứ Bảy và Chủ Nhật"
 				required
 			/>
-			<div>
-				<label for="performanceHoursPerSet" class="block text-sm font-medium text-gray-700 mb-1">
-					Hours per Set <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="performanceHoursPerSet"
-					type="number"
-					bind:value={formState.performanceHoursPerSet}
-					min="1"
-					max="12"
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
-			<div>
-				<label for="numberOfSetsPerDay" class="block text-sm font-medium text-gray-700 mb-1">
-					Sets per Day <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="numberOfSetsPerDay"
-					type="number"
-					bind:value={formState.numberOfSetsPerDay}
-					min="1"
-					max="10"
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
+			<TextField
+				id="performanceHoursPerSet"
+				label="Hours per Set"
+				type="number"
+				bind:value={formState.performanceHoursPerSet}
+				min="1"
+				max="12"
+				required
+			/>
+			<TextField
+				id="numberOfSetsPerDay"
+				label="Sets per Day"
+				type="number"
+				bind:value={formState.numberOfSetsPerDay}
+				min="1"
+				max="10"
+				required
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Payment Terms -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-6">Payment Terms</h3>
+	<FormSection title="Payment Terms">
 		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
-			<div>
-				<label for="performanceFeeVND" class="block text-sm font-medium text-gray-700 mb-1">
-					Hourly Rate — Client (VND) <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="performanceFeeVND"
-					type="number"
-					bind:value={formState.performanceFeeVND}
-					min="0"
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
-			<div>
-				<label for="terminationNoticeDays" class="block text-sm font-medium text-gray-700 mb-1">
-					Termination Notice (days) <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="terminationNoticeDays"
-					type="number"
-					bind:value={formState.terminationNoticeDays}
-					min="1"
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
+			<TextField
+				id="performanceFeeVND"
+				label="Hourly Rate — Client (VND)"
+				type="number"
+				bind:value={formState.performanceFeeVND}
+				min="0"
+				required
+			/>
+			<TextField
+				id="terminationNoticeDays"
+				label="Termination Notice (days)"
+				type="number"
+				bind:value={formState.terminationNoticeDays}
+				min="1"
+				required
+			/>
 		</div>
-		<div class="mt-4 p-4 bg-gray-50 rounded-lg space-y-1">
-			<p class="text-sm text-gray-600">
+		<div class="mt-4 p-4 bg-muted rounded-lg space-y-1">
+			<p class="text-sm text-muted-foreground">
 				<strong>Est. monthly revenue (client):</strong>
 				{formatCurrency(formState.estimatedMonthlyValue)}
-				<span class="text-gray-400">(~8 sets/month)</span>
+				<span class="text-muted-foreground/60">(~8 sets/month)</span>
 			</p>
-			<p class="text-sm text-gray-600">
+			<p class="text-sm text-muted-foreground">
 				<strong>Est. total contract revenue:</strong>
 				{formatCurrency(formState.estimatedTotalValue)}
 			</p>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Status -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-6">Status</h3>
+	<FormSection title="Status">
 		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
-			<div>
-				<label for="residencyStatus" class="block text-sm font-medium text-gray-700 mb-1">
-					Residency Status <span class="text-red-500">*</span>
-				</label>
-				<select
-					id="residencyStatus"
-					bind:value={formState.residencyStatus}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				>
-					<option value="active">Active</option>
-					<option value="completed">Completed</option>
-					<option value="terminated">Terminated</option>
-				</select>
-			</div>
+			<SelectField
+				id="residencyStatus"
+				label="Residency Status"
+				bind:value={formState.residencyStatus}
+				required
+			>
+				<option value="active">Active</option>
+				<option value="completed">Completed</option>
+				<option value="terminated">Terminated</option>
+			</SelectField>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Notes -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Internal Notes</h3>
+	<FormSection title="Internal Notes">
 		<TextareaField
 			id="notes"
 			label=""
@@ -455,7 +413,7 @@
 			rows={4}
 			placeholder="Internal notes..."
 		/>
-	</div>
+	</FormSection>
 
 	<!-- Performance Log (only show when editing existing contract) -->
 	{#if contract}
@@ -467,14 +425,14 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<button
+			<Button
 				type="button"
+				variant="outline"
 				onclick={onCancel}
 				disabled={formState.isSubmitting}
-				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
-			</button>
+			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}

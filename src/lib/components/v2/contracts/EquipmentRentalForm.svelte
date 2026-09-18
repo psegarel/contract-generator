@@ -17,6 +17,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
 	import TextareaField from '$lib/components/TextareaField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import { clientCounterpartySchema, type ClientCounterpartyInput } from '$lib/schemas/v2';
 	import { Timestamp } from 'firebase/firestore';
@@ -277,7 +278,7 @@
 >
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
 			{formState.error}
 		</div>
 	{/if}
@@ -315,8 +316,7 @@
 	<EquipmentRentalListSection {formState} />
 
 	<!-- Notes -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Internal Notes</h3>
+	<FormSection title="Internal Notes">
 		<TextareaField
 			id="notes"
 			label=""
@@ -324,19 +324,19 @@
 			rows={4}
 			placeholder="Internal notes..."
 		/>
-	</div>
+	</FormSection>
 
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<button
+			<Button
+				variant="outline"
 				type="button"
 				onclick={onCancel}
 				disabled={formState.isSubmitting}
-				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
-			</button>
+			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}

@@ -5,9 +5,13 @@
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState } from '$lib/state/v2';
 	import { EventFormState } from '$lib/state/v2/eventFormState.svelte';
-import { Button } from '$lib/components/ui/button';
-import { onMount } from 'svelte';
-import { logger } from '$lib/utils/logger';
+	import { Button } from '$lib/components/ui/button';
+	import { onMount } from 'svelte';
+	import { logger } from '$lib/utils/logger';
+	import FormSection from '$lib/components/FormSection.svelte';
+	import TextField from '$lib/components/TextField.svelte';
+	import TextareaField from '$lib/components/TextareaField.svelte';
+	import SelectField from '$lib/components/SelectField.svelte';
 
 	interface Props {
 		event?: Event | null;
@@ -95,228 +99,161 @@ import { logger } from '$lib/utils/logger';
 <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
 			{formState.error}
 		</div>
 	{/if}
 
 	<!-- Basic Information -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+	<FormSection title="Basic Information">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 			<div class="col-span-full">
-				<label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-					Event Name <span class="text-red-500">*</span>
-				</label>
-				<input
+				<TextField
 					id="name"
-					type="text"
+					label="Event Name"
 					bind:value={formState.name}
 					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="ABC Corp Annual Gala 2026"
 				/>
 			</div>
 
-			<div>
-				<label for="eventType" class="block text-sm font-medium text-gray-700 mb-1">
-					Event Type
-				</label>
-				<input
-					id="eventType"
-					type="text"
-					bind:value={formState.eventType}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Corporate Event, Wedding, Concert"
+			<TextField
+				id="eventType"
+				label="Event Type"
+				bind:value={formState.eventType}
+				placeholder="Corporate Event, Wedding, Concert"
+			/>
+
+			<SelectField
+				id="status"
+				label="Status"
+				bind:value={formState.status}
+				required
+			>
+				<option value="planning">Planning</option>
+				<option value="confirmed">Confirmed</option>
+				<option value="in-progress">In Progress</option>
+				<option value="completed">Completed</option>
+				<option value="cancelled">Cancelled</option>
+			</SelectField>
+
+			<div class="col-span-full">
+				<TextareaField
+					id="description"
+					label="Description"
+					bind:value={formState.description}
+					rows={3}
+					placeholder="Brief description of the event..."
 				/>
 			</div>
-
-			<div>
-				<label for="status" class="block text-sm font-medium text-gray-700 mb-1">
-					Status <span class="text-red-500">*</span>
-				</label>
-				<select
-					id="status"
-					bind:value={formState.status}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				>
-					<option value="planning">Planning</option>
-					<option value="confirmed">Confirmed</option>
-					<option value="in-progress">In Progress</option>
-					<option value="completed">Completed</option>
-					<option value="cancelled">Cancelled</option>
-				</select>
-			</div>
-
-			<div class="col-span-full">
-				<label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-					Description
-				</label>
-				<textarea
-					id="description"
-					bind:value={formState.description}
-					rows="3"
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Brief description of the event..."
-				></textarea>
-			</div>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Location Information -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Location</h3>
+	<FormSection title="Location">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 			<div class="col-span-full">
-				<label for="locationAddress" class="block text-sm font-medium text-gray-700 mb-1">
-					Location Address <span class="text-red-500">*</span>
-				</label>
-				<input
+				<TextField
 					id="locationAddress"
-					type="text"
+					label="Location Address"
 					bind:value={formState.locationAddress}
 					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
 					placeholder="123 Main St, Ho Chi Minh City"
 				/>
 			</div>
 
-			<div>
-				<label for="locationName" class="block text-sm font-medium text-gray-700 mb-1">
-					Location Name
-				</label>
-				<input
-					id="locationName"
-					type="text"
-					bind:value={formState.locationName}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Grand Ballroom"
-				/>
-			</div>
+			<TextField
+				id="locationName"
+				label="Location Name"
+				bind:value={formState.locationName}
+				placeholder="Grand Ballroom"
+			/>
 
-			<div>
-				<label for="venueCounterpartyId" class="block text-sm font-medium text-gray-700 mb-1">
-					Venue Counterparty (if contracted)
-				</label>
-				<select
-					id="venueCounterpartyId"
-					bind:value={formState.venueCounterpartyId}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				>
-					<option value="">None (simple address)</option>
-					{#each venues as venue (venue.id)}
-						<option value={venue.id}>{venue.name}</option>
-					{/each}
-				</select>
-			</div>
+			<SelectField
+				id="venueCounterpartyId"
+				label="Venue Counterparty (if contracted)"
+				bind:value={formState.venueCounterpartyId}
+			>
+				<option value="">None (simple address)</option>
+				{#each venues as venue (venue.id)}
+					<option value={venue.id}>{venue.name}</option>
+				{/each}
+			</SelectField>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Date & Time -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Date & Time</h3>
+	<FormSection title="Date & Time">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div>
-				<label for="eventDate" class="block text-sm font-medium text-gray-700 mb-1">
-					Event Date <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="eventDate"
-					type="date"
-					bind:value={formState.eventDate}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
+			<TextField
+				id="eventDate"
+				label="Event Date"
+				type="date"
+				bind:value={formState.eventDate}
+				required
+			/>
 
-			<div>
-				<label for="expectedAttendance" class="block text-sm font-medium text-gray-700 mb-1">
-					Expected Attendance
-				</label>
-				<input
-					id="expectedAttendance"
-					type="number"
-					bind:value={formState.expectedAttendance}
-					min="0"
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="100"
-				/>
-			</div>
+			<TextField
+				id="expectedAttendance"
+				label="Expected Attendance"
+				type="number"
+				bind:value={formState.expectedAttendance}
+				min="0"
+				placeholder="100"
+			/>
 
-			<div>
-				<label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">
-					Start Time
-				</label>
-				<input
-					id="startTime"
-					type="time"
-					bind:value={formState.startTime}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
+			<TextField
+				id="startTime"
+				label="Start Time"
+				type="time"
+				bind:value={formState.startTime}
+			/>
 
-			<div>
-				<label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">
-					End Time
-				</label>
-				<input
-					id="endTime"
-					type="time"
-					bind:value={formState.endTime}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
+			<TextField
+				id="endTime"
+				label="End Time"
+				type="time"
+				bind:value={formState.endTime}
+			/>
 
-			<div>
-				<label for="setupDateTime" class="block text-sm font-medium text-gray-700 mb-1">
-					Setup Date/Time
-				</label>
-				<input
-					id="setupDateTime"
-					type="datetime-local"
-					bind:value={formState.setupDateTime}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
+			<TextField
+				id="setupDateTime"
+				label="Setup Date/Time"
+				type="datetime-local"
+				bind:value={formState.setupDateTime}
+			/>
 
-			<div>
-				<label for="teardownDateTime" class="block text-sm font-medium text-gray-700 mb-1">
-					Teardown Date/Time
-				</label>
-				<input
-					id="teardownDateTime"
-					type="datetime-local"
-					bind:value={formState.teardownDateTime}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				/>
-			</div>
+			<TextField
+				id="teardownDateTime"
+				label="Teardown Date/Time"
+				type="datetime-local"
+				bind:value={formState.teardownDateTime}
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Notes -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Internal Notes</h3>
-		<textarea
+	<FormSection title="Internal Notes">
+		<TextareaField
 			id="internalNotes"
+			label="Internal Notes"
 			bind:value={formState.internalNotes}
-			rows="4"
-			class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+			rows={4}
 			placeholder="Internal notes for planning, coordination, etc..."
-		></textarea>
-	</div>
+		/>
+	</FormSection>
 
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<button
+			<Button
 				type="button"
+				variant="outline"
 				onclick={onCancel}
 				disabled={formState.isSubmitting}
-				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
-			</button>
+			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : event ? 'Update Event' : 'Create Event'}

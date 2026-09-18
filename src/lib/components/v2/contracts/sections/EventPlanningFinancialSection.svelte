@@ -14,6 +14,7 @@
 		onpublicLiabilityAmountChange: (value: number) => void;
 	}
 
+	import FormSection from '$lib/components/FormSection.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 
 	let {
@@ -36,12 +37,11 @@
 	let paymentsSumTo100 = $derived(depositPercentage + finalPaymentPercentage === 100);
 </script>
 
-<div class="bg-white p-6 rounded-lg border border-gray-200">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Financial Terms</h3>
+<FormSection title="Financial Terms">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<div>
-			<label for="contractValueVND" class="block text-sm font-medium text-gray-700 mb-1">
-				Contract Value (VND) <span class="text-red-500">*</span>
+			<label for="contractValueVND" class="block text-sm font-medium text-foreground mb-1">
+				Contract Value (VND) <span class="text-destructive">*</span>
 			</label>
 			<input
 				id="contractValueVND"
@@ -51,14 +51,14 @@
 				min="0"
 				step="1000000"
 				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
 				placeholder="100000000"
 			/>
 		</div>
 
 		<div>
-			<label for="vatRate" class="block text-sm font-medium text-gray-700 mb-1">
-				VAT Rate (%) <span class="text-red-500">*</span>
+			<label for="vatRate" class="block text-sm font-medium text-foreground mb-1">
+				VAT Rate (%) <span class="text-destructive">*</span>
 			</label>
 			<input
 				id="vatRate"
@@ -69,14 +69,14 @@
 				max="100"
 				step="0.1"
 				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
 				placeholder="10"
 			/>
 		</div>
 
 		<div>
-			<label for="depositPercentage" class="block text-sm font-medium text-gray-700 mb-1">
-				Deposit Percentage <span class="text-red-500">*</span>
+			<label for="depositPercentage" class="block text-sm font-medium text-foreground mb-1">
+				Deposit Percentage <span class="text-destructive">*</span>
 			</label>
 			<input
 				id="depositPercentage"
@@ -87,17 +87,17 @@
 				max="100"
 				step="1"
 				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md {!paymentsSumTo100
-					? 'border-red-500'
-					: 'border-gray-300'} focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+				class="w-full px-3.5 py-2.5 border rounded-md {!paymentsSumTo100
+					? 'border-destructive'
+					: 'border-input'} focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
 				placeholder="50"
 			/>
-			<p class="text-xs text-gray-500 mt-1">{formatCurrency(depositAmount)}</p>
+			<p class="text-xs text-muted-foreground mt-1">{formatCurrency(depositAmount)}</p>
 		</div>
 
 		<div>
-			<label for="finalPaymentPercentage" class="block text-sm font-medium text-gray-700 mb-1">
-				Final Payment Percentage <span class="text-red-500">*</span>
+			<label for="finalPaymentPercentage" class="block text-sm font-medium text-foreground mb-1">
+				Final Payment Percentage <span class="text-destructive">*</span>
 			</label>
 			<input
 				id="finalPaymentPercentage"
@@ -109,22 +109,22 @@
 				step="1"
 				required
 				class="w-full px-3.5 py-2.5 border {!paymentsSumTo100
-					? 'border-red-500'
-					: 'border-gray-300'} rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					? 'border-destructive'
+					: 'border-input'} rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
 				placeholder="50"
 			/>
-			<p class="text-xs text-gray-500 mt-1">{formatCurrency(finalPaymentAmount)}</p>
+			<p class="text-xs text-muted-foreground mt-1">{formatCurrency(finalPaymentAmount)}</p>
 		</div>
 
 		{#if !paymentsSumTo100}
-			<div class="col-span-full p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">
+			<div class="col-span-full p-3 bg-destructive/5 border border-destructive/20 rounded-md text-destructive text-sm">
 				Deposit and final payment percentages must sum to 100%
 			</div>
 		{/if}
 
 		<div>
-			<label for="professionalIndemnityAmount" class="block text-sm font-medium text-gray-700 mb-1">
-				Professional Indemnity Amount <span class="text-red-500">*</span>
+			<label for="professionalIndemnityAmount" class="block text-sm font-medium text-foreground mb-1">
+				Professional Indemnity Amount <span class="text-destructive">*</span>
 			</label>
 			<input
 				id="professionalIndemnityAmount"
@@ -134,14 +134,14 @@
 				min="0"
 				step="1000000"
 				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
 				placeholder="5000000"
 			/>
 		</div>
 
 		<div>
-			<label for="publicLiabilityAmount" class="block text-sm font-medium text-gray-700 mb-1">
-				Public Liability Amount <span class="text-red-500">*</span>
+			<label for="publicLiabilityAmount" class="block text-sm font-medium text-foreground mb-1">
+				Public Liability Amount <span class="text-destructive">*</span>
 			</label>
 			<input
 				id="publicLiabilityAmount"
@@ -151,9 +151,9 @@
 				min="0"
 				step="1000000"
 				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+				class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring text-foreground text-sm"
 				placeholder="10000000"
 			/>
 		</div>
 	</div>
-</div>
+</FormSection>

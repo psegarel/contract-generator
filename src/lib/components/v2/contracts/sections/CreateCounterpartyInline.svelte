@@ -1,6 +1,7 @@
 <script lang="ts">
 	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	/**
 	 * Shared interface for form states that support inline counterparty creation.
@@ -38,8 +39,8 @@
 	}: Props = $props();
 </script>
 
-<div class="bg-blue-50 border border-blue-200 p-6 rounded-lg space-y-6">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+<div class="bg-primary/5 border border-primary/20 p-6 rounded-lg space-y-6">
+	<h3 class="text-lg font-semibold text-foreground mb-4">{title}</h3>
 
 	<!-- Basic Information -->
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -48,7 +49,7 @@
 				id="newCounterpartyName"
 				label="Name"
 				bind:value={formState.newCounterpartyName}
-				placeholder="e.g., CÔNG TY TNHH C VƯỜN NHIỆT ĐỚI"
+				placeholder="e.g., CONG TY TNHH C VUON NHIET DOI"
 				required
 			/>
 		</div>
@@ -58,29 +59,25 @@
 				id="newCounterpartyCompanyName"
 				label="Company Name (Vietnamese)"
 				bind:value={formState.newCounterpartyCompanyName}
-				placeholder="e.g., CÔNG TY TNHH C VƯỜN NHIỆT ĐỚI"
+				placeholder="e.g., CONG TY TNHH C VUON NHIET DOI"
 			/>
 		</div>
 
-		<div>
-			<TextField
-				id="newCounterpartyEmail"
-				label="Email"
-				type="email"
-				bind:value={formState.newCounterpartyEmail}
-				placeholder="info@example.com"
-			/>
-		</div>
+		<TextField
+			id="newCounterpartyEmail"
+			label="Email"
+			type="email"
+			bind:value={formState.newCounterpartyEmail}
+			placeholder="info@example.com"
+		/>
 
-		<div>
-			<TextField
-				id="newCounterpartyPhone"
-				label="Phone"
-				type="tel"
-				bind:value={formState.newCounterpartyPhone}
-				placeholder="+84 (0) 236 6515 100"
-			/>
-		</div>
+		<TextField
+			id="newCounterpartyPhone"
+			label="Phone"
+			type="tel"
+			bind:value={formState.newCounterpartyPhone}
+			placeholder="+84 (0) 236 6515 100"
+		/>
 
 		<div class="col-span-full">
 			<TextareaField
@@ -88,30 +85,26 @@
 				label="Address"
 				bind:value={formState.newCounterpartyAddress}
 				rows={2}
-				placeholder="100 Lê Quang Đạo, Phường Mỹ An, Quận Ngũ Hành Sơn, Thành phố Đà Nẵng"
+				placeholder="100 Le Quang Dao, Phuong My An, Quan Ngu Hanh Son, Thanh pho Da Nang"
 			/>
 		</div>
 	</div>
 
 	<!-- Company Details -->
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<TextField
-				id="newCounterpartyTaxId"
-				label="Tax Code (Mã số thuế)"
-				bind:value={formState.newCounterpartyTaxId}
-				placeholder="0402151792"
-			/>
-		</div>
+		<TextField
+			id="newCounterpartyTaxId"
+			label="Tax Code (Ma so thue)"
+			bind:value={formState.newCounterpartyTaxId}
+			placeholder="0402151792"
+		/>
 
-		<div>
-			<TextField
-				id="newCounterpartyRepresentativeName"
-				label="Representative Name (Đại diện bởi)"
-				bind:value={formState.newCounterpartyRepresentativeName}
-				placeholder="Doan Minh Chau"
-			/>
-		</div>
+		<TextField
+			id="newCounterpartyRepresentativeName"
+			label="Representative Name (Dai dien boi)"
+			bind:value={formState.newCounterpartyRepresentativeName}
+			placeholder="Doan Minh Chau"
+		/>
 
 		<div class="col-span-full">
 			<TextField
@@ -125,40 +118,31 @@
 
 	<!-- Banking Information -->
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-		<div>
-			<TextField
-				id="newCounterpartyBankName"
-				label="Bank Name (Tên ngân hàng)"
-				bind:value={formState.newCounterpartyBankName}
-				placeholder="Thương Mại Cổ Phần Á Châu (ACB) - CN Danang"
-			/>
-		</div>
+		<TextField
+			id="newCounterpartyBankName"
+			label="Bank Name (Ten ngan hang)"
+			bind:value={formState.newCounterpartyBankName}
+			placeholder="Thuong Mai Co Phan A Chau (ACB) - CN Danang"
+		/>
 
-		<div>
-			<TextField
-				id="newCounterpartyBankAccountNumber"
-				label="Account Number (Số tài khoản)"
-				bind:value={formState.newCounterpartyBankAccountNumber}
-				placeholder="140 77 168"
-			/>
-		</div>
+		<TextField
+			id="newCounterpartyBankAccountNumber"
+			label="Account Number (So tai khoan)"
+			bind:value={formState.newCounterpartyBankAccountNumber}
+			placeholder="140 77 168"
+		/>
 	</div>
 
-	<div class="flex gap-3 justify-end pt-4 border-t border-blue-300">
-		<button
-			type="button"
-			onclick={onCancel}
-			class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-		>
+	<div class="flex gap-3 justify-end pt-4 border-t border-primary/30">
+		<Button type="button" variant="outline" onclick={onCancel}>
 			Cancel
-		</button>
-		<button
+		</Button>
+		<Button
 			type="button"
 			onclick={onCreate}
 			disabled={formState.isCreatingCounterparty}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
 		>
 			{formState.isCreatingCounterparty ? 'Creating...' : createButtonLabel}
-		</button>
+		</Button>
 	</div>
 </div>

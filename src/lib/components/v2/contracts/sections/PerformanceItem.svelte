@@ -15,24 +15,24 @@
 
 <div
 	class="flex items-center justify-between p-4 rounded-lg border {performance.invoiced
-		? 'bg-gray-50 border-gray-200'
-		: 'bg-white border-gray-200'}"
+		? 'bg-muted border-border'
+		: 'bg-card border-border'}"
 >
 	<div class="flex items-center gap-4">
-		<div class="flex items-center gap-2 text-gray-600">
+		<div class="flex items-center gap-2 text-muted-foreground">
 			<Calendar class="w-4 h-4" />
 			<span class="font-medium">{formatDateString(performance.date)}</span>
 		</div>
-		<div class="flex items-center gap-2 text-gray-600">
+		<div class="flex items-center gap-2 text-muted-foreground">
 			<User class="w-4 h-4" />
 			<span>{performance.performerName}</span>
 		</div>
-		<div class="flex items-center gap-2 text-gray-600">
+		<div class="flex items-center gap-2 text-muted-foreground">
 			<Clock class="w-4 h-4" />
 			<span>{performance.hoursWorked}h</span>
 		</div>
 		{#if performance.notes}
-			<span class="text-sm text-gray-500 italic">{performance.notes}</span>
+			<span class="text-sm text-muted-foreground italic">{performance.notes}</span>
 		{/if}
 	</div>
 	<div class="flex items-center gap-3">
@@ -45,7 +45,7 @@
 			variant="ghost"
 			size="sm"
 			onclick={onEdit}
-			class="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+			class="text-muted-foreground hover:text-foreground hover:bg-accent"
 		>
 			<Pencil class="w-4 h-4" />
 		</Button>
@@ -53,7 +53,7 @@
 			variant="ghost"
 			size="sm"
 			onclick={onDelete}
-			class="text-red-500 hover:text-red-700 hover:bg-red-50"
+			class="text-destructive hover:text-destructive hover:bg-destructive/10"
 		>
 			<Trash2 class="w-4 h-4" />
 		</Button>

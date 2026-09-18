@@ -2,6 +2,8 @@
 	import type { EquipmentRentalContractFormState } from '$lib/state/v2/equipmentRentalContractFormState.svelte';
 	import type { EquipmentItem } from '$lib/types/v2';
 	import { formatCurrency } from '$lib/utils/formatting';
+	import FormSection from '$lib/components/FormSection.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		formState: EquipmentRentalContractFormState;
@@ -59,42 +61,44 @@
 	}
 </script>
 
-<div class="bg-white p-6 rounded-lg border border-gray-200">
-	<div class="flex items-center justify-between mb-4">
-		<h3 class="text-lg font-semibold text-gray-900">Equipment List</h3>
-		<button
+<div class="bg-card p-6 rounded-lg border border-border">
+	<div class="flex items-center justify-between mb-6">
+		<h3 class="text-lg font-semibold text-foreground">Equipment List</h3>
+		<Button
 			type="button"
+			size="sm"
 			onclick={() => formState.addEquipmentItem()}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
 		>
 			+ Add Equipment
-		</button>
+		</Button>
 	</div>
 
 	{#if formState.equipment.length === 0}
-		<p class="text-sm text-gray-500 italic">No equipment items added yet. Click "Add Equipment" to get started.</p>
+		<p class="text-sm text-muted-foreground italic">No equipment items added yet. Click "Add Equipment" to get started.</p>
 	{:else}
 		<div class="space-y-4">
 			{#each formState.equipment as item, index (index)}
-				<div class="p-4 border border-gray-200 rounded-md">
+				<div class="p-4 border border-border rounded-md">
 					<div class="flex items-center justify-between mb-3">
-						<h4 class="text-sm font-semibold text-gray-900">Equipment Item #{index + 1}</h4>
-						<button
+						<h4 class="text-sm font-semibold text-foreground">Equipment Item #{index + 1}</h4>
+						<Button
+							variant="destructive"
+							size="sm"
+							class="h-auto p-0"
 							type="button"
 							onclick={() => formState.removeEquipmentItem(index)}
-							class="text-red-600 hover:text-red-700 text-sm font-medium"
 						>
 							Remove
-						</button>
+						</Button>
 					</div>
 
 					<div class="grid gap-4 grid-cols-1 md:grid-cols-3">
 						<div>
 							<label
 								for="equipment-name-{index}"
-								class="block text-sm font-medium text-gray-700 mb-1"
+								class="block text-sm font-medium text-foreground mb-1"
 							>
-								Equipment Name <span class="text-red-500">*</span>
+								Equipment Name <span class="text-destructive">*</span>
 							</label>
 							<input
 								id="equipment-name-{index}"
@@ -102,7 +106,7 @@
 								value={item.name}
 								oninput={(e) => updateItem(index, 'name', e.currentTarget.value)}
 								required
-								class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 								placeholder="e.g., Audio Mixer"
 							/>
 						</div>
@@ -110,9 +114,9 @@
 						<div>
 							<label
 								for="equipment-quantity-{index}"
-								class="block text-sm font-medium text-gray-700 mb-1"
+								class="block text-sm font-medium text-foreground mb-1"
 							>
-								Quantity <span class="text-red-500">*</span>
+								Quantity <span class="text-destructive">*</span>
 							</label>
 							<input
 								id="equipment-quantity-{index}"
@@ -121,16 +125,16 @@
 								oninput={(e) => updateItem(index, 'quantity', Number(e.currentTarget.value))}
 								min="1"
 								required
-								class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 							/>
 						</div>
 
 						<div>
 							<label
 								for="equipment-unitPrice-{index}"
-								class="block text-sm font-medium text-gray-700 mb-1"
+								class="block text-sm font-medium text-foreground mb-1"
 							>
-								Unit Price (VND) <span class="text-red-500">*</span>
+								Unit Price (VND) <span class="text-destructive">*</span>
 							</label>
 							<input
 								id="equipment-unitPrice-{index}"
@@ -140,10 +144,10 @@
 								min="0"
 								step="1000"
 								required
-								class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+								class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 								placeholder="1000000"
 							/>
-							<p class="text-xs text-gray-500 mt-1">
+							<p class="text-xs text-muted-foreground mt-1">
 								Total: {formatCurrency(item.quantity * item.unitPrice)}
 							</p>
 						</div>
@@ -151,17 +155,19 @@
 
 					<div class="mt-4">
 						<div class="flex items-center justify-between mb-2">
-							<span class="block text-sm font-medium text-gray-700">Serial Numbers (Optional)</span>
-							<button
+							<span class="block text-sm font-medium text-foreground">Serial Numbers (Optional)</span>
+							<Button
+								variant="link"
+								size="sm"
+								class="h-auto p-0 text-sm"
 								type="button"
 								onclick={() => addSerialNumber(index)}
-								class="text-sm text-blue-600 hover:text-blue-700 font-medium"
 							>
 								+ Add Serial Number
-							</button>
+							</Button>
 						</div>
 						{#if item.serialNumbers.length === 0}
-							<p class="text-xs text-gray-500 italic">No serial numbers added</p>
+							<p class="text-xs text-muted-foreground italic">No serial numbers added</p>
 						{:else}
 							<div class="space-y-2">
 								{#each item.serialNumbers as serial, serialIndex (serialIndex)}
@@ -170,15 +176,15 @@
 											type="text"
 											value={serial}
 											oninput={(e) => updateSerialNumber(index, serialIndex, e.currentTarget.value)}
-											class="flex-1 px-3.5 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 text-sm"
+											class="flex-1 px-3.5 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 											placeholder="Serial number"
 										/>
 										<button
 											type="button"
 											onclick={() => removeSerialNumber(index, serialIndex)}
-											class="px-3 py-2 text-red-600 hover:text-red-700 text-sm"
+											class="px-3 py-2 text-destructive hover:text-destructive/80 text-sm"
 										>
-											×
+											&times;
 										</button>
 									</div>
 								{/each}
@@ -188,10 +194,10 @@
 				</div>
 			{/each}
 
-			<div class="p-4 bg-gray-50 rounded-md border border-gray-200">
+			<div class="p-4 bg-muted rounded-md border border-border">
 				<div class="flex justify-between items-center">
-					<span class="text-sm font-medium text-gray-700">Total Equipment Value:</span>
-					<span class="text-lg font-bold text-blue-600">{formatCurrency(formState.totalEquipmentValue)}</span>
+					<span class="text-sm font-medium text-foreground">Total Equipment Value:</span>
+					<span class="text-lg font-bold text-primary">{formatCurrency(formState.totalEquipmentValue)}</span>
 				</div>
 			</div>
 		</div>

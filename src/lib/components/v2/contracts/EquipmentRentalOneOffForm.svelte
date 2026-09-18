@@ -18,6 +18,8 @@
 	import { logger } from '$lib/utils/logger';
 	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
+	import SelectField from '$lib/components/SelectField.svelte';
 
 	interface Props {
 		contract?: EquipmentRentalOneOffContract | null;
@@ -188,14 +190,13 @@
 	class="space-y-6"
 >
 	{#if formState.error}
-		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
 			{formState.error}
 		</div>
 	{/if}
 
 	<!-- Contract Basics -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Contract Basics</h3>
+	<FormSection title="Contract Basics">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 			<TextField
 				id="contractNumber"
@@ -205,14 +206,14 @@
 			/>
 
 			<div>
-				<label for="counterpartyId" class="block text-sm font-medium text-gray-700 mb-1">
-					Counterparty <span class="text-red-500">*</span>
+				<label for="counterpartyId" class="block text-sm font-medium text-foreground mb-1">
+					Counterparty <span class="text-destructive">*</span>
 				</label>
 				<select
 					id="counterpartyId"
 					bind:value={formState.counterpartyId}
 					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 				>
 					<option value="">Select a counterparty</option>
 					{#each counterparties as counterparty (counterparty.id)}
@@ -222,42 +223,36 @@
 			</div>
 
 			<div>
-				<label for="eventId" class="block text-sm font-medium text-gray-700 mb-1">
+				<label for="eventId" class="block text-sm font-medium text-foreground mb-1">
 					Link to Event (optional)
 				</label>
 				<select
 					id="eventId"
 					value={formState.eventId || ''}
 					onchange={(e) => handleEventSelect(e.currentTarget.value)}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 				>
 					<option value="">No event (standalone)</option>
 					{#each events as event (event.id)}
 						<option value={event.id}>{event.name}</option>
 					{/each}
 				</select>
-				<p class="text-xs text-gray-500 mt-1">Auto-fills event name below when selected</p>
+				<p class="text-xs text-muted-foreground mt-1">Auto-fills event name below when selected</p>
 			</div>
 
-			<div>
-				<label for="paymentStatus" class="block text-sm font-medium text-gray-700 mb-1">
-					Payment Status
-				</label>
-				<select
-					id="paymentStatus"
-					bind:value={formState.paymentStatus}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				>
-					<option value="unpaid">Unpaid</option>
-					<option value="paid">Paid</option>
-				</select>
-			</div>
+			<SelectField
+				id="paymentStatus"
+				label="Payment Status"
+				bind:value={formState.paymentStatus}
+			>
+				<option value="unpaid">Unpaid</option>
+				<option value="paid">Paid</option>
+			</SelectField>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Quotation & Event -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Quotation & Event</h3>
+	<FormSection title="Quotation & Event">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 			<TextField
 				id="quotationReference"
@@ -282,11 +277,10 @@
 				required
 			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Setup & Collection -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Setup & Collection</h3>
+	<FormSection title="Setup & Collection">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 			<TextField
 				id="setupDateTime"
@@ -303,11 +297,10 @@
 				required
 			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Venue / Delivery Location -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Venue / Delivery Location</h3>
+	<FormSection title="Venue / Delivery Location">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 			<TextField
 				id="venueName"
@@ -334,11 +327,10 @@
 				required
 			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Financial (NET of VAT) -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Financial (all amounts NET of VAT)</h3>
+	<FormSection title="Financial (all amounts NET of VAT)">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-3">
 			<TextField
 				id="contractValue"
@@ -373,11 +365,10 @@
 				helperText="Total replacement value of equipment"
 			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Payment Terms -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Terms</h3>
+	<FormSection title="Payment Terms">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-3">
 			<TextField
 				id="balancePaymentDays"
@@ -402,11 +393,10 @@
 				min="0"
 			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Cancellation Terms -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Cancellation Terms</h3>
+	<FormSection title="Cancellation Terms">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 			<TextField
 				id="cancellationTier1Days"
@@ -441,11 +431,10 @@
 				max="100"
 			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Equipment List (Annex 1) -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Equipment List (Annex 1)</h3>
+	<FormSection title="Equipment List (Annex 1)">
 		<TextareaField
 			id="equipmentList"
 			label="Equipment items"
@@ -455,11 +444,10 @@
 			placeholder="List the equipment items that will appear in Annex 1..."
 			helperText="This text is inserted into the Annex 1 section of the contract"
 		/>
-	</div>
+	</FormSection>
 
 	<!-- Notes -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Internal Notes</h3>
+	<FormSection title="Internal Notes">
 		<TextareaField
 			id="notes"
 			label=""
@@ -467,19 +455,19 @@
 			rows={4}
 			placeholder="Internal notes..."
 		/>
-	</div>
+	</FormSection>
 
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<button
+			<Button
+				variant="outline"
 				type="button"
 				onclick={onCancel}
 				disabled={formState.isSubmitting}
-				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
-			</button>
+			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}

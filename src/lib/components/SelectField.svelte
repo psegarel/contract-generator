@@ -1,30 +1,31 @@
 <script lang="ts">
 	/**
-	 * TextField - Reusable Input Component (Design System)
+	 * SelectField - Reusable Select Component (Design System)
 	 *
-	 * Styled wrapper around native <input>. Supports all input types
-	 * (text, number, date, etc.) and forwards additional HTML attributes.
+	 * Styled wrapper around native <select>. Uses design tokens
+	 * for consistent styling. Pass <option> elements as children.
 	 */
 
-	import type { HTMLInputAttributes } from 'svelte/elements';
+	import type { Snippet } from 'svelte';
+	import type { HTMLSelectAttributes } from 'svelte/elements';
 
 	let {
 		id,
 		label,
 		value = $bindable(''),
-		type = 'text',
 		required = false,
-		placeholder = '',
 		error = '',
 		helperText = '',
 		class: className = '',
+		children,
 		...rest
-	}: HTMLInputAttributes & {
+	}: HTMLSelectAttributes & {
 		id: string;
 		label: string;
-		value?: string | number;
+		value?: string;
 		error?: string;
 		helperText?: string;
+		children: Snippet;
 	} = $props();
 </script>
 
@@ -35,17 +36,17 @@
 			<span class="text-destructive">*</span>
 		{/if}
 	</label>
-	<input
+	<select
 		{id}
-		{type}
 		bind:value
-		{placeholder}
 		{required}
 		{...rest}
-		class="w-full px-3.5 py-2.5 border border-input rounded-md text-foreground placeholder:text-muted-foreground/30 focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm {error
+		class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm {error
 			? 'border-destructive focus:ring-destructive/10'
 			: ''}"
-	/>
+	>
+		{@render children()}
+	</select>
 	{#if helperText && !error}
 		<p class="text-xs text-muted-foreground m-0">{helperText}</p>
 	{/if}

@@ -2,6 +2,9 @@
 	import type { EquipmentRentalContractFormState } from '$lib/state/v2/equipmentRentalContractFormState.svelte';
 	import type { Counterparty } from '$lib/types/v2';
 	import TextField from '$lib/components/TextField.svelte';
+	import SelectField from '$lib/components/SelectField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		formState: EquipmentRentalContractFormState;
@@ -13,8 +16,7 @@
 	let { formState, counterparties, onCreateCounterpartyClick, onCounterpartyChange }: Props = $props();
 </script>
 
-<div class="bg-white p-6 rounded-lg border border-gray-200">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Contract Basics</h3>
+<FormSection title="Contract Basics">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<div>
 			<TextField
@@ -27,23 +29,24 @@
 
 		<div>
 			<div class="flex items-center justify-between mb-1">
-				<label for="counterpartyId" class="block text-sm font-medium text-gray-700">
-					Counterparty <span class="text-red-500">*</span>
+				<label for="counterpartyId" class="block text-sm font-medium text-foreground">
+					Counterparty <span class="text-destructive">*</span>
 				</label>
-				<button
-					type="button"
+				<Button
+					variant="link"
+					size="sm"
+					class="h-auto p-0 text-sm"
 					onclick={() => onCreateCounterpartyClick?.()}
-					class="text-sm text-blue-600 hover:text-blue-700 font-medium"
 				>
 					+ Create New
-				</button>
+				</Button>
 			</div>
 			<select
 				id="counterpartyId"
 				bind:value={formState.counterpartyId}
 				onchange={() => onCounterpartyChange?.()}
 				required
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+				class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 			>
 				<option value="">Select a counterparty</option>
 				{#each counterparties as counterparty (counterparty.id)}
@@ -52,18 +55,14 @@
 			</select>
 		</div>
 
-		<div>
-			<label for="paymentStatus" class="block text-sm font-medium text-gray-700 mb-1">
-				Payment Status <span class="text-red-500">*</span>
-			</label>
-			<select
-				id="paymentStatus"
-				bind:value={formState.paymentStatus}
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			>
-				<option value="unpaid">Unpaid</option>
-				<option value="paid">Paid</option>
-			</select>
-		</div>
+		<SelectField
+			id="paymentStatus"
+			label="Payment Status"
+			bind:value={formState.paymentStatus}
+			required
+		>
+			<option value="unpaid">Unpaid</option>
+			<option value="paid">Paid</option>
+		</SelectField>
 	</div>
-</div>
+</FormSection>

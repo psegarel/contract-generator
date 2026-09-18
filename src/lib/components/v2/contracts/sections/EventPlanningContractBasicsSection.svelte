@@ -2,7 +2,9 @@
 	import type { EventPlanningContractFormState } from '$lib/state/v2/eventPlanningContractFormState.svelte';
 	import type { Event } from '$lib/types/v2';
 	import type { ClientCounterparty } from '$lib/types/v2';
+	import FormSection from '$lib/components/FormSection.svelte';
 	import TextField from '$lib/components/TextField.svelte';
+	import SelectField from '$lib/components/SelectField.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import CreateCounterpartyInline from './CreateCounterpartyInline.svelte';
 	import CreateEventInline from './CreateEventInline.svelte';
@@ -29,8 +31,7 @@
 	}: Props = $props();
 </script>
 
-<div class="bg-white p-6 rounded-lg border border-gray-200">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Contract Basics</h3>
+<FormSection title="Contract Basics">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<TextField
 			id="contractNumber"
@@ -58,8 +59,8 @@
 
 		<div>
 			<div class="flex items-center justify-between mb-2">
-				<label for="eventId" class="block text-sm font-medium text-gray-700">
-					Event <span class="text-red-500">*</span>
+				<label for="eventId" class="block text-sm font-medium text-foreground">
+					Event <span class="text-destructive">*</span>
 				</label>
 				<Button
 					variant={formState.showCreateEvent ? 'ghost' : 'dark'}
@@ -79,7 +80,7 @@
 					id="eventId"
 					bind:value={formState.eventId}
 					onchange={() => onEventChange?.()}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 				>
 					<option value="">Select an event</option>
 					{#each events as event (event.id)}
@@ -91,8 +92,8 @@
 
 		<div>
 			<div class="flex items-center justify-between mb-2">
-				<label for="counterpartyId" class="block text-sm font-medium text-gray-700">
-					Client <span class="text-red-500">*</span>
+				<label for="counterpartyId" class="block text-sm font-medium text-foreground">
+					Client <span class="text-destructive">*</span>
 				</label>
 				<Button
 					variant={formState.showCreateCounterparty ? 'ghost' : 'dark'}
@@ -113,7 +114,7 @@
 					id="counterpartyId"
 					bind:value={formState.counterpartyId}
 					onchange={() => onClientChange?.()}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+					class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 				>
 					<option value="">Select a client</option>
 					{#each clients as client (client.id)}
@@ -123,19 +124,15 @@
 			{/if}
 		</div>
 
-		<div>
-			<label for="paymentStatus" class="block text-sm font-medium text-gray-700 mb-1">
-				Payment Status <span class="text-red-500">*</span>
-			</label>
-			<select
-				id="paymentStatus"
-				bind:value={formState.paymentStatus}
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			>
-				<option value="unpaid">Unpaid</option>
-				<option value="paid">Paid</option>
-			</select>
-		</div>
+		<SelectField
+			id="paymentStatus"
+			label="Payment Status"
+			bind:value={formState.paymentStatus}
+			required
+		>
+			<option value="unpaid">Unpaid</option>
+			<option value="paid">Paid</option>
+		</SelectField>
 	</div>
 
 	{#if formState.showCreateEvent && onCreateEvent}
@@ -157,4 +154,4 @@
 			/>
 		</div>
 	{/if}
-</div>
+</FormSection>

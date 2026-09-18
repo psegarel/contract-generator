@@ -2,6 +2,7 @@
 	import type { EquipmentRentalContractFormState } from '$lib/state/v2/equipmentRentalContractFormState.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import TextField from '$lib/components/TextField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 
 	interface Props {
 		formState: EquipmentRentalContractFormState;
@@ -10,8 +11,7 @@
 	let { formState }: Props = $props();
 </script>
 
-<div class="bg-white p-6 rounded-lg border border-gray-200">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Rental Terms</h3>
+<FormSection title="Rental Terms">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<TextField
 			class="col-span-full"
@@ -55,42 +55,42 @@
 				<input
 					type="checkbox"
 					bind:checked={formState.damageWaiver}
-					class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+					class="w-4 h-4 text-primary border-border rounded focus:ring-ring"
 				/>
-				<span class="text-sm font-medium text-gray-700">Damage Waiver Included</span>
+				<span class="text-sm font-medium text-foreground">Damage Waiver Included</span>
 			</label>
-			<p class="text-xs text-gray-500 mt-1 ml-6">
+			<p class="text-xs text-muted-foreground mt-1 ml-6">
 				Check if damage waiver is included in the rental terms
 			</p>
 		</div>
 
-		<div class="col-span-full p-4 bg-gray-50 rounded-md border border-gray-200">
+		<div class="col-span-full p-4 bg-muted rounded-md border border-border">
 			<div class="grid gap-2 text-sm">
 				<div class="flex justify-between">
-					<span class="text-gray-600">Monthly Rent:</span>
-					<span class="font-semibold text-gray-900">{formatCurrency(formState.monthlyRent)}</span>
+					<span class="text-muted-foreground">Monthly Rent:</span>
+					<span class="font-semibold text-foreground">{formatCurrency(formState.monthlyRent)}</span>
 				</div>
 				<div class="flex justify-between">
-					<span class="text-gray-600">Rental Period:</span>
-					<span class="font-semibold text-gray-900">{formState.rentalMonths} month{formState.rentalMonths !== 1 ? 's' : ''}</span>
+					<span class="text-muted-foreground">Rental Period:</span>
+					<span class="font-semibold text-foreground">{formState.rentalMonths} month{formState.rentalMonths !== 1 ? 's' : ''}</span>
 				</div>
 				<div class="flex justify-between">
-					<span class="text-gray-600">Equipment Residual Value:</span>
-					<span class="font-semibold text-gray-900">{formatCurrency(formState.totalEquipmentValue)}</span>
+					<span class="text-muted-foreground">Equipment Residual Value:</span>
+					<span class="font-semibold text-foreground">{formatCurrency(formState.totalEquipmentValue)}</span>
 				</div>
 				<div class="flex justify-between">
-					<span class="text-gray-600">Delivery Fee:</span>
-					<span class="font-semibold text-gray-900">{formatCurrency(formState.deliveryFee)}</span>
+					<span class="text-muted-foreground">Delivery Fee:</span>
+					<span class="font-semibold text-foreground">{formatCurrency(formState.deliveryFee)}</span>
 				</div>
 				<div class="flex justify-between">
-					<span class="text-gray-600">Security Deposit:</span>
-					<span class="font-semibold text-gray-900">{formatCurrency(formState.securityDeposit)}</span>
+					<span class="text-muted-foreground">Security Deposit:</span>
+					<span class="font-semibold text-foreground">{formatCurrency(formState.securityDeposit)}</span>
 				</div>
-				<div class="flex justify-between pt-2 border-t border-gray-300">
-					<span class="text-gray-700 font-medium">Total Contract Value:</span>
-					<span class="font-bold text-blue-600">{formatCurrency(formState.calculatedContractValue)}</span>
+				<div class="flex justify-between pt-2 border-t border-border">
+					<span class="text-foreground font-medium">Total Contract Value:</span>
+					<span class="font-bold text-primary">{formatCurrency(formState.calculatedContractValue)}</span>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
+</FormSection>

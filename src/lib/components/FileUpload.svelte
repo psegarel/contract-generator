@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Label } from '$lib/components/ui/label';
 	import { Upload, X, FileText, Image as ImageIcon } from '@lucide/svelte';
 	import type { DocumentMetadata } from '$lib/types/v2/counterparty';
 
@@ -74,7 +73,7 @@
 </script>
 
 <div class="space-y-2">
-	<Label>{label}</Label>
+	<span class="text-sm font-medium text-foreground">{label}</span>
 
 	{#if document}
 		<!-- Show uploaded file -->

@@ -83,11 +83,11 @@
 			onclick={() => handleSelect(contractType.value)}
 			class="p-4 rounded-lg border-2 transition-all text-left {selectedType ===
 			contractType.value
-				? 'border-blue-600 bg-blue-50'
-				: 'border-gray-200 hover:border-gray-300 bg-white'}"
+				? 'border-primary bg-primary/5'
+				: 'border-border hover:border-border/80 bg-card'}"
 		>
 			<div class="flex items-start justify-between gap-2 mb-2">
-				<h3 class="font-semibold text-gray-900">{contractType.label}</h3>
+				<h3 class="font-semibold text-foreground">{contractType.label}</h3>
 				<span
 					class="text-xs px-2 py-1 rounded-full {contractType.direction === 'receivable'
 						? 'bg-emerald-100 text-emerald-800'
@@ -98,7 +98,7 @@
 					{contractType.direction === 'both' ? 'Receivable/Payable' : contractType.direction}
 				</span>
 			</div>
-			<p class="text-sm text-gray-600">{contractType.description}</p>
+			<p class="text-sm text-muted-foreground">{contractType.description}</p>
 		</button>
 	{/each}
 </div>

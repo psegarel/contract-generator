@@ -2,6 +2,7 @@
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import TextField from '$lib/components/TextField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -15,8 +16,7 @@
 	let taxAmount = $derived(grossAmount - formState.contractValue);
 </script>
 
-<div class="bg-white p-6 rounded-lg border border-gray-200">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Financial Details</h3>
+<FormSection title="Financial Details">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<TextField
 			id="contractValue"
@@ -41,19 +41,19 @@
 			placeholder="10"
 		/>
 
-		<div class="col-span-full p-4 bg-gray-50 rounded-md border border-gray-200">
+		<div class="col-span-full p-4 bg-muted rounded-md border border-border">
 			<div class="grid gap-2 text-sm">
 				<div class="flex justify-between">
-					<span class="text-gray-600">Contract Value (before tax):</span>
-					<span class="font-semibold text-gray-900">{formatCurrency(formState.contractValue)}</span>
+					<span class="text-muted-foreground">Contract Value (before tax):</span>
+					<span class="font-semibold text-foreground">{formatCurrency(formState.contractValue)}</span>
 				</div>
 				<div class="flex justify-between">
-					<span class="text-gray-600">Tax Amount ({formState.taxRate}%):</span>
-					<span class="font-semibold text-gray-900">{formatCurrency(taxAmount)}</span>
+					<span class="text-muted-foreground">Tax Amount ({formState.taxRate}%):</span>
+					<span class="font-semibold text-foreground">{formatCurrency(taxAmount)}</span>
 				</div>
-				<div class="flex justify-between pt-2 border-t border-gray-300">
-					<span class="text-gray-700 font-medium">Gross Amount (after tax added):</span>
-					<span class="font-bold text-blue-600">{formatCurrency(grossAmount)}</span>
+				<div class="flex justify-between pt-2 border-t border-border">
+					<span class="text-foreground font-medium">Gross Amount (after tax added):</span>
+					<span class="font-bold text-primary">{formatCurrency(grossAmount)}</span>
 				</div>
 			</div>
 		</div>
@@ -68,4 +68,4 @@
 			helperText="The date by which payment must be made"
 		/>
 	</div>
-</div>
+</FormSection>

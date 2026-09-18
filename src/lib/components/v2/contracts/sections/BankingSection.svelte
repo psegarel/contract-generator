@@ -2,6 +2,7 @@
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import TextField from '$lib/components/TextField.svelte';
 	import BankNameCombobox from '$lib/components/v2/forms/BankNameCombobox.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -10,8 +11,7 @@
 	let { formState }: Props = $props();
 </script>
 
-<div class="bg-white p-6 rounded-lg border border-gray-200">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Banking Information</h3>
+<FormSection title="Banking Information">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<BankNameCombobox
 			id="bankName"
@@ -28,4 +28,4 @@
 			placeholder="1234567890"
 		/>
 	</div>
-</div>
+</FormSection>

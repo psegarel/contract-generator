@@ -1,5 +1,7 @@
 <script lang="ts">
 	import TextField from '$lib/components/TextField.svelte';
+	import SelectField from '$lib/components/SelectField.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import { PERFORMER_TYPES } from '$lib/config/counterpartyTypes';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import { performerContractorSchema } from '$lib/schemas/v2/counterparty';
@@ -95,8 +97,8 @@
 	}
 </script>
 
-<div class="bg-blue-50 border border-blue-200 p-6 rounded-lg space-y-6">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Add New Performer</h3>
+<div class="bg-primary/5 border border-primary/20 p-6 rounded-lg space-y-6">
+	<h3 class="text-lg font-semibold text-foreground mb-4">Add New Performer</h3>
 
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<TextField
@@ -113,22 +115,17 @@
 			placeholder="e.g., DJ Mai"
 			required
 		/>
-		<div>
-			<label for="performerType" class="text-sm font-medium text-foreground ml-1">
-				Performer Type
-				<span class="text-destructive">*</span>
-			</label>
-			<select
-				id="performerType"
-				bind:value={performerType}
-				class="w-full px-4 py-3 bg-background rounded-2xl text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border-none text-sm mt-2"
-			>
-				<option value="">Select type</option>
-				{#each PERFORMER_TYPES as type (type)}
-					<option value={type}>{type}</option>
-				{/each}
-			</select>
-		</div>
+		<SelectField
+			id="performerType"
+			label="Performer Type"
+			bind:value={performerType}
+			required
+		>
+			<option value="">Select type</option>
+			{#each PERFORMER_TYPES as type (type)}
+				<option value={type}>{type}</option>
+			{/each}
+		</SelectField>
 		<TextField
 			id="performerGenre"
 			label="Genre"
@@ -190,21 +187,16 @@
 		/>
 	</div>
 
-	<div class="flex gap-3 justify-end pt-4 border-t border-blue-300">
-		<button
-			type="button"
-			onclick={onCancel}
-			class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-		>
+	<div class="flex gap-3 justify-end pt-4 border-t border-primary/30">
+		<Button type="button" variant="outline" onclick={onCancel}>
 			Cancel
-		</button>
-		<button
+		</Button>
+		<Button
 			type="button"
 			onclick={handleCreate}
 			disabled={isSubmitting}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
 		>
 			{isSubmitting ? 'Creating...' : 'Create Performer'}
-		</button>
+		</Button>
 	</div>
 </div>

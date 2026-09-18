@@ -9,6 +9,7 @@
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import Sidebar from './Sidebar.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
 
 	let { children } = $props();
@@ -94,13 +95,15 @@
 		<!-- Top Bar -->
 		<header class="h-16 border-b border-border flex items-center justify-between px-4 md:px-8 z-20 w-full">
 			<!-- Hamburger Menu Button (Mobile Only) -->
-			<button
+			<Button
+				variant="ghost"
+				size="icon"
 				onclick={() => (sidebarOpen = !sidebarOpen)}
-				class="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+				class="lg:hidden"
 				aria-label="Toggle sidebar"
 			>
 				<Menu class="h-5 w-5" />
-			</button>
+			</Button>
 
 			<div class="flex items-center space-x-4 ml-auto">
 
@@ -138,12 +141,12 @@
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
 				{:else}
-					<button
+					<Button
 						onclick={() => goto(resolve('/login'))}
-						class="text-sm font-bold px-4 py-2 bg-primary text-primary-foreground rounded-full hover:scale-105 transition-transform"
+						class="rounded-full"
 					>
 						Sign In
-					</button>
+					</Button>
 				{/if}
 			</div>
 		</header>

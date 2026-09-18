@@ -14,6 +14,8 @@
 	import { Timestamp } from 'firebase/firestore';
 	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
+	import TextareaField from '$lib/components/TextareaField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 	import { logger } from '$lib/utils/logger';
 	import ContractBasicsSection from './sections/ContractBasicsSection.svelte';
 	import CreateProviderInline from './sections/CreateProviderInline.svelte';
@@ -246,7 +248,7 @@
 >
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
 			{formState.error}
 		</div>
 	{/if}
@@ -285,28 +287,27 @@
 	<ClientInfoSection {formState} />
 
 	<!-- Notes -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Internal Notes</h3>
-		<textarea
+	<FormSection title="Internal Notes">
+		<TextareaField
 			id="notes"
+			label="Notes"
 			bind:value={formState.notes}
-			rows="4"
-			class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+			rows={4}
 			placeholder="Internal notes..."
-		></textarea>
-	</div>
+		/>
+	</FormSection>
 
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<button
+			<Button
+				variant="outline"
 				type="button"
 				onclick={onCancel}
 				disabled={formState.isSubmitting}
-				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
-			</button>
+			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}

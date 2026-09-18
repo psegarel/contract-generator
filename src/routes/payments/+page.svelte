@@ -171,7 +171,7 @@
 			Back
 		</Button>
 		<div>
-			<h1 class="text-2xl font-bold text-gray-900">Payments</h1>
+			<h1 class="text-2xl font-bold text-foreground">Payments</h1>
 			<p class="text-sm text-muted-foreground mt-0.5">
 				{filteredPayments.length} payment{filteredPayments.length === 1 ? '' : 's'}
 			</p>
@@ -188,7 +188,7 @@
 
 		<select
 			bind:value={statusFilter}
-			class="text-sm border border-gray-300 rounded-md px-3 py-1.5"
+			class="text-sm border border-input rounded-md px-3 py-1.5"
 		>
 			<option value="all">All statuses</option>
 			<option value="pending">Pending</option>
@@ -197,7 +197,7 @@
 
 		<select
 			bind:value={directionFilter}
-			class="text-sm border border-gray-300 rounded-md px-3 py-1.5"
+			class="text-sm border border-input rounded-md px-3 py-1.5"
 		>
 			<option value="all">All directions</option>
 			<option value="receivable">Receivable</option>
@@ -206,7 +206,7 @@
 
 		<select
 			bind:value={contractTypeFilter}
-			class="text-sm border border-gray-300 rounded-md px-3 py-1.5"
+			class="text-sm border border-input rounded-md px-3 py-1.5"
 		>
 			<option value="all">All types</option>
 			<option value="venue-rental">Venue</option>
@@ -238,7 +238,7 @@
 				{@const hasMultiple = totalCount > 1}
 				{@const expanded = expandedContracts.has(group.contractId)}
 
-				<div class="border border-border rounded-lg bg-white">
+				<div class="border border-border rounded-lg bg-card">
 					<!-- Contract Group Header -->
 					<div class="flex items-center gap-3 px-4 py-3">
 						{#if hasMultiple}
@@ -306,7 +306,7 @@
 						<div class="border-t border-border">
 							{#each group.payments as payment, i (payment.id)}
 								<div
-									class="flex items-center gap-3 px-4 py-2.5 {i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}"
+									class="flex items-center gap-3 px-4 py-2.5 {i % 2 === 0 ? 'bg-slate-50' : 'bg-card'}"
 								>
 									<div class="w-4 shrink-0"></div>
 									<div class="flex-1 min-w-0">
@@ -319,7 +319,7 @@
 												bind:value={editingAmountValue}
 												onblur={() => saveAmount(payment)}
 												onkeydown={(e) => { if (e.key === 'Enter') saveAmount(payment); if (e.key === 'Escape') editingAmountId = null; }}
-												class="w-32 px-2 py-0.5 border border-blue-400 rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+												class="w-32 px-2 py-0.5 border border-primary rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring"
 												{@attach (node) => { node.focus(); }}
 											/>
 										{:else}

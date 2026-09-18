@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import TextField from '$lib/components/TextField.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -11,8 +12,8 @@
 	let { formState, onCancel, onCreate }: Props = $props();
 </script>
 
-<div class="bg-blue-50 border border-blue-200 p-6 rounded-lg">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Create New Service Provider</h3>
+<div class="bg-primary/5 border border-primary/20 p-6 rounded-lg">
+	<h3 class="text-lg font-semibold text-foreground mb-4">Create New Service Provider</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<TextField
 			id="newProviderName"
@@ -48,20 +49,15 @@
 	</div>
 
 	<div class="flex gap-3 justify-end mt-4">
-		<button
-			type="button"
-			onclick={onCancel}
-			class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-		>
+		<Button variant="outline" type="button" onclick={onCancel}>
 			Cancel
-		</button>
-		<button
+		</Button>
+		<Button
 			type="button"
 			onclick={onCreate}
 			disabled={formState.isCreatingProvider}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
 		>
 			{formState.isCreatingProvider ? 'Creating...' : 'Create Provider'}
-		</button>
+		</Button>
 	</div>
 </div>

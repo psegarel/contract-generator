@@ -8,6 +8,10 @@
 	import { Timestamp } from 'firebase/firestore';
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
+	import TextField from '$lib/components/TextField.svelte';
+	import TextareaField from '$lib/components/TextareaField.svelte';
+	import SelectField from '$lib/components/SelectField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 	import BankNameCombobox from '$lib/components/v2/forms/BankNameCombobox.svelte';
 
 	interface Props {
@@ -87,210 +91,146 @@
 <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
 			{formState.error}
 		</div>
 	{/if}
 
 	<!-- Basic Information -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+	<FormSection title="Basic Information">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div class="col-span-full">
-				<label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-					Name <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="name"
-					type="text"
-					bind:value={formState.name}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="John Doe or ABC Corporation"
-				/>
-			</div>
+			<TextField
+				id="name"
+				label="Name"
+				bind:value={formState.name}
+				required
+				placeholder="John Doe or ABC Corporation"
+				class="col-span-full"
+			/>
 
-			<div>
-				<label for="clientType" class="block text-sm font-medium text-gray-700 mb-1">
-					Client Type <span class="text-red-500">*</span>
-				</label>
-				<select
-					id="clientType"
-					bind:value={formState.clientType}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				>
-					<option value="individual">Individual</option>
-					<option value="company">Company</option>
-				</select>
-			</div>
+			<SelectField
+				id="clientType"
+				label="Client Type"
+				bind:value={formState.clientType}
+				required
+			>
+				<option value="individual">Individual</option>
+				<option value="company">Company</option>
+			</SelectField>
 
-			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-					Email
-				</label>
-				<input
-					id="email"
-					type="email"
-					bind:value={formState.email}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="client@example.com"
-				/>
-			</div>
+			<TextField
+				id="email"
+				label="Email"
+				type="email"
+				bind:value={formState.email}
+				placeholder="client@example.com"
+			/>
 
-			<div>
-				<label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
-					Phone
-				</label>
-				<input
-					id="phone"
-					type="tel"
-					bind:value={formState.phone}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="+84 123 456 789"
-				/>
-			</div>
+			<TextField
+				id="phone"
+				label="Phone"
+				type="tel"
+				bind:value={formState.phone}
+				placeholder="+84 123 456 789"
+			/>
 
-			<div class="col-span-full">
-				<label for="address" class="block text-sm font-medium text-gray-700 mb-1">
-					Address
-				</label>
-				<input
-					id="address"
-					type="text"
-					bind:value={formState.address}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="123 Main St, Ho Chi Minh City"
-				/>
-			</div>
+			<TextField
+				id="address"
+				label="Address"
+				bind:value={formState.address}
+				placeholder="123 Main St, Ho Chi Minh City"
+				class="col-span-full"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Company Details (shown if clientType === 'company') -->
 	{#if formState.clientType === 'company'}
-		<div class="bg-white p-6 rounded-lg border border-gray-200">
-			<h3 class="text-lg font-semibold text-gray-900 mb-4">Company Details</h3>
+		<FormSection title="Company Details">
 			<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-				<div class="col-span-full">
-					<label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">
-						Company Name
-					</label>
-					<input
-						id="companyName"
-						type="text"
-						bind:value={formState.companyName}
-						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-						placeholder="ABC Corporation Ltd"
-					/>
-				</div>
+				<TextField
+					id="companyName"
+					label="Company Name"
+					bind:value={formState.companyName}
+					placeholder="ABC Corporation Ltd"
+					class="col-span-full"
+				/>
 
-				<div>
-					<label for="representativeName" class="block text-sm font-medium text-gray-700 mb-1">
-						Representative Name
-					</label>
-					<input
-						id="representativeName"
-						type="text"
-						bind:value={formState.representativeName}
-						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-						placeholder="John Doe"
-					/>
-				</div>
+				<TextField
+					id="representativeName"
+					label="Representative Name"
+					bind:value={formState.representativeName}
+					placeholder="John Doe"
+				/>
 
-				<div>
-					<label for="representativePosition" class="block text-sm font-medium text-gray-700 mb-1">
-						Representative Position
-					</label>
-					<input
-						id="representativePosition"
-						type="text"
-						bind:value={formState.representativePosition}
-						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-						placeholder="CEO, Director"
-					/>
-				</div>
+				<TextField
+					id="representativePosition"
+					label="Representative Position"
+					bind:value={formState.representativePosition}
+					placeholder="CEO, Director"
+				/>
 			</div>
-		</div>
+		</FormSection>
 	{/if}
 
 	<!-- Individual Details (shown if clientType === 'individual') -->
 	{#if formState.clientType === 'individual'}
-		<div class="bg-white p-6 rounded-lg border border-gray-200">
-			<h3 class="text-lg font-semibold text-gray-900 mb-4">Individual Details</h3>
+		<FormSection title="Individual Details">
 			<div class="grid gap-4 grid-cols-1">
-				<div>
-					<label for="idDocument" class="block text-sm font-medium text-gray-700 mb-1">
-						ID Document (Passport/ID Number)
-					</label>
-					<input
-						id="idDocument"
-						type="text"
-						bind:value={formState.idDocument}
-						class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-						placeholder="123456789"
-					/>
-				</div>
+				<TextField
+					id="idDocument"
+					label="ID Document (Passport/ID Number)"
+					bind:value={formState.idDocument}
+					placeholder="123456789"
+				/>
 			</div>
-		</div>
+		</FormSection>
 	{/if}
 
 	<!-- Tax & Banking -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Tax & Banking</h3>
+	<FormSection title="Tax & Banking">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div class="col-span-full">
-				<label for="taxId" class="block text-sm font-medium text-gray-700 mb-1">
-					Tax ID
-				</label>
-				<input
-					id="taxId"
-					type="text"
-					bind:value={formState.taxId}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Tax identification number"
-				/>
-			</div>
+			<TextField
+				id="taxId"
+				label="Tax ID"
+				bind:value={formState.taxId}
+				placeholder="Tax identification number"
+				class="col-span-full"
+			/>
 
 			<BankNameCombobox id="bankName" label="Bank Name" bind:value={formState.bankName} />
 
-			<div>
-				<label for="bankAccountNumber" class="block text-sm font-medium text-gray-700 mb-1">
-					Bank Account Number
-				</label>
-				<input
-					id="bankAccountNumber"
-					type="text"
-					bind:value={formState.bankAccountNumber}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="1234567890"
-				/>
-			</div>
+			<TextField
+				id="bankAccountNumber"
+				label="Bank Account Number"
+				bind:value={formState.bankAccountNumber}
+				placeholder="1234567890"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Notes -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Notes</h3>
-		<textarea
+	<FormSection title="Notes">
+		<TextareaField
 			id="notes"
+			label=""
 			bind:value={formState.notes}
-			rows="4"
-			class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+			rows={4}
 			placeholder="Additional notes about this client..."
-		></textarea>
-	</div>
+		/>
+	</FormSection>
 
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<button
+			<Button
 				type="button"
+				variant="outline"
 				onclick={onCancel}
 				disabled={formState.isSubmitting}
-				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
-			</button>
+			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : client ? 'Update Client' : 'Create Client'}

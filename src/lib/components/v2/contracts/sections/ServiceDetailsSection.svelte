@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import TextField from '$lib/components/TextField.svelte';
+	import TextareaField from '$lib/components/TextareaField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 
 	interface Props {
 		formState: ServiceProvisionContractFormState;
@@ -9,8 +11,7 @@
 	let { formState }: Props = $props();
 </script>
 
-<div class="bg-white p-6 rounded-lg border border-gray-200">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Service Details</h3>
+<FormSection title="Service Details">
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<TextField
 			class="col-span-full"
@@ -21,19 +22,15 @@
 			placeholder="DJ Services, Sound System Rental, etc."
 		/>
 
-		<div class="col-span-full">
-			<label for="jobContent" class="block text-sm font-medium text-gray-700 mb-1">
-				Job Content <span class="text-red-500">*</span>
-			</label>
-			<textarea
-				id="jobContent"
-				bind:value={formState.jobContent}
-				required
-				rows="4"
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-				placeholder="Detailed description of services provided..."
-			></textarea>
-		</div>
+		<TextareaField
+			class="col-span-full"
+			id="jobContent"
+			label="Job Content"
+			bind:value={formState.jobContent}
+			required
+			rows={4}
+			placeholder="Detailed description of services provided..."
+		/>
 
 		<TextField
 			id="numberOfPerformances"
@@ -77,4 +74,4 @@
 			placeholder="123 Main St, Ho Chi Minh City"
 		/>
 	</div>
-</div>
+</FormSection>

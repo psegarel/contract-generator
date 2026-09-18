@@ -41,14 +41,14 @@
 			onclick={() => handleSelect(counterpartyType.value)}
 			class="p-4 rounded-lg border-2 transition-all text-left {selectedType ===
 			counterpartyType.value
-				? 'border-blue-600 bg-blue-50'
-				: 'border-gray-200 hover:border-gray-300 bg-white'}"
+				? 'border-primary bg-primary/5'
+				: 'border-border hover:border-border/80 bg-card'}"
 		>
 			<div class="flex items-start gap-3">
 				<div class="text-2xl">{counterpartyType.icon}</div>
 				<div class="flex-1">
-					<h3 class="font-semibold text-gray-900 mb-1">{counterpartyType.label}</h3>
-					<p class="text-sm text-gray-600">{counterpartyType.description}</p>
+					<h3 class="font-semibold text-foreground mb-1">{counterpartyType.label}</h3>
+					<p class="text-sm text-muted-foreground">{counterpartyType.description}</p>
 				</div>
 			</div>
 		</button>

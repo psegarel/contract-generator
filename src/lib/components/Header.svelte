@@ -7,6 +7,7 @@
 	import { LogOut, Sun, Moon, Users, FileText, CalendarCheck } from '@lucide/svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
+	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
 
 	async function handleSignOut() {
@@ -144,9 +145,11 @@
 				{/if}
 
 				<!-- Theme Toggle -->
-				<button
+				<Button
+					variant="ghost"
+					size="icon"
 					onclick={() => themeState.toggle()}
-					class="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+					class="text-muted-foreground hover:text-foreground"
 					aria-label="Toggle theme"
 				>
 					{#if themeState.theme === 'dark'}
@@ -154,7 +157,7 @@
 					{:else}
 						<Moon class="h-4 w-4" />
 					{/if}
-				</button>
+				</Button>
 			</nav>
 		</div>
 	</div>

@@ -11,11 +11,13 @@
 	import { Timestamp } from 'firebase/firestore';
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
+	import TextField from '$lib/components/TextField.svelte';
+	import TextareaField from '$lib/components/TextareaField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 	import FileUpload from '$lib/components/FileUpload.svelte';
 	import { CounterpartyDocumentManager } from '$lib/utils/counterpartyDocuments';
 	import { toast } from 'svelte-sonner';
 	import BankNameCombobox from '$lib/components/v2/forms/BankNameCombobox.svelte';
-
 
 	interface Props {
 		serviceProvider?: ServiceProviderContractor | null;
@@ -152,103 +154,69 @@
 <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
 			{formState.error}
 		</div>
 	{/if}
 
 	<!-- Basic Information -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+	<FormSection title="Basic Information">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div class="col-span-full">
-				<label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-					Name <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="name"
-					type="text"
-					bind:value={formState.name}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="ABC Catering Services"
-				/>
-			</div>
+			<TextField
+				id="name"
+				label="Name"
+				bind:value={formState.name}
+				required
+				placeholder="ABC Catering Services"
+				class="col-span-full"
+			/>
 
-			<div>
-				<label for="serviceType" class="block text-sm font-medium text-gray-700 mb-1">
-					Service Type <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="serviceType"
-					type="text"
-					bind:value={formState.serviceType}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Catering, Photography, Security, AV Equipment"
-				/>
-			</div>
+			<TextField
+				id="serviceType"
+				label="Service Type"
+				bind:value={formState.serviceType}
+				required
+				placeholder="Catering, Photography, Security, AV Equipment"
+			/>
 
-			<div>
-				<label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">
-					Company Name
-				</label>
-				<input
-					id="companyName"
-					type="text"
-					bind:value={formState.companyName}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="ABC Corporation Ltd"
-				/>
-			</div>
+			<TextField
+				id="companyName"
+				label="Company Name"
+				bind:value={formState.companyName}
+				placeholder="ABC Corporation Ltd"
+			/>
 
-			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-					Email
-				</label>
-				<input
-					id="email"
-					type="email"
-					bind:value={formState.email}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="contact@example.com"
-				/>
-			</div>
+			<TextField
+				id="email"
+				label="Email"
+				type="email"
+				bind:value={formState.email}
+				placeholder="contact@example.com"
+			/>
 
-			<div>
-				<label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
-					Phone
-				</label>
-				<input
-					id="phone"
-					type="tel"
-					bind:value={formState.phone}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="+84 123 456 789"
-				/>
-			</div>
+			<TextField
+				id="phone"
+				label="Phone"
+				type="tel"
+				bind:value={formState.phone}
+				placeholder="+84 123 456 789"
+			/>
 
-			<div class="col-span-full">
-				<label for="address" class="block text-sm font-medium text-gray-700 mb-1">
-					Address
-				</label>
-				<input
-					id="address"
-					type="text"
-					bind:value={formState.address}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="123 Main St, Ho Chi Minh City"
-				/>
-			</div>
+			<TextField
+				id="address"
+				label="Address"
+				bind:value={formState.address}
+				placeholder="123 Main St, Ho Chi Minh City"
+				class="col-span-full"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Service Details -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Service Details</h3>
+	<FormSection title="Service Details">
 		<div class="grid gap-4 grid-cols-1">
 			<div>
-				<label for="typicalDeliverables" class="block text-sm font-medium text-gray-700 mb-2">
+				<label for="typicalDeliverables" class="block text-sm font-medium text-foreground mb-2">
 					Typical Deliverables
 				</label>
 				<div class="space-y-2">
@@ -263,30 +231,30 @@
 									formState.addDeliverable();
 								}
 							}}
-							class="flex-1 px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+							class="flex-1 px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 							placeholder="e.g., 200 meals, 4 hours coverage"
 						/>
-						<button
+						<Button
 							type="button"
+							variant="outline"
 							onclick={() => formState.addDeliverable()}
-							class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
 						>
 							Add
-						</button>
+						</Button>
 					</div>
 					{#if formState.typicalDeliverables.length > 0}
 						<div class="flex flex-wrap gap-2">
 							{#each formState.typicalDeliverables as deliverable, index (index)}
 								<span
-									class="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-sm"
+									class="inline-flex items-center gap-1 px-3 py-1 bg-primary/5 text-primary rounded-md text-sm"
 								>
 									{deliverable}
 									<button
 										type="button"
 										onclick={() => formState.removeDeliverable(index)}
-										class="ml-1 text-blue-500 hover:text-blue-700"
+										class="ml-1 text-primary/60 hover:text-primary"
 									>
-										×
+										&times;
 									</button>
 								</span>
 							{/each}
@@ -296,7 +264,7 @@
 			</div>
 
 			<div>
-				<label for="equipmentProvided" class="block text-sm font-medium text-gray-700 mb-2">
+				<label for="equipmentProvided" class="block text-sm font-medium text-foreground mb-2">
 					Equipment Provided
 				</label>
 				<div class="space-y-2">
@@ -311,30 +279,30 @@
 									formState.addEquipment();
 								}
 							}}
-							class="flex-1 px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+							class="flex-1 px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 							placeholder="e.g., Cameras, Lighting rig"
 						/>
-						<button
+						<Button
 							type="button"
+							variant="outline"
 							onclick={() => formState.addEquipment()}
-							class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
 						>
 							Add
-						</button>
+						</Button>
 					</div>
 					{#if formState.equipmentProvided.length > 0}
 						<div class="flex flex-wrap gap-2">
 							{#each formState.equipmentProvided as equipment, index (index)}
 								<span
-									class="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-md text-sm"
+									class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-md text-sm"
 								>
 									{equipment}
 									<button
 										type="button"
 										onclick={() => formState.removeEquipment(index)}
-										class="ml-1 text-green-500 hover:text-green-700"
+										class="ml-1 text-emerald-500 hover:text-emerald-700"
 									>
-										×
+										&times;
 									</button>
 								</span>
 							{/each}
@@ -343,91 +311,58 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Business Information -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Business Information</h3>
+	<FormSection title="Business Information">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div>
-				<label for="businessLicense" class="block text-sm font-medium text-gray-700 mb-1">
-					Business License
-				</label>
-				<input
-					id="businessLicense"
-					type="text"
-					bind:value={formState.businessLicense}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="License number"
-				/>
-			</div>
+			<TextField
+				id="businessLicense"
+				label="Business License"
+				bind:value={formState.businessLicense}
+				placeholder="License number"
+			/>
 
-			<div>
-				<label for="insuranceInfo" class="block text-sm font-medium text-gray-700 mb-1">
-					Insurance Information
-				</label>
-				<input
-					id="insuranceInfo"
-					type="text"
-					bind:value={formState.insuranceInfo}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Insurance details"
-				/>
-			</div>
+			<TextField
+				id="insuranceInfo"
+				label="Insurance Information"
+				bind:value={formState.insuranceInfo}
+				placeholder="Insurance details"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Tax & Banking -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Tax & Banking</h3>
+	<FormSection title="Tax & Banking">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div>
-				<label for="taxId" class="block text-sm font-medium text-gray-700 mb-1">
-					Tax ID
-				</label>
-				<input
-					id="taxId"
-					type="text"
-					bind:value={formState.taxId}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Tax identification number"
-				/>
-			</div>
+			<TextField
+				id="taxId"
+				label="Tax ID"
+				bind:value={formState.taxId}
+				placeholder="Tax identification number"
+			/>
 
-			<div>
-				<label for="idDocument" class="block text-sm font-medium text-gray-700 mb-1">
-					ID Document Number
-				</label>
-				<input
-					id="idDocument"
-					type="text"
-					bind:value={formState.idDocument}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Passport/ID number"
-				/>
-			</div>
+			<TextField
+				id="idDocument"
+				label="ID Document Number"
+				bind:value={formState.idDocument}
+				placeholder="Passport/ID number"
+			/>
 
 			<BankNameCombobox id="bankName" label="Bank Name" bind:value={formState.bankName} />
 
-			<div>
-				<label for="bankAccountNumber" class="block text-sm font-medium text-gray-700 mb-1">
-					Bank Account Number
-				</label>
-				<input
-					id="bankAccountNumber"
-					type="text"
-					bind:value={formState.bankAccountNumber}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="1234567890"
-				/>
-			</div>
+			<TextField
+				id="bankAccountNumber"
+				label="Bank Account Number"
+				bind:value={formState.bankAccountNumber}
+				placeholder="1234567890"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- ID Documents -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">ID Documents</h3>
-		<p class="text-sm text-gray-600 mb-4">
+	<FormSection title="ID Documents">
+		<p class="text-sm text-muted-foreground mb-4">
 			Upload images of ID/passport documents for validation. You can upload up to 5 documents.
 		</p>
 
@@ -452,35 +387,33 @@
 				{/each}
 			</div>
 		{/if}
-	</div>
+	</FormSection>
 
 	<!-- Notes -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Notes</h3>
-		<textarea
+	<FormSection title="Notes">
+		<TextareaField
 			id="notes"
+			label=""
 			bind:value={formState.notes}
-			rows="4"
-			class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+			rows={4}
 			placeholder="Additional notes about this service provider..."
-		></textarea>
-	</div>
+		/>
+	</FormSection>
 
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<button
+			<Button
 				type="button"
+				variant="outline"
 				onclick={onCancel}
 				disabled={formState.isSubmitting}
-				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
-			</button>
+			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : serviceProvider ? 'Update Service Provider' : 'Create Service Provider'}
 		</Button>
 	</div>
 </form>
-

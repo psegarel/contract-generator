@@ -1,6 +1,7 @@
 <script lang="ts">
 	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	interface InlineEventFormState {
 		newEventName: string;
@@ -22,8 +23,8 @@
 	let { formState, onCancel, onCreate }: Props = $props();
 </script>
 
-<div class="bg-blue-50 border border-blue-200 p-6 rounded-lg space-y-6">
-	<h3 class="text-lg font-semibold text-gray-900 mb-4">Create New Event</h3>
+<div class="bg-primary/5 border border-primary/20 p-6 rounded-lg space-y-6">
+	<h3 class="text-lg font-semibold text-foreground mb-4">Create New Event</h3>
 
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<div class="col-span-full">
@@ -36,24 +37,20 @@
 			/>
 		</div>
 
-		<div>
-			<TextField
-				id="newEventDate"
-				label="Event Date"
-				type="date"
-				bind:value={formState.newEventDate}
-				required
-			/>
-		</div>
+		<TextField
+			id="newEventDate"
+			label="Event Date"
+			type="date"
+			bind:value={formState.newEventDate}
+			required
+		/>
 
-		<div>
-			<TextField
-				id="newEventType"
-				label="Event Type"
-				bind:value={formState.newEventType}
-				placeholder="Corporate Event, Wedding, Concert"
-			/>
-		</div>
+		<TextField
+			id="newEventType"
+			label="Event Type"
+			bind:value={formState.newEventType}
+			placeholder="Corporate Event, Wedding, Concert"
+		/>
 
 		<div class="col-span-full">
 			<TextField
@@ -65,28 +62,22 @@
 			/>
 		</div>
 
-		<div>
-			<TextField
-				id="newEventLocationName"
-				label="Location Name"
-				bind:value={formState.newEventLocationName}
-				placeholder="Grand Ballroom"
-			/>
-		</div>
+		<TextField
+			id="newEventLocationName"
+			label="Location Name"
+			bind:value={formState.newEventLocationName}
+			placeholder="Grand Ballroom"
+		/>
 
-		<div>
-			<label for="newEventExpectedAttendance" class="block text-sm font-medium text-gray-700 mb-1">
-				Expected Attendance
-			</label>
-			<input
-				id="newEventExpectedAttendance"
-				type="number"
-				bind:value={formState.newEventExpectedAttendance}
-				min="0"
-				placeholder="100"
-				class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-			/>
-		</div>
+		<TextField
+			id="newEventExpectedAttendance"
+			label="Expected Attendance"
+			type="number"
+			value={formState.newEventExpectedAttendance ?? ''}
+			oninput={(e) => { const v = (e.target as HTMLInputElement).value; formState.newEventExpectedAttendance = v ? Number(v) : null; }}
+			min="0"
+			placeholder="100"
+		/>
 
 		<div class="col-span-full">
 			<TextareaField
@@ -99,21 +90,16 @@
 		</div>
 	</div>
 
-	<div class="flex gap-3 justify-end pt-4 border-t border-blue-300">
-		<button
-			type="button"
-			onclick={onCancel}
-			class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-		>
+	<div class="flex gap-3 justify-end pt-4 border-t border-primary/30">
+		<Button type="button" variant="outline" onclick={onCancel}>
 			Cancel
-		</button>
-		<button
+		</Button>
+		<Button
 			type="button"
 			onclick={onCreate}
 			disabled={formState.isCreatingEvent}
-			class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
 		>
 			{formState.isCreatingEvent ? 'Creating...' : 'Create Event'}
-		</button>
+		</Button>
 	</div>
 </div>

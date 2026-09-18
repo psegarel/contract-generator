@@ -16,6 +16,7 @@
 	} from '@lucide/svelte';
 	import type { Component } from 'svelte';
 	import SidebarMenuItem from './SidebarMenuItem.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	interface SubItem {
 		label: string;
@@ -141,13 +142,15 @@
 					Insense
 				</span>
 			</div>
-			<button
+			<Button
+				variant="ghost"
+				size="icon"
 				onclick={() => (sidebarOpen = !sidebarOpen)}
-				class="hidden lg:flex p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors shrink-0"
+				class="hidden lg:flex shrink-0 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
 				title={sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
 			>
 				<PanelLeft class="h-5 w-5" />
-			</button>
+			</Button>
 		</div>
 
 		<!-- Navigation -->

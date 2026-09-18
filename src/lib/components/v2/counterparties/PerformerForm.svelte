@@ -12,6 +12,9 @@
 	import { companyConfig } from '$lib/config/company';
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
+	import TextField from '$lib/components/TextField.svelte';
+	import TextareaField from '$lib/components/TextareaField.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
 	import BankNameCombobox from '$lib/components/v2/forms/BankNameCombobox.svelte';
 
 	interface Props {
@@ -93,273 +96,180 @@
 
 <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
 	{#if formState.error}
-		<div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
 			{formState.error}
 		</div>
 	{/if}
 
 	<!-- Basic Information -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+	<FormSection title="Basic Information">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div>
-				<label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-					Legal Name <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="name"
-					type="text"
-					bind:value={formState.name}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Full legal name"
-				/>
-			</div>
+			<TextField
+				id="name"
+				label="Legal Name"
+				bind:value={formState.name}
+				required
+				placeholder="Full legal name"
+			/>
 
-			<div>
-				<label for="stageName" class="block text-sm font-medium text-gray-700 mb-1">
-					Stage Name <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="stageName"
-					type="text"
-					bind:value={formState.stageName}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="DJ Name / Artist Name"
-				/>
-			</div>
+			<TextField
+				id="stageName"
+				label="Stage Name"
+				bind:value={formState.stageName}
+				required
+				placeholder="DJ Name / Artist Name"
+			/>
 
-			<div>
-				<label for="performerType" class="block text-sm font-medium text-gray-700 mb-1">
-					Performer Type <span class="text-red-500">*</span>
-				</label>
-				<input
-					id="performerType"
-					type="text"
-					bind:value={formState.performerType}
-					required
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="DJ, Band, MC, Dancer, etc."
-				/>
-			</div>
+			<TextField
+				id="performerType"
+				label="Performer Type"
+				bind:value={formState.performerType}
+				required
+				placeholder="DJ, Band, MC, Dancer, etc."
+			/>
 
-			<div>
-				<label for="genre" class="block text-sm font-medium text-gray-700 mb-1">
-					Genre
-				</label>
-				<input
-					id="genre"
-					type="text"
-					bind:value={formState.genre}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="House, Techno, Hip-Hop, etc."
-				/>
-			</div>
+			<TextField
+				id="genre"
+				label="Genre"
+				bind:value={formState.genre}
+				placeholder="House, Techno, Hip-Hop, etc."
+			/>
 
-			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-					Email
-				</label>
-				<input
-					id="email"
-					type="email"
-					bind:value={formState.email}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="performer@example.com"
-				/>
-			</div>
+			<TextField
+				id="email"
+				label="Email"
+				type="email"
+				bind:value={formState.email}
+				placeholder="performer@example.com"
+			/>
 
-			<div>
-				<label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
-					Phone
-				</label>
-				<input
-					id="phone"
-					type="tel"
-					bind:value={formState.phone}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="+84 123 456 789"
-				/>
-			</div>
+			<TextField
+				id="phone"
+				label="Phone"
+				type="tel"
+				bind:value={formState.phone}
+				placeholder="+84 123 456 789"
+			/>
 
-			<div class="col-span-full">
-				<label for="address" class="block text-sm font-medium text-gray-700 mb-1">
-					Address
-				</label>
-				<input
-					id="address"
-					type="text"
-					bind:value={formState.address}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="123 Main St, Ho Chi Minh City"
-				/>
-			</div>
+			<TextField
+				id="address"
+				label="Address"
+				bind:value={formState.address}
+				placeholder="123 Main St, Ho Chi Minh City"
+				class="col-span-full"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Performance Requirements -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Performance Requirements</h3>
+	<FormSection title="Performance Requirements">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div class="col-span-full">
-				<label for="technicalRider" class="block text-sm font-medium text-gray-700 mb-1">
-					Technical Rider
-				</label>
-				<textarea
-					id="technicalRider"
-					bind:value={formState.technicalRider}
-					rows="3"
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Equipment and setup requirements..."
-				></textarea>
-			</div>
+			<TextareaField
+				id="technicalRider"
+				label="Technical Rider"
+				bind:value={formState.technicalRider}
+				rows={3}
+				placeholder="Equipment and setup requirements..."
+				class="col-span-full"
+			/>
 
-			<div>
-				<label for="minPerformanceDuration" class="block text-sm font-medium text-gray-700 mb-1">
-					Min Performance Duration (minutes)
-				</label>
-				<input
-					id="minPerformanceDuration"
-					type="number"
-					bind:value={formState.minPerformanceDuration}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="120"
-				/>
-			</div>
+			<TextField
+				id="minPerformanceDuration"
+				label="Min Performance Duration (minutes)"
+				type="number"
+				value={formState.minPerformanceDuration ?? ''}
+				oninput={(e) => { const v = (e.target as HTMLInputElement).value; formState.minPerformanceDuration = v ? Number(v) : null; }}
+				placeholder="120"
+			/>
 
-			<div>
-				<label for="travelRequirements" class="block text-sm font-medium text-gray-700 mb-1">
-					Travel Requirements
-				</label>
-				<input
-					id="travelRequirements"
-					type="text"
-					bind:value={formState.travelRequirements}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Flight + hotel, local only, etc."
-				/>
-			</div>
+			<TextField
+				id="travelRequirements"
+				label="Travel Requirements"
+				bind:value={formState.travelRequirements}
+				placeholder="Flight + hotel, local only, etc."
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Booking Details -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Details</h3>
+	<FormSection title="Booking Details">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<div>
-				<label for="agentName" class="block text-sm font-medium text-gray-700 mb-1">
-					Agent Name
-				</label>
-				<input
-					id="agentName"
-					type="text"
-					bind:value={formState.agentName}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Booking agent name"
-				/>
-			</div>
+			<TextField
+				id="agentName"
+				label="Agent Name"
+				bind:value={formState.agentName}
+				placeholder="Booking agent name"
+			/>
 
-			<div>
-				<label for="agentContact" class="block text-sm font-medium text-gray-700 mb-1">
-					Agent Contact
-				</label>
-				<input
-					id="agentContact"
-					type="text"
-					bind:value={formState.agentContact}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Email or phone"
-				/>
-			</div>
+			<TextField
+				id="agentContact"
+				label="Agent Contact"
+				bind:value={formState.agentContact}
+				placeholder="Email or phone"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Payment Details -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Details</h3>
+	<FormSection title="Payment Details">
 		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 			<BankNameCombobox id="bankName" label="Bank Name" bind:value={formState.bankName} />
 
-			<div>
-				<label for="bankAccountNumber" class="block text-sm font-medium text-gray-700 mb-1">
-					Bank Account Number
-				</label>
-				<input
-					id="bankAccountNumber"
-					type="text"
-					bind:value={formState.bankAccountNumber}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="1234567890"
-				/>
-			</div>
+			<TextField
+				id="bankAccountNumber"
+				label="Bank Account Number"
+				bind:value={formState.bankAccountNumber}
+				placeholder="1234567890"
+			/>
 
-			<div>
-				<label for="idDocument" class="block text-sm font-medium text-gray-700 mb-1">
-					ID Document (Passport/ID Number)
-				</label>
-				<input
-					id="idDocument"
-					type="text"
-					bind:value={formState.idDocument}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="123456789"
-				/>
-			</div>
+			<TextField
+				id="idDocument"
+				label="ID Document (Passport/ID Number)"
+				bind:value={formState.idDocument}
+				placeholder="123456789"
+			/>
 
-			<div>
-				<label for="taxId" class="block text-sm font-medium text-gray-700 mb-1">
-					Tax ID
-				</label>
-				<input
-					id="taxId"
-					type="text"
-					bind:value={formState.taxId}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="Tax identification number"
-				/>
-			</div>
+			<TextField
+				id="taxId"
+				label="Tax ID"
+				bind:value={formState.taxId}
+				placeholder="Tax identification number"
+			/>
 
-			<div>
-				<label for="pitRate" class="block text-sm font-medium text-gray-700 mb-1">
-					PIT Rate (%)
-				</label>
-				<input
-					id="pitRate"
-					type="number"
-					min="0"
-					max="100"
-					bind:value={formState.pitRate}
-					class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
-					placeholder="10"
-				/>
-			</div>
+			<TextField
+				id="pitRate"
+				label="PIT Rate (%)"
+				type="number"
+				bind:value={formState.pitRate}
+				min="0"
+				max="100"
+				placeholder="10"
+			/>
 		</div>
-	</div>
+	</FormSection>
 
 	<!-- Notes -->
-	<div class="bg-white p-6 rounded-lg border border-gray-200">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4">Notes</h3>
-		<textarea
+	<FormSection title="Notes">
+		<TextareaField
 			id="notes"
+			label=""
 			bind:value={formState.notes}
-			rows="4"
-			class="w-full px-3.5 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500"
+			rows={4}
 			placeholder="Additional notes about this performer..."
-		></textarea>
-	</div>
+		/>
+	</FormSection>
 
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<button
+			<Button
 				type="button"
+				variant="outline"
 				onclick={onCancel}
 				disabled={formState.isSubmitting}
-				class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
 			>
 				Cancel
-			</button>
+			</Button>
 		{/if}
 		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
 			{formState.isSubmitting ? 'Saving...' : performer ? 'Update Performer' : 'Create Performer'}
