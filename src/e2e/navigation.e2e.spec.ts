@@ -1,25 +1,18 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Navigation', () => {
-	test('should load the landing page', async ({ page }) => {
+	test('should redirect unauthenticated users to the login page', async ({ page }) => {
 		await page.goto('/');
 
-		const heading = page.getByRole('heading', { level: 1 });
-		await expect(heading).toContainText('Internal Contract');
+		await expect(page).toHaveURL(/\/login\/?$/);
+		await expect(page.getByText(/Welcome Back/i)).toBeVisible();
 	});
 
-	test('should navigate to login page', async ({ page }) => {
-		await page.goto('/');
+	test('should navigate to the login page directly', async ({ page }) => {
+		await page.goto('/login');
 
-		const loginLink = page.locator('a[href="/login"]');
-		await expect(loginLink).toBeVisible();
-		await loginLink.click();
-
-		// Wait for navigation
 		await expect(page).toHaveURL(/\/login\/?$/);
-
-		const loginHeading = page.getByText(/Welcome Back/i);
-		await expect(loginHeading).toBeVisible();
+		await expect(page.getByText(/Welcome Back/i)).toBeVisible();
 	});
 
 	test('should redirect to login when accessing protected route unauthenticated', async ({

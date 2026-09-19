@@ -8,9 +8,23 @@ vi.mock('firebase/auth', () => ({
 	getAuth: vi.fn()
 }));
 
-// Mock the firebase config
+// Mock the firebase config with the same exports the app uses
 vi.mock('$lib/config/firebase', () => ({
-	auth: {}
+	auth: {},
+	db: {},
+	storage: {}
+}));
+
+vi.mock('$lib/utils/UserRepository', () => ({
+	UserRepository: class {
+		async getProfile() {
+			return null;
+		}
+
+		async createProfile() {
+			return;
+		}
+	}
 }));
 
 describe('AuthState', () => {
@@ -28,7 +42,7 @@ describe('AuthState', () => {
 		expect(state.isAuthenticated).toBe(false);
 	});
 
-	it('should update state when user logs in', () => {
+	it('should update state when user logs in', async () => {
 		const state = new AuthState();
 
 		const mockOnAuthStateChanged = onAuthStateChanged as unknown as ReturnType<typeof vi.fn>;
@@ -42,7 +56,7 @@ describe('AuthState', () => {
 		const mockUser = { uid: '123', email: 'test@example.com' };
 
 		// Simulate login
-		callback(mockUser);
+		await callback(mockUser);
 
 		expect(state.user).toEqual(mockUser);
 		expect(state.isAuthenticated).toBe(true);
@@ -50,7 +64,7 @@ describe('AuthState', () => {
 		expect(state.initialized).toBe(true);
 	});
 
-	it('should update state when user logs out', () => {
+	it('should update state when user logs out', async () => {
 		const state = new AuthState();
 
 		const mockOnAuthStateChanged = onAuthStateChanged as unknown as ReturnType<typeof vi.fn>;
@@ -58,7 +72,7 @@ describe('AuthState', () => {
 			mockOnAuthStateChanged.mock.calls[mockOnAuthStateChanged.mock.calls.length - 1][1];
 
 		// Simulate logout
-		callback(null);
+		await callback(null);
 
 		expect(state.user).toBe(null);
 		expect(state.isAuthenticated).toBe(false);
