@@ -7,15 +7,17 @@ The project uses shadcn-svelte (a styled component layer on top of bits-ui), but
 **Goal:** Remove the shadcn abstraction layer, keep bits-ui as headless primitives, build our own lean component library that uses design system tokens consistently, and eliminate all duplication.
 
 **Decisions made:**
+
 - Separate components (TextField, TextareaField, SelectField) — not a unified FormField
 - Replace ALL native `<button>` elements with the Button component
 - Create a `FormSection` wrapper component for the repeated section container pattern
 
 ---
 
-## Phase 0: Delete Dead Code
+## Phase 0: Delete Dead Code √
 
 **Delete files:**
+
 - `components.json` (shadcn registry config — no longer needed)
 - `src/lib/components/ui/textarea/` directory (0 consumers — never imported)
 - `src/lib/components/ui/separator/` directory (0 external consumers)
@@ -26,41 +28,47 @@ The project uses shadcn-svelte (a styled component layer on top of bits-ui), but
 
 ---
 
-## Phase 1: Create & Update Core Form Components
+## Phase 1: Create & Update Core Form Components √
 
 ### 1a. Update `TextField.svelte` — replace hardcoded colors with design tokens
+
 **File:** `src/lib/components/TextField.svelte`
 
-| Before | After |
-|--------|-------|
-| `text-gray-700` | `text-foreground` |
-| `border-gray-300` | `border-input` |
-| `focus:ring-blue-500/10` | `focus:ring-ring` |
-| `focus:border-blue-500` | `focus:border-ring` |
-| `text-red-500` | `text-destructive` |
-| `border-red-500` | `border-destructive` |
-| `focus:ring-red-500/10` | `focus:ring-destructive/10` |
+| Before                   | After                       |
+| ------------------------ | --------------------------- |
+| `text-gray-700`          | `text-foreground`           |
+| `border-gray-300`        | `border-input`              |
+| `focus:ring-blue-500/10` | `focus:ring-ring`           |
+| `focus:border-blue-500`  | `focus:border-ring`         |
+| `text-red-500`           | `text-destructive`          |
+| `border-red-500`         | `border-destructive`        |
+| `focus:ring-red-500/10`  | `focus:ring-destructive/10` |
 
 ### 1b. Update `TextareaField.svelte` — normalize styling + design tokens
+
 **File:** `src/lib/components/TextareaField.svelte`
 
 Same token replacements as TextField. Also normalize the inconsistent styling:
+
 - `rounded-2xl` → `rounded-md` (match TextField)
 - `border-none` → `border border-input` (match TextField)
 - `px-4 py-3` → `px-3.5 py-2.5` (match TextField)
 - `focus:ring-4 focus:ring-primary/10` → `focus:ring-2 focus:ring-ring` (match TextField)
 
 ### 1c. Create `SelectField.svelte` — new component for native select dropdowns
+
 **New file:** `src/lib/components/SelectField.svelte`
 
 Same API pattern as TextField: `id`, `label`, `value` (bindable), `required`, `error`, `helperText`, `class`, plus a `children` snippet for `<option>` elements. Same design-token-based styling.
 
 ### 1d. Create `FormSection.svelte` — section container component
+
 **New file:** `src/lib/components/FormSection.svelte`
 
 Encapsulates the repeated `bg-card p-6 rounded-lg border border-border` + `<h3>` pattern. Props: `title` (string), `children` (snippet), optional `class`.
 
 ### 1e. Update `BankNameCombobox.svelte` — design tokens
+
 **File:** `src/lib/components/v2/forms/BankNameCombobox.svelte`
 
 Same hardcoded color → design token replacements.
@@ -76,12 +84,14 @@ Replace all raw `<input>`, `<label>`, `<select>`, `<textarea>` with TextField/Te
 Each group is committed independently for safe rollback.
 
 ### Group A — Service Provision contracts
+
 - `src/lib/components/v2/contracts/sections/ContractBasicsSection.svelte`
 - `src/lib/components/v2/contracts/sections/ServiceDetailsSection.svelte`
 - `src/lib/components/v2/contracts/ServiceProvisionForm.svelte`
 - Any other service provision section files
 
 ### Group B — Event Planning contracts
+
 - `src/lib/components/v2/contracts/EventPlanningForm.svelte`
 - `src/lib/components/v2/contracts/sections/EventPlanningClientSection.svelte`
 - `src/lib/components/v2/contracts/sections/EventPlanningEventInfoSection.svelte`
@@ -91,6 +101,7 @@ Each group is committed independently for safe rollback.
 - `src/lib/components/v2/contracts/sections/EventPlanningContractBasicsSection.svelte`
 
 ### Group C — Equipment Rental contracts
+
 - `src/lib/components/v2/contracts/EquipmentRentalForm.svelte`
 - `src/lib/components/v2/contracts/EquipmentRentalOneOffForm.svelte`
 - `src/lib/components/v2/contracts/sections/EquipmentRentalContractBasicsSection.svelte`
@@ -98,16 +109,19 @@ Each group is committed independently for safe rollback.
 - `src/lib/components/v2/contracts/sections/EquipmentRentalTermsSection.svelte`
 
 ### Group D — DJ Residency contracts
+
 - `src/lib/components/v2/contracts/DjResidencyForm.svelte`
 - `src/lib/components/v2/contracts/sections/PerformanceForm.svelte`
 - `src/lib/components/v2/contracts/sections/PerformanceItem.svelte`
 
 ### Group E — Counterparty forms
+
 - `src/lib/components/v2/counterparties/ClientForm.svelte`
 - `src/lib/components/v2/counterparties/ServiceProviderForm.svelte`
 - `src/lib/components/v2/counterparties/PerformerForm.svelte`
 
 ### Group F — Other forms & inline creators
+
 - `src/lib/components/v2/events/EventForm.svelte`
 - `src/lib/components/v2/contracts/sections/CreateEventInline.svelte`
 - `src/lib/components/v2/contracts/sections/CreatePerformerInline.svelte`
@@ -118,21 +132,23 @@ Each group is committed independently for safe rollback.
 
 ---
 
-## Phase 3: Replace All Native `<button>` with Button Component
+## Phase 3: Replace All Native `<button>` with Button Component √
 
 Replace ~25 files of raw `<button>` elements with the `Button` component.
 
 **Mapping native patterns → Button variants:**
-| Native Pattern | Button variant + size |
-|---|---|
-| `bg-blue-600 text-white hover:bg-blue-700` | `variant="default"` |
-| `border border-gray-300 hover:bg-gray-50` | `variant="outline"` |
-| `text-blue-600 hover:text-blue-700 text-sm` | `variant="link"` or `variant="ghost"` |
-| `text-red-600 hover:text-red-700 text-sm` | `variant="destructive"` + `size="sm"` |
-| Icon-only buttons (sidebar, theme toggle) | `variant="ghost"` + `size="icon"` |
-| Card selector buttons | `variant="outline"` with custom class overrides |
+
+| Native Pattern                              | Button variant + size                           |
+| ------------------------------------------- | ----------------------------------------------- |
+| `bg-blue-600 text-white hover:bg-blue-700`  | `variant="default"`                             |
+| `border border-gray-300 hover:bg-gray-50`   | `variant="outline"`                             |
+| `text-blue-600 hover:text-blue-700 text-sm` | `variant="link"` or `variant="ghost"`           |
+| `text-red-600 hover:text-red-700 text-sm`   | `variant="destructive"` + `size="sm"`           |
+| Icon-only buttons (sidebar, theme toggle)   | `variant="ghost"` + `size="icon"`               |
+| Card selector buttons                       | `variant="outline"` with custom class overrides |
 
 **Key files:**
+
 - `src/lib/components/Sidebar.svelte`
 - `src/lib/components/Header.svelte`
 - `src/lib/components/AppShell.svelte`
@@ -146,7 +162,7 @@ Replace ~25 files of raw `<button>` elements with the `Button` component.
 
 ---
 
-## Phase 4: Clean Up LoginForm + Delete Remaining Unused shadcn Components
+## Phase 4: Clean Up LoginForm + Delete Remaining Unused shadcn Components √
 
 1. **Rewrite `LoginForm.svelte`** to use TextField instead of shadcn Input + Label
 2. **Update `FileUpload.svelte`** — replace Label import with plain `<label>` element
@@ -157,7 +173,7 @@ Replace ~25 files of raw `<button>` elements with the `Button` component.
 
 ---
 
-## Phase 5: Simplify Avatar Component
+## Phase 5: Simplify Avatar Component √
 
 Current: 3 files (avatar.svelte, avatar-image.svelte, avatar-fallback.svelte)
 Usage: 2 files (Header.svelte, AppShell.svelte) — neither uses Avatar.Image
@@ -166,9 +182,10 @@ Consolidate into a single `avatar.svelte` that wraps bits-ui Avatar.Root + Avata
 
 ---
 
-## Phase 6: Migrate Remaining Hardcoded Colors
+## Phase 6: Migrate Remaining Hardcoded Colors √
 
 Search-and-replace remaining hardcoded colors across non-form files:
+
 - `bg-white` → `bg-card` or `bg-background`
 - `text-gray-900` → `text-foreground`
 - `text-gray-700` → `text-foreground`
@@ -204,22 +221,22 @@ Search-and-replace remaining hardcoded colors across non-form files:
 
 ## What We Keep
 
-| Package | Reason |
-|---------|--------|
-| `bits-ui` | Headless primitives for Select, DropdownMenu, Avatar |
-| `clsx` + `tailwind-merge` | `cn()` utility used by all remaining UI components |
-| `tailwind-variants` | Variant management for Button (8 variants), Badge (4), Alert (2) |
-| `svelte-sonner` | Toast notifications |
+| Package                   | Reason                                                           |
+| ------------------------- | ---------------------------------------------------------------- |
+| `bits-ui`                 | Headless primitives for Select, DropdownMenu, Avatar             |
+| `clsx` + `tailwind-merge` | `cn()` utility used by all remaining UI components               |
+| `tailwind-variants`       | Variant management for Button (8 variants), Badge (4), Alert (2) |
+| `svelte-sonner`           | Toast notifications                                              |
 
 ## What We Delete
 
-| Item | Reason |
-|------|--------|
-| `components.json` | shadcn registry config — not needed |
-| `ui/textarea/` | Never used (0 imports) |
-| `ui/separator/` | No external consumers |
-| `ui/input/` | Replaced by TextField |
-| `ui/label/` | Replaced by inline labels in TextField/SelectField |
+| Item              | Reason                                             |
+| ----------------- | -------------------------------------------------- |
+| `components.json` | shadcn registry config — not needed                |
+| `ui/textarea/`    | Never used (0 imports)                             |
+| `ui/separator/`   | No external consumers                              |
+| `ui/input/`       | Replaced by TextField                              |
+| `ui/label/`       | Replaced by inline labels in TextField/SelectField |
 
 ## Final Component Library Structure
 

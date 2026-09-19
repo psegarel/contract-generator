@@ -19,7 +19,7 @@
 
 	function getStatusBadge(status: typeof data.event.status) {
 		const badges = {
-			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-blue-500' },
+			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-primary' },
 			confirmed: { variant: 'default' as const, label: 'Confirmed', class: 'bg-cyan-500' },
 			'in-progress': { variant: 'default' as const, label: 'In Progress', class: 'bg-amber-500' },
 			completed: { variant: 'default' as const, label: 'Completed', class: 'bg-emerald-500' },

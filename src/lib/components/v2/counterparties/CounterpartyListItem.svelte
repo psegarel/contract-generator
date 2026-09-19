@@ -14,10 +14,10 @@
 	let { counterparty, index, getTypeLabel }: Props = $props();
 </script>
 
-<div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
+<div class={index % 2 === 0 ? 'bg-card' : 'bg-muted/30'}>
 	<!-- Mobile & Tablet: Card Layout -->
 	<div class="xl:hidden">
-		<CounterpartyCard {counterparty} {getTypeLabel} backgroundColor="bg-white" />
+		<CounterpartyCard {counterparty} {getTypeLabel} backgroundColor="bg-card" />
 	</div>
 
 	<!-- Desktop: Grid Layout (16 columns) -->
@@ -91,4 +91,3 @@
 		</div>
 	</div>
 </div>
-

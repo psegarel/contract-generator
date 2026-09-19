@@ -14,7 +14,7 @@
 
 	function getStatusBadge(status: Event['status']) {
 		const badges = {
-			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-blue-500' },
+			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-primary' },
 			confirmed: { variant: 'default' as const, label: 'Confirmed', class: 'bg-cyan-500' },
 			'in-progress': { variant: 'default' as const, label: 'In Progress', class: 'bg-amber-500' },
 			completed: { variant: 'default' as const, label: 'Completed', class: 'bg-emerald-500' },
@@ -27,7 +27,7 @@
 	let netRevenueIsPositive = $derived(event.netRevenue >= 0);
 </script>
 
-<div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
+<div class={index % 2 === 0 ? 'bg-card' : 'bg-muted/30'}>
 	<!-- Mobile: Stacked Layout -->
 	<div class="md:hidden space-y-4 py-3 px-4">
 		<!-- Title and Status Badge -->
@@ -55,7 +55,9 @@
 		<div class="grid grid-cols-3 gap-3 pt-2 border-t">
 			<div class="text-center">
 				<div class="text-xs text-muted-foreground mb-1">Receivable</div>
-				<div class="text-sm font-bold text-emerald-600">{formatCurrency(event.totalReceivable)}</div>
+				<div class="text-sm font-bold text-emerald-600">
+					{formatCurrency(event.totalReceivable)}
+				</div>
 			</div>
 			<div class="text-center">
 				<div class="text-xs text-muted-foreground mb-1">Payable</div>
@@ -70,9 +72,7 @@
 					{/if}
 					Net
 				</div>
-				<div
-					class="text-sm font-bold {netRevenueIsPositive ? 'text-emerald-600' : 'text-red-600'}"
-				>
+				<div class="text-sm font-bold {netRevenueIsPositive ? 'text-emerald-600' : 'text-red-600'}">
 					{formatCurrency(event.netRevenue)}
 				</div>
 			</div>
@@ -146,4 +146,3 @@
 		</div>
 	</div>
 </div>
-

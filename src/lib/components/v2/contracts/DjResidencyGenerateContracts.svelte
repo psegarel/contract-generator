@@ -117,16 +117,16 @@
 	}
 </script>
 
-<div class="bg-white rounded-lg border border-gray-200 p-6">
-	<h3 class="text-lg font-semibold text-gray-900 mb-6">Generate Contracts</h3>
+<div class="bg-card rounded-lg border border-border p-6">
+	<h3 class="text-lg font-semibold text-foreground mb-6">Generate Contracts</h3>
 
 	{#if isLoading}
-		<div class="text-center py-8 text-gray-500">Loading...</div>
+		<div class="text-center py-8 text-muted-foreground">Loading...</div>
 	{:else}
 		<!-- Months ready for contract generation -->
 		{#if availableMonths.length > 0}
 			<div class="space-y-3 mb-6">
-				<p class="text-sm text-gray-500 mb-3">
+				<p class="text-sm text-muted-foreground mb-3">
 					Months with uninvoiced performances ready for contract generation:
 				</p>
 				{#each availableMonths as month (month)}
@@ -140,8 +140,8 @@
 						class="flex items-center justify-between p-4 rounded-lg border border-amber-200 bg-amber-50"
 					>
 						<div>
-							<p class="font-medium text-gray-900">{formatMonthLabel(month)}</p>
-							<p class="text-sm text-gray-600">
+							<p class="font-medium text-foreground">{formatMonthLabel(month)}</p>
+							<p class="text-sm text-muted-foreground">
 								{monthPerfs.length} performance{monthPerfs.length !== 1 ? 's' : ''} · {performerCount}
 								performer{performerCount !== 1 ? 's' : ''} · {formatCurrency(total)}
 							</p>
@@ -162,7 +162,7 @@
 				{/each}
 			</div>
 		{:else if lockedMonths.length === 0}
-			<div class="text-center py-6 text-gray-500">
+			<div class="text-center py-6 text-muted-foreground">
 				No uninvoiced performances. Log performances first to generate contracts.
 			</div>
 		{/if}
@@ -170,7 +170,7 @@
 		<!-- Locked months -->
 		{#if lockedMonths.length > 0}
 			<div>
-				<p class="text-sm font-medium text-gray-700 mb-3">Locked months</p>
+				<p class="text-sm font-medium text-foreground mb-3">Locked months</p>
 				<div class="space-y-2">
 					{#each lockedMonths as month (month)}
 						{@const monthPerfs = performances.filter((p) => p.invoiceMonth === month)}
@@ -179,14 +179,16 @@
 							0
 						)}
 						<div
-							class="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-gray-50"
+							class="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30"
 						>
 							<div class="flex items-center gap-3">
-								<Lock class="w-4 h-4 text-gray-400" />
+								<Lock class="w-4 h-4 text-muted-foreground" />
 								<div>
-									<p class="font-medium text-gray-800">{formatMonthLabel(month)}</p>
-									<p class="text-sm text-gray-500">
-										{monthPerfs.length} performance{monthPerfs.length !== 1 ? 's' : ''} · {formatCurrency(total)}
+									<p class="font-medium text-foreground">{formatMonthLabel(month)}</p>
+									<p class="text-sm text-muted-foreground">
+										{monthPerfs.length} performance{monthPerfs.length !== 1 ? 's' : ''} · {formatCurrency(
+											total
+										)}
 									</p>
 								</div>
 							</div>
@@ -197,7 +199,7 @@
 									size="sm"
 									onclick={() => handleUnlockMonth(month)}
 									disabled={unlockingMonth === month}
-									class="text-gray-500 hover:text-amber-600 hover:bg-amber-50"
+									class="text-muted-foreground hover:text-amber-600 hover:bg-amber-50"
 								>
 									{#if unlockingMonth === month}
 										Unlocking...

@@ -14,11 +14,11 @@
 
 	function getStatusBadge(status: Event['status']) {
 		const badges = {
-			'planning': { variant: 'default' as const, label: 'Planning', class: 'bg-blue-500' },
-			'confirmed': { variant: 'default' as const, label: 'Confirmed', class: 'bg-cyan-500' },
+			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-primary' },
+			confirmed: { variant: 'default' as const, label: 'Confirmed', class: 'bg-cyan-500' },
 			'in-progress': { variant: 'default' as const, label: 'In Progress', class: 'bg-amber-500' },
-			'completed': { variant: 'default' as const, label: 'Completed', class: 'bg-emerald-500' },
-			'cancelled': { variant: 'secondary' as const, label: 'Cancelled', class: '' }
+			completed: { variant: 'default' as const, label: 'Completed', class: 'bg-emerald-500' },
+			cancelled: { variant: 'secondary' as const, label: 'Cancelled', class: '' }
 		};
 		return badges[status];
 	}
@@ -86,7 +86,8 @@
 		{#if event.contractIds.length > 0}
 			<div class="text-xs text-muted-foreground flex items-center gap-1.5">
 				<DollarSign class="h-3.5 w-3.5" />
-				{event.contractIds.length} {event.contractIds.length === 1 ? 'contract' : 'contracts'}
+				{event.contractIds.length}
+				{event.contractIds.length === 1 ? 'contract' : 'contracts'}
 			</div>
 		{/if}
 	</Card.Content>

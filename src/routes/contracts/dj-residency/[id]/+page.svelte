@@ -42,11 +42,11 @@
 			case 'active':
 				return 'bg-emerald-500';
 			case 'completed':
-				return 'bg-blue-500';
+				return 'bg-primary';
 			case 'terminated':
 				return 'bg-red-500';
 			default:
-				return 'bg-gray-500';
+				return 'bg-muted';
 		}
 	}
 </script>
@@ -62,14 +62,14 @@
 		<div class="flex items-center justify-between">
 			<div>
 				<div class="flex items-center gap-3">
-					<h1 class="text-3xl font-bold text-gray-900">
+					<h1 class="text-3xl font-bold text-foreground">
 						Contract #{data.contract.contractNumber}
 					</h1>
 					<Badge class={getStatusColor(data.contract.residencyStatus)}>
 						{data.contract.residencyStatus}
 					</Badge>
 				</div>
-				<p class="text-gray-600 mt-1 text-sm">DJ Residency Contract</p>
+				<p class="text-muted-foreground mt-1 text-sm">DJ Residency Contract</p>
 			</div>
 			<div class="flex gap-2">
 				<Button variant="outline" href={`/contracts/dj-residency/${data.contract.id}/edit`}>
@@ -91,30 +91,30 @@
 	<!-- Contract Details -->
 	<div class="grid gap-6 lg:grid-cols-2">
 		<!-- Party B Details -->
-		<div class="bg-white rounded-lg border border-gray-200 p-6">
-			<h3 class="text-lg font-semibold text-gray-900 mb-4">Party B</h3>
+		<div class="bg-card rounded-lg border border-border p-6">
+			<h3 class="text-lg font-semibold text-foreground mb-4">Party B</h3>
 			<div class="space-y-3">
 				<div>
-					<p class="text-sm text-gray-500">Company Name</p>
+					<p class="text-sm text-muted-foreground">Company Name</p>
 					<p class="font-medium">
 						{data.venueCounterparty.companyName || data.venueCounterparty.name}
 					</p>
 				</div>
 				<div>
-					<p class="text-sm text-gray-500">Address</p>
+					<p class="text-sm text-muted-foreground">Address</p>
 					<p class="font-medium">
 						{data.venueCounterparty.address || '—'}
 					</p>
 				</div>
 				{#if data.venueCounterparty.taxId}
 					<div>
-						<p class="text-sm text-gray-500">Tax Code</p>
+						<p class="text-sm text-muted-foreground">Tax Code</p>
 						<p class="font-medium">{data.venueCounterparty.taxId}</p>
 					</div>
 				{/if}
 				{#if data.venueCounterparty.representativeName}
 					<div>
-						<p class="text-sm text-gray-500">Representative</p>
+						<p class="text-sm text-muted-foreground">Representative</p>
 						<p class="font-medium">
 							{data.venueCounterparty.representativeName}
 							{#if data.venueCounterparty.representativePosition}
@@ -127,62 +127,63 @@
 		</div>
 
 		<!-- Contract Duration -->
-		<div class="bg-white rounded-lg border border-gray-200 p-6">
-			<h3 class="text-lg font-semibold text-gray-900 mb-4">Contract Duration</h3>
+		<div class="bg-card rounded-lg border border-border p-6">
+			<h3 class="text-lg font-semibold text-foreground mb-4">Contract Duration</h3>
 			<div class="space-y-3">
 				<div>
-					<p class="text-sm text-gray-500">Start Date</p>
+					<p class="text-sm text-muted-foreground">Start Date</p>
 					<p class="font-medium">{formatDateString(data.contract.contractStartDate)}</p>
 				</div>
 				<div>
-					<p class="text-sm text-gray-500">End Date</p>
+					<p class="text-sm text-muted-foreground">End Date</p>
 					<p class="font-medium">{formatDateString(data.contract.contractEndDate)}</p>
 				</div>
 				<div>
-					<p class="text-sm text-gray-500">Duration</p>
+					<p class="text-sm text-muted-foreground">Duration</p>
 					<p class="font-medium">{data.contract.contractDurationMonths} months</p>
 				</div>
 			</div>
 		</div>
 
 		<!-- Performance Terms -->
-		<div class="bg-white rounded-lg border border-gray-200 p-6">
-			<h3 class="text-lg font-semibold text-gray-900 mb-4">Performance Terms</h3>
+		<div class="bg-card rounded-lg border border-border p-6">
+			<h3 class="text-lg font-semibold text-foreground mb-4">Performance Terms</h3>
 			<div class="space-y-3">
 				<div>
-					<p class="text-sm text-gray-500">Performance Days (English)</p>
+					<p class="text-sm text-muted-foreground">Performance Days (English)</p>
 					<p class="font-medium">{data.contract.performanceDays}</p>
 				</div>
 				<div>
-					<p class="text-sm text-gray-500">Performance Days (Vietnamese)</p>
+					<p class="text-sm text-muted-foreground">Performance Days (Vietnamese)</p>
 					<p class="font-medium">{data.contract.performanceDaysVietnamese}</p>
 				</div>
 				<div>
-					<p class="text-sm text-gray-500">Hours per Set</p>
+					<p class="text-sm text-muted-foreground">Hours per Set</p>
 					<p class="font-medium">{data.contract.performanceHoursPerSet} hours</p>
 				</div>
 				<div>
-					<p class="text-sm text-gray-500">Sets per Day</p>
+					<p class="text-sm text-muted-foreground">Sets per Day</p>
 					<p class="font-medium">{data.contract.numberOfSetsPerDay} sets</p>
 				</div>
 			</div>
 		</div>
 
 		<!-- Payment Terms -->
-		<div class="bg-white rounded-lg border border-gray-200 p-6">
-			<h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Terms</h3>
+		<div class="bg-card rounded-lg border border-border p-6">
+			<h3 class="text-lg font-semibold text-foreground mb-4">Payment Terms</h3>
 			<div class="space-y-3">
 				<div>
-					<p class="text-sm text-gray-500">Fee per Performance</p>
+					<p class="text-sm text-muted-foreground">Fee per Performance</p>
 					<p class="font-medium text-emerald-600 text-lg">
 						{formatCurrency(data.contract.performanceFeeVND * data.contract.performanceHoursPerSet)}
 					</p>
-					<p class="text-xs text-gray-400">
-						{formatCurrency(data.contract.performanceFeeVND)}/hr × {data.contract.performanceHoursPerSet}h
+					<p class="text-xs text-muted-foreground">
+						{formatCurrency(data.contract.performanceFeeVND)}/hr × {data.contract
+							.performanceHoursPerSet}h
 					</p>
 				</div>
 				<div>
-					<p class="text-sm text-gray-500">Termination Notice</p>
+					<p class="text-sm text-muted-foreground">Termination Notice</p>
 					<p class="font-medium">{data.contract.terminationNoticeDays} days</p>
 				</div>
 			</div>
@@ -191,9 +192,9 @@
 
 	<!-- Notes -->
 	{#if data.contract.notes}
-		<div class="bg-white rounded-lg border border-gray-200 p-6 mt-6">
-			<h3 class="text-lg font-semibold text-gray-900 mb-4">Notes</h3>
-			<p class="text-gray-700 whitespace-pre-wrap">{data.contract.notes}</p>
+		<div class="bg-card rounded-lg border border-border p-6 mt-6">
+			<h3 class="text-lg font-semibold text-foreground mb-4">Notes</h3>
+			<p class="text-foreground/80 whitespace-pre-wrap">{data.contract.notes}</p>
 		</div>
 	{/if}
 
@@ -204,6 +205,9 @@
 
 	<!-- Generate Contracts -->
 	<div class="mt-6">
-		<DjResidencyGenerateContracts contract={data.contract} venueCounterparty={data.venueCounterparty} />
+		<DjResidencyGenerateContracts
+			contract={data.contract}
+			venueCounterparty={data.venueCounterparty}
+		/>
 	</div>
 </div>

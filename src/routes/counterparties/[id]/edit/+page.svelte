@@ -26,9 +26,9 @@
 		if (cp.type === 'client') return 'bg-emerald-500';
 		if (cp.type === 'contractor' && 'contractorType' in cp) {
 			if (cp.contractorType === 'performer') return 'bg-pink-500';
-			if (cp.contractorType === 'service-provider') return 'bg-blue-500';
+			if (cp.contractorType === 'service-provider') return 'bg-primary';
 		}
-		return 'bg-gray-500';
+		return 'bg-muted';
 	}
 
 	let displayType = $derived(getDisplayType(counterparty));

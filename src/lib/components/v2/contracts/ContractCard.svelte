@@ -36,7 +36,7 @@
 		isDeleting = false,
 		onDownload,
 		onDeleteClick,
-		backgroundColor = 'bg-white'
+		backgroundColor = 'bg-card'
 	}: Props = $props();
 </script>
 
@@ -116,12 +116,7 @@
 		</Button>
 
 		{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'equipment-rental-oneoff' || contract.type === 'dj-residency'}
-			<Button
-				variant="outline"
-				size="sm"
-				href={getEditLink(contract)}
-				class="shrink-0"
-			>
+			<Button variant="outline" size="sm" href={getEditLink(contract)} class="shrink-0">
 				<Edit class="h-3.5 w-3.5 mr-1.5" />
 				Edit
 			</Button>

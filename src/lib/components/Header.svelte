@@ -6,7 +6,7 @@
 	import { resolve } from '$app/paths';
 	import { LogOut, Sun, Moon, Users, FileText, CalendarCheck } from '@lucide/svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import * as Avatar from '$lib/components/ui/avatar';
+	import Avatar from '$lib/components/ui/avatar/avatar.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
 
@@ -47,11 +47,11 @@
 						<DropdownMenu.Trigger
 							class="flex items-center space-x-2 p-1.5 hover:bg-muted rounded-md transition-colors"
 						>
-							<Avatar.Root class="h-8 w-8">
-								<Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
-									{getInitials(authState.user?.email)}
-								</Avatar.Fallback>
-							</Avatar.Root>
+							<Avatar
+								initials={getInitials(authState.user?.email)}
+								class="h-8 w-8"
+								fallbackClass="bg-primary text-primary-foreground text-xs"
+							/>
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content align="end" class="w-56">
 							<DropdownMenu.Label class="font-normal">

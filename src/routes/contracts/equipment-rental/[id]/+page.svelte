@@ -24,8 +24,8 @@
 	<!-- Header with actions -->
 	<div class="mb-6 flex items-center justify-between">
 		<div>
-			<h1 class="text-3xl font-bold text-gray-900">Contract #{data.contract.contractNumber}</h1>
-			<p class="text-gray-600 mt-1 text-sm">Equipment Rental Contract</p>
+			<h1 class="text-3xl font-bold text-foreground">Contract #{data.contract.contractNumber}</h1>
+			<p class="text-muted-foreground mt-1 text-sm">Equipment Rental Contract</p>
 		</div>
 		<div class="flex gap-2">
 			<Button variant="outline" href={`/contracts/equipment-rental/${data.contract.id}/edit`}>
@@ -44,7 +44,7 @@
 	</div>
 
 	<!-- Contract Preview - HTML from Word template -->
-	<div class="bg-white rounded-lg p-8 print:p-0">
+	<div class="bg-card rounded-lg p-8 print:p-0">
 		<div class="contract-html-preview">
 			{@html data.html}
 		</div>

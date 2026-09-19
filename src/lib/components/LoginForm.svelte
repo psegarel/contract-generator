@@ -4,6 +4,7 @@
 	import { resolve } from '$app/paths';
 	import { Eye, EyeOff } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
+	import TextField from '$lib/components/TextField.svelte';
 
 	import {
 		Card,
@@ -12,8 +13,6 @@
 		CardDescription,
 		CardContent
 	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
 	import { Alert, AlertTitle, AlertDescription } from '$lib/components/ui/alert';
 	import type { FirebaseError } from 'firebase/app';
 	import { logger } from '$lib/utils/logger';
@@ -101,10 +100,10 @@
 			{/if}
 
 			<form novalidate onsubmit={handleSubmit} class="space-y-5">
-				<div>
-					<Label for="email" class="mb-2">Email Address</Label>
-					<Input
+				<div class="relative">
+					<TextField
 						id="email"
+						label="Email Address"
 						type="email"
 						bind:value={email}
 						required
@@ -112,31 +111,28 @@
 					/>
 				</div>
 
-				<div>
-					<Label for="password" class="mb-2">Password</Label>
-					<div class="relative">
-						<Input
-							id="password"
-							type={showPassword ? 'text' : 'password'}
-							bind:value={password}
-							required
-							class="pr-10"
-							placeholder="••••••••"
-						/>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon"
-							class="absolute inset-y-0 right-0 mr-1 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground"
-							onclick={() => (showPassword = !showPassword)}
-						>
-							{#if showPassword}
-								<EyeOff class="h-4 w-4" />
-							{:else}
-								<Eye class="h-4 w-4" />
-							{/if}
-						</Button>
-					</div>
+				<div class="relative">
+					<TextField
+						id="password"
+						label="Password"
+						type={showPassword ? 'text' : 'password'}
+						bind:value={password}
+						required
+						placeholder="••••••••"
+					/>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						class="absolute right-2 top-[2.2rem] h-8 w-8 rounded-md text-muted-foreground hover:text-foreground"
+						onclick={() => (showPassword = !showPassword)}
+					>
+						{#if showPassword}
+							<EyeOff class="h-4 w-4" />
+						{:else}
+							<Eye class="h-4 w-4" />
+						{/if}
+					</Button>
 				</div>
 
 				<Button type="submit" disabled={loading} variant="dark" class="w-full" size="lg">

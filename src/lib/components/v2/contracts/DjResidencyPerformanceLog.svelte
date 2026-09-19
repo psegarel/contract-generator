@@ -41,9 +41,7 @@
 
 	let performerCounterparties = $derived(counterpartyState.performers);
 
-	let totalAmount = $derived(
-		performances.reduce((sum, p) => sum + (p.performerPayVND ?? 0), 0)
-	);
+	let totalAmount = $derived(performances.reduce((sum, p) => sum + (p.performerPayVND ?? 0), 0));
 
 	onMount(() => {
 		counterpartyState.init();
@@ -75,7 +73,12 @@
 	async function handleAddPerformance(data: PerformanceFormData) {
 		isSubmitting = true;
 		try {
-			await addPerformanceAndSync(contract.id, contract.performanceFeeVND, data, performerCounterparties);
+			await addPerformanceAndSync(
+				contract.id,
+				contract.performanceFeeVND,
+				data,
+				performerCounterparties
+			);
 			toast.success('Performance logged successfully!');
 			showAddForm = false;
 		} catch (error) {
@@ -101,7 +104,13 @@
 
 		isEditSubmitting = true;
 		try {
-			await updatePerformanceAndSync(contract.id, editingId, contract.performanceFeeVND, data, performerCounterparties);
+			await updatePerformanceAndSync(
+				contract.id,
+				editingId,
+				contract.performanceFeeVND,
+				data,
+				performerCounterparties
+			);
 			toast.success('Performance updated');
 			editingId = null;
 		} catch (error) {
@@ -132,12 +141,14 @@
 	}
 </script>
 
-<div class="bg-white rounded-lg border border-gray-200 p-6">
+<div class="bg-card rounded-lg border border-border p-6">
 	<div class="flex items-center justify-between mb-6">
 		<div>
-			<h3 class="text-lg font-semibold text-gray-900">Performance Log</h3>
-			<p class="text-sm text-gray-500 mt-1">
-				{performances.length} performance{performances.length !== 1 ? 's' : ''} · {formatCurrency(totalAmount)} DJ pay
+			<h3 class="text-lg font-semibold text-foreground">Performance Log</h3>
+			<p class="text-sm text-muted-foreground mt-1">
+				{performances.length} performance{performances.length !== 1 ? 's' : ''} · {formatCurrency(
+					totalAmount
+				)} DJ pay
 			</p>
 		</div>
 		<Button variant="outline" onclick={() => (showAddForm = !showAddForm)}>

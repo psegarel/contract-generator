@@ -23,11 +23,16 @@
 <div class="container mx-auto px-4 py-8">
 	<div class="mb-6 flex items-center justify-between">
 		<div>
-			<h1 class="text-3xl font-bold text-gray-900">Contract #{data.contract.contractNumber}</h1>
-			<p class="text-gray-600 mt-1 text-sm">Equipment Rental (One-Off) — Quotation: {data.contract.quotationReference}</p>
+			<h1 class="text-3xl font-bold text-foreground">Contract #{data.contract.contractNumber}</h1>
+			<p class="text-muted-foreground mt-1 text-sm">
+				Equipment Rental (One-Off) — Quotation: {data.contract.quotationReference}
+			</p>
 		</div>
 		<div class="flex gap-2">
-			<Button variant="outline" href={`/contracts/equipment-rental-oneoff/${data.contract.id}/edit`}>
+			<Button
+				variant="outline"
+				href={`/contracts/equipment-rental-oneoff/${data.contract.id}/edit`}
+			>
 				<Edit class="w-4 h-4 mr-2" />
 				Edit
 			</Button>
@@ -51,7 +56,10 @@
 	{:else}
 		<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-yellow-800">
 			<p class="font-semibold">Preview unavailable</p>
-			<p class="text-sm mt-1">The contract template has not been added yet. The contract data is saved — preview and download will work once the template is in place.</p>
+			<p class="text-sm mt-1">
+				The contract template has not been added yet. The contract data is saved — preview and
+				download will work once the template is in place.
+			</p>
 		</div>
 	{/if}
 </div>

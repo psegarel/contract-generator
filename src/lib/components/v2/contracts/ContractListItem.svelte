@@ -59,9 +59,7 @@
 		return `${paidCount}/${total} paid`;
 	});
 
-	let paymentBadgeHref = $derived(
-		authState.isAdmin ? `/payments?contract=${contract.id}` : null
-	);
+	let paymentBadgeHref = $derived(authState.isAdmin ? `/payments?contract=${contract.id}` : null);
 
 	let isPaid = $derived(contract.paymentStatus === 'paid');
 
@@ -96,7 +94,7 @@
 	}
 </script>
 
-<div class={index % 2 === 0 ? 'bg-white' : 'bg-slate-100/80'}>
+<div class={index % 2 === 0 ? 'bg-card' : 'bg-muted/30'}>
 	<!-- Mobile & Tablet: Card Layout -->
 	<div class="xl:hidden">
 		<ContractCard
@@ -104,7 +102,7 @@
 			{getLink}
 			{getContractTypeLabel}
 			{getDefaultContractLink}
-			getEditLink={getEditLink}
+			{getEditLink}
 			{paymentBadgeHref}
 			{paymentLabel}
 			{isPaid}
@@ -158,17 +156,17 @@
 			{#if paymentBadgeHref}
 				<a href={paymentBadgeHref} title="Manage payments">
 					{#if isPaid}
-						<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600">{paymentLabel}</Badge>
+						<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600"
+							>{paymentLabel}</Badge
+						>
 					{:else}
 						<Badge variant="secondary" class="hover:bg-slate-200">{paymentLabel}</Badge>
 					{/if}
 				</a>
+			{:else if isPaid}
+				<Badge variant="default" class="bg-emerald-500">{paymentLabel}</Badge>
 			{:else}
-				{#if isPaid}
-					<Badge variant="default" class="bg-emerald-500">{paymentLabel}</Badge>
-				{:else}
-					<Badge variant="secondary">{paymentLabel}</Badge>
-				{/if}
+				<Badge variant="secondary">{paymentLabel}</Badge>
 			{/if}
 		</div>
 
@@ -184,13 +182,7 @@
 				<Eye class="h-4 w-4" />
 			</Button>
 			{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'equipment-rental-oneoff' || contract.type === 'dj-residency'}
-				<Button
-					variant="outline"
-					size="sm"
-					href={getEditLink(contract)}
-					class="px-2"
-					title="Edit"
-				>
+				<Button variant="outline" size="sm" href={getEditLink(contract)} class="px-2" title="Edit">
 					<Edit class="h-4 w-4" />
 				</Button>
 				<Button

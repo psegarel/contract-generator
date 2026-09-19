@@ -6,7 +6,7 @@
 	import { resolve } from '$app/paths';
 	import { page, navigating } from '$app/state';
 	import { LogOut, Menu } from '@lucide/svelte';
-	import * as Avatar from '$lib/components/ui/avatar';
+	import Avatar from '$lib/components/ui/avatar/avatar.svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import Sidebar from './Sidebar.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -93,7 +93,9 @@
 	<!-- Main Content Area -->
 	<main class="flex-1 flex flex-col h-full relative overflow-hidden">
 		<!-- Top Bar -->
-		<header class="h-16 border-b border-border flex items-center justify-between px-4 md:px-8 z-20 w-full">
+		<header
+			class="h-16 border-b border-border flex items-center justify-between px-4 md:px-8 z-20 w-full"
+		>
 			<!-- Hamburger Menu Button (Mobile Only) -->
 			<Button
 				variant="ghost"
@@ -106,17 +108,16 @@
 			</Button>
 
 			<div class="flex items-center space-x-4 ml-auto">
-
 				{#if authState.isAuthenticated}
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger
 							class="flex items-center gap-3 group px-2 py-1 rounded-full hover:bg-muted transition-colors"
 						>
-							<Avatar.Root class="h-9 w-9 border-2 border-background shadow-sm">
-								<Avatar.Fallback class="bg-primary text-primary-foreground text-xs font-bold">
-									{getInitials(authState.user?.email)}
-								</Avatar.Fallback>
-							</Avatar.Root>
+							<Avatar
+								initials={getInitials(authState.user?.email)}
+								class="h-9 w-9 border-2 border-background shadow-sm"
+								fallbackClass="bg-primary text-primary-foreground text-xs font-bold"
+							/>
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content
 							align="end"
@@ -141,12 +142,7 @@
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
 				{:else}
-					<Button
-						onclick={() => goto(resolve('/login'))}
-						class="rounded-full"
-					>
-						Sign In
-					</Button>
+					<Button onclick={() => goto(resolve('/login'))} class="rounded-full">Sign In</Button>
 				{/if}
 			</div>
 		</header>

@@ -10,11 +10,7 @@
 		backgroundColor?: string;
 	}
 
-	let {
-		counterparty,
-		getTypeLabel,
-		backgroundColor = 'bg-white'
-	}: Props = $props();
+	let { counterparty, getTypeLabel, backgroundColor = 'bg-card' }: Props = $props();
 </script>
 
 <div class="space-y-4 py-4 px-4 border border-border rounded-lg {backgroundColor}">
