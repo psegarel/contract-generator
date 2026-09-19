@@ -144,7 +144,7 @@
 				disabled={!authState.isAdmin || isDeleting}
 				class="shrink-0 {!authState.isAdmin
 					? 'bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700'
-					: ''}"
+					: 'bg-red-600 hover:bg-red-700 text-white hover:text-white'}"
 				title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
 			>
 				<Trash2 class="h-3.5 w-3.5" />

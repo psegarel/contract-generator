@@ -33,7 +33,6 @@
 	let totalReceivable = $derived(stats.totalReceivable);
 	let totalPayable = $derived(stats.totalPayable);
 	let totalPaid = $derived(stats.totalPaid);
-
 </script>
 
 <div class="py-8">
@@ -47,7 +46,7 @@
 
 		<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 			<!-- Total Received -->
-			<DashboardCard backgroundColor="bg-indigo-500/20" textColor="text-indigo-900">
+			<DashboardCard backgroundColor="bg-card" textColor="text-foreground">
 				<div class="flex items-start justify-between">
 					<div class="flex-1">
 						<div
@@ -59,12 +58,12 @@
 							{formatCurrency(netRevenue)}
 						</div>
 					</div>
-					<TrendingUp class="w-6 h-6 md:w-5 md:h-5 lg:w-8 lg:h-8 opacity-50 shrink-0" />
+					<TrendingUp class="w-6 h-6 md:w-5 md:h-5 lg:w-8 lg:h-8 text-muted-foreground shrink-0" />
 				</div>
 			</DashboardCard>
 
 			<!-- Total Receivable -->
-			<DashboardCard backgroundColor="bg-emerald-500/20" textColor="text-emerald-900">
+			<DashboardCard backgroundColor="bg-card" textColor="text-foreground">
 				<div
 					class="text-[10px] md:text-[9px] lg:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1"
 				>
@@ -76,7 +75,7 @@
 			</DashboardCard>
 
 			<!-- Total Payable -->
-			<DashboardCard backgroundColor="bg-red-500/20" textColor="text-red-900">
+			<DashboardCard backgroundColor="bg-card" textColor="text-foreground">
 				<div
 					class="text-[10px] md:text-[9px] lg:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1"
 				>
@@ -86,7 +85,7 @@
 			</DashboardCard>
 
 			<!-- Total Paid -->
-			<DashboardCard backgroundColor="bg-purple-500/20" textColor="text-purple-900">
+			<DashboardCard backgroundColor="bg-card" textColor="text-foreground">
 				<div
 					class="text-[10px] md:text-[9px] lg:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1"
 				>
@@ -100,6 +99,5 @@
 		<div class="mt-8">
 			<LatestContractsList limit={10} />
 		</div>
-
 	</div>
 </div>

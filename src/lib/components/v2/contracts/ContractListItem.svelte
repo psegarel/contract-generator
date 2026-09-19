@@ -212,7 +212,7 @@
 					disabled={!authState.isAdmin || isDeleting}
 					class="px-2 {!authState.isAdmin
 						? 'bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700'
-						: ''}"
+						: 'bg-red-600 hover:bg-red-700 text-white hover:text-white'}"
 					title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
 				>
 					<Trash2 class="h-4 w-4" />

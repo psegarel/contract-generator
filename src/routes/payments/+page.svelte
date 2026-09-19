@@ -237,17 +237,16 @@
 			<p class="text-xs">Adjust your filters or create contracts with payment records.</p>
 		</div>
 	{:else}
-		<div class="space-y-3">
-			{#each groupedPayments as group (group.contractId)}
+		<div class="space-y-0">
+			{#each groupedPayments as group, groupIndex (group.contractId)}
 				{@const paidCount = group.payments.filter((p) => p.status === 'paid').length}
 				{@const totalCount = group.payments.length}
 				{@const totalAmount = group.payments.reduce((sum, p) => sum + p.amount, 0)}
 				{@const hasMultiple = totalCount > 1}
 				{@const expanded = expandedContracts.has(group.contractId)}
 
-				<div class="border border-border rounded-lg bg-card">
-					<!-- Contract Group Header -->
-					<div class="flex items-center gap-3 px-4 py-3">
+				<div class={groupIndex % 2 === 0 ? 'bg-card' : 'bg-muted/30'}>
+					<div class="flex items-center gap-3 px-4 py-3 border-b border-border last:border-b-0">
 						{#if hasMultiple}
 							<Button
 								type="button"
@@ -268,31 +267,37 @@
 
 						<div class="flex-1 min-w-0">
 							<div class="flex items-center gap-2 flex-wrap">
-								<span class="text-sm font-bold truncate">{group.counterpartyName}</span>
+								<span class="text-sm font-bold tracking-tight truncate"
+									>{group.counterpartyName}</span
+								>
 								<span class="text-xs text-muted-foreground">{group.contractNumber}</span>
-								<Badge variant="outline" class="text-xs"
+								<Badge variant="outline" class="text-[11px]"
 									>{getContractTypeLabel(group.contractType)}</Badge
 								>
 							</div>
+							<p class="mt-1 text-[11px] text-muted-foreground">
+								{hasMultiple ? `${paidCount}/${totalCount} payments` : '1 payment'}
+							</p>
 						</div>
 
-						<div class="text-sm font-bold text-emerald-600 tabular-nums shrink-0">
-							{formatCurrency(totalAmount)}
+						<div class="text-right shrink-0">
+							<div class="text-sm font-bold text-foreground tabular-nums">
+								{formatCurrency(totalAmount)}
+							</div>
 						</div>
 
 						<div class="shrink-0">
 							{#if paidCount === totalCount}
-								<Badge variant="default" class="bg-emerald-500">
+								<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600 text-[11px]">
 									{hasMultiple ? `${paidCount}/${totalCount} paid` : 'Paid'}
 								</Badge>
 							{:else}
-								<Badge variant="secondary">
+								<Badge variant="secondary" class="text-[11px]">
 									{hasMultiple ? `${paidCount}/${totalCount} paid` : 'Unpaid'}
 								</Badge>
 							{/if}
 						</div>
 
-						<!-- Single payment: toggle directly from header -->
 						{#if !hasMultiple}
 							{@const payment = group.payments[0]}
 							<Button
@@ -313,18 +318,19 @@
 						{/if}
 					</div>
 
-					<!-- Expanded: Individual Payments -->
 					{#if hasMultiple && expanded}
-						<div class="border-t border-border">
+						<div class="bg-muted/10">
 							{#each group.payments as payment, i (payment.id)}
 								<div
-									class="flex items-center gap-3 px-4 py-2.5 {i % 2 === 0
-										? 'bg-slate-50'
-										: 'bg-card'}"
+									class="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-b-0 {i %
+										2 ===
+									0
+										? 'bg-card'
+										: 'bg-muted/20'}"
 								>
 									<div class="w-4 shrink-0"></div>
 									<div class="flex-1 min-w-0">
-										<span class="text-sm">{payment.label ?? 'Payment'}</span>
+										<span class="text-sm text-foreground">{payment.label ?? 'Payment'}</span>
 									</div>
 									<div class="text-sm tabular-nums text-muted-foreground shrink-0">
 										{#if editingAmountId === payment.id}
@@ -362,9 +368,9 @@
 									</div>
 									<div class="shrink-0">
 										{#if payment.status === 'paid'}
-											<Badge variant="default" class="bg-emerald-500 text-xs">Paid</Badge>
+											<Badge variant="default" class="bg-emerald-500 text-[11px]">Paid</Badge>
 										{:else}
-											<Badge variant="secondary" class="text-xs">Pending</Badge>
+											<Badge variant="secondary" class="text-[11px]">Pending</Badge>
 										{/if}
 									</div>
 									<Button

@@ -53,7 +53,7 @@
 			variant="ghost"
 			size="sm"
 			onclick={onDelete}
-			class="text-destructive hover:text-destructive hover:bg-destructive/10"
+			class="bg-red-600 text-white hover:bg-red-700 hover:text-white"
 		>
 			<Trash2 class="w-4 h-4" />
 		</Button>
