@@ -24,6 +24,7 @@
 ### Current State
 
 This Svelte 5 + TypeScript codebase is well-architected with modern patterns, but has accumulated technical debt in the form of:
+
 - Code duplication (especially formatting utilities)
 - Svelte 5 anti-patterns ($effect usage for prop-to-state syncing)
 - Large component sizes (400-500+ lines)
@@ -41,6 +42,7 @@ This Svelte 5 + TypeScript codebase is well-architected with modern patterns, bu
 ### Impact
 
 **Before Cleanup:**
+
 - 5 duplicate `formatCurrency` implementations
 - 14 files using $effect anti-pattern
 - 2 components over 400 lines
@@ -48,6 +50,7 @@ This Svelte 5 + TypeScript codebase is well-architected with modern patterns, bu
 - 16 migration scripts in /src
 
 **After Cleanup:**
+
 - 1 canonical formatting utility
 - 0 $effect anti-patterns (only legitimate uses)
 - 0 components over 150 lines
@@ -71,6 +74,7 @@ This Svelte 5 + TypeScript codebase is well-architected with modern patterns, bu
 Multiple implementations of the same formatting functions:
 
 **`formatCurrency`** (5 locations):
+
 1. `/src/lib/utils/formatting.ts` ✅ CANONICAL
 2. `/src/lib/utils/eventPlanningFormHelpers.ts` (lines 158-160)
 3. `/src/lib/utils/v2/contractDataTransformers.ts` (lines 10-12)
@@ -78,6 +82,7 @@ Multiple implementations of the same formatting functions:
 5. `/src/lib/utils/serviceContractGenerator.ts` (lines 44-46)
 
 **Date formatting** (3+ locations):
+
 - `/src/lib/utils/formatting.ts` - `formatDateString`
 - `/src/lib/utils/v2/contractDataTransformers.ts` - `formatDateVietnamese`, `formatDateEnglish`
 - `/src/lib/utils/eventPlanningContractGenerator.ts` - duplicates
@@ -136,6 +141,7 @@ export function formatDateEnglish(dateString: string): string {
 2. **Remove duplicate implementations:**
 
 Files to edit:
+
 - `/src/lib/utils/eventPlanningFormHelpers.ts` - Remove `formatCurrency` (lines 158-160)
 - `/src/lib/utils/v2/contractDataTransformers.ts` - Remove `formatCurrency`, `formatDateVietnamese`, `formatDateEnglish`
 - `/src/lib/utils/eventPlanningContractGenerator.ts` - Remove all formatting functions
@@ -144,12 +150,14 @@ Files to edit:
 3. **Update imports in affected files:**
 
 Files that import formatting functions (need to verify and update):
+
 ```typescript
 // Update all to:
 import { formatCurrency, formatDateString, formatDateVietnamese } from '$lib/utils/formatting';
 ```
 
 **Files to check:**
+
 - All files in `/src/lib/components/v2/contracts/`
 - All files in `/src/lib/components/v2/counterparties/`
 - All contract generator files
@@ -183,6 +191,7 @@ rg "function formatDate" src/
 #### Problem
 
 Contract number generation duplicated in 4 locations:
+
 1. `/src/lib/utils/v2/contractDataTransformers.ts` - `generateContractNumber()` ✅ BEST
 2. `/src/lib/utils/eventPlanningContractGenerator.ts` - inline (lines 62-70)
 3. `/src/lib/utils/eventPlanningFormHelpers.ts` - `formatContractNumber()` (lines 91-101)
@@ -201,10 +210,7 @@ Contract number generation duplicated in 4 locations:
  * @returns Contract number in format: YYYYMMDD-INITIALS-XXX
  * @example generateContractNumber('Nguyen Van A') // "20260109-NVA-123"
  */
-export function generateContractNumber(
-	clientName: string,
-	maxInitials?: number
-): string {
+export function generateContractNumber(clientName: string, maxInitials?: number): string {
 	const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 	const initials = clientName
 		.split(' ')
@@ -247,6 +253,7 @@ import { generateContractNumber } from '$lib/utils/contractHelpers';
 #### Problem
 
 Forms using `$effect` to sync props to state, which is an anti-pattern:
+
 - ServiceProvisionForm.svelte (lines 75-100)
 - EventPlanningForm.svelte (lines 79-104)
 - ClientForm.svelte
@@ -352,6 +359,7 @@ export class ExampleFormState {
 3. **Refactor component to use Form State Class:**
 
 Replace:
+
 ```typescript
 // Before
 let field1 = $state('');
@@ -366,6 +374,7 @@ $effect(() => {
 ```
 
 With:
+
 ```typescript
 // After
 import { onMount } from 'svelte';
@@ -379,11 +388,13 @@ onMount(() => {
 4. **Update template bindings:**
 
 Replace:
+
 ```svelte
 <input bind:value={field1} />
 ```
 
 With:
+
 ```svelte
 <input bind:value={formState.field1} />
 ```
@@ -465,12 +476,14 @@ $effect(() => {
 TypeScript `any` types defeat the purpose of type safety:
 
 1. `/src/lib/utils.ts` (lines 8-11):
+
 ```typescript
 export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
 export type WithoutChildren<T> = T extends { children?: any } ? Omit<T, 'children'> : T;
 ```
 
 2. `/src/lib/utils/ClientRepository.ts` (lines 100-101):
+
 ```typescript
 private convertTimestamps(documents?: {
 	image1?: any;
@@ -550,13 +563,14 @@ $effect(() => {
 		eventPlanning: {
 			count: eventPlanningContractState.contracts.length,
 			contracts: eventPlanningContractState.contracts
-		},
+		}
 		// ... 20 more lines of debug output
 	});
 });
 ```
 
 **Files with console.logs:**
+
 - `/src/routes/+page.svelte` (15+ logs)
 - Various form components (error logging)
 - State management files
@@ -577,11 +591,13 @@ rg "console\.log" src/ -c
 2. **Categorize logs:**
 
 **Remove these:**
+
 - Debug logs: `console.log('Debug:', ...)`
 - State inspection: `console.log('Current state:', ...)`
 - Execution flow: `console.log('Entering function...')`
 
 **Keep these (convert to proper error handling):**
+
 - Error logs: `console.error('Failed to save:', error)`
 - Critical warnings: `console.warn('Data validation failed:', ...)`
 
@@ -703,11 +719,13 @@ mkdir -p migrations-archive
 ## Completed Migrations
 
 ### 2024-XX-XX: Add Timestamps to Counterparties
+
 **Script:** `addTimestampsToCounterparties.ts`
 **Status:** ✅ Completed
 **Description:** Added createdAt and updatedAt timestamps to all counterparty documents.
 
 ### 2024-XX-XX: Clean Counterparty Data
+
 **Script:** `cleanCounterpartyData.ts`
 **Status:** ✅ Completed
 **Description:** Removed invalid fields and normalized data structure.
@@ -719,6 +737,7 @@ mkdir -p migrations-archive
 Migration scripts are archived and should only be used for reference or emergency rollback.
 
 If you need to run a migration:
+
 1. Copy script from `migrations-archive/` to `/src/lib/migration/`
 2. Review and test on development database
 3. Run migration
@@ -746,6 +765,7 @@ rmdir src/lib/migration/
 5. **Document in README:**
 
 Add to main README.md:
+
 ```markdown
 ## Database Migrations
 
@@ -773,6 +793,7 @@ See `/migrations-archive/MIGRATION_LOG.md` for migration history.
 #### Problem
 
 Two form components exceed 400 lines (guideline: <150 lines):
+
 - ServiceProvisionForm.svelte: **538 lines**
 - EventPlanningForm.svelte: **476 lines**
 
@@ -831,20 +852,21 @@ Utils extracted to:
 import type { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 import { serviceProvisionContractSchema } from '$lib/schemas/v2/contracts/serviceProvisionContract';
 
-export function validateServiceProvisionForm(
-	formState: ServiceProvisionContractFormState
-): { valid: boolean; errors: string[] } {
+export function validateServiceProvisionForm(formState: ServiceProvisionContractFormState): {
+	valid: boolean;
+	errors: string[];
+} {
 	const result = serviceProvisionContractSchema.safeParse({
 		// Map formState to schema
 		contractNumber: formState.contractNumber,
-		eventId: formState.eventId,
+		eventId: formState.eventId
 		// ... all fields
 	});
 
 	if (!result.success) {
 		return {
 			valid: false,
-			errors: result.error.errors.map(e => e.message)
+			errors: result.error.errors.map((e) => e.message)
 		};
 	}
 
@@ -911,12 +933,7 @@ export async function submitServiceProvisionForm(
 	}
 </script>
 
-<ServiceProvisionFormContainer
-	{formState}
-	{submitting}
-	{error}
-	{handleSubmit}
-/>
+<ServiceProvisionFormContainer {formState} {submitting} {error} {handleSubmit} />
 ```
 
 3. **Create container component:**
@@ -972,6 +989,7 @@ export async function submitServiceProvisionForm(
 **For EventPlanningForm.svelte:**
 
 Follow same pattern:
+
 1. Create `/utils/v2/eventPlanningFormHelpers.ts`
 2. Extract validation and submission logic
 3. Simplify parent component
@@ -1071,6 +1089,7 @@ Track in `/docs/V2_MIGRATION_CHECKLIST.md`:
 4. **Update imports:**
 
 After moving files, update all imports:
+
 ```bash
 # Find imports of moved files
 rg "from '\$lib/components/OldComponent'" src/
@@ -1079,6 +1098,7 @@ rg "from '\$lib/components/OldComponent'" src/
 5. **Remove empty v2 folders:**
 
 After migration, remove /v2 folder structure and move all to canonical locations:
+
 ```
 src/lib/
 ├── components/
@@ -1109,6 +1129,7 @@ src/lib/
 #### Problem
 
 Several components marked as "not checked" in AUTOFIXER_STATUS.md may be unused:
+
 - Legacy event-planning section components
 - Potential duplicate components
 - Old UI components
@@ -1147,11 +1168,13 @@ done
 2. **Review AUTOFIXER_STATUS.md unchecked components:**
 
 Components not checked (from review):
+
 - ContractValue.svelte
 - LoginForm.svelte
 - Legacy section components
 
 For each:
+
 - Check if imported anywhere
 - Check git history (last modified date)
 - Decide: Keep, Archive, or Delete
@@ -1172,6 +1195,7 @@ git mv src/lib/components/UnusedComponent.svelte archive/components/
 ## Archived Components
 
 ### UnusedComponent.svelte
+
 **Date Archived:** 2026-01-09
 **Reason:** No longer used after v2 migration
 **Last Used:** 2025-12-15
@@ -1255,6 +1279,7 @@ main();
 3. **Check all components systematically:**
 
 For each component:
+
 - Run autofixer
 - Document suggestions in AUTOFIXER_STATUS.md
 - Fix issues immediately or add to backlog
@@ -1266,18 +1291,21 @@ For each component:
 ## Components Status
 
 ### Fully Validated (0 suggestions)
+
 - [x] ContractCard.svelte
 - [x] ContractListItem.svelte
 - [x] ServiceProvisionForm.svelte
-... (list all passing)
+      ... (list all passing)
 
 ### Has Suggestions (needs fixing)
+
 - [ ] ComponentX.svelte (3 suggestions)
   - Use $derived instead of $effect
   - Fix prop destructuring
   - Update reactive statement
 
 ### Not Yet Checked
+
 - [ ] ComponentY.svelte
 ```
 
@@ -1286,6 +1314,7 @@ For each component:
 **Zero tolerance:** ALL suggestions must be addressed.
 
 Create issues for each component with suggestions:
+
 - Priority 1: Anti-patterns ($effect misuse)
 - Priority 2: Best practices (prop destructuring, reactivity)
 - Priority 3: Style/conventions
@@ -1318,6 +1347,7 @@ No automated tests found in codebase.
 1. **Unit Tests (Vitest)**
 
 Test utilities and business logic:
+
 ```typescript
 // src/lib/utils/formatting.test.ts
 import { describe, it, expect } from 'vitest';
@@ -1339,6 +1369,7 @@ describe('formatCurrency', () => {
 ```
 
 **Files to test:**
+
 - All utilities in /lib/utils/
 - Form state classes in /lib/state/v2/
 - Schema validators in /lib/schemas/v2/
@@ -1346,6 +1377,7 @@ describe('formatCurrency', () => {
 2. **Component Tests (Vitest + Testing Library)**
 
 Test component behavior:
+
 ```typescript
 // src/lib/components/v2/contracts/ContractCard.test.ts
 import { render, screen } from '@testing-library/svelte';
@@ -1357,7 +1389,7 @@ describe('ContractCard', () => {
 		const contract = {
 			counterpartyName: 'Test Client',
 			contractNumber: '20260109-TC-001',
-			contractValue: 1000000,
+			contractValue: 1000000
 			// ... other props
 		};
 
@@ -1372,6 +1404,7 @@ describe('ContractCard', () => {
 3. **E2E Tests (Playwright)**
 
 Test critical user flows:
+
 ```typescript
 // tests/e2e/contract-creation.spec.ts
 import { test, expect } from '@playwright/test';
@@ -1408,6 +1441,7 @@ test('create service provision contract', async ({ page }) => {
 **Effort:** 2-3 hours
 
 Already planned in Task 2.1. Enhance with:
+
 - Remote logging (Sentry, LogRocket)
 - Performance monitoring
 - Error tracking
@@ -1468,6 +1502,7 @@ interface Props {
 **Context:** Forms with 20+ fields became hard to manage with individual $state variables.
 **Decision:** Implement Form State Class pattern with init/reset methods.
 **Consequences:**
+
 - ✅ Cleaner component code
 - ✅ Reusable state logic
 - ✅ Easier testing
@@ -1483,12 +1518,14 @@ interface Props {
 After each priority level completion:
 
 **Smoke Tests:**
+
 - [ ] Application builds: `pnpm build`
 - [ ] TypeScript validation: `pnpm check` (0 errors, 0 warnings)
 - [ ] Application runs: `pnpm dev`
 - [ ] No console errors in browser
 
 **Functional Tests:**
+
 - [ ] Create new contract (all types)
 - [ ] Edit existing contract
 - [ ] Delete contract
@@ -1503,6 +1540,7 @@ After each priority level completion:
 - [ ] Error handling displays
 
 **Visual Regression:**
+
 - [ ] Contract list displays correctly (desktop, tablet, mobile)
 - [ ] Contract cards render properly
 - [ ] Forms layout correctly
@@ -1525,6 +1563,7 @@ pnpm test:coverage
 ```
 
 **Coverage Goals:**
+
 - Utilities: 90%+
 - Form State Classes: 80%+
 - Components: 60%+
@@ -1537,6 +1576,7 @@ pnpm test:coverage
 ### Quantitative Metrics
 
 **Code Quality:**
+
 - [ ] 0 files with `any` types (currently 2)
 - [ ] 0 components using $effect anti-pattern (currently 14)
 - [ ] 1 implementation of formatCurrency (currently 5)
@@ -1545,11 +1585,13 @@ pnpm test:coverage
 - [ ] 100% autofixer validation (currently ~33%)
 
 **Type Safety:**
+
 - [ ] `pnpm check` shows 0 errors and 0 warnings
 - [ ] No `as any` type casts
 - [ ] No `@ts-ignore` comments
 
 **Bundle Size:**
+
 - [ ] Measure before/after cleanup
 - [ ] Target: 10-15% reduction from removing unused code
 - [ ] 16 migration scripts removed from bundle
@@ -1557,18 +1599,21 @@ pnpm test:coverage
 ### Qualitative Metrics
 
 **Developer Experience:**
+
 - [ ] Clear file structure (no v1/v2 confusion)
 - [ ] Consistent patterns across codebase
 - [ ] Easy to find utilities (single source of truth)
 - [ ] Components are small and focused
 
 **Maintainability:**
+
 - [ ] New developers can understand component structure
 - [ ] Business logic is testable (extracted from components)
 - [ ] Forms follow consistent patterns
 - [ ] Codebase adheres to Svelte 5 best practices
 
 **Performance:**
+
 - [ ] Smaller bundle size
 - [ ] Fewer re-renders (proper reactivity)
 - [ ] No infinite loops from $effect anti-patterns
@@ -1580,11 +1625,13 @@ pnpm test:coverage
 ### Week 1: Priority 1 (Critical)
 
 **Days 1-2:** Consolidate utilities
+
 - Task 1.1: Formatting functions
 - Task 1.2: Contract number generation
 - Testing and verification
 
 **Days 3-5:** Fix anti-patterns and types
+
 - Task 1.3: $effect anti-pattern (14 files)
 - Task 1.4: Remove `any` types
 - Comprehensive testing
@@ -1592,11 +1639,13 @@ pnpm test:coverage
 ### Week 2: Priority 2 (Quality)
 
 **Days 1-2:** Clean production code
+
 - Task 2.1: Remove console.logs
 - Task 2.2: Archive migrations
 - Testing and verification
 
 **Days 3-5:** Component refactoring
+
 - Task 2.3: Break down large components
 - Comprehensive testing
 - Visual regression testing
@@ -1604,11 +1653,13 @@ pnpm test:coverage
 ### Week 3: Priority 3 (Technical Debt)
 
 **Days 1-3:** Architecture migration
+
 - Task 3.1: Complete v2 migration
 - Task 3.2: Audit unused components
 - Testing and verification
 
 **Days 4-5:** Autofixer completion
+
 - Task 3.3: Check all remaining components
 - Fix all suggestions
 - Final validation
@@ -1670,6 +1721,7 @@ Merge to main only after thorough testing.
 ### Files to Modify (Priority 1)
 
 **Task 1.1: Formatting Utilities**
+
 - `/src/lib/utils/formatting.ts` (expand)
 - `/src/lib/utils/eventPlanningFormHelpers.ts` (remove duplicates)
 - `/src/lib/utils/v2/contractDataTransformers.ts` (remove duplicates)
@@ -1678,6 +1730,7 @@ Merge to main only after thorough testing.
 - 17+ files with imports (update)
 
 **Task 1.2: Contract Helpers**
+
 - Create: `/src/lib/utils/contractHelpers.ts`
 - `/src/lib/utils/v2/contractDataTransformers.ts` (move function)
 - `/src/lib/utils/eventPlanningContractGenerator.ts` (remove duplicate)
@@ -1685,6 +1738,7 @@ Merge to main only after thorough testing.
 - `/src/lib/utils/serviceContractGenerator.ts` (remove duplicate)
 
 **Task 1.3: $effect Anti-Pattern**
+
 - `/src/lib/components/v2/contracts/ServiceProvisionForm.svelte`
 - `/src/lib/components/v2/contracts/EventPlanningForm.svelte`
 - `/src/lib/components/v2/counterparties/ClientForm.svelte`
@@ -1695,6 +1749,7 @@ Merge to main only after thorough testing.
 - 7+ more files in /routes/admin/
 
 **Task 1.4: Remove `any` Types**
+
 - `/src/lib/utils.ts`
 - `/src/lib/utils/ClientRepository.ts`
 
@@ -1705,6 +1760,7 @@ Merge to main only after thorough testing.
 ### Useful Commands
 
 **Search for code patterns:**
+
 ```bash
 # Find all formatCurrency implementations
 rg "function formatCurrency" src/
@@ -1723,6 +1779,7 @@ find src/lib/components -name "*.svelte" | wc -l
 ```
 
 **Validation:**
+
 ```bash
 # TypeScript check
 pnpm check
@@ -1738,6 +1795,7 @@ pnpm lint
 ```
 
 **Git workflows:**
+
 ```bash
 # Create feature branch
 git checkout -b cleanup/task-1-1
@@ -1760,16 +1818,17 @@ git merge cleanup/task-1-1
 
 ### Changes to This Document
 
-| Date | Change | Author |
-|------|--------|--------|
+| Date       | Change           | Author       |
+| ---------- | ---------------- | ------------ |
 | 2026-01-09 | Initial creation | AI Assistant |
-| | | |
+|            |                  |              |
 
 ---
 
 **End of Cleanup Plan**
 
 For questions or clarifications, refer to:
+
 - `/CLAUDE.md` - Project coding guidelines
 - `/docs/AUTOFIXER_STATUS.md` - Component validation status
 - `/README.md` - Project setup and overview
