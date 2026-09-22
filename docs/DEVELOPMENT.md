@@ -10,6 +10,8 @@ pnpm install
 
 Create a local `.env` file containing the `VITE_FIREBASE_*` values required by `src/lib/config/firebase.ts`. Keep it untracked.
 
+The application is currently owner-only. The Firebase user profile for the active owner must have `isAdmin: true`; newly created profiles default to `false`.
+
 Start the development server with:
 
 ```sh

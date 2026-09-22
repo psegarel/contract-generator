@@ -25,11 +25,11 @@ service cloud.firestore {
     }
 
     match /clients/{clientId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in and fields must be valid
-      allow create: if isSignedIn()
+      // Create: owner/admin only; fields must be valid
+      allow create: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && ('name' in request.resource.data && request.resource.data.name is string)
         && ('email' in request.resource.data && request.resource.data.email is string)
@@ -46,8 +46,8 @@ service cloud.firestore {
             || request.resource.data.accountNumber is string
             || request.resource.data.accountNumber == null);
 
-      // Update: any authenticated user can update, fields remain valid
-      allow update: if isSignedIn()
+      // Update: owner/admin only; fields remain valid
+      allow update: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && ('name' in request.resource.data ? request.resource.data.name is string : true)
         && ('email' in request.resource.data ? request.resource.data.email is string : true)
@@ -64,16 +64,16 @@ service cloud.firestore {
             ? (request.resource.data.accountNumber is string || request.resource.data.accountNumber == null)
             : true);
 
-      // Delete: any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Delete: owner/admin only
+      allow delete: if isAdmin();
     }
 
     match /locations/{locationId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in and fields must be valid
-      allow create: if isSignedIn()
+      // Create: owner/admin only; fields must be valid
+      allow create: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && ('name' in request.resource.data && request.resource.data.name is string)
         && ('address' in request.resource.data && request.resource.data.address is string)
@@ -87,8 +87,8 @@ service cloud.firestore {
             || request.resource.data.contactPhone is string
             || request.resource.data.contactPhone == null);
 
-      // Update: any authenticated user can update, fields remain valid
-      allow update: if isSignedIn()
+      // Update: owner/admin only; fields remain valid
+      allow update: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && ('name' in request.resource.data ? request.resource.data.name is string : true)
         && ('address' in request.resource.data ? request.resource.data.address is string : true)
@@ -102,16 +102,16 @@ service cloud.firestore {
             ? (request.resource.data.contactPhone is string || request.resource.data.contactPhone == null)
             : true);
 
-      // Delete: any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Delete: owner/admin only
+      allow delete: if isAdmin();
     }
 
     match /contracts/{contractId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in and fields must be valid
-      allow create: if isSignedIn()
+      // Create: owner/admin only; fields must be valid
+      allow create: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && ('type' in request.resource.data && request.resource.data.type is string)
         && ('contractData' in request.resource.data && request.resource.data.contractData is map)
@@ -120,9 +120,8 @@ service cloud.firestore {
         && ('paymentStatus' in request.resource.data && request.resource.data.paymentStatus is string)
         && ('createdAt' in request.resource.data);
 
-      // Update: any authenticated user can update contractData
-      // But only admins can update payment status
-      allow update: if isSignedIn()
+      // Update: owner/admin only
+      allow update: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && (
           // Regular update (non-payment fields)
@@ -136,11 +135,11 @@ service cloud.firestore {
     }
 
     match /service-contracts/{contractId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in and fields must be valid
-      allow create: if isSignedIn()
+      // Create: owner/admin only; fields must be valid
+      allow create: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && ('contractData' in request.resource.data && request.resource.data.contractData is map)
         && ('contractNumber' in request.resource.data && request.resource.data.contractNumber is string)
@@ -148,9 +147,8 @@ service cloud.firestore {
         && ('paymentStatus' in request.resource.data && request.resource.data.paymentStatus is string)
         && ('createdAt' in request.resource.data);
 
-      // Update: any authenticated user can update contractData
-      // But only admins can update payment status
-      allow update: if isSignedIn()
+      // Update: owner/admin only
+      allow update: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && (
           // Regular update (non-payment fields)
@@ -164,11 +162,11 @@ service cloud.firestore {
     }
 
     match /event-planning-contracts/{contractId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in and fields must be valid
-      allow create: if isSignedIn()
+      // Create: owner/admin only; fields must be valid
+      allow create: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && ('contractData' in request.resource.data && request.resource.data.contractData is map)
         && ('contractNumber' in request.resource.data && request.resource.data.contractNumber is string)
@@ -176,9 +174,8 @@ service cloud.firestore {
         && ('paymentStatus' in request.resource.data && request.resource.data.paymentStatus is string)
         && ('createdAt' in request.resource.data);
 
-      // Update: any authenticated user can update contractData
-      // But only admins can update payment status
-      allow update: if isSignedIn()
+      // Update: owner/admin only
+      allow update: if isAdmin()
         && ('ownerUid' in request.resource.data)
         && (
           // Regular update (non-payment fields)
@@ -195,11 +192,10 @@ service cloud.firestore {
     // App Configuration (shared, non-sensitive config)
     // ============================================================
 
-    // Bank list cache — read by all signed-in users, writable by any signed-in
-    // user since the data is public (sourced from the VietQR public API).
+      // Bank list cache — owner/admin only for this single-owner application.
     match /app-config/{docId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn();
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
 
     // ============================================================
@@ -208,45 +204,44 @@ service cloud.firestore {
 
     // Counterparties (v2) - replaces clients
     match /counterparties/{counterpartyId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in
-      allow create: if isSignedIn();
+      // Create: owner/admin only
+      allow create: if isAdmin();
 
-      // Update: any authenticated user can update
-      allow update: if isSignedIn();
+      // Update: owner/admin only
+      allow update: if isAdmin();
 
-      // Delete: any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Delete: owner/admin only
+      allow delete: if isAdmin();
     }
 
     // Events (v2) - new entity grouping contracts
     match /events/{eventId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in
-      allow create: if isSignedIn();
+      // Create: owner/admin only
+      allow create: if isAdmin();
 
-      // Update: any authenticated user can update
-      allow update: if isSignedIn();
+      // Update: owner/admin only
+      allow update: if isAdmin();
 
-      // Delete: any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Delete: owner/admin only
+      allow delete: if isAdmin();
     }
 
     // Service Provision Contracts (v2) - migrated from service-contracts
     match /service-provision-contracts/{contractId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in
-      allow create: if isSignedIn();
+      // Create: owner/admin only
+      allow create: if isAdmin();
 
-      // Update: any authenticated user can update
-      // But only admins can update payment status
-      allow update: if isSignedIn()
+      // Update: owner/admin only
+      allow update: if isAdmin()
         && (
           // Regular update (non-payment fields)
           (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
@@ -260,15 +255,14 @@ service cloud.firestore {
 
     // Event Planning Contracts (v2) - migrated from event-planning-contracts
     match /event-planning-contracts/{contractId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in
-      allow create: if isSignedIn();
+      // Create: owner/admin only
+      allow create: if isAdmin();
 
-      // Update: any authenticated user can update
-      // But only admins can update payment status
-      allow update: if isSignedIn()
+      // Update: owner/admin only
+      allow update: if isAdmin()
         && (
           // Regular update (non-payment fields)
           (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
@@ -282,11 +276,11 @@ service cloud.firestore {
 
     // Payment Records (v2)
     match /payments/{paymentId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in
-      allow create: if isSignedIn();
+      // Create: owner/admin only
+      allow create: if isAdmin();
 
       // Update: only admins can update payment status
       allow update: if isAdmin();
@@ -297,15 +291,14 @@ service cloud.firestore {
 
     // Equipment Rental Contracts (v2)
     match /equipment-rental-contracts/{contractId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
       // Create: must be signed-in
-      allow create: if isSignedIn();
+      allow create: if isAdmin();
 
-      // Update: any authenticated user can update
-      // But only admins can update payment status
-      allow update: if isSignedIn()
+      // Update: owner/admin only
+      allow update: if isAdmin()
         && (
           // Regular update (non-payment fields)
           (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
@@ -319,15 +312,14 @@ service cloud.firestore {
 
     // Equipment Rental One-Off Contracts (v2)
     match /equipment-rental-oneoff-contracts/{contractId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
-      // Create: must be signed-in
-      allow create: if isSignedIn();
+      // Create: owner/admin only
+      allow create: if isAdmin();
 
-      // Update: any authenticated user can update
-      // But only admins can update payment status
-      allow update: if isSignedIn()
+      // Update: owner/admin only
+      allow update: if isAdmin()
         && (
           // Regular update (non-payment fields)
           (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
@@ -341,15 +333,15 @@ service cloud.firestore {
 
     // DJ Residency Contracts (v2)
     match /dj-residency-contracts/{contractId} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application data
+      allow read: if isAdmin();
 
       // Create: must be signed-in
-      allow create: if isSignedIn();
+      allow create: if isAdmin();
 
       // Update: any authenticated user can update
       // But only admins can update payment status
-      allow update: if isSignedIn()
+      allow update: if isAdmin()
         && (
           // Regular update (non-payment fields)
           (!('paymentStatus' in request.resource.data) || request.resource.data.paymentStatus == resource.data.paymentStatus)
@@ -362,30 +354,30 @@ service cloud.firestore {
 
       // Performances subcollection
       match /performances/{performanceId} {
-        // Any authenticated user can read
-        allow read: if isSignedIn();
+        // Only the owner/admin account can access application data
+        allow read: if isAdmin();
 
-        // Any authenticated user can create performance logs
-        allow create: if isSignedIn();
+        // Owner/admin only can create performance logs
+        allow create: if isAdmin();
 
-        // Any authenticated user can update (e.g., mark as invoiced)
-        allow update: if isSignedIn();
+        // Owner/admin only can update (e.g., mark as invoiced)
+        allow update: if isAdmin();
 
-        // Any authenticated user can delete (to correct mistakes)
+        // Owner/admin only can delete (to correct mistakes)
         // Only uninvoiced performances should be deletable (enforced in app logic)
-        allow delete: if isSignedIn();
+        allow delete: if isAdmin();
       }
 
       // Invoices subcollection
       match /invoices/{invoiceId} {
-        // Any authenticated user can read
-        allow read: if isSignedIn();
+        // Only the owner/admin account can access application data
+        allow read: if isAdmin();
 
-        // Any authenticated user can create invoices
-        allow create: if isSignedIn();
+        // Owner/admin only can create invoices
+        allow create: if isAdmin();
 
-        // Any authenticated user can update (e.g., change status)
-        allow update: if isSignedIn();
+        // Owner/admin only can update (e.g., change status)
+        allow update: if isAdmin();
 
         // Only admins can delete invoices
         allow delete: if isAdmin();

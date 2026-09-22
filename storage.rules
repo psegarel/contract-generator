@@ -8,18 +8,23 @@ service firebase.storage {
       return request.auth != null;
     }
 
+    function isAdmin() {
+      return isSignedIn()
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
     // Counterparty documents (renamed from client-documents)
     match /counterparty-documents/{counterpartyId}/{fileName} {
-      // Any authenticated user can read
-      allow read: if isSignedIn();
+      // Only the owner/admin account can access application documents
+      allow read: if isAdmin();
 
-      // Any authenticated user can write with size and type restrictions
-      allow write: if isSignedIn()
+      // Only the owner/admin account can write with size and type restrictions
+      allow write: if isAdmin()
         && request.resource.size < 500 * 1024  // 500KB limit
         && request.resource.contentType.matches('image/.*|application/pdf');
 
-      // Any authenticated user can delete
-      allow delete: if isSignedIn();
+      // Only the owner/admin account can delete
+      allow delete: if isAdmin();
     }
   }
 }

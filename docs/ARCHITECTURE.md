@@ -53,6 +53,8 @@ The principal Firestore collections include:
 
 Legacy collections and migration scripts remain in the repository for historical reference. They should not be treated as the active application architecture.
 
-## Authorization note
+## Authorization
 
-The application stores `ownerUid` on many records, but the current [Firestore rules](../firestore.rules) and [Storage rules](../storage.rules) do not consistently enforce ownership. This is an open security issue and must be resolved before treating the application as multi-user secure.
+This is currently a single-owner application. The account whose `users/{uid}` profile has `isAdmin: true` is the only account allowed to read or modify application data and uploaded counterparty documents. Firebase authentication alone is not sufficient for application access.
+
+New user profiles default to `isAdmin: false`. If the owner account is newly provisioned, set its profile flag manually in Firestore or through a trusted administrative process before using the application. The rules are defined in [firestore.rules](../firestore.rules) and [storage.rules](../storage.rules).
