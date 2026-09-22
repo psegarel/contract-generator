@@ -3,6 +3,7 @@
 	import type { EquipmentItem } from '$lib/types/v2';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import TextField from '$lib/components/TextField.svelte';
 	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
@@ -61,9 +62,8 @@
 	}
 </script>
 
-<div class="bg-card p-6 rounded-lg border border-border">
-	<div class="flex items-center justify-between mb-6">
-		<h3 class="text-lg font-semibold text-foreground">Equipment List</h3>
+<FormSection title="Equipment List">
+	<div class="flex justify-end mb-6">
 		<Button type="button" size="sm" onclick={() => formState.addEquipmentItem()}>
 			+ Add Equipment
 		</Button>
@@ -91,58 +91,35 @@
 					</div>
 
 					<div class="grid gap-4 grid-cols-1 md:grid-cols-3">
-						<div>
-							<label
-								for="equipment-name-{index}"
-								class="block text-sm font-medium text-foreground mb-1"
-							>
-								Equipment Name <span class="text-destructive">*</span>
-							</label>
-							<input
-								id="equipment-name-{index}"
-								type="text"
-								value={item.name}
-								oninput={(e) => updateItem(index, 'name', e.currentTarget.value)}
-								required
-								class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
-								placeholder="e.g., Audio Mixer"
-							/>
-						</div>
+						<TextField
+							id="equipment-name-{index}"
+							label="Equipment Name"
+							value={item.name}
+							oninput={(e) => updateItem(index, 'name', e.currentTarget.value)}
+							required
+							placeholder="e.g., Audio Mixer"
+						/>
+
+						<TextField
+							id="equipment-quantity-{index}"
+							type="number"
+							label="Quantity"
+							value={item.quantity}
+							oninput={(e) => updateItem(index, 'quantity', Number(e.currentTarget.value))}
+							min="1"
+							required
+						/>
 
 						<div>
-							<label
-								for="equipment-quantity-{index}"
-								class="block text-sm font-medium text-foreground mb-1"
-							>
-								Quantity <span class="text-destructive">*</span>
-							</label>
-							<input
-								id="equipment-quantity-{index}"
-								type="number"
-								value={item.quantity}
-								oninput={(e) => updateItem(index, 'quantity', Number(e.currentTarget.value))}
-								min="1"
-								required
-								class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
-							/>
-						</div>
-
-						<div>
-							<label
-								for="equipment-unitPrice-{index}"
-								class="block text-sm font-medium text-foreground mb-1"
-							>
-								Unit Price (VND) <span class="text-destructive">*</span>
-							</label>
-							<input
+							<TextField
 								id="equipment-unitPrice-{index}"
 								type="number"
+								label="Unit Price (VND)"
 								value={item.unitPrice}
 								oninput={(e) => updateItem(index, 'unitPrice', Number(e.currentTarget.value))}
 								min="0"
 								step="1000"
 								required
-								class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 								placeholder="1000000"
 							/>
 							<p class="text-xs text-muted-foreground mt-1">
@@ -172,11 +149,14 @@
 							<div class="space-y-2">
 								{#each item.serialNumbers as serial, serialIndex (serialIndex)}
 									<div class="flex gap-2">
-										<input
+										<TextField
+											class="flex-1"
+											label="Serial number"
+											labelHidden
+											id="equipment-serial-{index}-{serialIndex}"
 											type="text"
 											value={serial}
 											oninput={(e) => updateSerialNumber(index, serialIndex, e.currentTarget.value)}
-											class="flex-1 px-3.5 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 											placeholder="Serial number"
 										/>
 										<Button
@@ -206,4 +186,4 @@
 			</div>
 		</div>
 	{/if}
-</div>
+</FormSection>

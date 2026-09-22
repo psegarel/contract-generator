@@ -77,9 +77,9 @@ Same hardcoded color → design token replacements.
 
 ---
 
-## Phase 2: Migrate Form Sections (Bulk — 6 groups)
+## Phase 2: Migrate Form Sections (Bulk — 6 groups) √
 
-Replace all raw `<input>`, `<label>`, `<select>`, `<textarea>` with TextField/TextareaField/SelectField. Replace section containers with FormSection.
+Replace all ordinary raw `<input>`, `<label>`, `<select>`, `<textarea>` with TextField/TextareaField/SelectField. Replace section containers with FormSection. Specialized native controls remain where they are required for behavior: the hidden file picker, the bank combobox search input, and the rental terms checkbox.
 
 Each group is committed independently for safe rollback.
 
@@ -178,13 +178,13 @@ Replace ~25 files of raw `<button>` elements with the `Button` component.
 Current: 3 files (avatar.svelte, avatar-image.svelte, avatar-fallback.svelte)
 Usage: 2 files (Header.svelte, AppShell.svelte) — neither uses Avatar.Image
 
-Consolidate into a single `avatar.svelte` that wraps bits-ui Avatar.Root + Avatar.Fallback directly. Delete avatar-image.svelte. Update Header.svelte and AppShell.svelte imports.
+Consolidate into a single `avatar.svelte` that wraps bits-ui Avatar.Root + Avatar.Fallback directly. Delete avatar-image.svelte and the unused avatar-fallback.svelte wrapper. Header.svelte and AppShell.svelte already import the consolidated component directly.
 
 ---
 
 ## Phase 6: Migrate Remaining Hardcoded Colors √
 
-Search-and-replace remaining hardcoded colors across non-form files:
+Search-and-replace remaining generic hardcoded colors across non-form files:
 
 - `bg-white` → `bg-card` or `bg-background`
 - `text-gray-900` → `text-foreground`
@@ -199,23 +199,23 @@ Search-and-replace remaining hardcoded colors across non-form files:
 - `text-blue-600` → `text-primary`
 - `bg-blue-600` → `bg-primary`
 
-**Scope:** All remaining .svelte files in src/lib/components/ and src/routes/
+**Scope:** All remaining .svelte files in src/lib/components/ and src/routes/. Generic UI neutrals are now tokenized. Status, financial, warning, category, and contract print-preview colors remain explicit because they communicate state or must retain fixed print output.
 
 ---
 
 ## Phase 7: Final Verification
 
-1. `pnpm check` → 0 errors, 0 warnings
-2. `pnpm build` → successful production build
-3. Visual spot-check of key pages:
+1. `pnpm check` → 0 errors, 0 warnings √
+2. `pnpm build` → successful production build √
+3. Visual spot-check of key pages (manual follow-up):
    - Login page
    - Contracts list
    - Each contract form (service, event planning, equipment rental, DJ residency)
    - Counterparties list + forms
    - Events list + form
    - Payments page
-4. Verify dark mode still works on all pages
-5. Clean up `src/lib/utils.ts` — remove unused type helpers if any shadcn consumers were deleted
+4. Verify dark mode still works on all pages (manual follow-up)
+5. Clean up `src/lib/utils.ts` — audited; the remaining type helpers are still used by bits-ui wrappers, so none should be removed
 
 ---
 

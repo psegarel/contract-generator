@@ -201,9 +201,7 @@
 				contractId = await saveDjResidencyContract(contractData);
 			}
 
-			toast.success(
-				contract ? 'Contract updated successfully!' : 'Contract created successfully!'
-			);
+			toast.success(contract ? 'Contract updated successfully!' : 'Contract created successfully!');
 
 			if (onSuccess) {
 				onSuccess(contractId);
@@ -228,7 +226,9 @@
 >
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+		<div
+			class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
+		>
 			{formState.error}
 		</div>
 	{/if}
@@ -242,31 +242,27 @@
 				bind:value={formState.contractNumber}
 				required
 			/>
-			<div>
-				<label for="counterpartyId" class="block text-sm font-medium text-foreground mb-1">
-					Party B <span class="text-destructive">*</span>
-				</label>
-				<div class="flex gap-2">
-					<select
-						id="counterpartyId"
-						bind:value={formState.counterpartyId}
-						required
-						class="flex-1 px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
-					>
-						<option value="">Select counterparty</option>
-						{#each venueCounterparties as venue (venue.id)}
-							<option value={venue.id}>{venue.name}</option>
-						{/each}
-					</select>
-					<Button
-						type="button"
-						variant="outline"
-						onclick={() => (formState.showCreateCounterparty = !formState.showCreateCounterparty)}
-						class="whitespace-nowrap bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"
-					>
-						+ Create New
-					</Button>
-				</div>
+			<div class="flex items-end gap-2">
+				<SelectField
+					class="flex-1"
+					id="counterpartyId"
+					label="Party B"
+					bind:value={formState.counterpartyId}
+					required
+				>
+					<option value="">Select counterparty</option>
+					{#each venueCounterparties as venue (venue.id)}
+						<option value={venue.id}>{venue.name}</option>
+					{/each}
+				</SelectField>
+				<Button
+					type="button"
+					variant="outline"
+					class="mb-1 whitespace-nowrap bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"
+					onclick={() => (formState.showCreateCounterparty = !formState.showCreateCounterparty)}
+				>
+					+ Create New
+				</Button>
 			</div>
 		</div>
 	</FormSection>
@@ -425,12 +421,7 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				type="button"
-				variant="outline"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button type="button" variant="outline" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}

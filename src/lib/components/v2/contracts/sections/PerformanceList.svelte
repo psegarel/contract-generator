@@ -36,9 +36,9 @@
 </script>
 
 {#if isLoading}
-	<p class="text-gray-500 text-sm">Loading performances...</p>
+	<p class="text-muted-foreground text-sm">Loading performances...</p>
 {:else if performances.length === 0}
-	<div class="text-center py-8 text-gray-500">
+	<div class="text-center py-8 text-muted-foreground">
 		<p>No performances logged yet</p>
 	</div>
 {:else}

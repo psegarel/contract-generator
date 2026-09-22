@@ -224,14 +224,12 @@
 	<FormSection title="Service Details">
 		<div class="grid gap-4 grid-cols-1">
 			<div>
-				<label for="typicalDeliverables" class="block text-sm font-medium text-foreground mb-2">
-					Typical Deliverables
-				</label>
 				<div class="space-y-2">
 					<div class="flex gap-2">
-						<input
+						<TextField
 							id="typicalDeliverables"
-							type="text"
+							label="Typical Deliverables"
+							class="flex-1"
 							bind:value={formState.newDeliverable}
 							onkeydown={(e) => {
 								if (e.key === 'Enter') {
@@ -239,7 +237,6 @@
 									formState.addDeliverable();
 								}
 							}}
-							class="flex-1 px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 							placeholder="e.g., 200 meals, 4 hours coverage"
 						/>
 						<Button type="button" variant="outline" onclick={() => formState.addDeliverable()}>
@@ -270,14 +267,12 @@
 			</div>
 
 			<div>
-				<label for="equipmentProvided" class="block text-sm font-medium text-foreground mb-2">
-					Equipment Provided
-				</label>
 				<div class="space-y-2">
 					<div class="flex gap-2">
-						<input
+						<TextField
 							id="equipmentProvided"
-							type="text"
+							label="Equipment Provided"
+							class="flex-1"
 							bind:value={formState.newEquipment}
 							onkeydown={(e) => {
 								if (e.key === 'Enter') {
@@ -285,7 +280,6 @@
 									formState.addEquipment();
 								}
 							}}
-							class="flex-1 px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
 							placeholder="e.g., Cameras, Lighting rig"
 						/>
 						<Button type="button" variant="outline" onclick={() => formState.addEquipment()}>

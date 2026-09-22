@@ -160,7 +160,7 @@
 							>{paymentLabel}</Badge
 						>
 					{:else}
-						<Badge variant="secondary" class="hover:bg-slate-200">{paymentLabel}</Badge>
+						<Badge variant="secondary" class="hover:bg-accent">{paymentLabel}</Badge>
 					{/if}
 				</a>
 			{:else if isPaid}
@@ -211,7 +211,7 @@
 					onclick={handleDelete}
 					disabled={!authState.isAdmin || isDeleting}
 					class="px-2 {!authState.isAdmin
-						? 'bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700'
+						? 'bg-muted hover:bg-muted'
 						: 'bg-red-600 hover:bg-red-700 text-white hover:text-white'}"
 					title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
 				>

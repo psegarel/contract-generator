@@ -57,71 +57,64 @@
 			placeholder="Ho Chi Minh City"
 		/>
 
-		<div>
-			<div class="flex items-center justify-between mb-2">
-				<label for="eventId" class="block text-sm font-medium text-foreground">
-					Event <span class="text-destructive">*</span>
-				</label>
-				<Button
-					variant={formState.showCreateEvent ? 'ghost' : 'dark'}
-					size="sm"
-					class="h-7 text-xs"
-					onclick={() => (formState.showCreateEvent = !formState.showCreateEvent)}
-				>
-					{#if formState.showCreateEvent}
-						← Back to list
-					{:else}
-						+ Create New
-					{/if}
-				</Button>
-			</div>
+		<div class="flex items-end gap-2">
 			{#if !formState.showCreateEvent}
-				<select
+				<SelectField
+					class="flex-1"
 					id="eventId"
+					label="Event"
 					bind:value={formState.eventId}
 					onchange={() => onEventChange?.()}
-					class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
+					required
 				>
 					<option value="">Select an event</option>
 					{#each events as event (event.id)}
 						<option value={event.id}>{event.name} - {event.eventDate}</option>
 					{/each}
-				</select>
+				</SelectField>
 			{/if}
+			<Button
+				variant={formState.showCreateEvent ? 'ghost' : 'dark'}
+				size="sm"
+				class="mb-1 h-7 text-xs whitespace-nowrap"
+				onclick={() => (formState.showCreateEvent = !formState.showCreateEvent)}
+			>
+				{#if formState.showCreateEvent}
+					← Back to list
+				{:else}
+					+ Create New
+				{/if}
+			</Button>
 		</div>
 
-		<div>
-			<div class="flex items-center justify-between mb-2">
-				<label for="counterpartyId" class="block text-sm font-medium text-foreground">
-					Client <span class="text-destructive">*</span>
-				</label>
-				<Button
-					variant={formState.showCreateCounterparty ? 'ghost' : 'dark'}
-					size="sm"
-					class="h-7 text-xs"
-					onclick={() =>
-						(formState.showCreateCounterparty = !formState.showCreateCounterparty)}
-				>
-					{#if formState.showCreateCounterparty}
-						← Back to list
-					{:else}
-						+ Create New
-					{/if}
-				</Button>
-			</div>
+		<div class="flex items-end gap-2">
 			{#if !formState.showCreateCounterparty}
-				<select
+				<SelectField
+					class="flex-1"
 					id="counterpartyId"
+					label="Client"
 					bind:value={formState.counterpartyId}
 					onchange={() => onClientChange?.()}
-					class="w-full px-3.5 py-2.5 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-ring"
+					required
 				>
 					<option value="">Select a client</option>
 					{#each clients as client (client.id)}
 						<option value={client.id}>{client.name}</option>
 					{/each}
-				</select>
+				</SelectField>
 			{/if}
+			<Button
+				variant={formState.showCreateCounterparty ? 'ghost' : 'dark'}
+				size="sm"
+				class="mb-1 h-7 text-xs whitespace-nowrap"
+				onclick={() => (formState.showCreateCounterparty = !formState.showCreateCounterparty)}
+			>
+				{#if formState.showCreateCounterparty}
+					← Back to list
+				{:else}
+					+ Create New
+				{/if}
+			</Button>
 		</div>
 
 		<SelectField

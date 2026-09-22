@@ -73,27 +73,27 @@
 		<div class="max-h-96 overflow-y-auto">
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
-				<div class="hidden md:grid grid-cols-18 gap-3 items-center bg-slate-200 px-4">
-					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-white">
+				<div class="hidden md:grid grid-cols-18 gap-3 items-center bg-muted px-4">
+					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-border">
 						Event Name
 					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">
 						Date
 					</div>
-					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-white">Location</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-white">
+					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-border">Location</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">
 						Status
 					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-white">
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-border">
 						Receivable
 					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-white">
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-border">
 						Payable
 					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-white">
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-border">
 						Net Revenue
 					</div>
-					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center border-r border-white">
+					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center border-r border-border">
 						Contracts
 					</div>
 					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center">Actions</div>
@@ -107,4 +107,3 @@
 		</div>
 	{/if}
 </div>
-

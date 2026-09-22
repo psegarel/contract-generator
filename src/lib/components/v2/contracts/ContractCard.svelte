@@ -86,7 +86,7 @@
 						{paymentLabel}
 					</Badge>
 				{:else}
-					<Badge variant="secondary" class="py-2 px-3 hover:bg-slate-200">
+					<Badge variant="secondary" class="py-2 px-3 hover:bg-accent">
 						{paymentLabel}
 					</Badge>
 				{/if}
@@ -143,7 +143,7 @@
 				onclick={onDeleteClick}
 				disabled={!authState.isAdmin || isDeleting}
 				class="shrink-0 {!authState.isAdmin
-					? 'bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-700'
+					? 'bg-muted hover:bg-muted'
 					: 'bg-red-600 hover:bg-red-700 text-white hover:text-white'}"
 				title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
 			>

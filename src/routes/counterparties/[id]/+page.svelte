@@ -68,7 +68,7 @@
 		<div class="border-t border-border">
 			<!-- Basic Information -->
 			<div class="border-b border-border">
-				<div class="px-4 py-3 bg-slate-100">
+				<div class="px-4 py-3 bg-muted">
 					<div class="text-sm font-semibold text-foreground">Basic Information</div>
 				</div>
 				<div class="px-4 py-3 space-y-3">
@@ -108,7 +108,7 @@
 			{#if counterparty.type === 'client'}
 				{@const client = counterparty as ClientCounterparty}
 				<div class="border-b border-border">
-					<div class="px-4 py-3 bg-slate-100">
+					<div class="px-4 py-3 bg-muted">
 						<div class="text-sm font-semibold text-foreground">Client Details</div>
 					</div>
 					<div class="px-4 py-3 space-y-3">
@@ -174,7 +174,7 @@
 			{#if counterparty.type === 'contractor' && 'contractorType' in counterparty && counterparty.contractorType === 'service-provider'}
 				{@const provider = counterparty as ServiceProviderContractor}
 				<div class="border-b border-border">
-					<div class="px-4 py-3 bg-slate-100">
+					<div class="px-4 py-3 bg-muted">
 						<div class="text-sm font-semibold text-foreground">Service Provider Details</div>
 					</div>
 					<div class="px-4 py-3 space-y-3">
@@ -227,7 +227,7 @@
 			{#if counterparty.type === 'contractor' && 'contractorType' in counterparty && counterparty.contractorType === 'performer'}
 				{@const performer = counterparty as PerformerContractor}
 				<div class="border-b border-border">
-					<div class="px-4 py-3 bg-slate-100">
+					<div class="px-4 py-3 bg-muted">
 						<div class="text-sm font-semibold text-foreground">Performer Details</div>
 					</div>
 					<div class="px-4 py-3 space-y-3">
@@ -263,7 +263,7 @@
 			<!-- Notes -->
 			{#if counterparty.notes}
 				<div class="border-b border-border">
-					<div class="px-4 py-3 bg-slate-100">
+					<div class="px-4 py-3 bg-muted">
 						<div class="text-sm font-semibold text-foreground">Notes</div>
 					</div>
 					<div class="px-4 py-3">

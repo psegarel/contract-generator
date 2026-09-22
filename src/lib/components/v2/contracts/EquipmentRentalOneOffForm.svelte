@@ -164,9 +164,7 @@
 				logger.error('Error creating payment record:', paymentError);
 			}
 
-			toast.success(
-				contract ? 'Contract updated successfully!' : 'Contract created successfully!'
-			);
+			toast.success(contract ? 'Contract updated successfully!' : 'Contract created successfully!');
 
 			if (onSuccess) {
 				onSuccess(contractId);
@@ -190,7 +188,9 @@
 	class="space-y-6"
 >
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+		<div
+			class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
+		>
 			{formState.error}
 		</div>
 	{/if}
@@ -205,46 +205,34 @@
 				placeholder="EQR-20260713-1234"
 			/>
 
-			<div>
-				<label for="counterpartyId" class="block text-sm font-medium text-foreground mb-1">
-					Counterparty <span class="text-destructive">*</span>
-				</label>
-				<select
-					id="counterpartyId"
-					bind:value={formState.counterpartyId}
-					required
-					class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
-				>
-					<option value="">Select a counterparty</option>
-					{#each counterparties as counterparty (counterparty.id)}
-						<option value={counterparty.id}>{counterparty.name}</option>
-					{/each}
-				</select>
-			</div>
+			<SelectField
+				id="counterpartyId"
+				label="Counterparty"
+				bind:value={formState.counterpartyId}
+				required
+			>
+				<option value="">Select a counterparty</option>
+				{#each counterparties as counterparty (counterparty.id)}
+					<option value={counterparty.id}>{counterparty.name}</option>
+				{/each}
+			</SelectField>
 
 			<div>
-				<label for="eventId" class="block text-sm font-medium text-foreground mb-1">
-					Link to Event (optional)
-				</label>
-				<select
+				<SelectField
 					id="eventId"
+					label="Link to Event (optional)"
 					value={formState.eventId || ''}
 					onchange={(e) => handleEventSelect(e.currentTarget.value)}
-					class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
 				>
 					<option value="">No event (standalone)</option>
 					{#each events as event (event.id)}
 						<option value={event.id}>{event.name}</option>
 					{/each}
-				</select>
+				</SelectField>
 				<p class="text-xs text-muted-foreground mt-1">Auto-fills event name below when selected</p>
 			</div>
 
-			<SelectField
-				id="paymentStatus"
-				label="Payment Status"
-				bind:value={formState.paymentStatus}
-			>
+			<SelectField id="paymentStatus" label="Payment Status" bind:value={formState.paymentStatus}>
 				<option value="unpaid">Unpaid</option>
 				<option value="paid">Paid</option>
 			</SelectField>
@@ -460,12 +448,7 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				variant="outline"
-				type="button"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button variant="outline" type="button" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}

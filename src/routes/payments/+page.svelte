@@ -12,6 +12,7 @@
 	import { formatCurrency } from '$lib/utils/formatting';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import TextField from '$lib/components/TextField.svelte';
 	import SelectField from '$lib/components/SelectField.svelte';
 	import { toast } from 'svelte-sonner';
 	import { logger } from '$lib/utils/logger';
@@ -350,18 +351,19 @@
 									</div>
 									<div class="text-sm tabular-nums text-muted-foreground shrink-0">
 										{#if editingAmountId === payment.id}
-											<input
+											<TextField
+												id="payment-amount-{payment.id}"
+												label="Payment amount"
+												labelHidden
 												type="number"
 												bind:value={editingAmountValue}
+												autofocus
 												onblur={() => saveAmount(payment)}
 												onkeydown={(e) => {
 													if (e.key === 'Enter') saveAmount(payment);
 													if (e.key === 'Escape') editingAmountId = null;
 												}}
-												class="w-32 px-2 py-0.5 border border-primary rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring"
-												{@attach (node) => {
-													node.focus();
-												}}
+												class="w-32"
 											/>
 										{:else}
 											<Button

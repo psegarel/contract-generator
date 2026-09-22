@@ -14,7 +14,8 @@
 		onCounterpartyChange?: () => void;
 	}
 
-	let { formState, events, serviceProviders, onCreateProviderClick, onCounterpartyChange }: Props = $props();
+	let { formState, events, serviceProviders, onCreateProviderClick, onCounterpartyChange }: Props =
+		$props();
 </script>
 
 <FormSection title="Contract Basics">
@@ -40,35 +41,37 @@
 			{/each}
 		</SelectField>
 
-		<div>
-			<div class="flex items-center justify-between mb-1">
-				<label for="counterpartyId" class="block text-sm font-medium text-foreground">
-					Service Provider <span class="text-destructive">*</span>
-				</label>
-				<Button
-					variant="link"
-					size="sm"
-					type="button"
-					onclick={onCreateProviderClick}
-					class="h-auto p-0 text-sm"
-				>
-					+ Create New
-				</Button>
-			</div>
-			<select
+		<div class="flex items-end gap-2">
+			<SelectField
+				class="flex-1"
 				id="counterpartyId"
+				label="Service Provider"
 				bind:value={formState.counterpartyId}
 				onchange={() => onCounterpartyChange?.()}
-				class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm"
+				required
 			>
 				<option value="">Select a service provider</option>
 				{#each serviceProviders as provider (provider.id)}
 					<option value={provider.id}>{provider.name}</option>
 				{/each}
-			</select>
+			</SelectField>
+			<Button
+				variant="link"
+				size="sm"
+				type="button"
+				onclick={onCreateProviderClick}
+				class="mb-1 h-auto p-0 text-sm whitespace-nowrap"
+			>
+				+ Create New
+			</Button>
 		</div>
 
-		<SelectField id="paymentStatus" label="Payment Status" bind:value={formState.paymentStatus} required>
+		<SelectField
+			id="paymentStatus"
+			label="Payment Status"
+			bind:value={formState.paymentStatus}
+			required
+		>
 			<option value="unpaid">Unpaid</option>
 			<option value="paid">Paid</option>
 		</SelectField>
