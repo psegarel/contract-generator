@@ -12,6 +12,7 @@
 	import { formatCurrency } from '$lib/utils/formatting';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import SelectField from '$lib/components/SelectField.svelte';
 	import { toast } from 'svelte-sonner';
 	import { logger } from '$lib/utils/logger';
 	import { ArrowLeft, ChevronDown, ChevronRight } from '@lucide/svelte';
@@ -199,21 +200,36 @@
 			</Button>
 		{/if}
 
-		<select bind:value={statusFilter} class="text-sm border border-input rounded-md px-3 py-1.5">
+		<SelectField
+			id="payment-status-filter"
+			label="Status"
+			labelHidden
+			bind:value={statusFilter}
+			class="w-auto"
+		>
 			<option value="all">All statuses</option>
 			<option value="pending">Pending</option>
 			<option value="paid">Paid</option>
-		</select>
+		</SelectField>
 
-		<select bind:value={directionFilter} class="text-sm border border-input rounded-md px-3 py-1.5">
+		<SelectField
+			id="payment-direction-filter"
+			label="Direction"
+			labelHidden
+			bind:value={directionFilter}
+			class="w-auto"
+		>
 			<option value="all">All directions</option>
 			<option value="receivable">Receivable</option>
 			<option value="payable">Payable</option>
-		</select>
+		</SelectField>
 
-		<select
+		<SelectField
+			id="payment-contract-type-filter"
+			label="Contract type"
+			labelHidden
 			bind:value={contractTypeFilter}
-			class="text-sm border border-input rounded-md px-3 py-1.5"
+			class="w-auto"
 		>
 			<option value="all">All types</option>
 			<option value="venue-rental">Venue</option>
@@ -225,7 +241,7 @@
 			<option value="subcontractor">Subcontractor</option>
 			<option value="client-service">Client Service</option>
 			<option value="dj-residency">DJ Residency</option>
-		</select>
+		</SelectField>
 	</div>
 
 	<!-- Payment List -->

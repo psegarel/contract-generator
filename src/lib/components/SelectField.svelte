@@ -14,6 +14,7 @@
 		label,
 		value = $bindable(''),
 		required = false,
+		labelHidden = false,
 		error = '',
 		helperText = '',
 		class: className = '',
@@ -23,6 +24,7 @@
 		id: string;
 		label: string;
 		value?: string;
+		labelHidden?: boolean;
 		error?: string;
 		helperText?: string;
 		children: Snippet;
@@ -30,7 +32,10 @@
 </script>
 
 <div class="flex flex-col gap-1 {className}">
-	<label for={id} class="block text-sm font-medium text-foreground mb-1">
+	<label
+		for={id}
+		class={labelHidden ? 'sr-only' : 'block text-sm font-medium text-foreground mb-1'}
+	>
 		{label}
 		{#if required}
 			<span class="text-destructive">*</span>
