@@ -46,6 +46,7 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | EquipmentRentalOneOffVenueSection.svelte         | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
 | ServiceProvisionForm.svelte                      | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
 | EquipmentRentalForm.svelte                       | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EventPlanningForm.svelte                         | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
 
 ### Inline Creator Components (`src/lib/components/v2/contracts/sections/`)
 

@@ -1,24 +1,18 @@
 <script lang="ts">
 	import type { EventPlanningContract } from '$lib/types/v2';
-	import {
-		eventPlanningContractInputSchema,
-		type EventPlanningContractInput
-	} from '$lib/schemas/v2/contracts/eventPlanning';
-	import { saveEventPlanningContract, updateEventPlanningContract } from '$lib/utils/v2';
-	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
+	import { saveEventPlanningForm } from '$lib/forms/contracts/eventPlanning';
 	import { createInlineClient } from '$lib/forms/counterparties/client';
 	import { createInlineEvent } from '$lib/forms/events/event';
 	import { Timestamp } from 'firebase/firestore';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
 	import { EventPlanningContractFormState } from '$lib/state/v2/eventPlanningContractFormState.svelte';
-	import { Button } from '$lib/components/ui/button';
 	import { onMount } from 'svelte';
 	import { logger } from '$lib/utils/logger';
 	import { toast } from 'svelte-sonner';
-	import TextareaField from '$lib/components/TextareaField.svelte';
-	import FormSection from '$lib/components/FormSection.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
+	import CounterpartyNotesSection from '../counterparties/sections/CounterpartyNotesSection.svelte';
+	import CounterpartyFormActions from '../counterparties/sections/CounterpartyFormActions.svelte';
 	import EventPlanningContractBasicsSection from './sections/EventPlanningContractBasicsSection.svelte';
 	import EventPlanningCompanyInfoSection from './sections/EventPlanningCompanyInfoSection.svelte';
 	import EventPlanningRepresentativeInfoSection from './sections/EventPlanningRepresentativeInfoSection.svelte';
@@ -227,109 +221,19 @@
 			return;
 		}
 
-		if (!formState.eventId) {
-			formState.error = 'Please select an event';
-			return;
-		}
-
-		if (!formState.counterpartyId) {
-			formState.error = 'Please select a client';
-			return;
-		}
-
 		formState.isSubmitting = true;
 		formState.error = null;
 
 		try {
-			const contractData: EventPlanningContractInput = {
-				type: 'event-planning',
+			const contractId = await saveEventPlanningForm({
+				values: formState,
 				ownerUid: authState.user.uid,
-				contractNumber: formState.contractNumber,
-				eventId: formState.eventId,
-				counterpartyId: formState.counterpartyId,
-				counterpartyName,
 				eventName,
-				paymentDirection: 'receivable',
-				paymentStatus: formState.paymentStatus,
-				contractValue: formState.contractValueVND,
-				currency: 'VND',
-				notes: formState.notes || null,
-				contractDate: formState.contractDate,
-				contractLocation: formState.contractLocation,
-				clientCompany: formState.clientCompany,
-				clientAddress: formState.clientAddress,
-				clientTaxCode: formState.clientTaxCode,
-				clientRepresentativeName: formState.clientRepresentativeName,
-				clientRepresentativePosition: formState.clientRepresentativePosition,
-				eventTheme: formState.eventTheme || null,
-				eventType: formState.eventType || null,
-				eventDescription: formState.eventDescription || null,
-				eventVenue: formState.eventVenue,
-				eventDate: formState.eventDate,
-				eventDuration: formState.eventDuration || null,
-				expectedAttendance: formState.expectedAttendance || null,
-				contractValueVND: formState.contractValueVND,
-				vatRate: formState.vatRate,
-				depositPercentage: formState.depositPercentage,
-				finalPaymentPercentage: formState.finalPaymentPercentage,
-				professionalIndemnityAmount: formState.professionalIndemnityAmount,
-				publicLiabilityAmount: formState.publicLiabilityAmount,
-				planningMeetingDays: formState.planningMeetingDays,
-				performerBookingDeadline: formState.performerBookingDeadline,
-				technicalSetupDate: formState.technicalSetupDate,
-				eventExecutionDate: formState.eventExecutionDate,
-				setupCommencementTime: formState.setupCommencementTime,
-				eventExecutionDuration: formState.eventExecutionDuration,
-				breakdownCompletionDateTime: formState.breakdownCompletionDateTime,
-				paymentGracePeriodDays: formState.paymentGracePeriodDays,
-				terminationNoticeDays: formState.terminationNoticeDays,
-				negotiationPeriodDays: formState.negotiationPeriodDays,
-				arbitrationLocation: formState.arbitrationLocation,
-				arbitrationLanguage: formState.arbitrationLanguage,
-				paymentDueDate: formState.paymentDueDate || formState.eventDate
-			};
+				counterpartyName,
+				contract
+			});
 
-			// Validate with schema
-			const validationResult = eventPlanningContractInputSchema.safeParse(contractData);
-			if (!validationResult.success) {
-				formState.error = 'Validation error: ' + validationResult.error.issues[0].message;
-				return;
-			}
-
-			let contractId: string;
-			if (contract) {
-				await updateEventPlanningContract(contract.id, contractData);
-				contractId = contract.id;
-			} else {
-				contractId = await saveEventPlanningContract(contractData);
-			}
-
-			// Create/recreate payment record
-			try {
-				if (contract) {
-					await deletePaymentsByContract(contractId);
-				}
-				await createOneTimePayment(
-					{
-						id: contractId,
-						type: contractData.type,
-						contractNumber: contractData.contractNumber,
-						counterpartyName: contractData.counterpartyName,
-						paymentDirection: contractData.paymentDirection,
-						paymentStatus: contractData.paymentStatus,
-						contractValue: contractData.contractValue,
-						currency: contractData.currency,
-						ownerUid: contractData.ownerUid
-					},
-					contractData.paymentDueDate
-				);
-			} catch (paymentError) {
-				logger.error('Error creating payment record:', paymentError);
-			}
-
-			if (onSuccess) {
-				onSuccess(contractId);
-			}
+			onSuccess?.(contractId);
 		} catch (e) {
 			logger.error('Error saving contract:', e);
 			formState.error = (e as Error).message;
@@ -385,26 +289,11 @@
 	<EventPlanningLegalTimePeriodsSection {formState} />
 	<EventPlanningArbitrationSection {formState} />
 
-	<!-- Notes -->
-	<FormSection title="Internal Notes">
-		<TextareaField
-			id="notes"
-			label="Notes"
-			bind:value={formState.notes}
-			rows={4}
-			placeholder="Internal notes..."
-		/>
-	</FormSection>
-
-	<!-- Form Actions -->
-	<div class="flex gap-3 justify-end">
-		{#if onCancel}
-			<Button variant="outline" type="button" onclick={onCancel} disabled={formState.isSubmitting}>
-				Cancel
-			</Button>
-		{/if}
-		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
-			{formState.isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}
-		</Button>
-	</div>
+	<CounterpartyNotesSection bind:value={formState.notes} placeholder="Internal notes..." />
+	<CounterpartyFormActions
+		isSubmitting={formState.isSubmitting}
+		isEditing={Boolean(contract)}
+		entityLabel="Contract"
+		{onCancel}
+	/>
 </form>
