@@ -150,16 +150,8 @@
 			<h3 class="text-lg font-semibold text-foreground mb-4">Performance Terms</h3>
 			<div class="space-y-3">
 				<div>
-					<p class="text-sm text-muted-foreground">Performance Days (English)</p>
+					<p class="text-sm text-muted-foreground">Performance Days</p>
 					<p class="font-medium">{data.contract.performanceDays}</p>
-				</div>
-				<div>
-					<p class="text-sm text-muted-foreground">Performance Days (Vietnamese)</p>
-					<p class="font-medium">{data.contract.performanceDaysVietnamese}</p>
-				</div>
-				<div>
-					<p class="text-sm text-muted-foreground">Hours per Set</p>
-					<p class="font-medium">{data.contract.performanceHoursPerSet} hours</p>
 				</div>
 				<div>
 					<p class="text-sm text-muted-foreground">Sets per Day</p>
@@ -173,13 +165,12 @@
 			<h3 class="text-lg font-semibold text-foreground mb-4">Payment Terms</h3>
 			<div class="space-y-3">
 				<div>
-					<p class="text-sm text-muted-foreground">Fee per Performance</p>
+					<p class="text-sm text-muted-foreground">Hourly Rate</p>
 					<p class="font-medium text-emerald-600 text-lg">
-						{formatCurrency(data.contract.performanceFeeVND * data.contract.performanceHoursPerSet)}
+						{formatCurrency(data.contract.performanceFeeVND)}
 					</p>
 					<p class="text-xs text-muted-foreground">
-						{formatCurrency(data.contract.performanceFeeVND)}/hr × {data.contract
-							.performanceHoursPerSet}h
+						Applied to actual hours in the performance log
 					</p>
 				</div>
 				<div>

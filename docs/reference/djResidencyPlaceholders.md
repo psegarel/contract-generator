@@ -33,16 +33,13 @@ Service Terms
 {{contractDurationMonthsVietnamese}} - Contract duration in words Vietnamese (e.g., ba)
 {{contractDurationMonthsNumber}} - Contract duration as number (e.g., 03)
 {{performanceDays}} - Performance days in English (e.g., Saturday and Sunday)
-{{performanceDaysVietnamese}} - Performance days in Vietnamese (e.g., Thứ Bảy và Chủ Nhật)
-{{performanceHours}} - Performance hours in words English (e.g., four)
-{{performanceHoursVietnamese}} - Performance hours in words Vietnamese (e.g., bốn)
-{{performanceHoursNumber}} - Performance hours as number (e.g., 4)
+{{performanceDaysVietnamese}} - Performance days translated to Vietnamese at generation time (e.g., Thứ Bảy và Chủ Nhật)
 {{numberOfSets}} - Number of sets in words English (e.g., two)
 {{numberOfSetsVietnamese}} - Number of sets in words Vietnamese (e.g., hai)
 {{numberOfSetsNumber}} - Number of sets as number (e.g., 2)
 
 Payment Terms
-{{performanceFeeVND}} - Performance fee in VND (e.g., 4,000,000)
+{{performanceFeeVND}} - Hourly performance fee in VND (e.g., 4,000,000)
 {{performanceFeeInWords}} - Performance fee in words English (e.g., Four million Vietnamese Dong)
 {{performanceFeeInWordsVietnamese}} - Performance fee in words Vietnamese (e.g., Bốn triệu đồng Việt Nam)
 

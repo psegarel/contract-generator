@@ -5,6 +5,7 @@ import { companyConfig } from '../config/company';
 import { formatCurrency, formatDateVietnamese, formatDateEnglish } from './formatting';
 import { logger } from './logger';
 import { numberToVietnameseWords, numberToEnglishWords } from './numberToWords';
+import { translateToVietnamese } from './translate';
 
 /**
  * Convert a small number (1-12) to Vietnamese words for months
@@ -175,24 +176,20 @@ export const generateDjResidencyContract = async (
 			contract.contractDurationMonths
 		);
 
-		// Performance hours
-		const performanceHours = smallNumberToEnglishWords(contract.performanceHoursPerSet);
-		const performanceHoursVietnamese = smallNumberToVietnameseWords(
-			contract.performanceHoursPerSet
-		);
-		const performanceHoursNumber = contract.performanceHoursPerSet.toString();
+		// Performance days are entered once in English and translated for the bilingual template.
+		const performanceDaysVietnamese = await translateToVietnamese(contract.performanceDays);
 
 		// Number of sets
 		const numberOfSets = smallNumberToEnglishWords(contract.numberOfSetsPerDay);
 		const numberOfSetsVietnamese = smallNumberToVietnameseWords(contract.numberOfSetsPerDay);
 		const numberOfSetsNumber = contract.numberOfSetsPerDay.toString();
 
-		// Performance fee — per-slot amount shown in client contract
-		// Computed from hourly rate × hours per set so it auto-adjusts when set duration changes
-		const slotFeeVND = contract.performanceFeeVND * contract.performanceHoursPerSet;
-		const performanceFeeVND = formatCurrency(slotFeeVND);
-		const performanceFeeInWords = numberToEnglishWords(slotFeeVND) + ' Vietnamese Dong';
-		const performanceFeeInWordsVietnamese = numberToVietnameseWords(slotFeeVND) + ' đồng Việt Nam';
+		// Performance fee is hourly; actual hours are recorded per performance in the log.
+		const performanceFeeVND = formatCurrency(contract.performanceFeeVND);
+		const performanceFeeInWords =
+			numberToEnglishWords(contract.performanceFeeVND) + ' Vietnamese Dong';
+		const performanceFeeInWordsVietnamese =
+			numberToVietnameseWords(contract.performanceFeeVND) + ' đồng Việt Nam';
 
 		// ===== DERIVE PARTY B VALUES FROM COUNTERPARTY =====
 		const partyBCompanyName = venueCounterparty.companyName || venueCounterparty.name;
@@ -240,10 +237,7 @@ export const generateDjResidencyContract = async (
 				contractDurationMonthsVietnamese,
 				contractDurationMonthsNumber,
 				performanceDays: contract.performanceDays,
-				performanceDaysVietnamese: contract.performanceDaysVietnamese,
-				performanceHours,
-				performanceHoursVietnamese,
-				performanceHoursNumber,
+				performanceDaysVietnamese,
 				numberOfSets,
 				numberOfSetsVietnamese,
 				numberOfSetsNumber,

@@ -217,8 +217,6 @@ async function main() {
 		contractEndDate: str('2026-06-09'),
 		contractDurationMonths: int(4),
 		performanceDays: str('Saturday and Sunday'),
-		performanceDaysVietnamese: str('Thứ Bảy và Chủ Nhật'),
-		performanceHoursPerSet: int(4),
 		numberOfSetsPerDay: int(2),
 		performanceFeeVND: int(4_000_000),
 		terminationNoticeDays: int(7),

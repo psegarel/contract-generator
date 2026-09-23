@@ -103,11 +103,12 @@
 		</div>
 		<TextField
 			id="{prefix}hoursWorked"
-			label="Hours Worked"
+			label="Actual Hours Worked"
 			type="number"
 			bind:value={hoursWorked}
-			min="0"
+			min="0.25"
 			step="0.5"
+			required={isAdd}
 		/>
 		<TextField
 			id="{prefix}performerSharePercentage"

@@ -26,7 +26,6 @@
 	import SelectField from '$lib/components/SelectField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
-	import { formatCurrency } from '$lib/utils/formatting';
 	import CreateCounterpartyInline from './sections/CreateCounterpartyInline.svelte';
 	import DjResidencyPerformanceLog from './DjResidencyPerformanceLog.svelte';
 
@@ -175,8 +174,6 @@
 
 				// Performance Terms
 				performanceDays: formState.performanceDays,
-				performanceDaysVietnamese: formState.performanceDaysVietnamese,
-				performanceHoursPerSet: formState.performanceHoursPerSet,
 				numberOfSetsPerDay: formState.numberOfSetsPerDay,
 
 				// Payment Terms
@@ -315,25 +312,9 @@
 		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
 			<TextField
 				id="performanceDays"
-				label="Performance Days (English)"
+				label="Performance Days"
 				bind:value={formState.performanceDays}
 				placeholder="e.g., Saturday and Sunday"
-				required
-			/>
-			<TextField
-				id="performanceDaysVietnamese"
-				label="Performance Days (Vietnamese)"
-				bind:value={formState.performanceDaysVietnamese}
-				placeholder="e.g., Thứ Bảy và Chủ Nhật"
-				required
-			/>
-			<TextField
-				id="performanceHoursPerSet"
-				label="Hours per Set"
-				type="number"
-				bind:value={formState.performanceHoursPerSet}
-				min="1"
-				max="12"
 				required
 			/>
 			<TextField
@@ -368,15 +349,10 @@
 				required
 			/>
 		</div>
-		<div class="mt-4 p-4 bg-muted space-y-1">
+		<div class="mt-4 bg-muted p-4">
 			<p class="text-sm text-muted-foreground">
-				<strong>Est. monthly revenue (client):</strong>
-				{formatCurrency(formState.estimatedMonthlyValue)}
-				<span class="text-muted-foreground/60">(~8 sets/month)</span>
-			</p>
-			<p class="text-sm text-muted-foreground">
-				<strong>Est. total contract revenue:</strong>
-				{formatCurrency(formState.estimatedTotalValue)}
+				The client is billed at the hourly rate for the actual hours recorded in the performance
+				log.
 			</p>
 		</div>
 	</FormSection>

@@ -36,10 +36,10 @@ const replacements = [
 	],
 	// Performance days
 	['i.e. on Saturday and Sunday', 'i.e. on {{performanceDays}}'],
-	// Performance hours + sets (EN uses "(04)" in the template, signed uses "(4)")
+	// Sets remain a contract-level expectation, while each set's duration is agreed per performance.
 	[
-		'four (04) hours, split into two (2) sets',
-		'{{performanceHours}} ({{performanceHoursNumber}}) hours, split into {{numberOfSets}} ({{numberOfSetsNumber}}) sets'
+		'{{performanceHours}} ({{performanceHoursNumber}}) hours, split into {{numberOfSets}} ({{numberOfSetsNumber}}) sets',
+		'{{numberOfSets}} ({{numberOfSetsNumber}}) sets, with the duration of each set agreed by the Parties for each performance'
 	],
 
 	// ── Vietnamese Article 1 ───────────────────────────────────────────────────
@@ -54,22 +54,30 @@ const replacements = [
 		'chuyên nghiệp hai (02) ngày cuối tuần mỗi tuần (cụ thể là Thứ Bảy và Chủ Nhật)',
 		'chuyên nghiệp vào các ngày cuối tuần mỗi tuần (cụ thể là {{performanceDaysVietnamese}})'
 	],
-	// Performance hours + sets (VN)
+	// Performance hours are variable and agreed per performance (VN)
 	[
-		'bốn (4) giờ, chia thành hai (2) phần',
-		'{{performanceHoursVietnamese}} ({{performanceHoursNumber}}) giờ, chia thành {{numberOfSetsVietnamese}} ({{numberOfSetsNumber}}) phần'
+		'{{performanceHoursVietnamese}} ({{performanceHoursNumber}}) giờ, chia thành {{numberOfSetsVietnamese}} ({{numberOfSetsNumber}}) phần',
+		'{{numberOfSetsVietnamese}} ({{numberOfSetsNumber}}) phần, với thời lượng của từng phần do các Bên thỏa thuận cho từng buổi biểu diễn'
+	],
+	[
+		'Each performance shall last {{numberOfSets}} ({{numberOfSetsNumber}}) sets, with the duration of each set agreed by the Parties for each performance',
+		'Each performance shall consist of {{numberOfSets}} ({{numberOfSetsNumber}}) sets, with the duration of each set agreed by the Parties for each performance'
+	],
+	[
+		'Mỗi buổi biểu diễn kéo dài {{numberOfSetsVietnamese}} ({{numberOfSetsNumber}}) phần, với thời lượng của từng phần do các Bên thỏa thuận cho từng buổi biểu diễn',
+		'Mỗi buổi biểu diễn gồm {{numberOfSetsVietnamese}} ({{numberOfSetsNumber}}) phần, với thời lượng của từng phần do các Bên thỏa thuận cho từng buổi biểu diễn'
 	],
 
 	// ── Article 2: Fees ────────────────────────────────────────────────────────
-	// English fee line (4 hours mention + fee amount)
+	// English fee line: hourly rate applied to actual hours worked
 	[
-		'performance slot (4 hours) is 4,000,000 VND (Four million Vietnamese Dong)',
-		'performance slot ({{performanceHoursNumber}} hours) is {{performanceFeeVND}} ({{performanceFeeInWords}})'
+		'performance slot ({{performanceHoursNumber}} hours) is {{performanceFeeVND}} ({{performanceFeeInWords}})',
+		'hour of performance is {{performanceFeeVND}} ({{performanceFeeInWords}})'
 	],
-	// Vietnamese fee line (template already uses Vietnamese number format)
+	// Vietnamese fee line: hourly rate applied to actual hours worked
 	[
-		'suất biểu diễn (4 giờ) là 4.000.000 VND (Bốn triệu đồng Việt Nam)',
-		'suất biểu diễn ({{performanceHoursNumber}} giờ) là {{performanceFeeVND}} ({{performanceFeeInWordsVietnamese}})'
+		'suất biểu diễn ({{performanceHoursNumber}} giờ) là {{performanceFeeVND}} ({{performanceFeeInWordsVietnamese}})',
+		'giờ biểu diễn là {{performanceFeeVND}} ({{performanceFeeInWordsVietnamese}})'
 	],
 
 	// ── Article 3: spacing fixes ───────────────────────────────────────────────
@@ -89,6 +97,7 @@ const replacements = [
 
 // ─── Apply replacements ───────────────────────────────────────────────────────
 let successCount = 0;
+let alreadyCorrectCount = 0;
 let missingCount = 0;
 
 for (const [oldText, newText] of replacements) {
@@ -96,6 +105,9 @@ for (const [oldText, newText] of replacements) {
 		xml = xml.replaceAll(oldText, newText);
 		console.log(`✓  ${oldText.substring(0, 70)}`);
 		successCount++;
+	} else if (xml.includes(newText)) {
+		console.log(`↺  Already present: ${newText.substring(0, 70)}`);
+		alreadyCorrectCount++;
 	} else {
 		console.warn(`✗  NOT FOUND: ${oldText.substring(0, 70)}`);
 		missingCount++;
@@ -108,7 +120,9 @@ const output = zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
 writeFileSync(templatePath, output);
 
 console.log('\n' + '─'.repeat(60));
-console.log(`Applied: ${successCount} / ${replacements.length} replacements`);
+console.log(
+	`Applied: ${successCount} / ${replacements.length} replacements (${alreadyCorrectCount} already present)`
+);
 if (missingCount > 0) {
 	console.warn(
 		`⚠  ${missingCount} strings not found — check for formatting changes in the template`

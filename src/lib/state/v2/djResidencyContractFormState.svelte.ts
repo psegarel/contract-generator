@@ -22,8 +22,6 @@ export class DjResidencyContractFormState {
 
 	// Performance Terms
 	performanceDays = $state(''); // e.g., "Saturday and Sunday"
-	performanceDaysVietnamese = $state(''); // e.g., "Thứ Bảy và Chủ Nhật"
-	performanceHoursPerSet = $state(4);
 	numberOfSetsPerDay = $state(2);
 
 	// Payment Terms
@@ -77,8 +75,6 @@ export class DjResidencyContractFormState {
 
 		// Performance Terms
 		this.performanceDays = contract.performanceDays;
-		this.performanceDaysVietnamese = contract.performanceDaysVietnamese;
-		this.performanceHoursPerSet = contract.performanceHoursPerSet;
 		this.numberOfSetsPerDay = contract.numberOfSetsPerDay;
 
 		// Payment Terms
@@ -108,8 +104,6 @@ export class DjResidencyContractFormState {
 
 		// Performance Terms
 		this.performanceDays = 'Saturday and Sunday';
-		this.performanceDaysVietnamese = 'Thứ Bảy và Chủ Nhật';
-		this.performanceHoursPerSet = 4;
 		this.numberOfSetsPerDay = 2;
 
 		// Payment Terms
@@ -178,21 +172,5 @@ export class DjResidencyContractFormState {
 		const months =
 			(end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
 		this.contractDurationMonths = Math.max(1, months);
-	}
-
-	/**
-	 * Estimated monthly revenue from client.
-	 * performanceFeeVND is the hourly rate; ~8 sets/month at the contract's hours per set.
-	 */
-	get estimatedMonthlyValue(): number {
-		const setsPerMonth = 8; // Conservative estimate
-		return this.performanceFeeVND * this.performanceHoursPerSet * setsPerMonth;
-	}
-
-	/**
-	 * Get estimated total contract value over the duration
-	 */
-	get estimatedTotalValue(): number {
-		return this.estimatedMonthlyValue * this.contractDurationMonths;
 	}
 }

@@ -166,7 +166,7 @@
 				initialValues={{
 					date: '',
 					performerId: addFormPerformerId,
-					hoursWorked: contract.performanceHoursPerSet,
+					hoursWorked: 0,
 					performerSharePercentage: 60,
 					notes: ''
 				}}

@@ -101,8 +101,6 @@ export async function seedDjResidencyContract(dryRun: boolean = true): Promise<S
 		contractEndDate: '2026-06-09',
 		contractDurationMonths: 4,
 		performanceDays: 'Saturday and Sunday',
-		performanceDaysVietnamese: 'Thứ Bảy và Chủ Nhật',
-		performanceHoursPerSet: 4,
 		numberOfSetsPerDay: 2,
 		performanceFeeVND: PERFORMANCE_FEE,
 		terminationNoticeDays: 7,
@@ -119,10 +117,8 @@ export async function seedDjResidencyContract(dryRun: boolean = true): Promise<S
 		`  period:         ${contractDoc.contractStartDate} → ${contractDoc.contractEndDate} (${contractDoc.contractDurationMonths} months)`
 	);
 	log(`  performance:    ${contractDoc.performanceDays}`);
-	log(`  fee/set:        ${PERFORMANCE_FEE.toLocaleString('vi-VN')} VND`);
-	log(
-		`  hours/set:      ${contractDoc.performanceHoursPerSet}h × ${contractDoc.numberOfSetsPerDay} sets/day`
-	);
+	log(`  hourly rate:    ${PERFORMANCE_FEE.toLocaleString('vi-VN')} VND`);
+	log(`  sets/day:       ${contractDoc.numberOfSetsPerDay}`);
 	log(`  contractValue:  ${CONTRACT_VALUE.toLocaleString('vi-VN')} VND (estimated)`);
 	log(`  status:         ${contractDoc.residencyStatus}`);
 	log(`  counterpartyId: ${contractDoc.counterpartyId}`);

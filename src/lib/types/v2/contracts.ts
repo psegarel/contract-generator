@@ -256,9 +256,7 @@ export interface DjResidencyContract extends BaseContract {
 
 	// Performance Terms
 	performanceDays: string; // e.g., "Saturday and Sunday"
-	performanceDaysVietnamese: string; // e.g., "Thứ Bảy và Chủ Nhật"
-	performanceHoursPerSet: number; // e.g., 4
-	numberOfSetsPerDay: number; // e.g., 2
+	numberOfSetsPerDay: number; // e.g., 2; actual hours are recorded per performance
 
 	// Payment Terms
 	performanceFeeVND: number; // Hourly client rate (appears in client contract)

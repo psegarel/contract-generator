@@ -10,7 +10,7 @@ export const performanceLogSchema = z
 		date: z.string().min(1, 'Performance date is required'),
 		performerId: z.string().min(1, 'Performer ID is required'),
 		performerName: z.string().min(1, 'Performer name is required'),
-		hoursWorked: z.number().min(0, 'Hours worked must be positive'),
+		hoursWorked: z.number().positive('Hours worked must be greater than 0'),
 		// Internal pay fields — never exposed in client-facing documents
 		performerSharePercentage: z.number().min(0).max(100),
 		performerPayVND: z.number().min(0, 'Performer pay must be positive'),
@@ -38,8 +38,6 @@ export const djResidencyContractSchema = baseContractSchema
 
 		// Performance Terms
 		performanceDays: z.string().min(1, 'Performance days are required'),
-		performanceDaysVietnamese: z.string().min(1, 'Performance days (Vietnamese) are required'),
-		performanceHoursPerSet: z.number().min(1, 'Performance hours per set must be at least 1'),
 		numberOfSetsPerDay: z.number().min(1, 'Number of sets per day must be at least 1'),
 
 		// Payment Terms
