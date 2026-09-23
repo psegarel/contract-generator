@@ -45,6 +45,17 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | EquipmentRentalOneOffSetupSection.svelte         | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
 | EquipmentRentalOneOffVenueSection.svelte         | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
 
+### V2 Counterparty Components (`src/lib/components/v2/counterparties/`)
+
+| Component                              | Status | Last Checked | Notes             |
+| -------------------------------------- | ------ | ------------ | ----------------- |
+| ServiceProviderForm.svelte             | ✅     | 2026-09-23   | Clean - no issues |
+| ServiceProviderBasicsSection.svelte    | ✅     | 2026-09-23   | Clean - no issues |
+| ServiceProviderDetailsSection.svelte   | ✅     | 2026-09-23   | Clean - no issues |
+| ServiceProviderBusinessSection.svelte  | ✅     | 2026-09-23   | Clean - no issues |
+| ServiceProviderBankingSection.svelte   | ✅     | 2026-09-23   | Clean - no issues |
+| ServiceProviderDocumentsSection.svelte | ✅     | 2026-09-23   | Clean - no issues |
+
 ### Core Components (`src/lib/components/`)
 
 | Component                        | Status | Last Checked | Notes                                                                          |
