@@ -1,19 +1,5 @@
 <script lang="ts">
 	import type { DjResidencyContract, ClientCounterparty } from '$lib/types/v2';
-	import {
-		djResidencyContractInputSchema,
-		type DjResidencyContractInput
-	} from '$lib/schemas/v2/contracts/djResidency';
-	import {
-		saveDjResidencyContract,
-		updateDjResidencyContract
-	} from '$lib/utils/v2/djResidencyContracts';
-	import { saveCounterparty } from '$lib/utils/v2/counterparties';
-	import {
-		clientCounterpartySchema,
-		type ClientCounterpartyInput
-	} from '$lib/schemas/v2/counterparty';
-	import { Timestamp } from 'firebase/firestore';
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState } from '$lib/state/v2';
 	import { DjResidencyContractFormState } from '$lib/state/v2/djResidencyContractFormState.svelte';
@@ -26,6 +12,11 @@
 	import SelectField from '$lib/components/SelectField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
+	import {
+		createDjResidencyCounterparty,
+		saveDjResidencyForm,
+		validateDjResidencyForm
+	} from '$lib/forms/contracts/djResidency';
 	import CreateCounterpartyInline from './sections/CreateCounterpartyInline.svelte';
 	import DjResidencyPerformanceLog from './DjResidencyPerformanceLog.svelte';
 
@@ -73,45 +64,23 @@
 	}
 
 	async function handleCreateCounterparty() {
-		if (!authState.user) {
-			toast.error('You must be logged in to create a counterparty');
-			return;
-		}
-
-		if (!formState.newCounterpartyName) {
-			toast.error('Please fill in counterparty name');
-			return;
-		}
-
 		formState.isCreatingCounterparty = true;
 		try {
-			const clientData: ClientCounterpartyInput = {
-				type: 'client',
-				clientType: 'company',
-				ownerUid: authState.user.uid,
-				name: formState.newCounterpartyName,
-				email: formState.newCounterpartyEmail || null,
-				phone: formState.newCounterpartyPhone || null,
-				address: formState.newCounterpartyAddress || null,
-				companyName: formState.newCounterpartyCompanyName || null,
-				taxId: formState.newCounterpartyTaxId || null,
-				bankName: formState.newCounterpartyBankName || null,
-				bankAccountNumber: formState.newCounterpartyBankAccountNumber || null,
-				representativeName: formState.newCounterpartyRepresentativeName || null,
-				representativePosition: formState.newCounterpartyRepresentativePosition || null,
-				idDocument: null,
-				notes: null,
-				createdAt: Timestamp.now(),
-				updatedAt: Timestamp.now()
-			};
-
-			const validationResult = clientCounterpartySchema.safeParse(clientData);
-			if (!validationResult.success) {
-				toast.error('Validation error: ' + validationResult.error.issues[0].message);
-				return;
-			}
-
-			const counterpartyId = await saveCounterparty(clientData);
+			const counterpartyId = await createDjResidencyCounterparty(
+				{
+					name: formState.newCounterpartyName,
+					email: formState.newCounterpartyEmail,
+					phone: formState.newCounterpartyPhone,
+					address: formState.newCounterpartyAddress,
+					companyName: formState.newCounterpartyCompanyName,
+					taxId: formState.newCounterpartyTaxId,
+					representativeName: formState.newCounterpartyRepresentativeName,
+					representativePosition: formState.newCounterpartyRepresentativePosition,
+					bankName: formState.newCounterpartyBankName,
+					bankAccountNumber: formState.newCounterpartyBankAccountNumber
+				},
+				authState.user?.uid
+			);
 
 			toast.success('Counterparty created successfully!');
 
@@ -122,30 +91,16 @@
 			formState.resetNewCounterpartyForm();
 		} catch (err) {
 			logger.error('Error creating counterparty:', err);
-			toast.error('Failed to create counterparty');
+			toast.error(err instanceof Error ? err.message : 'Failed to create counterparty');
 		} finally {
 			formState.isCreatingCounterparty = false;
 		}
 	}
 
 	async function handleSubmit() {
-		if (!authState.user) {
-			formState.error = 'You must be logged in to create a contract';
-			return;
-		}
-
-		if (!formState.counterpartyId) {
-			formState.error = 'Please select a counterparty (Party B)';
-			return;
-		}
-
-		if (!formState.contractStartDate || !formState.contractEndDate) {
-			formState.error = 'Please set contract start and end dates';
-			return;
-		}
-
-		if (!formState.performanceFeeVND || formState.performanceFeeVND <= 0) {
-			formState.error = 'Please set a valid hourly rate';
+		const validationError = validateDjResidencyForm(formState, authState.user?.uid);
+		if (validationError) {
+			formState.error = validationError;
 			return;
 		}
 
@@ -153,51 +108,12 @@
 		formState.error = null;
 
 		try {
-			const contractData: DjResidencyContractInput = {
-				type: 'dj-residency',
-				ownerUid: authState.user.uid,
-				contractNumber: formState.contractNumber,
-				eventId: null,
-				counterpartyId: formState.counterpartyId,
+			const contractId = await saveDjResidencyForm({
+				values: formState,
+				ownerUid: authState.user!.uid,
 				counterpartyName,
-				eventName: null,
-				paymentDirection: 'receivable',
-				paymentStatus: formState.paymentStatus,
-				contractValue: 0, // Computed from performance logs via syncContractValue
-				currency: 'VND',
-				notes: formState.notes || null,
-
-				// Contract Duration
-				contractStartDate: formState.contractStartDate,
-				contractEndDate: formState.contractEndDate,
-				contractDurationMonths: formState.contractDurationMonths,
-
-				// Performance Terms
-				performanceDays: formState.performanceDays,
-				numberOfSetsPerDay: formState.numberOfSetsPerDay,
-
-				// Payment Terms
-				performanceFeeVND: formState.performanceFeeVND,
-				terminationNoticeDays: formState.terminationNoticeDays,
-
-				// Status
-				residencyStatus: formState.residencyStatus
-			};
-
-			// Validate with schema
-			const validationResult = djResidencyContractInputSchema.safeParse(contractData);
-			if (!validationResult.success) {
-				formState.error = 'Validation error: ' + validationResult.error.issues[0].message;
-				return;
-			}
-
-			let contractId: string;
-			if (contract) {
-				await updateDjResidencyContract(contract.id, contractData);
-				contractId = contract.id;
-			} else {
-				contractId = await saveDjResidencyContract(contractData);
-			}
+				contract
+			});
 
 			toast.success(contract ? 'Contract updated successfully!' : 'Contract created successfully!');
 
