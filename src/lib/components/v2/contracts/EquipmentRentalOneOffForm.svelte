@@ -5,10 +5,7 @@
 	import { EquipmentRentalOneOffContractFormState } from '$lib/state/v2/equipmentRentalOneOffContractFormState.svelte';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
-	import TextareaField from '$lib/components/TextareaField.svelte';
-	import FormSection from '$lib/components/FormSection.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
 	import {
 		saveEquipmentRentalOneOffForm,
@@ -22,6 +19,8 @@
 	import EquipmentRentalOneOffPaymentTermsSection from './sections/EquipmentRentalOneOffPaymentTermsSection.svelte';
 	import EquipmentRentalOneOffCancellationSection from './sections/EquipmentRentalOneOffCancellationSection.svelte';
 	import EquipmentRentalOneOffEquipmentListSection from './sections/EquipmentRentalOneOffEquipmentListSection.svelte';
+	import CounterpartyNotesSection from '../counterparties/sections/CounterpartyNotesSection.svelte';
+	import CounterpartyFormActions from '../counterparties/sections/CounterpartyFormActions.svelte';
 
 	interface Props {
 		contract?: EquipmentRentalOneOffContract | null;
@@ -124,26 +123,11 @@
 	<EquipmentRentalOneOffCancellationSection {formState} />
 	<EquipmentRentalOneOffEquipmentListSection {formState} />
 
-	<!-- Notes -->
-	<FormSection title="Internal Notes">
-		<TextareaField
-			id="notes"
-			label=""
-			bind:value={formState.notes}
-			rows={4}
-			placeholder="Internal notes..."
-		/>
-	</FormSection>
-
-	<!-- Form Actions -->
-	<div class="flex gap-3 justify-end">
-		{#if onCancel}
-			<Button variant="outline" type="button" onclick={onCancel} disabled={formState.isSubmitting}>
-				Cancel
-			</Button>
-		{/if}
-		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
-			{formState.isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}
-		</Button>
-	</div>
+	<CounterpartyNotesSection bind:value={formState.notes} placeholder="Internal notes..." />
+	<CounterpartyFormActions
+		isSubmitting={formState.isSubmitting}
+		isEditing={Boolean(contract)}
+		entityLabel="Contract"
+		{onCancel}
+	/>
 </form>
