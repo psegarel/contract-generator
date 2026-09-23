@@ -2,7 +2,7 @@
 
 This document tracks which Svelte components have been validated with the Svelte autofixer tool.
 
-**Last Updated:** 2026-02-03
+**Last Updated:** 2026-09-23
 
 ## ⚠️ Important Note
 
@@ -23,12 +23,27 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 
 ### V2 Contract Components (`src/lib/components/v2/contracts/`)
 
-| Component                              | Status | Last Checked | Notes                                                     |
-| -------------------------------------- | ------ | ------------ | --------------------------------------------------------- |
-| ContractsList.svelte                   | ✅     | 2026-01-05   | Clean - no issues                                         |
-| ContractListItem.svelte                | ✅     | 2026-02-03   | Refactored: removed payment toggle, added link badge      |
-| ContractCard.svelte                    | ✅     | 2026-02-03   | Refactored: removed toggle props, added link badge        |
-| EquipmentRentalLogisticsSection.svelte | ✅     | 2026-02-01   | Clean - split venue fields to match template placeholders |
+| Component                                        | Status | Last Checked | Notes                                                     |
+| ------------------------------------------------ | ------ | ------------ | --------------------------------------------------------- |
+| ContractsList.svelte                             | ✅     | 2026-01-05   | Clean - no issues                                         |
+| ContractListItem.svelte                          | ✅     | 2026-02-03   | Refactored: removed payment toggle, added link badge      |
+| ContractCard.svelte                              | ✅     | 2026-02-03   | Refactored: removed toggle props, added link badge        |
+| EquipmentRentalLogisticsSection.svelte           | ✅     | 2026-02-01   | Clean - split venue fields to match template placeholders |
+| DjResidencyForm.svelte                           | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| DjResidencyContractBasicsSection.svelte          | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| DjResidencyDurationSection.svelte                | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| DjResidencyPaymentTermsSection.svelte            | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| DjResidencyPerformanceTermsSection.svelte        | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| DjResidencyStatusSection.svelte                  | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffForm.svelte                 | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffBasicsSection.svelte        | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffCancellationSection.svelte  | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffEquipmentListSection.svelte | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffFinancialSection.svelte     | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffPaymentTermsSection.svelte  | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffQuotationSection.svelte     | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffSetupSection.svelte         | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
+| EquipmentRentalOneOffVenueSection.svelte         | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
 
 ### Core Components (`src/lib/components/`)
 

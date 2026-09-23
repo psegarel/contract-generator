@@ -1,14 +1,5 @@
 <script lang="ts">
 	import type { EquipmentRentalOneOffContract } from '$lib/types/v2';
-	import {
-		equipmentRentalOneOffContractInputSchema,
-		type EquipmentRentalOneOffContractInput
-	} from '$lib/schemas/v2/contracts/equipmentRentalOneOff';
-	import {
-		saveEquipmentRentalOneOffContract,
-		updateEquipmentRentalOneOffContract
-	} from '$lib/utils/v2/equipmentRentalOneOffContracts';
-	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState, eventState } from '$lib/state/v2';
 	import { EquipmentRentalOneOffContractFormState } from '$lib/state/v2/equipmentRentalOneOffContractFormState.svelte';
@@ -16,11 +7,21 @@
 	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
-	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
-	import SelectField from '$lib/components/SelectField.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
+	import {
+		saveEquipmentRentalOneOffForm,
+		validateEquipmentRentalOneOffForm
+	} from '$lib/forms/contracts/equipmentRentalOneOff';
+	import EquipmentRentalOneOffBasicsSection from './sections/EquipmentRentalOneOffBasicsSection.svelte';
+	import EquipmentRentalOneOffQuotationSection from './sections/EquipmentRentalOneOffQuotationSection.svelte';
+	import EquipmentRentalOneOffSetupSection from './sections/EquipmentRentalOneOffSetupSection.svelte';
+	import EquipmentRentalOneOffVenueSection from './sections/EquipmentRentalOneOffVenueSection.svelte';
+	import EquipmentRentalOneOffFinancialSection from './sections/EquipmentRentalOneOffFinancialSection.svelte';
+	import EquipmentRentalOneOffPaymentTermsSection from './sections/EquipmentRentalOneOffPaymentTermsSection.svelte';
+	import EquipmentRentalOneOffCancellationSection from './sections/EquipmentRentalOneOffCancellationSection.svelte';
+	import EquipmentRentalOneOffEquipmentListSection from './sections/EquipmentRentalOneOffEquipmentListSection.svelte';
 
 	interface Props {
 		contract?: EquipmentRentalOneOffContract | null;
@@ -65,28 +66,9 @@
 	}
 
 	async function handleSubmit() {
-		if (!authState.user) {
-			formState.error = 'You must be logged in to create a contract';
-			return;
-		}
-
-		if (!formState.counterpartyId) {
-			formState.error = 'Please select a counterparty';
-			return;
-		}
-
-		if (!formState.quotationReference) {
-			formState.error = 'Please enter a quotation reference';
-			return;
-		}
-
-		if (!formState.eventDate) {
-			formState.error = 'Please set the event date';
-			return;
-		}
-
-		if (!formState.setupDateTime || !formState.collectionDateTime) {
-			formState.error = 'Please set setup and collection date/times';
+		const validationError = validateEquipmentRentalOneOffForm(formState, authState.user?.uid);
+		if (validationError) {
+			formState.error = validationError;
 			return;
 		}
 
@@ -94,76 +76,12 @@
 		formState.error = null;
 
 		try {
-			const contractData: EquipmentRentalOneOffContractInput = {
-				type: 'equipment-rental-oneoff',
-				ownerUid: authState.user.uid,
-				contractNumber: formState.contractNumber,
-				eventId: formState.eventId || null,
-				counterpartyId: formState.counterpartyId,
+			const contractId = await saveEquipmentRentalOneOffForm({
+				values: formState,
+				ownerUid: authState.user!.uid,
 				counterpartyName,
-				eventName: formState.eventName,
-				paymentDirection: 'receivable',
-				paymentStatus: formState.paymentStatus,
-				contractValue: formState.contractValue,
-				currency: 'VND',
-				notes: formState.notes || null,
-				quotationReference: formState.quotationReference,
-				eventDate: formState.eventDate,
-				setupDateTime: formState.setupDateTime,
-				collectionDateTime: formState.collectionDateTime,
-				venueName: formState.venueName,
-				venueNameEnglish: formState.venueNameEnglish,
-				venueAddress: formState.venueAddress,
-				venueAddressEnglish: formState.venueAddressEnglish,
-				deposit: formState.deposit,
-				vatRate: formState.vatRate,
-				replacementValue: formState.replacementValue,
-				balancePaymentDays: formState.balancePaymentDays,
-				latePaymentPenaltyRate: formState.latePaymentPenaltyRate,
-				latePaymentPenaltyCap: formState.latePaymentPenaltyCap,
-				cancellationTier1Days: formState.cancellationTier1Days,
-				cancellationTier1Percent: formState.cancellationTier1Percent,
-				cancellationTier2Days: formState.cancellationTier2Days,
-				cancellationTier2Percent: formState.cancellationTier2Percent,
-				equipmentList: formState.equipmentList
-			};
-
-			const validationResult = equipmentRentalOneOffContractInputSchema.safeParse(contractData);
-			if (!validationResult.success) {
-				formState.error = 'Validation error: ' + validationResult.error.issues[0].message;
-				return;
-			}
-
-			let contractId: string;
-			if (contract) {
-				await updateEquipmentRentalOneOffContract(contract.id, contractData);
-				contractId = contract.id;
-			} else {
-				contractId = await saveEquipmentRentalOneOffContract(contractData);
-			}
-
-			// Create/recreate payment record
-			try {
-				if (contract) {
-					await deletePaymentsByContract(contractId);
-				}
-				await createOneTimePayment(
-					{
-						id: contractId,
-						type: contractData.type,
-						contractNumber: contractData.contractNumber,
-						counterpartyName: contractData.counterpartyName,
-						paymentDirection: contractData.paymentDirection,
-						paymentStatus: contractData.paymentStatus,
-						contractValue: contractData.contractValue,
-						currency: contractData.currency,
-						ownerUid: contractData.ownerUid
-					},
-					contractData.eventDate
-				);
-			} catch (paymentError) {
-				logger.error('Error creating payment record:', paymentError);
-			}
+				contract
+			});
 
 			toast.success(contract ? 'Contract updated successfully!' : 'Contract created successfully!');
 
@@ -192,244 +110,19 @@
 		<FormMessage message={formState.error} />
 	{/if}
 
-	<!-- Contract Basics -->
-	<FormSection title="Contract Basics">
-		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<TextField
-				id="contractNumber"
-				label="Contract Number"
-				bind:value={formState.contractNumber}
-				placeholder="EQR-20260713-1234"
-			/>
-
-			<SelectField
-				id="counterpartyId"
-				label="Counterparty"
-				bind:value={formState.counterpartyId}
-				required
-			>
-				<option value="">Select a counterparty</option>
-				{#each counterparties as counterparty (counterparty.id)}
-					<option value={counterparty.id}>{counterparty.name}</option>
-				{/each}
-			</SelectField>
-
-			<div>
-				<SelectField
-					id="eventId"
-					label="Link to Event (optional)"
-					value={formState.eventId || ''}
-					onchange={(e) => handleEventSelect(e.currentTarget.value)}
-				>
-					<option value="">No event (standalone)</option>
-					{#each events as event (event.id)}
-						<option value={event.id}>{event.name}</option>
-					{/each}
-				</SelectField>
-				<p class="text-xs text-muted-foreground mt-1">Auto-fills event name below when selected</p>
-			</div>
-
-			<SelectField id="paymentStatus" label="Payment Status" bind:value={formState.paymentStatus}>
-				<option value="unpaid">Unpaid</option>
-				<option value="paid">Paid</option>
-			</SelectField>
-		</div>
-	</FormSection>
-
-	<!-- Quotation & Event -->
-	<FormSection title="Quotation & Event">
-		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<TextField
-				id="quotationReference"
-				label="Quotation Reference"
-				bind:value={formState.quotationReference}
-				required
-				placeholder="e.g., QT-2026-001"
-				helperText="Reference number from the external quotation (PDF/Excel)"
-			/>
-			<TextField
-				id="eventName"
-				label="Event Name"
-				bind:value={formState.eventName}
-				required
-				placeholder="e.g., Corporate Gala Dinner"
-			/>
-			<TextField
-				id="eventDate"
-				label="Event Date"
-				type="date"
-				bind:value={formState.eventDate}
-				required
-			/>
-		</div>
-	</FormSection>
-
-	<!-- Setup & Collection -->
-	<FormSection title="Setup & Collection">
-		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<TextField
-				id="setupDateTime"
-				label="Setup Deadline (delivery, install & test)"
-				type="datetime-local"
-				bind:value={formState.setupDateTime}
-				required
-			/>
-			<TextField
-				id="collectionDateTime"
-				label="Collection Deadline (dismantle & collect)"
-				type="datetime-local"
-				bind:value={formState.collectionDateTime}
-				required
-			/>
-		</div>
-	</FormSection>
-
-	<!-- Venue / Delivery Location -->
-	<FormSection title="Venue / Delivery Location">
-		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<TextField
-				id="venueName"
-				label="Venue Name (Vietnamese)"
-				bind:value={formState.venueName}
-				required
-			/>
-			<TextField
-				id="venueNameEnglish"
-				label="Venue Name (English)"
-				bind:value={formState.venueNameEnglish}
-				required
-			/>
-			<TextField
-				id="venueAddress"
-				label="Address (Vietnamese)"
-				bind:value={formState.venueAddress}
-				required
-			/>
-			<TextField
-				id="venueAddressEnglish"
-				label="Address (English)"
-				bind:value={formState.venueAddressEnglish}
-				required
-			/>
-		</div>
-	</FormSection>
-
-	<!-- Financial (NET of VAT) -->
-	<FormSection title="Financial (all amounts NET of VAT)">
-		<div class="grid gap-4 grid-cols-1 md:grid-cols-3">
-			<TextField
-				id="contractValue"
-				label="Rental Fee (VND, net)"
-				type="number"
-				bind:value={formState.contractValue}
-				required
-				min="0"
-				helperText="= contractValue"
-			/>
-			<TextField
-				id="deposit"
-				label="Deposit (VND, net)"
-				type="number"
-				bind:value={formState.deposit}
-				min="0"
-			/>
-			<TextField
-				id="vatRate"
-				label="VAT Rate (%)"
-				type="number"
-				bind:value={formState.vatRate}
-				min="0"
-				max="100"
-			/>
-			<TextField
-				id="replacementValue"
-				label="Replacement Value (VND, net)"
-				type="number"
-				bind:value={formState.replacementValue}
-				min="0"
-				helperText="Total replacement value of equipment"
-			/>
-		</div>
-	</FormSection>
-
-	<!-- Payment Terms -->
-	<FormSection title="Payment Terms">
-		<div class="grid gap-4 grid-cols-1 md:grid-cols-3">
-			<TextField
-				id="balancePaymentDays"
-				label="Balance Due (days after event)"
-				type="number"
-				bind:value={formState.balancePaymentDays}
-				min="1"
-			/>
-			<TextField
-				id="latePaymentPenaltyRate"
-				label="Late Interest (%/day)"
-				type="number"
-				bind:value={formState.latePaymentPenaltyRate}
-				min="0"
-				step="0.01"
-			/>
-			<TextField
-				id="latePaymentPenaltyCap"
-				label="Late Interest Cap (%)"
-				type="number"
-				bind:value={formState.latePaymentPenaltyCap}
-				min="0"
-			/>
-		</div>
-	</FormSection>
-
-	<!-- Cancellation Terms -->
-	<FormSection title="Cancellation Terms">
-		<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
-			<TextField
-				id="cancellationTier1Days"
-				label="Tier 1: Cancel before (days)"
-				type="number"
-				bind:value={formState.cancellationTier1Days}
-				min="1"
-				helperText="Cancel this many+ days before event"
-			/>
-			<TextField
-				id="cancellationTier1Percent"
-				label="Tier 1: Fee owed (%)"
-				type="number"
-				bind:value={formState.cancellationTier1Percent}
-				min="0"
-				max="100"
-			/>
-			<TextField
-				id="cancellationTier2Days"
-				label="Tier 2: Cancel within (days)"
-				type="number"
-				bind:value={formState.cancellationTier2Days}
-				min="1"
-				helperText="Cancel within this many days of event"
-			/>
-			<TextField
-				id="cancellationTier2Percent"
-				label="Tier 2: Fee owed (%)"
-				type="number"
-				bind:value={formState.cancellationTier2Percent}
-				min="0"
-				max="100"
-			/>
-		</div>
-	</FormSection>
-
-	<!-- Equipment List (Annex 1) -->
-	<FormSection title="Equipment List (Annex 1)">
-		<TextareaField
-			id="equipmentList"
-			label="Equipment items"
-			bind:value={formState.equipmentList}
-			rows={6}
-			required
-			placeholder="List the equipment items that will appear in Annex 1..."
-			helperText="This text is inserted into the Annex 1 section of the contract"
-		/>
-	</FormSection>
+	<EquipmentRentalOneOffBasicsSection
+		{formState}
+		{counterparties}
+		{events}
+		onEventSelect={handleEventSelect}
+	/>
+	<EquipmentRentalOneOffQuotationSection {formState} />
+	<EquipmentRentalOneOffSetupSection {formState} />
+	<EquipmentRentalOneOffVenueSection {formState} />
+	<EquipmentRentalOneOffFinancialSection {formState} />
+	<EquipmentRentalOneOffPaymentTermsSection {formState} />
+	<EquipmentRentalOneOffCancellationSection {formState} />
+	<EquipmentRentalOneOffEquipmentListSection {formState} />
 
 	<!-- Notes -->
 	<FormSection title="Internal Notes">
