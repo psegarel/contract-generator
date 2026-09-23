@@ -1,20 +1,12 @@
 <script lang="ts">
 	import type { ServiceProvisionContract } from '$lib/types/v2';
-	import {
-		serviceProvisionContractInputSchema,
-		type ServiceProvisionContractInput
-	} from '$lib/schemas/v2/contracts/serviceProvision';
-	import { saveServiceProvisionContract, updateServiceProvisionContract } from '$lib/utils/v2';
-	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
+	import { saveServiceProvisionForm } from '$lib/forms/contracts/serviceProvision';
 	import { createInlineServiceProvider } from '$lib/forms/counterparties/serviceProvider';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
 	import { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { Button } from '$lib/components/ui/button';
-	import TextareaField from '$lib/components/TextareaField.svelte';
-	import FormSection from '$lib/components/FormSection.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
 	import { logger } from '$lib/utils/logger';
 	import ContractBasicsSection from './sections/ContractBasicsSection.svelte';
@@ -23,6 +15,8 @@
 	import FinancialSection from './sections/FinancialSection.svelte';
 	import BankingSection from './sections/BankingSection.svelte';
 	import ClientInfoSection from './sections/ClientInfoSection.svelte';
+	import CounterpartyNotesSection from '../counterparties/sections/CounterpartyNotesSection.svelte';
+	import CounterpartyFormActions from '../counterparties/sections/CounterpartyFormActions.svelte';
 
 	interface Props {
 		contract?: ServiceProvisionContract | null;
@@ -125,97 +119,19 @@
 			return;
 		}
 
-		if (!formState.eventId) {
-			formState.error = 'Please select an event';
-			return;
-		}
-
-		if (!formState.counterpartyId) {
-			formState.error = 'Please select a service provider';
-			return;
-		}
-
 		formState.isSubmitting = true;
 		formState.error = null;
 
 		try {
-			// Set netFee = contractValue for contract generator compatibility
-			const netFee = formState.contractValue;
-
-			const contractData: ServiceProvisionContractInput = {
-				type: 'service-provision',
+			const contractId = await saveServiceProvisionForm({
+				values: formState,
 				ownerUid: authState.user.uid,
-				contractNumber: formState.contractNumber,
-				eventId: formState.eventId,
-				counterpartyId: formState.counterpartyId,
-				counterpartyName,
 				eventName,
-				paymentDirection: 'payable',
-				paymentStatus: formState.paymentStatus,
-				contractValue: formState.contractValue,
-				currency: 'VND',
-				notes: formState.notes || null,
-				jobName: formState.jobName,
-				jobContent: formState.jobContent,
-				numberOfPerformances: formState.numberOfPerformances,
-				firstPerformanceTime: formState.firstPerformanceTime,
-				startDate: formState.startDate,
-				endDate: formState.endDate,
-				taxRate: formState.taxRate,
-				netFee,
-				status: formState.status,
-				bankName: formState.bankName,
-				accountNumber: formState.accountNumber,
-				clientEmail: formState.clientEmail,
-				clientAddress: formState.clientAddress,
-				clientPhone: formState.clientPhone,
-				clientIdDocument: formState.clientIdDocument,
-				clientTaxId: formState.clientTaxId || null,
-				eventLocation: formState.eventLocation,
-				paymentDueDate: formState.paymentDueDate || formState.startDate
-			};
+				counterpartyName,
+				contract
+			});
 
-			// Validate with schema
-			const validationResult = serviceProvisionContractInputSchema.safeParse(contractData);
-			if (!validationResult.success) {
-				formState.error = 'Validation error: ' + validationResult.error.issues[0].message;
-				return;
-			}
-
-			let contractId: string;
-			if (contract) {
-				await updateServiceProvisionContract(contract.id, contractData);
-				contractId = contract.id;
-			} else {
-				contractId = await saveServiceProvisionContract(contractData);
-			}
-
-			// Create/recreate payment record
-			try {
-				if (contract) {
-					await deletePaymentsByContract(contractId);
-				}
-				await createOneTimePayment(
-					{
-						id: contractId,
-						type: contractData.type,
-						contractNumber: contractData.contractNumber,
-						counterpartyName: contractData.counterpartyName,
-						paymentDirection: contractData.paymentDirection,
-						paymentStatus: contractData.paymentStatus,
-						contractValue: contractData.contractValue,
-						currency: contractData.currency,
-						ownerUid: contractData.ownerUid
-					},
-					contractData.paymentDueDate
-				);
-			} catch (paymentError) {
-				logger.error('Error creating payment record:', paymentError);
-			}
-
-			if (onSuccess) {
-				onSuccess(contractId);
-			}
+			onSuccess?.(contractId);
 		} catch (e) {
 			logger.error('Error saving contract:', e);
 			formState.error = (e as Error).message;
@@ -271,26 +187,11 @@
 	<!-- Client Info Section -->
 	<ClientInfoSection {formState} />
 
-	<!-- Notes -->
-	<FormSection title="Internal Notes">
-		<TextareaField
-			id="notes"
-			label="Notes"
-			bind:value={formState.notes}
-			rows={4}
-			placeholder="Internal notes..."
-		/>
-	</FormSection>
-
-	<!-- Form Actions -->
-	<div class="flex gap-3 justify-end">
-		{#if onCancel}
-			<Button variant="outline" type="button" onclick={onCancel} disabled={formState.isSubmitting}>
-				Cancel
-			</Button>
-		{/if}
-		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
-			{formState.isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}
-		</Button>
-	</div>
+	<CounterpartyNotesSection bind:value={formState.notes} placeholder="Internal notes..." />
+	<CounterpartyFormActions
+		isSubmitting={formState.isSubmitting}
+		isEditing={Boolean(contract)}
+		entityLabel="Contract"
+		{onCancel}
+	/>
 </form>

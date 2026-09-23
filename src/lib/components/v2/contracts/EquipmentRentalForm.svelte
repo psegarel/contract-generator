@@ -1,32 +1,22 @@
 <script lang="ts">
 	import type { EquipmentRentalContract } from '$lib/types/v2';
-	import {
-		equipmentRentalContractInputSchema,
-		type EquipmentRentalContractInput
-	} from '$lib/schemas/v2/contracts/equipmentRental';
-	import {
-		saveEquipmentRentalContract,
-		updateEquipmentRentalContract
-	} from '$lib/utils/v2/equipmentRentalContracts';
-	import { createRecurringPayments, deletePaymentsByContract } from '$lib/utils/v2/payments';
+	import { saveEquipmentRentalForm } from '$lib/forms/contracts/equipmentRental';
 	import { authState } from '$lib/state/auth.svelte';
 	import { counterpartyState } from '$lib/state/v2';
 	import { EquipmentRentalContractFormState } from '$lib/state/v2/equipmentRentalContractFormState.svelte';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
-	import TextareaField from '$lib/components/TextareaField.svelte';
-	import FormSection from '$lib/components/FormSection.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
 	import { createInlineClient } from '$lib/forms/counterparties/client';
-	import { SvelteDate } from 'svelte/reactivity';
 	import EquipmentRentalContractBasicsSection from './sections/EquipmentRentalContractBasicsSection.svelte';
 	import EquipmentRentalPeriodSection from './sections/EquipmentRentalPeriodSection.svelte';
 	import EquipmentRentalListSection from './sections/EquipmentRentalListSection.svelte';
 	import EquipmentRentalTermsSection from './sections/EquipmentRentalTermsSection.svelte';
 	import EquipmentRentalLogisticsSection from './sections/EquipmentRentalLogisticsSection.svelte';
 	import CreateCounterpartyInline from './sections/CreateCounterpartyInline.svelte';
+	import CounterpartyNotesSection from '../counterparties/sections/CounterpartyNotesSection.svelte';
+	import CounterpartyFormActions from '../counterparties/sections/CounterpartyFormActions.svelte';
 
 	interface Props {
 		contract?: EquipmentRentalContract | null;
@@ -122,129 +112,22 @@
 			return;
 		}
 
-		// Event is optional for equipment rental (standalone contracts allowed)
-		// if (!formState.eventId) {
-		// 	formState.error = 'Please select an event';
-		// 	return;
-		// }
-
-		if (!formState.counterpartyId) {
-			formState.error = 'Please select a counterparty';
-			return;
-		}
-
-		if (formState.equipment.length === 0) {
-			formState.error = 'Please add at least one equipment item';
-			return;
-		}
-
-		// Validate equipment items
-		for (let i = 0; i < formState.equipment.length; i++) {
-			const item = formState.equipment[i];
-			if (!item.name || item.quantity <= 0 || item.unitPrice < 0) {
-				formState.error = `Equipment item #${i + 1} is incomplete. Please fill in all required fields.`;
-				return;
-			}
-		}
-
 		formState.isSubmitting = true;
 		formState.error = null;
 
 		try {
-			// Calculate contract value from equipment + delivery fee
-			const contractValue = formState.calculatedContractValue;
-
-			const contractData: EquipmentRentalContractInput = {
-				type: 'equipment-rental',
+			const contractId = await saveEquipmentRentalForm({
+				values: {
+					...formState,
+					contractValue: formState.calculatedContractValue
+				},
 				ownerUid: authState.user.uid,
-				contractNumber: formState.contractNumber,
-				eventId: null, // Equipment rental contracts are always standalone
-				counterpartyId: formState.counterpartyId,
 				counterpartyName,
-				eventName: null, // Equipment rental contracts are always standalone
-				paymentDirection: 'receivable', // Equipment rental contracts are always receivable
-				paymentStatus: formState.paymentStatus,
-				contractValue,
-				currency: 'VND',
-				notes: formState.notes || '',
-				rentalStartDate: formState.rentalStartDate,
-				rentalEndDate: formState.rentalEndDate,
-				equipment: formState.equipment,
-				monthlyRent: formState.monthlyRent,
-				securityDeposit: formState.securityDeposit,
-				damageWaiver: formState.damageWaiver,
-				deliveryFee: formState.deliveryFee,
-				venueName: formState.venueName,
-				venueNameEnglish: formState.venueNameEnglish,
-				venueAddress: formState.venueAddress,
-				venueAddressEnglish: formState.venueAddressEnglish
-			};
-
-			// Validate with schema
-			const validationResult = equipmentRentalContractInputSchema.safeParse(contractData);
-			if (!validationResult.success) {
-				formState.error = 'Validation error: ' + validationResult.error.issues[0].message;
-				return;
-			}
-
-			let contractId: string;
-			if (contract) {
-				await updateEquipmentRentalContract(contract.id, contractData);
-				contractId = contract.id;
-			} else {
-				contractId = await saveEquipmentRentalContract(contractData);
-			}
-
-			// Create/recreate payment records
-			try {
-				if (contract) {
-					await deletePaymentsByContract(contractId);
-				}
-				const startDate = new SvelteDate(formState.rentalStartDate);
-				const endDate = new SvelteDate(formState.rentalEndDate);
-				const installments: { label: string; dueDate: Date; amount: number }[] = [];
-				const current = new SvelteDate(startDate);
-				while (current <= endDate) {
-					const label = current.toLocaleDateString('en-US', {
-						month: 'long',
-						year: 'numeric'
-					});
-					installments.push({
-						label,
-						dueDate: new SvelteDate(current),
-						amount: formState.monthlyRent
-					});
-					current.setMonth(current.getMonth() + 1);
-				}
-				if (installments.length > 0) {
-					await createRecurringPayments(
-						{
-							id: contractId,
-							type: contractData.type,
-							contractNumber: contractData.contractNumber,
-							counterpartyName: contractData.counterpartyName,
-							paymentDirection: contractData.paymentDirection,
-							paymentStatus: contractData.paymentStatus,
-							contractValue: contractData.contractValue,
-							currency: contractData.currency,
-							ownerUid: contractData.ownerUid,
-							rentalStartDate: contractData.rentalStartDate,
-							rentalEndDate: contractData.rentalEndDate,
-							monthlyRent: formState.monthlyRent
-						},
-						installments
-					);
-				}
-			} catch (paymentError) {
-				logger.error('Error creating payment records:', paymentError);
-				// Don't block the save — contract was saved successfully
-			}
+				contract
+			});
 
 			toast.success(contract ? 'Contract updated successfully!' : 'Contract created successfully!');
-
-			if (onSuccess) {
-				onSuccess(contractId);
-			}
+			onSuccess?.(contractId);
 		} catch (e) {
 			logger.error('Error saving contract:', e);
 			formState.error = (e as Error).message;
@@ -301,26 +184,11 @@
 	<!-- Equipment List -->
 	<EquipmentRentalListSection {formState} />
 
-	<!-- Notes -->
-	<FormSection title="Internal Notes">
-		<TextareaField
-			id="notes"
-			label=""
-			bind:value={formState.notes}
-			rows={4}
-			placeholder="Internal notes..."
-		/>
-	</FormSection>
-
-	<!-- Form Actions -->
-	<div class="flex gap-3 justify-end">
-		{#if onCancel}
-			<Button variant="outline" type="button" onclick={onCancel} disabled={formState.isSubmitting}>
-				Cancel
-			</Button>
-		{/if}
-		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
-			{formState.isSubmitting ? 'Saving...' : contract ? 'Update Contract' : 'Create Contract'}
-		</Button>
-	</div>
+	<CounterpartyNotesSection bind:value={formState.notes} placeholder="Internal notes..." />
+	<CounterpartyFormActions
+		isSubmitting={formState.isSubmitting}
+		isEditing={Boolean(contract)}
+		entityLabel="Contract"
+		{onCancel}
+	/>
 </form>
