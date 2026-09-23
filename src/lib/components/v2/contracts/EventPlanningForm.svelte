@@ -23,6 +23,7 @@
 	import { toast } from 'svelte-sonner';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import EventPlanningContractBasicsSection from './sections/EventPlanningContractBasicsSection.svelte';
 	import EventPlanningCompanyInfoSection from './sections/EventPlanningCompanyInfoSection.svelte';
 	import EventPlanningRepresentativeInfoSection from './sections/EventPlanningRepresentativeInfoSection.svelte';
@@ -223,7 +224,8 @@
 
 			// Select the newly created counterparty and auto-fill directly from form fields
 			formState.counterpartyId = counterpartyId;
-			formState.clientCompany = formState.newCounterpartyCompanyName || formState.newCounterpartyName;
+			formState.clientCompany =
+				formState.newCounterpartyCompanyName || formState.newCounterpartyName;
 			formState.clientAddress = formState.newCounterpartyAddress;
 			formState.clientTaxCode = formState.newCounterpartyTaxId;
 			formState.clientRepresentativeName = formState.newCounterpartyRepresentativeName;
@@ -367,12 +369,17 @@
 	}
 </script>
 
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} novalidate class="space-y-6">
+<form
+	onsubmit={(e) => {
+		e.preventDefault();
+		handleSubmit();
+	}}
+	novalidate
+	class="space-y-6"
+>
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Contract Basics -->
@@ -422,12 +429,7 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				variant="outline"
-				type="button"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button variant="outline" type="button" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}

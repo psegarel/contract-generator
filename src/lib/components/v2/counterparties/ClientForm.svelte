@@ -12,6 +12,7 @@
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import SelectField from '$lib/components/SelectField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import BankNameCombobox from '$lib/components/v2/forms/BankNameCombobox.svelte';
 
 	interface Props {
@@ -88,12 +89,16 @@
 	}
 </script>
 
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
+<form
+	onsubmit={(e) => {
+		e.preventDefault();
+		handleSubmit();
+	}}
+	class="space-y-6"
+>
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Basic Information -->
@@ -108,12 +113,7 @@
 				class="col-span-full"
 			/>
 
-			<SelectField
-				id="clientType"
-				label="Client Type"
-				bind:value={formState.clientType}
-				required
-			>
+			<SelectField id="clientType" label="Client Type" bind:value={formState.clientType} required>
 				<option value="individual">Individual</option>
 				<option value="company">Company</option>
 			</SelectField>
@@ -223,12 +223,7 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				type="button"
-				variant="outline"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button type="button" variant="outline" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}

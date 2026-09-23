@@ -9,6 +9,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, FileText, Edit } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -37,37 +38,30 @@
 </script>
 
 {#key counterparty.id}
-	<div class="p-8">
-		<!-- Header -->
-		<div class="flex items-center justify-between mb-8">
-			<div class="flex items-center gap-3">
+	<div>
+		<PageHeader title={counterparty.name} description={displayType}>
+			{#snippet leading()}
 				<Button variant="ghost" size="sm" href="/counterparties">
-					<ArrowLeft class="w-4 h-4 mr-2" />
+					<ArrowLeft class="size-4" />
 					Back
 				</Button>
-				<div
-					class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"
-				>
-					<FileText class="w-6 h-6" />
-				</div>
-				<div>
-					<h1 class="text-3xl font-bold tracking-tight text-foreground">{counterparty.name}</h1>
-					<p class="text-muted-foreground mt-1 text-sm">{displayType}</p>
-				</div>
-			</div>
-			<div class="flex items-center gap-3">
+			{/snippet}
+			{#snippet icon()}
+				<FileText class="size-5" />
+			{/snippet}
+			{#snippet children()}
 				<Badge variant="default" class={badgeClass}>{displayType}</Badge>
 				<Button href={`/counterparties/${counterparty.id}/edit`}>
-					<Edit class="w-4 h-4 mr-2" />
+					<Edit class="size-4" />
 					Edit
 				</Button>
-			</div>
-		</div>
+			{/snippet}
+		</PageHeader>
 
 		<!-- View-only content -->
-		<div class="border-t border-border">
+		<div>
 			<!-- Basic Information -->
-			<div class="border-b border-border">
+			<div class="mb-1">
 				<div class="px-4 py-3 bg-muted">
 					<div class="text-sm font-semibold text-foreground">Basic Information</div>
 				</div>
@@ -107,7 +101,7 @@
 			<!-- Client-specific fields -->
 			{#if counterparty.type === 'client'}
 				{@const client = counterparty as ClientCounterparty}
-				<div class="border-b border-border">
+				<div class="mb-1">
 					<div class="px-4 py-3 bg-muted">
 						<div class="text-sm font-semibold text-foreground">Client Details</div>
 					</div>
@@ -173,7 +167,7 @@
 			<!-- Service Provider-specific fields -->
 			{#if counterparty.type === 'contractor' && 'contractorType' in counterparty && counterparty.contractorType === 'service-provider'}
 				{@const provider = counterparty as ServiceProviderContractor}
-				<div class="border-b border-border">
+				<div class="mb-1">
 					<div class="px-4 py-3 bg-muted">
 						<div class="text-sm font-semibold text-foreground">Service Provider Details</div>
 					</div>
@@ -226,7 +220,7 @@
 			<!-- Performer-specific fields -->
 			{#if counterparty.type === 'contractor' && 'contractorType' in counterparty && counterparty.contractorType === 'performer'}
 				{@const performer = counterparty as PerformerContractor}
-				<div class="border-b border-border">
+				<div class="mb-1">
 					<div class="px-4 py-3 bg-muted">
 						<div class="text-sm font-semibold text-foreground">Performer Details</div>
 					</div>
@@ -262,7 +256,7 @@
 
 			<!-- Notes -->
 			{#if counterparty.notes}
-				<div class="border-b border-border">
+				<div class="mb-1">
 					<div class="px-4 py-3 bg-muted">
 						<div class="text-sm font-semibold text-foreground">Notes</div>
 					</div>

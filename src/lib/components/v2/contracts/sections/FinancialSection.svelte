@@ -41,17 +41,19 @@
 			placeholder="10"
 		/>
 
-		<div class="col-span-full p-4 bg-muted rounded-md border border-border">
+		<div class="col-span-full p-4 bg-muted">
 			<div class="grid gap-2 text-sm">
 				<div class="flex justify-between">
 					<span class="text-muted-foreground">Contract Value (before tax):</span>
-					<span class="font-semibold text-foreground">{formatCurrency(formState.contractValue)}</span>
+					<span class="font-semibold text-foreground"
+						>{formatCurrency(formState.contractValue)}</span
+					>
 				</div>
 				<div class="flex justify-between">
 					<span class="text-muted-foreground">Tax Amount ({formState.taxRate}%):</span>
 					<span class="font-semibold text-foreground">{formatCurrency(taxAmount)}</span>
 				</div>
-				<div class="flex justify-between pt-2 border-t border-border">
+				<div class="flex justify-between bg-muted/60 px-2 py-2">
 					<span class="text-foreground font-medium">Gross Amount (after tax added):</span>
 					<span class="font-bold text-primary">{formatCurrency(grossAmount)}</span>
 				</div>

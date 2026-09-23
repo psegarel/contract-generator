@@ -117,7 +117,7 @@
 	}
 </script>
 
-<div class="bg-card rounded-lg border border-border p-6">
+<div class="bg-card p-6">
 	<h3 class="text-lg font-semibold text-foreground mb-6">Generate Contracts</h3>
 
 	{#if isLoading}
@@ -136,9 +136,7 @@
 						0
 					)}
 					{@const performerCount = new Set(monthPerfs.map((p) => p.performerId)).size}
-					<div
-						class="flex items-center justify-between p-4 rounded-lg border border-amber-200 bg-amber-50"
-					>
+					<div class="flex items-center justify-between bg-muted p-4">
 						<div>
 							<p class="font-medium text-foreground">{formatMonthLabel(month)}</p>
 							<p class="text-sm text-muted-foreground">
@@ -178,9 +176,7 @@
 							(sum, p) => sum + p.hoursWorked * contract.performanceFeeVND,
 							0
 						)}
-						<div
-							class="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30"
-						>
+						<div class="flex items-center justify-between p-3 bg-muted/30">
 							<div class="flex items-center gap-3">
 								<Lock class="w-4 h-4 text-muted-foreground" />
 								<div>
@@ -199,7 +195,7 @@
 									size="sm"
 									onclick={() => handleUnlockMonth(month)}
 									disabled={unlockingMonth === month}
-									class="text-muted-foreground hover:text-amber-600 hover:bg-amber-50"
+									class="text-muted-foreground hover:bg-muted"
 								>
 									{#if unlockingMonth === month}
 										Unlocking...

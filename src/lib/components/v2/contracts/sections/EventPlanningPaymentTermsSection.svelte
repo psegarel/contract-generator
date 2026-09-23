@@ -2,6 +2,7 @@
 	import type { EventPlanningContractFormState } from '$lib/state/v2/eventPlanningContractFormState.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import TextField from '$lib/components/TextField.svelte';
 
 	interface Props {
@@ -10,9 +11,7 @@
 
 	let { formState }: Props = $props();
 
-	let depositAmount = $derived(
-		formState.contractValueVND * (formState.depositPercentage / 100)
-	);
+	let depositAmount = $derived(formState.contractValueVND * (formState.depositPercentage / 100));
 	let finalPaymentAmount = $derived(
 		formState.contractValueVND * (formState.finalPaymentPercentage / 100)
 	);
@@ -52,9 +51,10 @@
 		/>
 
 		{#if !paymentsSumTo100}
-			<div class="col-span-full p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm">
-				Deposit and final payment percentages must sum to 100%
-			</div>
+			<FormMessage
+				message="Deposit and final payment percentages must sum to 100%"
+				variant="error"
+			/>
 		{/if}
 
 		<TextField

@@ -42,8 +42,8 @@
 		{rows}
 		{required}
 		{...rest}
-		class="w-full px-3.5 py-2.5 border border-input rounded-md text-foreground placeholder:text-muted-foreground/30 focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm resize-y min-h-25 {error
-			? 'border-destructive focus:ring-destructive/10'
+		class="w-full bg-muted/50 px-3.5 py-2.5 rounded-sm text-foreground placeholder:text-muted-foreground/30 focus:bg-background focus:ring-2 focus:ring-ring transition-colors text-sm resize-y min-h-25 {error
+			? 'ring-2 ring-destructive/20'
 			: ''}"
 	></textarea>
 	{#if helperText && !error}

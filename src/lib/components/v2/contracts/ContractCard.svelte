@@ -40,7 +40,7 @@
 	}: Props = $props();
 </script>
 
-<div class="space-y-4 py-4 px-4 border border-border rounded-lg {backgroundColor}">
+<div class="space-y-4 py-4 px-4 {backgroundColor}">
 	<!-- Header -->
 	<div class="flex items-start justify-between gap-2">
 		<div class="flex-1 min-w-0">

@@ -4,11 +4,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, FileText } from '@lucide/svelte';
 	import { onMount, onDestroy } from 'svelte';
-	import {
-		serviceProvisionContractState,
-		eventPlanningContractState
-	} from '$lib/state/v2';
+	import { serviceProvisionContractState, eventPlanningContractState } from '$lib/state/v2';
 	import type { BaseContract } from '$lib/types/v2';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -35,34 +33,24 @@
 	);
 </script>
 
-<div class="h-full flex flex-col -m-6 md:-m-8">
-	<!-- Header -->
-	<div class="flex items-center justify-between mb-8 flex-shrink-0 px-6 md:px-8 pt-6 md:pt-8">
-		<div class="flex items-center gap-3">
+<div class="flex h-full flex-col">
+	<PageHeader
+		title={`Contracts - ${data.counterparty.name}`}
+		description={`${filteredContracts.length} ${filteredContracts.length === 1 ? 'contract' : 'contracts'}`}
+	>
+		{#snippet leading()}
 			<Button variant="ghost" size="sm" href="/counterparties">
-				<ArrowLeft class="w-4 h-4 mr-2" />
+				<ArrowLeft class="size-4" />
 				Back
 			</Button>
-			<div
-				class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"
-			>
-				<FileText class="w-6 h-6" />
-			</div>
-			<div>
-				<h1 class="text-3xl font-bold tracking-tight text-foreground">
-					Contracts - {data.counterparty.name}
-				</h1>
-				<p class="text-muted-foreground mt-1 text-sm">
-					{filteredContracts.length}
-					{filteredContracts.length === 1 ? 'contract' : 'contracts'}
-				</p>
-			</div>
-		</div>
-	</div>
+		{/snippet}
+		{#snippet icon()}
+			<FileText class="size-5" />
+		{/snippet}
+	</PageHeader>
 
 	<!-- Contracts List -->
-	<div class="flex-1 min-h-0 px-6 md:px-8 pb-6 md:pb-8">
+	<div class="flex-1 min-h-0">
 		<ContractsList contracts={filteredContracts} title="" showHeaders={true} />
 	</div>
 </div>
-

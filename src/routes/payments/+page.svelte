@@ -263,7 +263,7 @@
 				{@const expanded = expandedContracts.has(group.contractId)}
 
 				<div class={groupIndex % 2 === 0 ? 'bg-card' : 'bg-muted/30'}>
-					<div class="flex items-center gap-3 px-4 py-3 border-b border-border last:border-b-0">
+					<div class="flex items-center gap-3 px-4 py-3">
 						{#if hasMultiple}
 							<Button
 								type="button"
@@ -339,9 +339,7 @@
 						<div class="bg-muted/10">
 							{#each group.payments as payment, i (payment.id)}
 								<div
-									class="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-b-0 {i %
-										2 ===
-									0
+									class="flex items-center gap-3 px-4 py-2.5 {i % 2 === 0
 										? 'bg-card'
 										: 'bg-muted/20'}"
 								>

@@ -46,8 +46,8 @@
 		bind:value
 		{required}
 		{...rest}
-		class="w-full px-3.5 py-2.5 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all text-sm {error
-			? 'border-destructive focus:ring-destructive/10'
+		class="w-full bg-muted/50 px-3.5 py-2.5 rounded-sm text-foreground focus:bg-background focus:ring-2 focus:ring-ring transition-colors text-sm {error
+			? 'ring-2 ring-destructive/20'
 			: ''}"
 	>
 		{@render children()}

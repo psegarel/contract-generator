@@ -39,7 +39,7 @@
 	}: Props = $props();
 </script>
 
-<div class="bg-primary/5 border border-primary/20 p-6 rounded-lg space-y-6">
+<div class="bg-primary/5 p-6 space-y-6">
 	<h3 class="text-lg font-semibold text-foreground mb-4">{title}</h3>
 
 	<!-- Basic Information -->
@@ -133,15 +133,9 @@
 		/>
 	</div>
 
-	<div class="flex gap-3 justify-end pt-4 border-t border-primary/30">
-		<Button type="button" variant="outline" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button
-			type="button"
-			onclick={onCreate}
-			disabled={formState.isCreatingCounterparty}
-		>
+	<div class="flex gap-3 justify-end pt-4">
+		<Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
+		<Button type="button" onclick={onCreate} disabled={formState.isCreatingCounterparty}>
 			{formState.isCreatingCounterparty ? 'Creating...' : createButtonLabel}
 		</Button>
 	</div>

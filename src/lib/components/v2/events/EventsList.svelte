@@ -3,10 +3,7 @@
 	import type { BaseContract } from '$lib/types/v2';
 	import EventListItem from './EventListItem.svelte';
 	import { Calendar } from '@lucide/svelte';
-	import {
-		serviceProvisionContractState,
-		eventPlanningContractState
-	} from '$lib/state/v2';
+	import { serviceProvisionContractState, eventPlanningContractState } from '$lib/state/v2';
 
 	interface Props {
 		events: Event[];
@@ -48,7 +45,7 @@
 	let enrichedEvents = $derived(events.map(calculateEventFinancials));
 </script>
 
-<div class="border-t border-border">
+<div>
 	<!-- Header -->
 	{#if title}
 		<div class="flex items-center justify-between py-6">
@@ -74,28 +71,14 @@
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
 				<div class="hidden md:grid grid-cols-18 gap-3 items-center bg-muted px-4">
-					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-border">
-						Event Name
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">
-						Date
-					</div>
-					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-border">Location</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">
-						Status
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-border">
-						Receivable
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-border">
-						Payable
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-border">
-						Net Revenue
-					</div>
-					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center border-r border-border">
-						Contracts
-					</div>
+					<div class="col-span-3 text-sm font-semibold px-3 py-3">Event Name</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center">Date</div>
+					<div class="col-span-3 text-sm font-semibold px-3 py-3">Location</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center">Status</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right">Receivable</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right">Payable</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right">Net Revenue</div>
+					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center">Contracts</div>
 					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center">Actions</div>
 				</div>
 			{/if}

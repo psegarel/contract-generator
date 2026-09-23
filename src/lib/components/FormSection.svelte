@@ -19,7 +19,7 @@
 	} = $props();
 </script>
 
-<div class="bg-card p-6 rounded-lg border border-border {className}">
+<section class="bg-card p-6 {className}">
 	<h3 class="text-lg font-semibold text-foreground mb-6">{title}</h3>
 	{@render children()}
-</div>
+</section>

@@ -18,6 +18,7 @@
 	import { logger } from '$lib/utils/logger';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import { clientCounterpartySchema, type ClientCounterpartyInput } from '$lib/schemas/v2';
 	import { Timestamp } from 'firebase/firestore';
@@ -85,25 +86,25 @@
 
 		formState.isCreatingCounterparty = true;
 		try {
-		const clientData: ClientCounterpartyInput = {
-			type: 'client',
-			ownerUid: authState.user.uid,
-			name: formState.newCounterpartyName,
-			email: formState.newCounterpartyEmail || null,
-			phone: formState.newCounterpartyPhone || null,
-			address: formState.newCounterpartyAddress || null,
-			clientType: 'company', // Equipment rental is always for companies
-			companyName: formState.newCounterpartyCompanyName || null,
-			representativeName: formState.newCounterpartyRepresentativeName || null,
-			representativePosition: formState.newCounterpartyRepresentativePosition || null,
-			idDocument: null,
-			taxId: formState.newCounterpartyTaxId || null,
-			bankName: formState.newCounterpartyBankName || null,
-			bankAccountNumber: formState.newCounterpartyBankAccountNumber || null,
-			notes: null,
-			createdAt: Timestamp.now(),
-			updatedAt: Timestamp.now()
-		};
+			const clientData: ClientCounterpartyInput = {
+				type: 'client',
+				ownerUid: authState.user.uid,
+				name: formState.newCounterpartyName,
+				email: formState.newCounterpartyEmail || null,
+				phone: formState.newCounterpartyPhone || null,
+				address: formState.newCounterpartyAddress || null,
+				clientType: 'company', // Equipment rental is always for companies
+				companyName: formState.newCounterpartyCompanyName || null,
+				representativeName: formState.newCounterpartyRepresentativeName || null,
+				representativePosition: formState.newCounterpartyRepresentativePosition || null,
+				idDocument: null,
+				taxId: formState.newCounterpartyTaxId || null,
+				bankName: formState.newCounterpartyBankName || null,
+				bankAccountNumber: formState.newCounterpartyBankAccountNumber || null,
+				notes: null,
+				createdAt: Timestamp.now(),
+				updatedAt: Timestamp.now()
+			};
 
 			// Validate with schema
 			const validationResult = clientCounterpartySchema.safeParse(clientData);
@@ -278,16 +279,15 @@
 >
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Contract Basics -->
 	<EquipmentRentalContractBasicsSection
 		{formState}
 		{counterparties}
-		onCreateCounterpartyClick={() => (formState.showCreateCounterparty = !formState.showCreateCounterparty)}
+		onCreateCounterpartyClick={() =>
+			(formState.showCreateCounterparty = !formState.showCreateCounterparty)}
 		onCounterpartyChange={handleCounterpartyChange}
 	/>
 
@@ -329,12 +329,7 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				variant="outline"
-				type="button"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button variant="outline" type="button" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}
@@ -343,5 +338,3 @@
 		</Button>
 	</div>
 </form>
-
-

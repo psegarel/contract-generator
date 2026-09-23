@@ -108,7 +108,7 @@
 	<a
 		{href}
 		onclick={handleClick}
-		class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden
+		class="flex items-center px-3 py-2.5 rounded-sm transition-colors group overflow-hidden
 		{isActive
 			? 'bg-primary/10 text-primary font-semibold'
 			: 'hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground'}"
@@ -129,7 +129,9 @@
 			<ChevronRight
 				class="ml-auto h-4 w-4 shrink-0 transition-all duration-300 ease-in-out {expanded
 					? 'rotate-90'
-					: ''} {sidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}"
+					: ''} {sidebarOpen
+					? 'opacity-100 translate-x-0'
+					: 'opacity-0 translate-x-4 pointer-events-none'}"
 			/>
 		{/if}
 	</a>
@@ -138,7 +140,11 @@
 		<div use:submenuAnimation={expanded} class="overflow-hidden">
 			<div class="ml-9 mt-1 space-y-1 pb-2">
 				{#each subItems as sub (sub.href)}
-					<SidebarSubMenuItem label={sub.label} href={sub.href} isActive={currentPath === sub.href} />
+					<SidebarSubMenuItem
+						label={sub.label}
+						href={sub.href}
+						isActive={currentPath === sub.href}
+					/>
 				{/each}
 			</div>
 		</div>

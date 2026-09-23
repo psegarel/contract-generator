@@ -14,6 +14,7 @@
 	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import FileUpload from '$lib/components/FileUpload.svelte';
 	import { CounterpartyDocumentManager } from '$lib/utils/counterpartyDocuments';
 	import { toast } from 'svelte-sonner';
@@ -160,11 +161,7 @@
 >
 	<!-- Error message -->
 	{#if formState.error}
-		<div
-			class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
-		>
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Basic Information -->
@@ -365,9 +362,10 @@
 		</p>
 
 		{#if !counterpartyId}
-			<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
-				Please fill in the basic information first to enable document uploads.
-			</div>
+			<FormMessage
+				message="Please fill in the basic information first to enable document uploads."
+				variant="warning"
+			/>
 		{:else}
 			<div class="space-y-4">
 				{#each [1, 2, 3, 4, 5] as imageNum}

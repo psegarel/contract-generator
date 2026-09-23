@@ -97,7 +97,7 @@
 	}
 </script>
 
-<div class="bg-primary/5 border border-primary/20 p-6 rounded-lg space-y-6">
+<div class="bg-primary/5 p-6 space-y-6">
 	<h3 class="text-lg font-semibold text-foreground mb-4">Add New Performer</h3>
 
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -115,12 +115,7 @@
 			placeholder="e.g., DJ Mai"
 			required
 		/>
-		<SelectField
-			id="performerType"
-			label="Performer Type"
-			bind:value={performerType}
-			required
-		>
+		<SelectField id="performerType" label="Performer Type" bind:value={performerType} required>
 			<option value="">Select type</option>
 			{#each PERFORMER_TYPES as type (type)}
 				<option value={type}>{type}</option>
@@ -170,12 +165,7 @@
 			bind:value={idDocument}
 			placeholder="Passport / CCCD number"
 		/>
-		<TextField
-			id="performerTaxId"
-			label="Tax ID"
-			bind:value={taxId}
-			placeholder="Tax code"
-		/>
+		<TextField id="performerTaxId" label="Tax ID" bind:value={taxId} placeholder="Tax code" />
 		<TextField
 			id="performerPitRate"
 			label="PIT Rate (%)"
@@ -187,15 +177,9 @@
 		/>
 	</div>
 
-	<div class="flex gap-3 justify-end pt-4 border-t border-primary/30">
-		<Button type="button" variant="outline" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button
-			type="button"
-			onclick={handleCreate}
-			disabled={isSubmitting}
-		>
+	<div class="flex gap-3 justify-end pt-4">
+		<Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
+		<Button type="button" onclick={handleCreate} disabled={isSubmitting}>
 			{isSubmitting ? 'Creating...' : 'Create Performer'}
 		</Button>
 	</div>

@@ -16,6 +16,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import { logger } from '$lib/utils/logger';
 	import ContractBasicsSection from './sections/ContractBasicsSection.svelte';
 	import CreateProviderInline from './sections/CreateProviderInline.svelte';
@@ -248,9 +249,7 @@
 >
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Contract Basics -->
@@ -300,12 +299,7 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				variant="outline"
-				type="button"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button variant="outline" type="button" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}

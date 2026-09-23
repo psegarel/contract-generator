@@ -141,7 +141,7 @@
 	}
 </script>
 
-<div class="bg-card rounded-lg border border-border p-6">
+<div class="bg-card p-6">
 	<div class="flex items-center justify-between mb-6">
 		<div>
 			<h3 class="text-lg font-semibold text-foreground">Performance Log</h3>

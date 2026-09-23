@@ -44,7 +44,7 @@
 	</div>
 
 	<!-- Contract Preview - HTML from Word template -->
-	<div class="bg-card rounded-lg p-8 print:p-0">
+	<div class="bg-card p-8 print:p-0">
 		<div class="contract-html-preview">
 			{@html data.html}
 		</div>

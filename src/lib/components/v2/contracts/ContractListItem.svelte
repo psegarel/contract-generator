@@ -114,45 +114,45 @@
 	</div>
 
 	<!-- Desktop: Grid Layout (18 columns) -->
-	<div class="hidden xl:grid grid-cols-18 gap-3 items-center py-3">
+	<div class="hidden xl:grid grid-cols-20 items-center gap-3 px-2 py-3">
 		<!-- Contract Number -->
-		<div class="col-span-2 px-1">
+		<div class="col-span-3 min-w-0 px-2">
 			<h3 class="text-sm font-bold tracking-tight truncate">
 				{contract.contractNumber}
 			</h3>
 		</div>
 
 		<!-- Event Name -->
-		<div class="col-span-2 px-1 text-sm truncate">
+		<div class="col-span-2 min-w-0 px-2 text-sm truncate">
 			{contract.eventName}
 		</div>
 
 		<!-- Counterparty Name -->
-		<div class="col-span-3 px-1 text-sm truncate">
+		<div class="col-span-3 min-w-0 px-2 text-sm truncate">
 			{contract.counterpartyName}
 		</div>
 
 		<!-- Contract Value -->
 		<div
-			class="col-span-2 px-1 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right tabular-nums"
+			class="col-span-2 min-w-0 px-2 text-right text-sm font-bold tabular-nums text-emerald-600 dark:text-emerald-400"
 		>
 			{formatCurrency(contract.contractValue)}
 		</div>
 
 		<!-- Date -->
-		<div class="col-span-2 px-1 text-sm text-center tracking-wide">
+		<div class="col-span-2 min-w-0 px-2 text-center text-sm tracking-wide">
 			{formatDateString(getContractDateOrCreatedAt(contract).toISOString())}
 		</div>
 
 		<!-- Type Badge -->
-		<div class="col-span-2 px-1 flex justify-center">
+		<div class="col-span-2 flex min-w-0 justify-center px-2">
 			<Badge variant="outline">
 				{getContractTypeLabel(contract.type)}
 			</Badge>
 		</div>
 
 		<!-- Payment Badge -->
-		<div class="col-span-2 px-1 flex justify-center">
+		<div class="col-span-2 flex min-w-0 justify-center px-2">
 			{#if paymentBadgeHref}
 				<a href={paymentBadgeHref} title="Manage payments">
 					{#if isPaid}
@@ -171,7 +171,7 @@
 		</div>
 
 		<!-- Actions -->
-		<div class="col-span-2 px-1 flex gap-2 justify-center">
+		<div class="col-span-3 flex min-w-0 justify-center gap-2 px-2">
 			<Button
 				variant="success"
 				size="sm"
@@ -204,7 +204,7 @@
 
 		<!-- Delete Button -->
 		{#if contract.type === 'service-provision' || contract.type === 'event-planning' || contract.type === 'equipment-rental' || contract.type === 'equipment-rental-oneoff' || contract.type === 'dj-residency'}
-			<div class="col-span-1 px-1 flex justify-center">
+			<div class="col-span-1 flex min-w-0 justify-center px-2">
 				<Button
 					variant={authState.isAdmin ? 'destructive' : 'secondary'}
 					size="sm"
@@ -219,7 +219,7 @@
 				</Button>
 			</div>
 		{:else}
-			<div class="col-span-1 px-1"></div>
+			<div class="col-span-1 px-2"></div>
 		{/if}
 	</div>
 </div>

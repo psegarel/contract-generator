@@ -8,6 +8,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, FileText } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -43,26 +44,21 @@
 	}
 </script>
 
-<div class="p-8">
-	<!-- Header -->
-	<div class="flex items-center justify-between mb-8">
-		<div class="flex items-center gap-3">
+<div>
+	<PageHeader title={`Edit ${counterparty.name}`} description={displayType}>
+		{#snippet leading()}
 			<Button variant="ghost" size="sm" href={`/counterparties/${counterparty.id}`}>
-				<ArrowLeft class="w-4 h-4 mr-2" />
+				<ArrowLeft class="size-4" />
 				Back
 			</Button>
-			<div
-				class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"
-			>
-				<FileText class="w-6 h-6" />
-			</div>
-			<div>
-				<h1 class="text-3xl font-bold tracking-tight text-foreground">Edit {counterparty.name}</h1>
-				<p class="text-muted-foreground mt-1 text-sm">{displayType}</p>
-			</div>
-		</div>
-		<Badge variant="default" class={badgeClass}>{displayType}</Badge>
-	</div>
+		{/snippet}
+		{#snippet icon()}
+			<FileText class="size-5" />
+		{/snippet}
+		{#snippet children()}
+			<Badge variant="default" class={badgeClass}>{displayType}</Badge>
+		{/snippet}
+	</PageHeader>
 
 	<!-- Edit Forms -->
 	{#if counterparty.type === 'client'}

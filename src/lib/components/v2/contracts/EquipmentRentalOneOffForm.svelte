@@ -20,6 +20,7 @@
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
 	import SelectField from '$lib/components/SelectField.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 
 	interface Props {
 		contract?: EquipmentRentalOneOffContract | null;
@@ -188,11 +189,7 @@
 	class="space-y-6"
 >
 	{#if formState.error}
-		<div
-			class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
-		>
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Contract Basics -->

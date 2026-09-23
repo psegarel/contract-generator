@@ -91,7 +91,7 @@
 	<!-- Contract Details -->
 	<div class="grid gap-6 lg:grid-cols-2">
 		<!-- Party B Details -->
-		<div class="bg-card rounded-lg border border-border p-6">
+		<div class="bg-card p-6">
 			<h3 class="text-lg font-semibold text-foreground mb-4">Party B</h3>
 			<div class="space-y-3">
 				<div>
@@ -127,7 +127,7 @@
 		</div>
 
 		<!-- Contract Duration -->
-		<div class="bg-card rounded-lg border border-border p-6">
+		<div class="bg-card p-6">
 			<h3 class="text-lg font-semibold text-foreground mb-4">Contract Duration</h3>
 			<div class="space-y-3">
 				<div>
@@ -146,7 +146,7 @@
 		</div>
 
 		<!-- Performance Terms -->
-		<div class="bg-card rounded-lg border border-border p-6">
+		<div class="bg-card p-6">
 			<h3 class="text-lg font-semibold text-foreground mb-4">Performance Terms</h3>
 			<div class="space-y-3">
 				<div>
@@ -169,7 +169,7 @@
 		</div>
 
 		<!-- Payment Terms -->
-		<div class="bg-card rounded-lg border border-border p-6">
+		<div class="bg-card p-6">
 			<h3 class="text-lg font-semibold text-foreground mb-4">Payment Terms</h3>
 			<div class="space-y-3">
 				<div>
@@ -192,7 +192,7 @@
 
 	<!-- Notes -->
 	{#if data.contract.notes}
-		<div class="bg-card rounded-lg border border-border p-6 mt-6">
+		<div class="bg-card p-6 mt-6">
 			<h3 class="text-lg font-semibold text-foreground mb-4">Notes</h3>
 			<p class="text-foreground/80 whitespace-pre-wrap">{data.contract.notes}</p>
 		</div>

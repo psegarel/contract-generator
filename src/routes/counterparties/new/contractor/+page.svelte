@@ -41,10 +41,10 @@
 			<Button
 				type="button"
 				onclick={() => selectType('performer')}
-				class="h-auto w-full justify-start rounded-lg border-2 p-6 text-left transition-all {contractorType ===
+				class="h-auto w-full justify-start rounded-sm p-6 text-left transition-colors {contractorType ===
 				'performer'
-					? 'border-primary bg-primary/5 text-foreground'
-					: 'border-border bg-card hover:border-primary/60'}"
+					? 'bg-primary/10 text-foreground'
+					: 'bg-card hover:bg-muted'}"
 			>
 				<div class="flex items-start gap-3">
 					<div class="text-3xl">🎭</div>
@@ -60,10 +60,10 @@
 			<Button
 				type="button"
 				onclick={() => selectType('service-provider')}
-				class="h-auto w-full justify-start rounded-lg border-2 p-6 text-left transition-all {contractorType ===
+				class="h-auto w-full justify-start rounded-sm p-6 text-left transition-colors {contractorType ===
 				'service-provider'
-					? 'border-primary bg-primary/5 text-foreground'
-					: 'border-border bg-card hover:border-primary/60'}"
+					? 'bg-primary/10 text-foreground'
+					: 'bg-card hover:bg-muted'}"
 			>
 				<div class="flex items-start gap-3">
 					<div class="text-3xl">🔧</div>

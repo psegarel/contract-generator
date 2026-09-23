@@ -12,7 +12,7 @@
 	let { formState, onCancel, onCreate }: Props = $props();
 </script>
 
-<div class="bg-primary/5 border border-primary/20 p-6 rounded-lg">
+<div class="bg-primary/5 p-6">
 	<h3 class="text-lg font-semibold text-foreground mb-4">Create New Service Provider</h3>
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 		<TextField
@@ -49,14 +49,8 @@
 	</div>
 
 	<div class="flex gap-3 justify-end mt-4">
-		<Button variant="outline" type="button" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button
-			type="button"
-			onclick={onCreate}
-			disabled={formState.isCreatingProvider}
-		>
+		<Button variant="outline" type="button" onclick={onCancel}>Cancel</Button>
+		<Button type="button" onclick={onCreate} disabled={formState.isCreatingProvider}>
 			{formState.isCreatingProvider ? 'Creating...' : 'Create Provider'}
 		</Button>
 	</div>

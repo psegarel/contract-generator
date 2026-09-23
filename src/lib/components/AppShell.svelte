@@ -93,9 +93,7 @@
 	<!-- Main Content Area -->
 	<main class="flex-1 flex flex-col h-full relative overflow-hidden">
 		<!-- Top Bar -->
-		<header
-			class="h-16 border-b border-border flex items-center justify-between px-4 md:px-8 z-20 w-full"
-		>
+		<header class="h-14 bg-background flex items-center justify-between px-4 md:px-8 z-20 w-full">
 			<!-- Hamburger Menu Button (Mobile Only) -->
 			<Button
 				variant="ghost"
@@ -115,26 +113,23 @@
 						>
 							<Avatar
 								initials={getInitials(authState.user?.email)}
-								class="h-9 w-9 border-2 border-background shadow-sm"
+								class="h-9 w-9"
 								fallbackClass="bg-primary text-primary-foreground text-xs font-bold"
 							/>
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content
-							align="end"
-							class="w-56 rounded-2xl p-2 shadow-xl border-border/50 glass"
-						>
+						<DropdownMenu.Content align="end" class="w-56 rounded-sm p-2 bg-popover">
 							<DropdownMenu.Label class="px-3 py-2">
 								<p
-									class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1"
+									class="mb-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
 								>
 									Signed in as
 								</p>
 								<p class="text-sm font-medium truncate">{authState.user?.email}</p>
 							</DropdownMenu.Label>
-							<DropdownMenu.Separator class="my-1 bg-border/50" />
+							<DropdownMenu.Separator class="my-1 bg-muted" />
 							<DropdownMenu.Item
 								onSelect={handleSignOut}
-								class="rounded-xl px-3 py-2 cursor-pointer text-destructive focus:text-destructive"
+								class="rounded-sm px-3 py-2 cursor-pointer text-destructive focus:text-destructive"
 							>
 								<LogOut class="h-4 w-4 mr-2" />
 								<span>Sign Out</span>
@@ -142,14 +137,14 @@
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
 				{:else}
-					<Button onclick={() => goto(resolve('/login'))} class="rounded-full">Sign In</Button>
+					<Button onclick={() => goto(resolve('/login'))}>Sign In</Button>
 				{/if}
 			</div>
 		</header>
 
 		<!-- Fluid Viewport -->
-		<section class="flex-1 overflow-y-auto p-6 md:p-8 bg-muted/5 relative">
-			<div class="max-w-400 mx-auto">
+		<section class="relative flex-1 overflow-y-auto bg-background p-6 md:p-8">
+			<div class="max-w-7xl mx-auto">
 				{@render children()}
 			</div>
 		</section>

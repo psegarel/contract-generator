@@ -64,7 +64,7 @@
 			</p>
 		</div>
 
-		<div class="col-span-full p-4 bg-muted rounded-md border border-border">
+		<div class="col-span-full p-4 bg-muted">
 			<div class="grid gap-2 text-sm">
 				<div class="flex justify-between">
 					<span class="text-muted-foreground">Monthly Rent:</span>
@@ -72,11 +72,15 @@
 				</div>
 				<div class="flex justify-between">
 					<span class="text-muted-foreground">Rental Period:</span>
-					<span class="font-semibold text-foreground">{formState.rentalMonths} month{formState.rentalMonths !== 1 ? 's' : ''}</span>
+					<span class="font-semibold text-foreground"
+						>{formState.rentalMonths} month{formState.rentalMonths !== 1 ? 's' : ''}</span
+					>
 				</div>
 				<div class="flex justify-between">
 					<span class="text-muted-foreground">Equipment Residual Value:</span>
-					<span class="font-semibold text-foreground">{formatCurrency(formState.totalEquipmentValue)}</span>
+					<span class="font-semibold text-foreground"
+						>{formatCurrency(formState.totalEquipmentValue)}</span
+					>
 				</div>
 				<div class="flex justify-between">
 					<span class="text-muted-foreground">Delivery Fee:</span>
@@ -84,11 +88,15 @@
 				</div>
 				<div class="flex justify-between">
 					<span class="text-muted-foreground">Security Deposit:</span>
-					<span class="font-semibold text-foreground">{formatCurrency(formState.securityDeposit)}</span>
+					<span class="font-semibold text-foreground"
+						>{formatCurrency(formState.securityDeposit)}</span
+					>
 				</div>
-				<div class="flex justify-between pt-2 border-t border-border">
+				<div class="flex justify-between bg-muted/60 px-2 py-2">
 					<span class="text-foreground font-medium">Total Contract Value:</span>
-					<span class="font-bold text-primary">{formatCurrency(formState.calculatedContractValue)}</span>
+					<span class="font-bold text-primary"
+						>{formatCurrency(formState.calculatedContractValue)}</span
+					>
 				</div>
 			</div>
 		</div>

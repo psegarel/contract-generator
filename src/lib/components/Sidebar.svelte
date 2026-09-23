@@ -118,17 +118,17 @@
 </script>
 
 <aside
-	class="fixed lg:relative inset-y-0 left-0 h-full border-r border-sidebar transition-transform duration-300 ease-in-out z-50 lg:z-30
+	class="fixed lg:relative inset-y-0 left-0 h-full transition-transform duration-300 ease-in-out z-50 lg:z-30
 	{sidebarOpen
 		? 'translate-x-0 w-64'
 		: '-translate-x-full lg:translate-x-0 lg:w-20'} lg:translate-x-0"
 >
 	<div class="flex flex-col h-full bg-sidebar text-sidebar-foreground">
 		<!-- Logo Area with Sidebar Toggle -->
-		<div class="h-16 flex items-center justify-between px-4 border-b border-sidebar">
+		<div class="h-14 flex items-center justify-between px-4 bg-sidebar">
 			<div class="flex items-center min-w-0 overflow-hidden">
 				<div
-					class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shrink-0 transition-all duration-300 ease-in-out {sidebarOpen
+					class="w-8 h-8 bg-primary flex items-center justify-center shrink-0 transition-all duration-300 ease-in-out {sidebarOpen
 						? 'opacity-100 scale-100'
 						: 'opacity-0 scale-75 pointer-events-none'}"
 				>

@@ -13,11 +13,7 @@
 	let { performance, onEdit, onDelete }: Props = $props();
 </script>
 
-<div
-	class="flex items-center justify-between p-4 rounded-lg border {performance.invoiced
-		? 'bg-muted border-border'
-		: 'bg-card border-border'}"
->
+<div class="flex items-center justify-between p-4 {performance.invoiced ? 'bg-muted' : 'bg-card'}">
 	<div class="flex items-center gap-4">
 		<div class="flex items-center gap-2 text-muted-foreground">
 			<Calendar class="w-4 h-4" />

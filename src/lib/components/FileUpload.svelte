@@ -77,7 +77,7 @@
 
 	{#if document}
 		<!-- Show uploaded file -->
-		<div class="border border-border rounded-lg p-3 bg-muted/50">
+		<div class="p-3 bg-muted/50">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3 flex-1 min-w-0">
 					{#if isPdf(document.fileName)}

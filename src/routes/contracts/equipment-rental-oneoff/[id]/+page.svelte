@@ -48,13 +48,13 @@
 	</div>
 
 	{#if data.html}
-		<div class="bg-white rounded-lg p-8 print:p-0">
+		<div class="bg-white p-8 print:p-0">
 			<div class="contract-html-preview">
 				{@html data.html}
 			</div>
 		</div>
 	{:else}
-		<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-yellow-800">
+		<div class="bg-muted p-6 text-foreground">
 			<p class="font-semibold">Preview unavailable</p>
 			<p class="text-sm mt-1">
 				The contract template has not been added yet. The contract data is saved — preview and

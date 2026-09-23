@@ -76,7 +76,7 @@
 	{:else}
 		<div class="space-y-4">
 			{#each formState.equipment as item, index (index)}
-				<div class="p-4 border border-border rounded-md">
+				<div class="p-4 bg-muted/30">
 					<div class="flex items-center justify-between mb-3">
 						<h4 class="text-sm font-semibold text-foreground">Equipment Item #{index + 1}</h4>
 						<Button
@@ -176,7 +176,7 @@
 				</div>
 			{/each}
 
-			<div class="p-4 bg-muted rounded-md border border-border">
+			<div class="p-4 bg-muted">
 				<div class="flex justify-between items-center">
 					<span class="text-sm font-medium text-foreground">Total Equipment Value:</span>
 					<span class="text-lg font-bold text-primary"

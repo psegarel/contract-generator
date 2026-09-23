@@ -82,10 +82,10 @@
 		<Button
 			type="button"
 			onclick={() => handleSelect(contractType.value)}
-			class="h-auto w-full flex-col items-start justify-start rounded-lg border-2 p-4 text-left {selectedType ===
+			class="h-auto w-full flex-col items-start justify-start rounded-sm p-4 text-left {selectedType ===
 			contractType.value
-				? 'border-primary bg-primary/5 text-foreground'
-				: 'border-border bg-card hover:border-border/80'}"
+				? 'bg-primary/10 text-foreground'
+				: 'bg-card hover:bg-muted'}"
 		>
 			<div class="mb-2 flex w-full items-start justify-between gap-2">
 				<h3 class="font-semibold text-foreground">{contractType.label}</h3>

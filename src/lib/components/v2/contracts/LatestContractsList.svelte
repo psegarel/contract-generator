@@ -72,7 +72,7 @@
 	});
 </script>
 
-<div class="border-t border-border">
+<div>
 	{#if isLoading && !hasAnyContracts}
 		<div class="py-12 text-center text-muted-foreground">
 			<div
@@ -88,7 +88,7 @@
 	{:else}
 		<!-- Show error messages if any contract type failed, but still show the list -->
 		{#if hasErrors.serviceProvision || hasErrors.eventPlanning || hasErrors.equipmentRental || hasErrors.equipmentRentalOneOff}
-			<div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-800">
+			<div class="mb-4 bg-muted p-3 text-sm text-foreground">
 				<p class="font-semibold mb-1">Some contracts failed to load:</p>
 				<ul class="list-disc list-inside space-y-1">
 					{#if hasErrors.serviceProvision}

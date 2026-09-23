@@ -97,13 +97,13 @@
 			{required}
 			{placeholder}
 			autocomplete="off"
-			class="w-full px-3.5 py-2.5 border rounded-md text-foreground placeholder:text-muted-foreground/30 focus:ring-2 focus:outline-none focus:ring-ring focus:border-ring transition-all text-sm {error
-				? 'border-destructive focus:ring-destructive/10'
-				: 'border-input'}"
+			class="w-full bg-muted/50 px-3.5 py-2.5 rounded-sm text-foreground placeholder:text-muted-foreground/30 focus:bg-background focus:ring-2 focus:outline-none focus:ring-ring transition-colors text-sm {error
+				? 'ring-2 ring-destructive/20'
+				: ''}"
 		/>
 
 		{#if isOpen && banks.length > 0}
-			<div class="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg">
+			<div class="absolute z-50 w-full mt-1 bg-popover rounded-sm">
 				<ul class="max-h-48 overflow-y-auto py-1">
 					{#if filtered.length === 0}
 						<li class="px-3.5 py-2 text-sm text-muted-foreground italic">No matching banks</li>
@@ -127,7 +127,7 @@
 					{/if}
 				</ul>
 
-				<div class="border-t border-border px-3.5 py-2 flex items-center justify-between">
+				<div class="bg-muted px-3.5 py-2 flex items-center justify-between">
 					<span class="text-xs text-muted-foreground">
 						{#if loadError}
 							{loadError}

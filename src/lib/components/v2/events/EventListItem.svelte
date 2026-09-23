@@ -16,7 +16,11 @@
 		const badges = {
 			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-primary' },
 			confirmed: { variant: 'default' as const, label: 'Confirmed', class: 'bg-cyan-500' },
-			'in-progress': { variant: 'default' as const, label: 'In Progress', class: 'bg-amber-500' },
+			'in-progress': {
+				variant: 'default' as const,
+				label: 'In Progress',
+				class: 'bg-muted text-muted-foreground'
+			},
 			completed: { variant: 'default' as const, label: 'Completed', class: 'bg-emerald-500' },
 			cancelled: { variant: 'secondary' as const, label: 'Cancelled', class: '' }
 		};
@@ -52,7 +56,7 @@
 		</div>
 
 		<!-- Financial Summary -->
-		<div class="grid grid-cols-3 gap-3 pt-2 border-t">
+		<div class="grid grid-cols-3 gap-3 bg-muted/40 p-3">
 			<div class="text-center">
 				<div class="text-xs text-muted-foreground mb-1">Receivable</div>
 				<div class="text-sm font-bold text-emerald-600">

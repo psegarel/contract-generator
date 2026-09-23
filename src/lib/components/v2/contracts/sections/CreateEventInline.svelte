@@ -23,7 +23,7 @@
 	let { formState, onCancel, onCreate }: Props = $props();
 </script>
 
-<div class="bg-primary/5 border border-primary/20 p-6 rounded-lg space-y-6">
+<div class="bg-primary/5 p-6 space-y-6">
 	<h3 class="text-lg font-semibold text-foreground mb-4">Create New Event</h3>
 
 	<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -74,7 +74,10 @@
 			label="Expected Attendance"
 			type="number"
 			value={formState.newEventExpectedAttendance ?? ''}
-			oninput={(e) => { const v = (e.target as HTMLInputElement).value; formState.newEventExpectedAttendance = v ? Number(v) : null; }}
+			oninput={(e) => {
+				const v = (e.target as HTMLInputElement).value;
+				formState.newEventExpectedAttendance = v ? Number(v) : null;
+			}}
 			min="0"
 			placeholder="100"
 		/>
@@ -90,15 +93,9 @@
 		</div>
 	</div>
 
-	<div class="flex gap-3 justify-end pt-4 border-t border-primary/30">
-		<Button type="button" variant="outline" onclick={onCancel}>
-			Cancel
-		</Button>
-		<Button
-			type="button"
-			onclick={onCreate}
-			disabled={formState.isCreatingEvent}
-		>
+	<div class="flex gap-3 justify-end pt-4">
+		<Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
+		<Button type="button" onclick={onCreate} disabled={formState.isCreatingEvent}>
 			{formState.isCreatingEvent ? 'Creating...' : 'Create Event'}
 		</Button>
 	</div>

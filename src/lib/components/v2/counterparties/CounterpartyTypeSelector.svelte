@@ -40,10 +40,10 @@
 		<Button
 			type="button"
 			onclick={() => handleSelect(counterpartyType.value)}
-			class="h-auto w-full justify-start rounded-lg border-2 p-4 text-left {selectedType ===
+			class="h-auto w-full justify-start rounded-sm p-4 text-left {selectedType ===
 			counterpartyType.value
-				? 'border-primary bg-primary/5 text-foreground'
-				: 'border-border bg-card hover:border-border/80'}"
+				? 'bg-primary/10 text-foreground'
+				: 'bg-card hover:bg-muted'}"
 		>
 			<div class="flex items-start gap-3">
 				<div class="text-2xl">{counterpartyType.icon}</div>

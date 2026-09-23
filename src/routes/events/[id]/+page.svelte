@@ -21,7 +21,11 @@
 		const badges = {
 			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-primary' },
 			confirmed: { variant: 'default' as const, label: 'Confirmed', class: 'bg-cyan-500' },
-			'in-progress': { variant: 'default' as const, label: 'In Progress', class: 'bg-amber-500' },
+			'in-progress': {
+				variant: 'default' as const,
+				label: 'In Progress',
+				class: 'bg-muted text-muted-foreground'
+			},
 			completed: { variant: 'default' as const, label: 'Completed', class: 'bg-emerald-500' },
 			cancelled: { variant: 'secondary' as const, label: 'Cancelled', class: '' }
 		};
@@ -108,14 +112,14 @@
 				{/if}
 
 				{#if data.event.description}
-					<div class="pt-4 border-t">
+					<div class="pt-4 bg-muted/30 p-3">
 						<div class="text-sm font-medium mb-2">Description</div>
 						<p class="text-sm text-muted-foreground">{data.event.description}</p>
 					</div>
 				{/if}
 
 				{#if data.event.internalNotes}
-					<div class="pt-4 border-t">
+					<div class="pt-4 bg-muted/30 p-3">
 						<div class="text-sm font-medium mb-2">Internal Notes</div>
 						<p class="text-sm text-muted-foreground">{data.event.internalNotes}</p>
 					</div>
@@ -143,7 +147,7 @@
 					</div>
 				</div>
 
-				<div class="pt-4 border-t">
+				<div class="pt-4 bg-muted/30 p-3">
 					<div class="text-xs text-muted-foreground mb-1 flex items-center gap-1">
 						{#if netRevenueIsPositive}
 							<TrendingUp class="h-3.5 w-3.5" />
@@ -159,7 +163,7 @@
 					</div>
 				</div>
 
-				<div class="pt-4 border-t text-sm text-muted-foreground flex items-center gap-2">
+				<div class="pt-4 bg-muted/30 p-3 text-sm text-muted-foreground flex items-center gap-2">
 					<DollarSign class="h-4 w-4" />
 					{data.contracts.length}
 					{data.contracts.length === 1 ? 'contract' : 'contracts'}

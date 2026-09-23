@@ -3,16 +3,12 @@
 
 	interface Props {
 		children: Snippet;
-		backgroundColor: string;
-		textColor: string;
 		class?: string;
 	}
 
-	let { children, backgroundColor, textColor, class: className = '' }: Props = $props();
+	let { children, class: className = '' }: Props = $props();
 </script>
 
-<div
-	class="{backgroundColor} {textColor}  bg-card/50 border-border rounded-2xl border p-4 lg:p-8 backdrop-blur-sm {className}"
->
+<div class="bg-card p-4 lg:p-6 {className}">
 	{@render children?.()}
 </div>

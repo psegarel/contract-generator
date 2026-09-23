@@ -12,6 +12,7 @@
 	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import SelectField from '$lib/components/SelectField.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 
 	interface Props {
 		event?: Event | null;
@@ -96,12 +97,16 @@
 	}
 </script>
 
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
+<form
+	onsubmit={(e) => {
+		e.preventDefault();
+		handleSubmit();
+	}}
+	class="space-y-6"
+>
 	<!-- Error message -->
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Basic Information -->
@@ -124,12 +129,7 @@
 				placeholder="Corporate Event, Wedding, Concert"
 			/>
 
-			<SelectField
-				id="status"
-				label="Status"
-				bind:value={formState.status}
-				required
-			>
+			<SelectField id="status" label="Status" bind:value={formState.status} required>
 				<option value="planning">Planning</option>
 				<option value="confirmed">Confirmed</option>
 				<option value="in-progress">In Progress</option>
@@ -202,19 +202,9 @@
 				placeholder="100"
 			/>
 
-			<TextField
-				id="startTime"
-				label="Start Time"
-				type="time"
-				bind:value={formState.startTime}
-			/>
+			<TextField id="startTime" label="Start Time" type="time" bind:value={formState.startTime} />
 
-			<TextField
-				id="endTime"
-				label="End Time"
-				type="time"
-				bind:value={formState.endTime}
-			/>
+			<TextField id="endTime" label="End Time" type="time" bind:value={formState.endTime} />
 
 			<TextField
 				id="setupDateTime"
@@ -246,12 +236,7 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				type="button"
-				variant="outline"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button type="button" variant="outline" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}

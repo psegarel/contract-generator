@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import TextField from '$lib/components/TextField.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 
@@ -77,7 +78,7 @@
 				step={1}
 				required
 				placeholder="50"
-				class={!paymentsSumTo100 ? 'border-destructive' : ''}
+				error={!paymentsSumTo100 ? ' ' : ''}
 			/>
 			<p class="text-xs text-muted-foreground mt-1">{formatCurrency(depositAmount)}</p>
 		</div>
@@ -94,17 +95,16 @@
 				step={1}
 				required
 				placeholder="50"
-				class={!paymentsSumTo100 ? 'border-destructive' : ''}
+				error={!paymentsSumTo100 ? ' ' : ''}
 			/>
 			<p class="text-xs text-muted-foreground mt-1">{formatCurrency(finalPaymentAmount)}</p>
 		</div>
 
 		{#if !paymentsSumTo100}
-			<div
-				class="col-span-full p-3 bg-destructive/5 border border-destructive/20 rounded-md text-destructive text-sm"
-			>
-				Deposit and final payment percentages must sum to 100%
-			</div>
+			<FormMessage
+				message="Deposit and final payment percentages must sum to 100%"
+				variant="error"
+			/>
 		{/if}
 
 		<TextField

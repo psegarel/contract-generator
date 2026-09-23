@@ -18,7 +18,7 @@
 	}: Props = $props();
 </script>
 
-<div class="border-t border-border h-full flex flex-col">
+<div class="h-full flex flex-col">
 	<!-- Header -->
 	{#if title}
 		<div class="flex items-center justify-between py-6 shrink-0">
@@ -45,12 +45,10 @@
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
 				<div class="grid grid-cols-16 gap-3 items-center bg-muted px-4">
-					<div class="col-span-4 text-sm font-semibold px-3 py-3 border-r border-border">Name</div>
-					<div class="col-span-4 text-sm font-semibold px-3 py-3 border-r border-border">Email</div>
-					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-border">Phone</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">
-						Type
-					</div>
+					<div class="col-span-4 text-sm font-semibold px-3 py-3">Name</div>
+					<div class="col-span-4 text-sm font-semibold px-3 py-3">Email</div>
+					<div class="col-span-3 text-sm font-semibold px-3 py-3">Phone</div>
+					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center">Type</div>
 					<div class="col-span-3 text-sm font-semibold px-3 py-3 text-center">Actions</div>
 				</div>
 			{/if}

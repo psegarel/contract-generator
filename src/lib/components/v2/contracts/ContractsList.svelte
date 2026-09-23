@@ -30,7 +30,7 @@
 	);
 </script>
 
-<div class="border-t border-border h-full flex flex-col">
+<div class="h-full flex flex-col">
 	<!-- Header -->
 	{#if title}
 		<div class="flex items-center justify-between py-6 flex-shrink-0">
@@ -56,28 +56,16 @@
 		<div class="hidden xl:block flex-1 min-h-0 overflow-y-auto">
 			<!-- Column Headers (Desktop only) -->
 			{#if showHeaders}
-				<div class="grid grid-cols-18 gap-3 items-center bg-muted px-4">
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-border">
-						Contract #
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 border-r border-border">Event</div>
-					<div class="col-span-3 text-sm font-semibold px-3 py-3 border-r border-border">
-						Counterparty
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-right border-r border-border">
-						Value
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">
-						Date
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">
-						Type
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">
-						Payment
-					</div>
-					<div class="col-span-2 text-sm font-semibold px-3 py-3 text-center border-r border-border">Actions</div>
-					<div class="col-span-1 text-sm font-semibold px-3 py-3 text-center">Delete</div>
+				<div class="grid grid-cols-20 items-center gap-3 bg-muted px-2">
+					<div class="col-span-3 px-2 py-3 text-sm font-semibold">Contract #</div>
+					<div class="col-span-2 px-2 py-3 text-sm font-semibold">Event</div>
+					<div class="col-span-3 px-2 py-3 text-sm font-semibold">Counterparty</div>
+					<div class="col-span-2 px-2 py-3 text-right text-sm font-semibold">Value</div>
+					<div class="col-span-2 px-2 py-3 text-center text-sm font-semibold">Date</div>
+					<div class="col-span-2 px-2 py-3 text-center text-sm font-semibold">Type</div>
+					<div class="col-span-2 px-2 py-3 text-center text-sm font-semibold">Payment</div>
+					<div class="col-span-3 px-2 py-3 text-center text-sm font-semibold">Actions</div>
+					<div class="col-span-1 px-2 py-3 text-center text-sm font-semibold">Delete</div>
 				</div>
 			{/if}
 

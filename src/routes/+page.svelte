@@ -46,7 +46,7 @@
 
 		<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 			<!-- Total Received -->
-			<DashboardCard backgroundColor="bg-card" textColor="text-foreground">
+			<DashboardCard>
 				<div class="flex items-start justify-between">
 					<div class="flex-1">
 						<div
@@ -63,7 +63,7 @@
 			</DashboardCard>
 
 			<!-- Total Receivable -->
-			<DashboardCard backgroundColor="bg-card" textColor="text-foreground">
+			<DashboardCard>
 				<div
 					class="text-[10px] md:text-[9px] lg:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1"
 				>
@@ -75,7 +75,7 @@
 			</DashboardCard>
 
 			<!-- Total Payable -->
-			<DashboardCard backgroundColor="bg-card" textColor="text-foreground">
+			<DashboardCard>
 				<div
 					class="text-[10px] md:text-[9px] lg:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1"
 				>
@@ -85,7 +85,7 @@
 			</DashboardCard>
 
 			<!-- Total Paid -->
-			<DashboardCard backgroundColor="bg-card" textColor="text-foreground">
+			<DashboardCard>
 				<div
 					class="text-[10px] md:text-[9px] lg:text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1"
 				>

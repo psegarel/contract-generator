@@ -25,6 +25,7 @@
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import SelectField from '$lib/components/SelectField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import CreateCounterpartyInline from './sections/CreateCounterpartyInline.svelte';
 	import DjResidencyPerformanceLog from './DjResidencyPerformanceLog.svelte';
@@ -226,11 +227,7 @@
 >
 	<!-- Error message -->
 	{#if formState.error}
-		<div
-			class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm"
-		>
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Contract Basics -->
@@ -258,7 +255,7 @@
 				<Button
 					type="button"
 					variant="outline"
-					class="mb-1 whitespace-nowrap bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"
+					class="mb-1 whitespace-nowrap bg-primary/5 text-primary hover:bg-primary/10"
 					onclick={() => (formState.showCreateCounterparty = !formState.showCreateCounterparty)}
 				>
 					+ Create New
@@ -371,7 +368,7 @@
 				required
 			/>
 		</div>
-		<div class="mt-4 p-4 bg-muted rounded-lg space-y-1">
+		<div class="mt-4 p-4 bg-muted space-y-1">
 			<p class="text-sm text-muted-foreground">
 				<strong>Est. monthly revenue (client):</strong>
 				{formatCurrency(formState.estimatedMonthlyValue)}

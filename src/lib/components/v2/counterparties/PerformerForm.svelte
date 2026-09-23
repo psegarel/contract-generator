@@ -2,10 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Timestamp } from 'firebase/firestore';
 	import type { PerformerContractor } from '$lib/types/v2';
-	import {
-		performerContractorSchema,
-		type PerformerContractorInput
-	} from '$lib/schemas/v2';
+	import { performerContractorSchema, type PerformerContractorInput } from '$lib/schemas/v2';
 	import { saveCounterparty, updateCounterparty } from '$lib/utils/v2';
 	import { authState } from '$lib/state/auth.svelte';
 	import { PerformerFormState } from '$lib/state/v2/performerFormState.svelte';
@@ -15,6 +12,7 @@
 	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import BankNameCombobox from '$lib/components/v2/forms/BankNameCombobox.svelte';
 
 	interface Props {
@@ -94,11 +92,15 @@
 	}
 </script>
 
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-6">
+<form
+	onsubmit={(e) => {
+		e.preventDefault();
+		handleSubmit();
+	}}
+	class="space-y-6"
+>
 	{#if formState.error}
-		<div class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-			{formState.error}
-		</div>
+		<FormMessage message={formState.error} />
 	{/if}
 
 	<!-- Basic Information -->
@@ -178,7 +180,10 @@
 				label="Min Performance Duration (minutes)"
 				type="number"
 				value={formState.minPerformanceDuration ?? ''}
-				oninput={(e) => { const v = (e.target as HTMLInputElement).value; formState.minPerformanceDuration = v ? Number(v) : null; }}
+				oninput={(e) => {
+					const v = (e.target as HTMLInputElement).value;
+					formState.minPerformanceDuration = v ? Number(v) : null;
+				}}
 				placeholder="120"
 			/>
 
@@ -262,12 +267,7 @@
 	<!-- Form Actions -->
 	<div class="flex gap-3 justify-end">
 		{#if onCancel}
-			<Button
-				type="button"
-				variant="outline"
-				onclick={onCancel}
-				disabled={formState.isSubmitting}
-			>
+			<Button type="button" variant="outline" onclick={onCancel} disabled={formState.isSubmitting}>
 				Cancel
 			</Button>
 		{/if}

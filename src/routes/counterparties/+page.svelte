@@ -4,6 +4,7 @@
 	import { Select, SelectTrigger, SelectContent, SelectItem } from '$lib/components/ui/select';
 	import { Building2, Plus } from '@lucide/svelte';
 	import CounterpartiesList from '$lib/components/v2/counterparties/CounterpartiesList.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -45,37 +46,28 @@
 	}
 </script>
 
-<div class="h-full flex flex-col -m-6 md:-m-8">
-	<!-- Header -->
-	<div class="flex items-center justify-between mb-8 shrink-0 px-6 md:px-8 pt-6 md:pt-8">
-		<div class="flex items-center gap-3">
-			<div
-				class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"
-			>
-				<Building2 class="w-6 h-6" />
-			</div>
-			<div>
-				<h1 class="text-3xl font-bold tracking-tight text-foreground">Counterparties</h1>
-				<p class="text-muted-foreground mt-1 text-sm">
-					{data.counterparties.length}
-					{data.counterparties.length === 1 ? 'counterparty' : 'counterparties'}
-				</p>
-			</div>
-		</div>
-		<div class="flex gap-2">
+<div class="flex h-full flex-col">
+	<PageHeader
+		title="Counterparties"
+		description={`${data.counterparties.length} ${data.counterparties.length === 1 ? 'counterparty' : 'counterparties'}`}
+	>
+		{#snippet icon()}
+			<Building2 class="size-5" />
+		{/snippet}
+		{#snippet children()}
 			<Button href="/counterparties/new/client" variant="outline">
-				<Plus class="w-4 h-4 mr-2" />
+				<Plus class="size-4" />
 				New Client
 			</Button>
 			<Button href="/counterparties/new/contractor">
-				<Plus class="w-4 h-4 mr-2" />
+				<Plus class="size-4" />
 				New Contractor
 			</Button>
-		</div>
-	</div>
+		{/snippet}
+	</PageHeader>
 
 	<!-- Type Filter -->
-	<div class="mb-6 shrink-0 px-6 md:px-8">
+	<div class="mb-6 shrink-0">
 		<div class="flex items-center gap-3">
 			<span class="text-sm text-muted-foreground">Type</span>
 			<Select type="single" bind:value={selectedType}>
@@ -107,7 +99,7 @@
 	</div>
 
 	<!-- Counterparties List -->
-	<div class="flex-1 min-h-0 px-6 md:px-8 pb-6 md:pb-8">
+	<div class="flex-1 min-h-0">
 		{#if filteredCounterparties().length === 0}
 			<div class="py-20 text-center text-muted-foreground">
 				<Building2 class="h-16 w-16 mx-auto mb-4 opacity-50" />
