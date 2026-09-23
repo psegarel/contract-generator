@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildEventInput, saveEventForm, type EventFormValues } from './event';
+import {
+	buildEventInput,
+	saveEventForm,
+	toInlineEventFormValues,
+	type EventFormValues
+} from './event';
 
 const mocks = vi.hoisted(() => ({
 	saveEvent: vi.fn(),
@@ -51,6 +56,20 @@ describe('event form workflow', () => {
 			status: values.status,
 			internalNotes: null
 		});
+	});
+
+	it('maps inline event values to the full form shape', () => {
+		expect(
+			toInlineEventFormValues({
+				name: 'Inline Event',
+				eventDate: '2026-10-10',
+				eventType: 'Gala',
+				description: '',
+				locationAddress: 'HCMC',
+				locationName: '',
+				expectedAttendance: null
+			})
+		).toMatchObject({ name: 'Inline Event', status: 'planning', expectedAttendance: '' });
 	});
 
 	it('rejects unauthenticated submissions before persistence', async () => {

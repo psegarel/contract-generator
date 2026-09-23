@@ -6,12 +6,11 @@
 	} from '$lib/schemas/v2/contracts/serviceProvision';
 	import { saveServiceProvisionContract, updateServiceProvisionContract } from '$lib/utils/v2';
 	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
-	import { saveCounterparty } from '$lib/utils/v2/counterparties';
+	import { createInlineServiceProvider } from '$lib/forms/counterparties/serviceProvider';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
 	import { ServiceProvisionContractFormState } from '$lib/state/v2/serviceProvisionContractFormState.svelte';
 	import { toast } from 'svelte-sonner';
-	import { Timestamp } from 'firebase/firestore';
 	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import TextareaField from '$lib/components/TextareaField.svelte';
@@ -95,28 +94,15 @@
 
 		formState.isCreatingProvider = true;
 		try {
-			const providerId = await saveCounterparty({
-				type: 'contractor',
-				contractorType: 'service-provider',
-				name: formState.newProviderName,
-				serviceType: formState.newProviderServiceType,
-				email: formState.newProviderEmail || null,
-				phone: formState.newProviderPhone || null,
-				address: null,
-				ownerUid: authState.user.uid,
-				notes: null,
-				companyName: null,
-				typicalDeliverables: [],
-				equipmentProvided: [],
-				businessLicense: null,
-				insuranceInfo: null,
-				taxId: null,
-				bankName: null,
-				bankAccountNumber: null,
-				idDocument: null,
-				createdAt: Timestamp.now(),
-				updatedAt: Timestamp.now()
-			});
+			const providerId = await createInlineServiceProvider(
+				{
+					name: formState.newProviderName,
+					serviceType: formState.newProviderServiceType,
+					email: formState.newProviderEmail,
+					phone: formState.newProviderPhone
+				},
+				authState.user.uid
+			);
 
 			toast.success('Service provider created successfully!');
 

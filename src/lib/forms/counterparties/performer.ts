@@ -26,6 +26,20 @@ export interface PerformerFormValues {
 	notes: string;
 }
 
+export interface InlinePerformerFormValues {
+	name: string;
+	stageName: string;
+	performerType: string;
+	genre: string;
+	email: string;
+	phone: string;
+	bankName: string;
+	bankAccountNumber: string;
+	idDocument: string;
+	taxId: string;
+	pitRate: number;
+}
+
 interface SavePerformerFormOptions {
 	values: PerformerFormValues;
 	ownerUid: string | null | undefined;
@@ -90,4 +104,37 @@ export async function savePerformerForm({
 	}
 
 	return saveCounterparty(performerData);
+}
+
+export function toInlinePerformerFormValues(
+	values: InlinePerformerFormValues
+): PerformerFormValues {
+	return {
+		name: values.name,
+		stageName: values.stageName,
+		email: values.email,
+		phone: values.phone,
+		address: '',
+		performerType: values.performerType,
+		genre: values.genre,
+		technicalRider: '',
+		minPerformanceDuration: null,
+		travelRequirements: '',
+		agentName: '',
+		agentContact: '',
+		bankName: values.bankName,
+		bankAccountNumber: values.bankAccountNumber,
+		idDocument: values.idDocument,
+		taxId: values.taxId,
+		pitRate: values.pitRate,
+		pitRatePolicy: companyConfig.defaultPerformerPitRatePolicy,
+		notes: ''
+	};
+}
+
+export function createInlinePerformer(
+	values: InlinePerformerFormValues,
+	ownerUid: string | null | undefined
+): Promise<string> {
+	return savePerformerForm({ values: toInlinePerformerFormValues(values), ownerUid });
 }

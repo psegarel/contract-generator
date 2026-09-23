@@ -27,6 +27,13 @@ export interface ServiceProviderFormValues {
 	documents: CounterpartyDocuments;
 }
 
+export interface InlineServiceProviderFormValues {
+	name: string;
+	serviceType: string;
+	email: string;
+	phone: string;
+}
+
 interface SaveServiceProviderFormOptions {
 	values: ServiceProviderFormValues;
 	ownerUid: string | null | undefined;
@@ -88,4 +95,37 @@ export async function saveServiceProviderForm({
 	}
 
 	return saveCounterparty(serviceProviderData);
+}
+
+export function toInlineServiceProviderFormValues(
+	values: InlineServiceProviderFormValues
+): ServiceProviderFormValues {
+	return {
+		name: values.name,
+		email: values.email,
+		phone: values.phone,
+		address: '',
+		serviceType: values.serviceType,
+		companyName: '',
+		typicalDeliverables: [],
+		equipmentProvided: [],
+		businessLicense: '',
+		insuranceInfo: '',
+		taxId: '',
+		bankName: '',
+		bankAccountNumber: '',
+		idDocument: '',
+		notes: '',
+		documents: {}
+	};
+}
+
+export function createInlineServiceProvider(
+	values: InlineServiceProviderFormValues,
+	ownerUid: string | null | undefined
+): Promise<string> {
+	return saveServiceProviderForm({
+		values: toInlineServiceProviderFormValues(values),
+		ownerUid
+	});
 }

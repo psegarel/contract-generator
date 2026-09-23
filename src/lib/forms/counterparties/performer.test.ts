@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildPerformerInput, savePerformerForm, type PerformerFormValues } from './performer';
+import {
+	buildPerformerInput,
+	savePerformerForm,
+	toInlinePerformerFormValues,
+	type PerformerFormValues
+} from './performer';
 
 const mocks = vi.hoisted(() => ({
 	saveCounterparty: vi.fn(),
@@ -47,6 +52,24 @@ describe('performer form workflow', () => {
 			stageName: values.stageName,
 			pitRate: values.pitRate
 		});
+	});
+
+	it('maps inline performer values to the full form shape', () => {
+		expect(
+			toInlinePerformerFormValues({
+				name: 'Legal Name',
+				stageName: 'DJ Name',
+				performerType: 'DJ',
+				genre: 'House',
+				email: '',
+				phone: '',
+				bankName: '',
+				bankAccountNumber: '',
+				idDocument: '',
+				taxId: '',
+				pitRate: 10
+			})
+		).toMatchObject({ stageName: 'DJ Name', technicalRider: '', pitRate: 10 });
 	});
 
 	it('rejects unauthenticated submissions before persistence', async () => {

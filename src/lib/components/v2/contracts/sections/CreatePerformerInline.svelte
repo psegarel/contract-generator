@@ -3,14 +3,11 @@
 	import SelectField from '$lib/components/SelectField.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { PERFORMER_TYPES } from '$lib/config/counterpartyTypes';
-	import { saveCounterparty } from '$lib/utils/v2/counterparties';
-	import { performerContractorSchema } from '$lib/schemas/v2/counterparty';
-	import type { PerformerContractorInput } from '$lib/schemas/v2/counterparty';
 	import { authState } from '$lib/state/auth.svelte';
 	import { companyConfig } from '$lib/config/company';
-	import { Timestamp } from 'firebase/firestore';
 	import { toast } from 'svelte-sonner';
 	import { logger } from '$lib/utils/logger';
+	import { createInlinePerformer } from '$lib/forms/counterparties/performer';
 
 	interface Props {
 		onCreated: (counterpartyId: string) => void;
@@ -37,60 +34,29 @@
 			toast.error('You must be logged in to create a performer');
 			return;
 		}
-		if (!name) {
-			toast.error('Please enter the performer name');
-			return;
-		}
-		if (!stageName) {
-			toast.error('Please enter a stage name');
-			return;
-		}
-		if (!performerType) {
-			toast.error('Please enter the performer type');
-			return;
-		}
-
 		isSubmitting = true;
 		try {
-			const performerData: PerformerContractorInput = {
-				type: 'contractor',
-				contractorType: 'performer',
-				ownerUid: authState.user.uid,
-				name,
-				stageName,
-				performerType,
-				genre: genre || null,
-				email: email || null,
-				phone: phone || null,
-				address: null,
-				technicalRider: null,
-				minPerformanceDuration: null,
-				travelRequirements: null,
-				agentName: null,
-				agentContact: null,
-				bankName: bankName || null,
-				bankAccountNumber: bankAccountNumber || null,
-				idDocument: idDocument || null,
-				taxId: taxId || null,
-				pitRate: pitRate ? Number(pitRate) : companyConfig.defaultPerformerPitRate,
-				pitRatePolicy: companyConfig.defaultPerformerPitRatePolicy,
-				notes: null,
-				createdAt: Timestamp.now(),
-				updatedAt: Timestamp.now()
-			};
-
-			const validationResult = performerContractorSchema.safeParse(performerData);
-			if (!validationResult.success) {
-				toast.error('Validation error: ' + validationResult.error.issues[0].message);
-				return;
-			}
-
-			const counterpartyId = await saveCounterparty(performerData);
+			const counterpartyId = await createInlinePerformer(
+				{
+					name,
+					stageName,
+					performerType,
+					genre,
+					email,
+					phone,
+					bankName,
+					bankAccountNumber,
+					idDocument,
+					taxId,
+					pitRate: pitRate ? Number(pitRate) : companyConfig.defaultPerformerPitRate
+				},
+				authState.user.uid
+			);
 			toast.success('Performer created successfully!');
 			onCreated(counterpartyId);
 		} catch (err) {
 			logger.error('Error creating performer:', err);
-			toast.error('Failed to create performer');
+			toast.error(err instanceof Error ? err.message : 'Failed to create performer');
 		} finally {
 			isSubmitting = false;
 		}

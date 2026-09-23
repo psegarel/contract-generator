@@ -45,6 +45,15 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | EquipmentRentalOneOffSetupSection.svelte         | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
 | EquipmentRentalOneOffVenueSection.svelte         | ✅     | 2026-09-23   | Clean - no autofixer issues                               |
 
+### Inline Creator Components (`src/lib/components/v2/contracts/sections/`)
+
+| Component                       | Status | Last Checked | Notes             |
+| ------------------------------- | ------ | ------------ | ----------------- |
+| CreateEventInline.svelte        | ✅     | 2026-09-23   | Clean - no issues |
+| CreateCounterpartyInline.svelte | ✅     | 2026-09-23   | Clean - no issues |
+| CreateProviderInline.svelte     | ✅     | 2026-09-23   | Clean - no issues |
+| CreatePerformerInline.svelte    | ✅     | 2026-09-23   | Clean - no issues |
+
 ### V2 Counterparty Components (`src/lib/components/v2/counterparties/`)
 
 | Component                              | Status | Last Checked | Notes             |
@@ -111,13 +120,20 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | LegalTermsSection.svelte     | ❌     | -            | -                          |
 | TimelineSection.svelte       | ❌     | -            | -                          |
 
+### Payment Route Components (`src/routes/payments/`)
+
+| Component             | Status | Last Checked | Notes             |
+| --------------------- | ------ | ------------ | ----------------- |
+| PaymentFilters.svelte | ✅     | 2026-09-23   | Clean - no issues |
+| PaymentGroup.svelte   | ✅     | 2026-09-23   | Clean - no issues |
+
 ### Route Components (`src/routes/`)
 
 | Component                                  | Status | Last Checked | Notes                                      |
 | ------------------------------------------ | ------ | ------------ | ------------------------------------------ |
 | +layout.svelte                             | ❌     | -            | -                                          |
 | +page.svelte (root)                        | ✅     | 2026-02-03   | Removed migration UI                       |
-| payments/+page.svelte                      | ✅     | 2026-02-03   | New — admin payments management route      |
+| payments/+page.svelte                      | ✅     | 2026-09-23   | Refactored into filters and payment groups |
 | contacts/+page.svelte                      | ❌     | -            | -                                          |
 | contracts/+page.svelte                     | ❌     | -            | -                                          |
 | contracts/event-planning/+page.svelte      | ❌     | -            | -                                          |

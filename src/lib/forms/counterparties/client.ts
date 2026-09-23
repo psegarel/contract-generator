@@ -19,6 +19,19 @@ export interface ClientFormValues {
 	notes: string;
 }
 
+export interface InlineClientFormValues {
+	name: string;
+	email: string;
+	phone: string;
+	address: string;
+	companyName: string;
+	taxId: string;
+	bankName: string;
+	bankAccountNumber: string;
+	representativeName: string;
+	representativePosition: string;
+}
+
 interface SaveClientFormOptions {
 	values: ClientFormValues;
 	ownerUid: string | null | undefined;
@@ -72,4 +85,29 @@ export async function saveClientForm({
 	}
 
 	return saveCounterparty(clientData);
+}
+
+export function toInlineClientFormValues(values: InlineClientFormValues): ClientFormValues {
+	return {
+		name: values.name,
+		email: values.email,
+		phone: values.phone,
+		address: values.address,
+		clientType: 'company',
+		companyName: values.companyName,
+		representativeName: values.representativeName,
+		representativePosition: values.representativePosition,
+		idDocument: '',
+		taxId: values.taxId,
+		bankName: values.bankName,
+		bankAccountNumber: values.bankAccountNumber,
+		notes: ''
+	};
+}
+
+export function createInlineClient(
+	values: InlineClientFormValues,
+	ownerUid: string | null | undefined
+): Promise<string> {
+	return saveClientForm({ values: toInlineClientFormValues(values), ownerUid });
 }

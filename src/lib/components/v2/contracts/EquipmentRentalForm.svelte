@@ -19,9 +19,7 @@
 	import TextareaField from '$lib/components/TextareaField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
-	import { saveCounterparty } from '$lib/utils/v2/counterparties';
-	import { clientCounterpartySchema, type ClientCounterpartyInput } from '$lib/schemas/v2';
-	import { Timestamp } from 'firebase/firestore';
+	import { createInlineClient } from '$lib/forms/counterparties/client';
 	import { SvelteDate } from 'svelte/reactivity';
 	import EquipmentRentalContractBasicsSection from './sections/EquipmentRentalContractBasicsSection.svelte';
 	import EquipmentRentalPeriodSection from './sections/EquipmentRentalPeriodSection.svelte';
@@ -87,34 +85,21 @@
 
 		formState.isCreatingCounterparty = true;
 		try {
-			const clientData: ClientCounterpartyInput = {
-				type: 'client',
-				ownerUid: authState.user.uid,
-				name: formState.newCounterpartyName,
-				email: formState.newCounterpartyEmail || null,
-				phone: formState.newCounterpartyPhone || null,
-				address: formState.newCounterpartyAddress || null,
-				clientType: 'company', // Equipment rental is always for companies
-				companyName: formState.newCounterpartyCompanyName || null,
-				representativeName: formState.newCounterpartyRepresentativeName || null,
-				representativePosition: formState.newCounterpartyRepresentativePosition || null,
-				idDocument: null,
-				taxId: formState.newCounterpartyTaxId || null,
-				bankName: formState.newCounterpartyBankName || null,
-				bankAccountNumber: formState.newCounterpartyBankAccountNumber || null,
-				notes: null,
-				createdAt: Timestamp.now(),
-				updatedAt: Timestamp.now()
-			};
-
-			// Validate with schema
-			const validationResult = clientCounterpartySchema.safeParse(clientData);
-			if (!validationResult.success) {
-				toast.error('Validation error: ' + validationResult.error.issues[0].message);
-				return;
-			}
-
-			const counterpartyId = await saveCounterparty(clientData);
+			const counterpartyId = await createInlineClient(
+				{
+					name: formState.newCounterpartyName,
+					email: formState.newCounterpartyEmail,
+					phone: formState.newCounterpartyPhone,
+					address: formState.newCounterpartyAddress,
+					companyName: formState.newCounterpartyCompanyName,
+					taxId: formState.newCounterpartyTaxId,
+					bankName: formState.newCounterpartyBankName,
+					bankAccountNumber: formState.newCounterpartyBankAccountNumber,
+					representativeName: formState.newCounterpartyRepresentativeName,
+					representativePosition: formState.newCounterpartyRepresentativePosition
+				},
+				authState.user.uid
+			);
 
 			toast.success('Client created successfully!');
 

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	buildServiceProviderInput,
 	saveServiceProviderForm,
+	toInlineServiceProviderFormValues,
 	type ServiceProviderFormValues
 } from './serviceProvider';
 
@@ -52,6 +53,17 @@ describe('service provider form workflow', () => {
 			equipmentProvided: values.equipmentProvided,
 			documents: undefined
 		});
+	});
+
+	it('maps inline provider values to the full form shape', () => {
+		expect(
+			toInlineServiceProviderFormValues({
+				name: 'Inline Provider',
+				serviceType: 'Catering',
+				email: '',
+				phone: ''
+			})
+		).toMatchObject({ name: 'Inline Provider', serviceType: 'Catering', documents: {} });
 	});
 
 	it('rejects unauthenticated submissions before persistence', async () => {

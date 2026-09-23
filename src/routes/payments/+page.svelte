@@ -2,32 +2,29 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { onMount, onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { authState } from '$lib/state/auth.svelte';
 	import { paymentState } from '$lib/state/v2/paymentState.svelte';
-	import {
-		updatePaymentStatus,
-		updatePaymentAmount,
-		syncContractStatusFromPayments
-	} from '$lib/utils/v2/payments';
-	import { formatCurrency } from '$lib/utils/formatting';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import TextField from '$lib/components/TextField.svelte';
-	import SelectField from '$lib/components/SelectField.svelte';
-	import { toast } from 'svelte-sonner';
 	import { logger } from '$lib/utils/logger';
-	import { ArrowLeft, ChevronDown, ChevronRight } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
+	import { Button } from '$lib/components/ui/button';
+	import { ArrowLeft } from '@lucide/svelte';
 	import type { Payment } from '$lib/types/v2/payment';
-	import type { ContractType } from '$lib/types/v2';
-	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+	import { SvelteSet } from 'svelte/reactivity';
+	import {
+		filterPayments,
+		groupPayments,
+		savePaymentAmount,
+		togglePayment,
+		type PaymentDirectionFilter,
+		type PaymentStatusFilter
+	} from '$lib/forms/payments';
+	import PaymentFilters from './PaymentFilters.svelte';
+	import PaymentGroup from './PaymentGroup.svelte';
 
-	type StatusFilter = 'all' | 'pending' | 'paid';
-	type DirectionFilter = 'all' | 'receivable' | 'payable';
-
-	let statusFilter = $state<StatusFilter>('all');
-	let directionFilter = $state<DirectionFilter>('all');
-	let contractTypeFilter = $state<string>('all');
+	let statusFilter = $state<PaymentStatusFilter>('all');
+	let directionFilter = $state<PaymentDirectionFilter>('all');
+	let contractTypeFilter = $state('all');
 	let contractIdFilter = $state<string | null>(null);
 	let togglingPaymentId = $state<string | null>(null);
 	let expandedContracts = new SvelteSet<string>();
@@ -39,100 +36,37 @@
 			goto(resolve('/'));
 			return;
 		}
+
 		paymentState.init();
-
 		const contractParam = $page.url.searchParams.get('contract');
-		if (contractParam) {
-			contractIdFilter = contractParam;
-		}
+		if (contractParam) contractIdFilter = contractParam;
 	});
 
-	onDestroy(() => {
-		paymentState.destroy();
-	});
+	onDestroy(() => paymentState.destroy());
 
-	let filteredPayments = $derived.by(() => {
-		let result = paymentState.payments;
-
-		if (contractIdFilter) {
-			result = result.filter((p) => p.contractId === contractIdFilter);
-		}
-		if (statusFilter !== 'all') {
-			result = result.filter((p) => p.status === statusFilter);
-		}
-		if (directionFilter !== 'all') {
-			result = result.filter((p) => p.direction === directionFilter);
-		}
-		if (contractTypeFilter !== 'all') {
-			result = result.filter((p) => p.contractType === contractTypeFilter);
-		}
-
-		return result;
-	});
-
-	let groupedPayments = $derived.by(() => {
-		const groups = new SvelteMap<
-			string,
-			{
-				contractNumber: string;
-				counterpartyName: string;
-				contractType: ContractType;
-				contractId: string;
-				payments: Payment[];
-			}
-		>();
-
-		for (const payment of filteredPayments) {
-			const existing = groups.get(payment.contractId);
-			if (existing) {
-				existing.payments.push(payment);
-			} else {
-				groups.set(payment.contractId, {
-					contractNumber: payment.contractNumber,
-					counterpartyName: payment.counterpartyName,
-					contractType: payment.contractType,
-					contractId: payment.contractId,
-					payments: [payment]
-				});
-			}
-		}
-
-		// Reverse each group's payments so oldest is first (newest at bottom)
-		for (const group of groups.values()) {
-			group.payments.reverse();
-		}
-
-		return Array.from(groups.values());
-	});
+	let filteredPayments = $derived(
+		filterPayments(paymentState.payments, {
+			status: statusFilter,
+			direction: directionFilter,
+			contractType: contractTypeFilter,
+			contractId: contractIdFilter
+		})
+	);
+	let groupedPayments = $derived(groupPayments(filteredPayments));
 
 	function toggleExpanded(contractId: string) {
-		if (expandedContracts.has(contractId)) {
-			expandedContracts.delete(contractId);
-		} else {
-			expandedContracts.add(contractId);
-		}
+		if (expandedContracts.has(contractId)) expandedContracts.delete(contractId);
+		else expandedContracts.add(contractId);
 	}
 
 	async function handleTogglePayment(payment: Payment) {
-		if (!authState.user?.uid) {
-			toast.error('You must be logged in');
-			return;
-		}
-
 		togglingPaymentId = payment.id;
-		const newStatus = payment.status === 'paid' ? 'pending' : 'paid';
-
 		try {
-			await updatePaymentStatus(payment.id, newStatus, authState.user.uid);
-			await syncContractStatusFromPayments(
-				payment.contractId,
-				payment.contractType,
-				authState.user.uid
-			);
+			const newStatus = await togglePayment(payment, authState.user?.uid);
 			toast.success(`Payment marked as ${newStatus === 'paid' ? 'paid' : 'pending'}`);
 		} catch (error) {
 			logger.error('Failed to toggle payment:', error);
-			toast.error('Failed to update payment status');
+			toast.error(error instanceof Error ? error.message : 'Failed to update payment status');
 		} finally {
 			togglingPaymentId = null;
 		}
@@ -143,12 +77,17 @@
 		editingAmountValue = payment.amount;
 	}
 
-	async function saveAmount(payment: Payment) {
+	function cancelEditAmount() {
+		editingAmountId = null;
+	}
+
+	async function handleSaveAmount(payment: Payment) {
 		if (editingAmountId !== payment.id) return;
 		editingAmountId = null;
 		if (editingAmountValue === payment.amount) return;
+
 		try {
-			await updatePaymentAmount(payment.id, editingAmountValue);
+			await savePaymentAmount(payment.id, editingAmountValue);
 			toast.success('Amount updated');
 		} catch (error) {
 			logger.error('Failed to update amount:', error);
@@ -158,260 +97,55 @@
 
 	function clearContractFilter() {
 		contractIdFilter = null;
-		const url = new URL($page.url);
-		url.searchParams.delete('contract');
-		// The current pathname is already a same-origin, runtime-resolved URL.
-		// eslint-disable-next-line svelte/no-navigation-without-resolve
-		goto(url.pathname, { replaceState: true });
-	}
-
-	function getContractTypeLabel(type: string): string {
-		const labels: Record<string, string> = {
-			'venue-rental': 'Venue',
-			'performer-booking': 'Performer',
-			'equipment-rental': 'Equipment',
-			'equipment-rental-oneoff': 'Equipment (One-Off)',
-			'service-provision': 'Service',
-			'event-planning': 'Event Planning',
-			subcontractor: 'Subcontractor',
-			'client-service': 'Client Service',
-			'dj-residency': 'DJ Residency'
-		};
-		return labels[type] ?? type;
+		goto(resolve('/payments'), { replaceState: true });
 	}
 </script>
 
 <div class="container mx-auto px-4 py-8">
-	<!-- Header -->
-	<div class="flex items-center gap-4 mb-8">
+	<div class="mb-8 flex items-center gap-4">
 		<Button variant="outline" size="sm" href="/" class="shrink-0">
-			<ArrowLeft class="h-4 w-4 mr-1.5" />
+			<ArrowLeft class="mr-1.5 h-4 w-4" />
 			Back
 		</Button>
 		<div>
 			<h1 class="text-2xl font-bold text-foreground">Payments</h1>
-			<p class="text-sm text-muted-foreground mt-0.5">
+			<p class="mt-0.5 text-sm text-muted-foreground">
 				{filteredPayments.length} payment{filteredPayments.length === 1 ? '' : 's'}
 			</p>
 		</div>
 	</div>
 
-	<!-- Filters -->
-	<div class="flex flex-wrap gap-3 mb-6">
-		{#if contractIdFilter}
-			<Button variant="outline" size="sm" onclick={clearContractFilter}>
-				Filtered by contract &times;
-			</Button>
-		{/if}
+	<PaymentFilters
+		bind:status={statusFilter}
+		bind:direction={directionFilter}
+		bind:contractType={contractTypeFilter}
+		contractId={contractIdFilter}
+		onClearContractFilter={clearContractFilter}
+	/>
 
-		<SelectField
-			id="payment-status-filter"
-			label="Status"
-			labelHidden
-			bind:value={statusFilter}
-			class="w-auto"
-		>
-			<option value="all">All statuses</option>
-			<option value="pending">Pending</option>
-			<option value="paid">Paid</option>
-		</SelectField>
-
-		<SelectField
-			id="payment-direction-filter"
-			label="Direction"
-			labelHidden
-			bind:value={directionFilter}
-			class="w-auto"
-		>
-			<option value="all">All directions</option>
-			<option value="receivable">Receivable</option>
-			<option value="payable">Payable</option>
-		</SelectField>
-
-		<SelectField
-			id="payment-contract-type-filter"
-			label="Contract type"
-			labelHidden
-			bind:value={contractTypeFilter}
-			class="w-auto"
-		>
-			<option value="all">All types</option>
-			<option value="venue-rental">Venue</option>
-			<option value="performer-booking">Performer</option>
-			<option value="equipment-rental">Equipment</option>
-			<option value="equipment-rental-oneoff">Equipment (One-Off)</option>
-			<option value="service-provision">Service</option>
-			<option value="event-planning">Event Planning</option>
-			<option value="subcontractor">Subcontractor</option>
-			<option value="client-service">Client Service</option>
-			<option value="dj-residency">DJ Residency</option>
-		</SelectField>
-	</div>
-
-	<!-- Payment List -->
 	{#if paymentState.isLoading}
-		<div class="text-center py-12 text-muted-foreground">Loading payments...</div>
+		<div class="py-12 text-center text-muted-foreground">Loading payments...</div>
 	{:else if groupedPayments.length === 0}
-		<div class="text-center py-12 text-muted-foreground">
-			<p class="text-sm font-medium mb-1">No payments found</p>
+		<div class="py-12 text-center text-muted-foreground">
+			<p class="mb-1 text-sm font-medium">No payments found</p>
 			<p class="text-xs">Adjust your filters or create contracts with payment records.</p>
 		</div>
 	{:else}
 		<div class="space-y-0">
 			{#each groupedPayments as group, groupIndex (group.contractId)}
-				{@const paidCount = group.payments.filter((p) => p.status === 'paid').length}
-				{@const totalCount = group.payments.length}
-				{@const totalAmount = group.payments.reduce((sum, p) => sum + p.amount, 0)}
-				{@const hasMultiple = totalCount > 1}
-				{@const expanded = expandedContracts.has(group.contractId)}
-
-				<div class={groupIndex % 2 === 0 ? 'bg-card' : 'bg-muted/30'}>
-					<div class="flex items-center gap-3 px-4 py-3">
-						{#if hasMultiple}
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-sm"
-								class="shrink-0 text-muted-foreground hover:text-foreground"
-								onclick={() => toggleExpanded(group.contractId)}
-							>
-								{#if expanded}
-									<ChevronDown class="h-4 w-4" />
-								{:else}
-									<ChevronRight class="h-4 w-4" />
-								{/if}
-							</Button>
-						{:else}
-							<div class="w-4 shrink-0"></div>
-						{/if}
-
-						<div class="flex-1 min-w-0">
-							<div class="flex items-center gap-2 flex-wrap">
-								<span class="text-sm font-bold tracking-tight truncate"
-									>{group.counterpartyName}</span
-								>
-								<span class="text-xs text-muted-foreground">{group.contractNumber}</span>
-								<Badge variant="outline" class="text-[11px]"
-									>{getContractTypeLabel(group.contractType)}</Badge
-								>
-							</div>
-							<p class="mt-1 text-[11px] text-muted-foreground">
-								{hasMultiple ? `${paidCount}/${totalCount} payments` : '1 payment'}
-							</p>
-						</div>
-
-						<div class="text-right shrink-0">
-							<div class="text-sm font-bold text-foreground tabular-nums">
-								{formatCurrency(totalAmount)}
-							</div>
-						</div>
-
-						<div class="shrink-0">
-							{#if paidCount === totalCount}
-								<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600 text-[11px]">
-									{hasMultiple ? `${paidCount}/${totalCount} paid` : 'Paid'}
-								</Badge>
-							{:else}
-								<Badge variant="secondary" class="text-[11px]">
-									{hasMultiple ? `${paidCount}/${totalCount} paid` : 'Unpaid'}
-								</Badge>
-							{/if}
-						</div>
-
-						{#if !hasMultiple}
-							{@const payment = group.payments[0]}
-							<Button
-								variant={payment.status === 'paid' ? 'outline' : 'default'}
-								size="sm"
-								onclick={() => handleTogglePayment(payment)}
-								disabled={togglingPaymentId === payment.id}
-								class="shrink-0"
-							>
-								{#if togglingPaymentId === payment.id}
-									Updating...
-								{:else if payment.status === 'paid'}
-									Mark Unpaid
-								{:else}
-									Mark Paid
-								{/if}
-							</Button>
-						{/if}
-					</div>
-
-					{#if hasMultiple && expanded}
-						<div class="bg-muted/10">
-							{#each group.payments as payment, i (payment.id)}
-								<div
-									class="flex items-center gap-3 px-4 py-2.5 {i % 2 === 0
-										? 'bg-card'
-										: 'bg-muted/20'}"
-								>
-									<div class="w-4 shrink-0"></div>
-									<div class="flex-1 min-w-0">
-										<span class="text-sm text-foreground">{payment.label ?? 'Payment'}</span>
-									</div>
-									<div class="text-sm tabular-nums text-muted-foreground shrink-0">
-										{#if editingAmountId === payment.id}
-											<TextField
-												id="payment-amount-{payment.id}"
-												label="Payment amount"
-												labelHidden
-												type="number"
-												bind:value={editingAmountValue}
-												autofocus
-												onblur={() => saveAmount(payment)}
-												onkeydown={(e) => {
-													if (e.key === 'Enter') saveAmount(payment);
-													if (e.key === 'Escape') editingAmountId = null;
-												}}
-												class="w-32"
-											/>
-										{:else}
-											<Button
-												type="button"
-												variant="ghost"
-												size="sm"
-												class="h-auto p-0 text-sm tabular-nums {group.contractType ===
-												'dj-residency'
-													? 'hover:underline cursor-pointer'
-													: 'cursor-default'}"
-												title={group.contractType === 'dj-residency'
-													? 'Click to edit amount'
-													: undefined}
-												onclick={() =>
-													group.contractType === 'dj-residency' && startEditAmount(payment)}
-											>
-												{formatCurrency(payment.amount)}
-											</Button>
-										{/if}
-									</div>
-									<div class="shrink-0">
-										{#if payment.status === 'paid'}
-											<Badge variant="default" class="bg-emerald-500 text-[11px]">Paid</Badge>
-										{:else}
-											<Badge variant="secondary" class="text-[11px]">Pending</Badge>
-										{/if}
-									</div>
-									<Button
-										variant={payment.status === 'paid' ? 'outline' : 'default'}
-										size="sm"
-										onclick={() => handleTogglePayment(payment)}
-										disabled={togglingPaymentId === payment.id}
-										class="shrink-0"
-									>
-										{#if togglingPaymentId === payment.id}
-											...
-										{:else if payment.status === 'paid'}
-											Unpaid
-										{:else}
-											Paid
-										{/if}
-									</Button>
-								</div>
-							{/each}
-						</div>
-					{/if}
-				</div>
+				<PaymentGroup
+					{group}
+					{groupIndex}
+					expanded={expandedContracts.has(group.contractId)}
+					{togglingPaymentId}
+					{editingAmountId}
+					bind:editingAmountValue
+					onToggle={handleTogglePayment}
+					onToggleExpanded={() => toggleExpanded(group.contractId)}
+					onStartEditAmount={startEditAmount}
+					onSaveAmount={handleSaveAmount}
+					onCancelEditAmount={cancelEditAmount}
+				/>
 			{/each}
 		</div>
 	{/if}

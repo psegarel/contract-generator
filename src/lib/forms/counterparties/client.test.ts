@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildClientInput, saveClientForm, type ClientFormValues } from './client';
+import {
+	buildClientInput,
+	saveClientForm,
+	toInlineClientFormValues,
+	type ClientFormValues
+} from './client';
 
 const mocks = vi.hoisted(() => ({
 	saveCounterparty: vi.fn(),
@@ -40,6 +45,23 @@ describe('client form workflow', () => {
 			clientType: values.clientType,
 			companyName: values.companyName
 		});
+	});
+
+	it('maps inline client values to the company form shape', () => {
+		expect(
+			toInlineClientFormValues({
+				name: 'Inline Client',
+				email: '',
+				phone: '',
+				address: '',
+				companyName: 'Inline Co',
+				taxId: 'TAX-2',
+				bankName: '',
+				bankAccountNumber: '',
+				representativeName: 'Director',
+				representativePosition: 'CEO'
+			})
+		).toMatchObject({ clientType: 'company', companyName: 'Inline Co', idDocument: '' });
 	});
 
 	it('rejects unauthenticated submissions before persistence', async () => {

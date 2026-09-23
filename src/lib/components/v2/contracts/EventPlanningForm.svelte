@@ -1,18 +1,13 @@
 <script lang="ts">
 	import type { EventPlanningContract } from '$lib/types/v2';
-	import type { EventInput } from '$lib/types/v2/event';
 	import {
 		eventPlanningContractInputSchema,
 		type EventPlanningContractInput
 	} from '$lib/schemas/v2/contracts/eventPlanning';
-	import { saveEventPlanningContract, updateEventPlanningContract, saveEvent } from '$lib/utils/v2';
+	import { saveEventPlanningContract, updateEventPlanningContract } from '$lib/utils/v2';
 	import { createOneTimePayment, deletePaymentsByContract } from '$lib/utils/v2/payments';
-	import { saveCounterparty } from '$lib/utils/v2/counterparties';
-	import {
-		clientCounterpartySchema,
-		type ClientCounterpartyInput
-	} from '$lib/schemas/v2/counterparty';
-	import { eventInputSchema } from '$lib/schemas/v2';
+	import { createInlineClient } from '$lib/forms/counterparties/client';
+	import { createInlineEvent } from '$lib/forms/events/event';
 	import { Timestamp } from 'firebase/firestore';
 	import { authState } from '$lib/state/auth.svelte';
 	import { eventState, counterpartyState } from '$lib/state/v2';
@@ -120,31 +115,18 @@
 
 		formState.isCreatingEvent = true;
 		try {
-			const eventData: EventInput = {
-				ownerUid: authState.user.uid,
-				name: formState.newEventName,
-				eventDate: formState.newEventDate,
-				eventType: formState.newEventType || null,
-				description: formState.newEventDescription || null,
-				locationAddress: formState.newEventLocationAddress,
-				locationName: formState.newEventLocationName || null,
-				venueCounterpartyId: null,
-				startTime: null,
-				endTime: null,
-				setupDateTime: null,
-				teardownDateTime: null,
-				expectedAttendance: formState.newEventExpectedAttendance,
-				status: 'planning',
-				internalNotes: null
-			};
-
-			const validationResult = eventInputSchema.safeParse(eventData);
-			if (!validationResult.success) {
-				toast.error('Validation error: ' + validationResult.error.issues[0].message);
-				return;
-			}
-
-			const eventId = await saveEvent(eventData);
+			const { id: eventId, data: eventData } = await createInlineEvent(
+				{
+					name: formState.newEventName,
+					eventDate: formState.newEventDate,
+					eventType: formState.newEventType,
+					description: formState.newEventDescription,
+					locationAddress: formState.newEventLocationAddress,
+					locationName: formState.newEventLocationName,
+					expectedAttendance: formState.newEventExpectedAttendance
+				},
+				authState.user.uid
+			);
 
 			toast.success('Event created successfully!');
 
@@ -192,33 +174,21 @@
 
 		formState.isCreatingCounterparty = true;
 		try {
-			const clientData: ClientCounterpartyInput = {
-				type: 'client',
-				clientType: 'company',
-				ownerUid: authState.user.uid,
-				name: formState.newCounterpartyName,
-				email: formState.newCounterpartyEmail || null,
-				phone: formState.newCounterpartyPhone || null,
-				address: formState.newCounterpartyAddress || null,
-				companyName: formState.newCounterpartyCompanyName || null,
-				taxId: formState.newCounterpartyTaxId || null,
-				bankName: formState.newCounterpartyBankName || null,
-				bankAccountNumber: formState.newCounterpartyBankAccountNumber || null,
-				representativeName: formState.newCounterpartyRepresentativeName || null,
-				representativePosition: formState.newCounterpartyRepresentativePosition || null,
-				idDocument: null,
-				notes: null,
-				createdAt: Timestamp.now(),
-				updatedAt: Timestamp.now()
-			};
-
-			const validationResult = clientCounterpartySchema.safeParse(clientData);
-			if (!validationResult.success) {
-				toast.error('Validation error: ' + validationResult.error.issues[0].message);
-				return;
-			}
-
-			const counterpartyId = await saveCounterparty(clientData);
+			const counterpartyId = await createInlineClient(
+				{
+					name: formState.newCounterpartyName,
+					email: formState.newCounterpartyEmail,
+					phone: formState.newCounterpartyPhone,
+					address: formState.newCounterpartyAddress,
+					companyName: formState.newCounterpartyCompanyName,
+					taxId: formState.newCounterpartyTaxId,
+					bankName: formState.newCounterpartyBankName,
+					bankAccountNumber: formState.newCounterpartyBankAccountNumber,
+					representativeName: formState.newCounterpartyRepresentativeName,
+					representativePosition: formState.newCounterpartyRepresentativePosition
+				},
+				authState.user.uid
+			);
 
 			toast.success('Client created successfully!');
 
