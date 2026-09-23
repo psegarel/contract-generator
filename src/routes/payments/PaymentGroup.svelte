@@ -82,7 +82,10 @@
 
 		<div class="shrink-0">
 			{#if paidCount === totalCount}
-				<Badge variant="default" class="bg-emerald-500 text-[11px] hover:bg-emerald-600">
+				<Badge
+					variant="default"
+					class="bg-foreground text-background text-[11px] hover:bg-foreground/90"
+				>
 					{hasMultiple ? `${paidCount}/${totalCount} paid` : 'Paid'}
 				</Badge>
 			{:else}
@@ -155,7 +158,8 @@
 					</div>
 					<div class="shrink-0">
 						{#if payment.status === 'paid'}
-							<Badge variant="default" class="bg-emerald-500 text-[11px]">Paid</Badge>
+							<Badge variant="default" class="bg-foreground text-background text-[11px]">Paid</Badge
+							>
 						{:else}
 							<Badge variant="secondary" class="text-[11px]">Pending</Badge>
 						{/if}

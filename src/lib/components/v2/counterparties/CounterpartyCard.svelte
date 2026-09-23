@@ -54,7 +54,7 @@
 	<!-- Actions - All buttons on same line -->
 	<div class="pt-4 flex gap-2 flex-wrap">
 		<Button
-			variant="success"
+			variant="secondary"
 			size="sm"
 			href={`/counterparties/${counterparty.id}`}
 			class="shrink-0"

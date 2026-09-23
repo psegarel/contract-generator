@@ -10,8 +10,6 @@
 				default: 'bg-primary text-primary-foreground hover:bg-primary/90',
 				destructive:
 					'bg-destructive hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 text-white',
-				success:
-					'bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-600/20 dark:focus-visible:ring-emerald-600/40 dark:bg-emerald-700 dark:hover:bg-emerald-800',
 				outline:
 					'bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:hover:bg-input/50',
 				secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',

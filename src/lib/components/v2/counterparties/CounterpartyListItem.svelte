@@ -62,7 +62,7 @@
 		<!-- Actions -->
 		<div class="col-span-3 px-1 flex gap-2 justify-center">
 			<Button
-				variant="success"
+				variant="secondary"
 				size="sm"
 				href={`/counterparties/${counterparty.id}`}
 				class="px-2"

@@ -89,13 +89,7 @@
 		>
 			<div class="mb-2 flex w-full items-start justify-between gap-2">
 				<h3 class="font-semibold text-foreground">{contractType.label}</h3>
-				<span
-					class="rounded-full px-2 py-1 text-xs {contractType.direction === 'receivable'
-						? 'bg-emerald-100 text-emerald-800'
-						: contractType.direction === 'payable'
-							? 'bg-red-100 text-red-800'
-							: 'bg-blue-100 text-blue-800'}"
-				>
+				<span class="rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">
 					{contractType.direction === 'both' ? 'Receivable/Payable' : contractType.direction}
 				</span>
 			</div>

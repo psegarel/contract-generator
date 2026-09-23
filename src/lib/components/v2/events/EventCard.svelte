@@ -15,13 +15,21 @@
 	function getStatusBadge(status: Event['status']) {
 		const badges = {
 			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-primary' },
-			confirmed: { variant: 'default' as const, label: 'Confirmed', class: 'bg-cyan-500' },
+			confirmed: {
+				variant: 'default' as const,
+				label: 'Confirmed',
+				class: 'bg-muted text-foreground'
+			},
 			'in-progress': {
 				variant: 'default' as const,
 				label: 'In Progress',
 				class: 'bg-muted text-muted-foreground'
 			},
-			completed: { variant: 'default' as const, label: 'Completed', class: 'bg-emerald-500' },
+			completed: {
+				variant: 'default' as const,
+				label: 'Completed',
+				class: 'bg-foreground text-background'
+			},
 			cancelled: { variant: 'secondary' as const, label: 'Cancelled', class: '' }
 		};
 		return badges[status];
@@ -61,13 +69,13 @@
 		<div class="grid grid-cols-3 gap-3 bg-muted/40 p-3">
 			<div class="text-center">
 				<div class="text-xs text-muted-foreground mb-1">Receivable</div>
-				<div class="text-sm font-bold text-emerald-600">
+				<div class="text-sm font-bold text-foreground">
 					{formatCurrency(event.totalReceivable)}
 				</div>
 			</div>
 			<div class="text-center">
 				<div class="text-xs text-muted-foreground mb-1">Payable</div>
-				<div class="text-sm font-bold text-red-600">
+				<div class="text-sm font-bold text-muted-foreground">
 					{formatCurrency(event.totalPayable)}
 				</div>
 			</div>
@@ -80,7 +88,11 @@
 					{/if}
 					Net
 				</div>
-				<div class="text-sm font-bold {netRevenueIsPositive ? 'text-emerald-600' : 'text-red-600'}">
+				<div
+					class="text-sm font-bold {netRevenueIsPositive
+						? 'text-foreground'
+						: 'text-muted-foreground'}"
+				>
 					{formatCurrency(event.netRevenue)}
 				</div>
 			</div>

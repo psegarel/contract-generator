@@ -133,9 +133,7 @@
 		</div>
 
 		<!-- Contract Value -->
-		<div
-			class="col-span-2 min-w-0 px-2 text-right text-sm font-bold tabular-nums text-emerald-600 dark:text-emerald-400"
-		>
+		<div class="col-span-2 min-w-0 px-2 text-right text-sm font-bold tabular-nums text-foreground">
 			{formatCurrency(contract.contractValue)}
 		</div>
 
@@ -156,7 +154,7 @@
 			{#if paymentBadgeHref}
 				<a href={paymentBadgeHref} title="Manage payments">
 					{#if isPaid}
-						<Badge variant="default" class="bg-emerald-500 hover:bg-emerald-600"
+						<Badge variant="default" class="bg-foreground text-background hover:bg-foreground/90"
 							>{paymentLabel}</Badge
 						>
 					{:else}
@@ -164,7 +162,7 @@
 					{/if}
 				</a>
 			{:else if isPaid}
-				<Badge variant="default" class="bg-emerald-500">{paymentLabel}</Badge>
+				<Badge variant="default" class="bg-foreground text-background">{paymentLabel}</Badge>
 			{:else}
 				<Badge variant="secondary">{paymentLabel}</Badge>
 			{/if}
@@ -173,7 +171,7 @@
 		<!-- Actions -->
 		<div class="col-span-3 flex min-w-0 justify-center gap-2 px-2">
 			<Button
-				variant="success"
+				variant="secondary"
 				size="sm"
 				href={(getLink ?? getDefaultContractLink)(contract)}
 				class="px-2"
@@ -210,9 +208,7 @@
 					size="sm"
 					onclick={handleDelete}
 					disabled={!authState.isAdmin || isDeleting}
-					class="px-2 {!authState.isAdmin
-						? 'bg-muted hover:bg-muted'
-						: 'bg-red-600 hover:bg-red-700 text-white hover:text-white'}"
+					class="px-2"
 					title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
 				>
 					<Trash2 class="h-4 w-4" />

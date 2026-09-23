@@ -20,13 +20,21 @@
 	function getStatusBadge(status: typeof data.event.status) {
 		const badges = {
 			planning: { variant: 'default' as const, label: 'Planning', class: 'bg-primary' },
-			confirmed: { variant: 'default' as const, label: 'Confirmed', class: 'bg-cyan-500' },
+			confirmed: {
+				variant: 'default' as const,
+				label: 'Confirmed',
+				class: 'bg-muted text-foreground'
+			},
 			'in-progress': {
 				variant: 'default' as const,
 				label: 'In Progress',
 				class: 'bg-muted text-muted-foreground'
 			},
-			completed: { variant: 'default' as const, label: 'Completed', class: 'bg-emerald-500' },
+			completed: {
+				variant: 'default' as const,
+				label: 'Completed',
+				class: 'bg-foreground text-background'
+			},
 			cancelled: { variant: 'secondary' as const, label: 'Cancelled', class: '' }
 		};
 		return badges[status];
@@ -135,14 +143,14 @@
 			<Card.Content class="space-y-4">
 				<div>
 					<div class="text-xs text-muted-foreground mb-1">Total Receivable</div>
-					<div class="text-2xl font-bold text-emerald-600">
+					<div class="text-2xl font-bold text-foreground">
 						{formatCurrency(totalReceivable)}
 					</div>
 				</div>
 
 				<div>
 					<div class="text-xs text-muted-foreground mb-1">Total Payable</div>
-					<div class="text-2xl font-bold text-red-600">
+					<div class="text-2xl font-bold text-muted-foreground">
 						{formatCurrency(totalPayable)}
 					</div>
 				</div>
@@ -157,7 +165,9 @@
 						Net Revenue
 					</div>
 					<div
-						class="text-2xl font-bold {netRevenueIsPositive ? 'text-emerald-600' : 'text-red-600'}"
+						class="text-2xl font-bold {netRevenueIsPositive
+							? 'text-foreground'
+							: 'text-muted-foreground'}"
 					>
 						{formatCurrency(netRevenue)}
 					</div>

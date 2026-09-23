@@ -40,11 +40,11 @@
 	function getStatusColor(status: string) {
 		switch (status) {
 			case 'active':
-				return 'bg-emerald-500';
+				return 'bg-foreground text-background';
 			case 'completed':
 				return 'bg-primary';
 			case 'terminated':
-				return 'bg-red-500';
+				return 'bg-destructive text-white';
 			default:
 				return 'bg-muted';
 		}
@@ -166,7 +166,7 @@
 			<div class="space-y-3">
 				<div>
 					<p class="text-sm text-muted-foreground">Hourly Rate</p>
-					<p class="font-medium text-emerald-600 text-lg">
+					<p class="font-medium text-foreground text-lg">
 						{formatCurrency(data.contract.performanceFeeVND)}
 					</p>
 					<p class="text-xs text-muted-foreground">

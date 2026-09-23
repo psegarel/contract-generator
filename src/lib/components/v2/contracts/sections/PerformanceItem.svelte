@@ -33,7 +33,7 @@
 	</div>
 	<div class="flex items-center gap-3">
 		<div class="text-right">
-			<p class="font-medium text-emerald-600">
+			<p class="font-medium text-foreground">
 				{formatCurrency(performance.performerPayVND ?? 0)}
 			</p>
 		</div>
@@ -45,12 +45,7 @@
 		>
 			<Pencil class="w-4 h-4" />
 		</Button>
-		<Button
-			variant="ghost"
-			size="sm"
-			onclick={onDelete}
-			class="bg-red-600 text-white hover:bg-red-700 hover:text-white"
-		>
+		<Button variant="destructive" size="sm" onclick={onDelete}>
 			<Trash2 class="w-4 h-4" />
 		</Button>
 	</div>

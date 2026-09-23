@@ -25,9 +25,9 @@
 	}
 
 	function getTypeBadgeClass(cp: Counterparty): string {
-		if (cp.type === 'client') return 'bg-emerald-500';
+		if (cp.type === 'client') return 'bg-foreground text-background';
 		if (cp.type === 'contractor' && 'contractorType' in cp) {
-			if (cp.contractorType === 'performer') return 'bg-pink-500';
+			if (cp.contractorType === 'performer') return 'bg-muted text-foreground';
 			if (cp.contractorType === 'service-provider') return 'bg-primary';
 		}
 		return 'bg-muted';
@@ -188,7 +188,7 @@
 								<div class="flex flex-wrap gap-2">
 									{#each provider.typicalDeliverables as deliverable (deliverable)}
 										<span
-											class="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs"
+											class="inline-flex items-center rounded-sm bg-muted px-2 py-1 text-xs text-muted-foreground"
 										>
 											{deliverable}
 										</span>
@@ -203,7 +203,7 @@
 								<div class="flex flex-wrap gap-2">
 									{#each provider.equipmentProvided as equipment (equipment)}
 										<span
-											class="inline-flex items-center px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs"
+											class="inline-flex items-center rounded-sm bg-muted px-2 py-1 text-xs text-muted-foreground"
 										>
 											{equipment}
 										</span>

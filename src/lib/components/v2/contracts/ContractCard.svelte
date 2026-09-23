@@ -71,7 +71,7 @@
 
 	<!-- Value -->
 	<div class="pt-1">
-		<div class="text-lg font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+		<div class="text-lg font-bold text-foreground tabular-nums">
 			{formatCurrency(contract.contractValue)}
 		</div>
 	</div>
@@ -82,7 +82,10 @@
 		{#if paymentBadgeHref}
 			<a href={paymentBadgeHref} class="shrink-0" title="Manage payments">
 				{#if isPaid}
-					<Badge variant="default" class="py-2 px-3 bg-emerald-500 hover:bg-emerald-600">
+					<Badge
+						variant="default"
+						class="py-2 px-3 bg-foreground text-background hover:bg-foreground/90"
+					>
 						{paymentLabel}
 					</Badge>
 				{:else}
@@ -94,7 +97,7 @@
 		{:else}
 			<span class="shrink-0">
 				{#if isPaid}
-					<Badge variant="default" class="py-2 px-3 bg-emerald-500">
+					<Badge variant="default" class="py-2 px-3 bg-foreground text-background">
 						{paymentLabel}
 					</Badge>
 				{:else}
@@ -106,7 +109,7 @@
 		{/if}
 
 		<Button
-			variant="success"
+			variant="secondary"
 			size="sm"
 			href={(getLink ?? getDefaultContractLink)(contract)}
 			class="shrink-0"
@@ -142,9 +145,7 @@
 				size="sm"
 				onclick={onDeleteClick}
 				disabled={!authState.isAdmin || isDeleting}
-				class="shrink-0 {!authState.isAdmin
-					? 'bg-muted hover:bg-muted'
-					: 'bg-red-600 hover:bg-red-700 text-white hover:text-white'}"
+				class="shrink-0"
 				title={authState.isAdmin ? 'Delete' : 'Only administrators can delete'}
 			>
 				<Trash2 class="h-3.5 w-3.5" />
