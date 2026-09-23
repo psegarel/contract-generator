@@ -7,9 +7,7 @@
 	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { logger } from '$lib/utils/logger';
-	import TextField from '$lib/components/TextField.svelte';
 	import TextareaField from '$lib/components/TextareaField.svelte';
-	import SelectField from '$lib/components/SelectField.svelte';
 	import FormSection from '$lib/components/FormSection.svelte';
 	import FormMessage from '$lib/components/FormMessage.svelte';
 	import {
@@ -18,6 +16,11 @@
 		validateDjResidencyForm
 	} from '$lib/forms/contracts/djResidency';
 	import CreateCounterpartyInline from './sections/CreateCounterpartyInline.svelte';
+	import DjResidencyContractBasicsSection from './sections/DjResidencyContractBasicsSection.svelte';
+	import DjResidencyDurationSection from './sections/DjResidencyDurationSection.svelte';
+	import DjResidencyPerformanceTermsSection from './sections/DjResidencyPerformanceTermsSection.svelte';
+	import DjResidencyPaymentTermsSection from './sections/DjResidencyPaymentTermsSection.svelte';
+	import DjResidencyStatusSection from './sections/DjResidencyStatusSection.svelte';
 	import DjResidencyPerformanceLog from './DjResidencyPerformanceLog.svelte';
 
 	interface Props {
@@ -143,39 +146,12 @@
 		<FormMessage message={formState.error} />
 	{/if}
 
-	<!-- Contract Basics -->
-	<FormSection title="Contract Information">
-		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
-			<TextField
-				id="contractNumber"
-				label="Contract Number"
-				bind:value={formState.contractNumber}
-				required
-			/>
-			<div class="flex items-end gap-2">
-				<SelectField
-					class="flex-1"
-					id="counterpartyId"
-					label="Party B"
-					bind:value={formState.counterpartyId}
-					required
-				>
-					<option value="">Select counterparty</option>
-					{#each venueCounterparties as venue (venue.id)}
-						<option value={venue.id}>{venue.name}</option>
-					{/each}
-				</SelectField>
-				<Button
-					type="button"
-					variant="outline"
-					class="mb-1 whitespace-nowrap bg-primary/5 text-primary hover:bg-primary/10"
-					onclick={() => (formState.showCreateCounterparty = !formState.showCreateCounterparty)}
-				>
-					+ Create New
-				</Button>
-			</div>
-		</div>
-	</FormSection>
+	<DjResidencyContractBasicsSection
+		{formState}
+		{venueCounterparties}
+		onCreateCounterparty={() =>
+			(formState.showCreateCounterparty = !formState.showCreateCounterparty)}
+	/>
 
 	<!-- Inline Counterparty Creation -->
 	{#if formState.showCreateCounterparty}
@@ -191,103 +167,17 @@
 		/>
 	{/if}
 
-	<!-- Contract Duration -->
-	<FormSection title="Contract Duration">
-		<div class="grid gap-6 grid-cols-1 md:grid-cols-3">
-			<TextField
-				id="contractStartDate"
-				label="Start Date"
-				type="date"
-				bind:value={formState.contractStartDate}
-				onchange={handleStartDateChange}
-				required
-			/>
-			<TextField
-				id="contractDurationMonths"
-				label="Duration (months)"
-				type="number"
-				bind:value={formState.contractDurationMonths}
-				onchange={handleDurationChange}
-				min="1"
-				max="24"
-				required
-			/>
-			<TextField
-				id="contractEndDate"
-				label="End Date"
-				type="date"
-				bind:value={formState.contractEndDate}
-				readonly
-				class="[&_input]:bg-muted"
-			/>
-		</div>
-	</FormSection>
+	<DjResidencyDurationSection
+		{formState}
+		onStartDateChange={handleStartDateChange}
+		onDurationChange={handleDurationChange}
+	/>
 
-	<!-- Performance Terms -->
-	<FormSection title="Performance Terms">
-		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
-			<TextField
-				id="performanceDays"
-				label="Performance Days"
-				bind:value={formState.performanceDays}
-				placeholder="e.g., Saturday and Sunday"
-				required
-			/>
-			<TextField
-				id="numberOfSetsPerDay"
-				label="Sets per Day"
-				type="number"
-				bind:value={formState.numberOfSetsPerDay}
-				min="1"
-				max="10"
-				required
-			/>
-		</div>
-	</FormSection>
+	<DjResidencyPerformanceTermsSection {formState} />
 
-	<!-- Payment Terms -->
-	<FormSection title="Payment Terms">
-		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
-			<TextField
-				id="performanceFeeVND"
-				label="Hourly Rate — Client (VND)"
-				type="number"
-				bind:value={formState.performanceFeeVND}
-				min="0"
-				required
-			/>
-			<TextField
-				id="terminationNoticeDays"
-				label="Termination Notice (days)"
-				type="number"
-				bind:value={formState.terminationNoticeDays}
-				min="1"
-				required
-			/>
-		</div>
-		<div class="mt-4 bg-muted p-4">
-			<p class="text-sm text-muted-foreground">
-				The client is billed at the hourly rate for the actual hours recorded in the performance
-				log.
-			</p>
-		</div>
-	</FormSection>
+	<DjResidencyPaymentTermsSection {formState} />
 
-	<!-- Status -->
-	<FormSection title="Status">
-		<div class="grid gap-6 grid-cols-1 md:grid-cols-2">
-			<SelectField
-				id="residencyStatus"
-				label="Residency Status"
-				bind:value={formState.residencyStatus}
-				required
-			>
-				<option value="active">Active</option>
-				<option value="completed">Completed</option>
-				<option value="terminated">Terminated</option>
-			</SelectField>
-		</div>
-	</FormSection>
+	<DjResidencyStatusSection {formState} />
 
 	<!-- Notes -->
 	<FormSection title="Internal Notes">
