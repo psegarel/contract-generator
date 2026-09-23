@@ -55,6 +55,18 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | ServiceProviderBusinessSection.svelte  | ✅     | 2026-09-23   | Clean - no issues |
 | ServiceProviderBankingSection.svelte   | ✅     | 2026-09-23   | Clean - no issues |
 | ServiceProviderDocumentsSection.svelte | ✅     | 2026-09-23   | Clean - no issues |
+| ClientForm.svelte                      | ✅     | 2026-09-23   | Clean - no issues |
+| ClientBasicsSection.svelte             | ✅     | 2026-09-23   | Clean - no issues |
+| ClientCompanySection.svelte            | ✅     | 2026-09-23   | Clean - no issues |
+| ClientIndividualSection.svelte         | ✅     | 2026-09-23   | Clean - no issues |
+| ClientBankingSection.svelte            | ✅     | 2026-09-23   | Clean - no issues |
+| PerformerForm.svelte                   | ✅     | 2026-09-23   | Clean - no issues |
+| PerformerBasicsSection.svelte          | ✅     | 2026-09-23   | Clean - no issues |
+| PerformerPerformanceSection.svelte     | ✅     | 2026-09-23   | Clean - no issues |
+| PerformerBookingSection.svelte         | ✅     | 2026-09-23   | Clean - no issues |
+| PerformerPaymentSection.svelte         | ✅     | 2026-09-23   | Clean - no issues |
+| CounterpartyNotesSection.svelte        | ✅     | 2026-09-23   | Clean - no issues |
+| CounterpartyFormActions.svelte         | ✅     | 2026-09-23   | Clean - no issues |
 
 ### Core Components (`src/lib/components/`)
 

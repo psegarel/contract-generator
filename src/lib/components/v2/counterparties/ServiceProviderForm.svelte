@@ -3,10 +3,7 @@
 	import type { ServiceProviderContractor } from '$lib/types/v2';
 	import { authState } from '$lib/state/auth.svelte';
 	import { ServiceProviderFormState } from '$lib/state/v2/serviceProviderFormState.svelte';
-	import { Button } from '$lib/components/ui/button';
 	import FormMessage from '$lib/components/FormMessage.svelte';
-	import TextareaField from '$lib/components/TextareaField.svelte';
-	import FormSection from '$lib/components/FormSection.svelte';
 	import { CounterpartyDocumentManager } from '$lib/utils/counterpartyDocuments';
 	import { logger } from '$lib/utils/logger';
 	import { toast } from 'svelte-sonner';
@@ -19,6 +16,8 @@
 	import ServiceProviderBusinessSection from './sections/ServiceProviderBusinessSection.svelte';
 	import ServiceProviderBankingSection from './sections/ServiceProviderBankingSection.svelte';
 	import ServiceProviderDocumentsSection from './sections/ServiceProviderDocumentsSection.svelte';
+	import CounterpartyNotesSection from './sections/CounterpartyNotesSection.svelte';
+	import CounterpartyFormActions from './sections/CounterpartyFormActions.svelte';
 
 	interface Props {
 		serviceProvider?: ServiceProviderContractor | null;
@@ -128,28 +127,14 @@
 		onFileDelete={handleFileDelete}
 	/>
 
-	<FormSection title="Notes">
-		<TextareaField
-			id="notes"
-			label=""
-			bind:value={formState.notes}
-			rows={4}
-			placeholder="Additional notes about this service provider..."
-		/>
-	</FormSection>
-
-	<div class="flex justify-end gap-3">
-		{#if onCancel}
-			<Button type="button" variant="outline" onclick={onCancel} disabled={formState.isSubmitting}>
-				Cancel
-			</Button>
-		{/if}
-		<Button type="submit" disabled={formState.isSubmitting} variant="dark">
-			{formState.isSubmitting
-				? 'Saving...'
-				: serviceProvider
-					? 'Update Service Provider'
-					: 'Create Service Provider'}
-		</Button>
-	</div>
+	<CounterpartyNotesSection
+		bind:value={formState.notes}
+		placeholder="Additional notes about this service provider..."
+	/>
+	<CounterpartyFormActions
+		isSubmitting={formState.isSubmitting}
+		isEditing={Boolean(serviceProvider)}
+		entityLabel="Service Provider"
+		{onCancel}
+	/>
 </form>
