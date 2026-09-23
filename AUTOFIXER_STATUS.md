@@ -68,6 +68,16 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | CounterpartyNotesSection.svelte        | ✅     | 2026-09-23   | Clean - no issues |
 | CounterpartyFormActions.svelte         | ✅     | 2026-09-23   | Clean - no issues |
 
+### V2 Event Components (`src/lib/components/v2/events/`)
+
+| Component                   | Status | Last Checked | Notes             |
+| --------------------------- | ------ | ------------ | ----------------- |
+| EventForm.svelte            | ✅     | 2026-09-23   | Clean - no issues |
+| EventBasicsSection.svelte   | ✅     | 2026-09-23   | Clean - no issues |
+| EventLocationSection.svelte | ✅     | 2026-09-23   | Clean - no issues |
+| EventScheduleSection.svelte | ✅     | 2026-09-23   | Clean - no issues |
+| EventNotesSection.svelte    | ✅     | 2026-09-23   | Clean - no issues |
+
 ### Core Components (`src/lib/components/`)
 
 | Component                        | Status | Last Checked | Notes                                                                          |
