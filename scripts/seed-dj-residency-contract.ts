@@ -51,7 +51,9 @@ if (!PROJECT_ID || !API_KEY) {
 }
 if (!EMAIL || !PASSWORD) {
 	console.error('❌  Set FIREBASE_EMAIL and FIREBASE_PASSWORD as environment variables');
-	console.error('   FIREBASE_EMAIL=you@insense.vn FIREBASE_PASSWORD=secret npx tsx scripts/seed-dj-residency-contract.ts --live');
+	console.error(
+		'   FIREBASE_EMAIL=you@insense.vn FIREBASE_PASSWORD=secret npx tsx scripts/seed-dj-residency-contract.ts --live'
+	);
 	process.exit(1);
 }
 
@@ -70,10 +72,18 @@ type FirestoreValue =
 
 type FirestoreFields = Record<string, FirestoreValue>;
 
-function str(v: string): { stringValue: string } { return { stringValue: v }; }
-function int(v: number): { integerValue: string } { return { integerValue: String(v) }; }
-function nul(): { nullValue: null } { return { nullValue: null }; }
-function ts(iso: string): { timestampValue: string } { return { timestampValue: iso }; }
+function str(v: string): { stringValue: string } {
+	return { stringValue: v };
+}
+function int(v: number): { integerValue: string } {
+	return { integerValue: String(v) };
+}
+function nul(): { nullValue: null } {
+	return { nullValue: null };
+}
+function ts(iso: string): { timestampValue: string } {
+	return { timestampValue: iso };
+}
 
 async function signIn(): Promise<string> {
 	const res = await fetch(AUTH_URL, {

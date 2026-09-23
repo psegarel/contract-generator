@@ -189,7 +189,9 @@ export async function migrateServiceContracts(
 				const v2Contract = await transformServiceContract(v1Contract, eventId);
 
 				if (dryRun) {
-					console.log(`[${index + 1}/${total}] Would migrate contract ${v1Contract.contractNumber}`);
+					console.log(
+						`[${index + 1}/${total}] Would migrate contract ${v1Contract.contractNumber}`
+					);
 					console.log(`  → Event: ${v2Contract.eventName} (${eventId})`);
 					console.log(`  → Client: ${v2Contract.counterpartyName} (${v2Contract.counterpartyId})`);
 					console.log(`  → Value: ${v2Contract.contractValue} VND\n`);
@@ -198,19 +200,26 @@ export async function migrateServiceContracts(
 					const contractRef = doc(db, 'service-provision-contracts', contractId);
 					await setDoc(contractRef, v2Contract);
 
-					console.log(`[${index + 1}/${total}] ✓ Migrated contract ${v1Contract.contractNumber} (${contractId})`);
+					console.log(
+						`[${index + 1}/${total}] ✓ Migrated contract ${v1Contract.contractNumber} (${contractId})`
+					);
 				}
 
 				successful++;
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
 				errors.push({ id: contractId, error: errorMessage });
-				console.error(`[${index + 1}/${total}] ✗ ERROR migrating contract ${contractId}:`, errorMessage);
+				console.error(
+					`[${index + 1}/${total}] ✗ ERROR migrating contract ${contractId}:`,
+					errorMessage
+				);
 			}
 
 			// Progress indicator every 10 documents
 			if ((index + 1) % 10 === 0 && index + 1 < total) {
-				console.log(`--- Progress: ${index + 1}/${total} (${Math.round(((index + 1) / total) * 100)}%) ---\n`);
+				console.log(
+					`--- Progress: ${index + 1}/${total} (${Math.round(((index + 1) / total) * 100)}%) ---\n`
+				);
 			}
 		}
 

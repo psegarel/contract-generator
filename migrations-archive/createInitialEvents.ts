@@ -60,7 +60,10 @@ async function createDeduplicatedEvents(
 	dryRun: boolean
 ): Promise<{ eventMap: Map<string, string>; eventsCreated: number }> {
 	const eventMap = new Map<string, string>(); // contractId → eventId
-	const eventsByKey = new Map<string, { eventId: string; contractIds: string[]; name: string; dates: string[] }>();
+	const eventsByKey = new Map<
+		string,
+		{ eventId: string; contractIds: string[]; name: string; dates: string[] }
+	>();
 
 	let eventsCreated = 0;
 
@@ -72,7 +75,9 @@ async function createDeduplicatedEvents(
 			// Check if date is within 1 day of any date in this event
 			for (const existingDate of event.dates) {
 				const existing = new Date(existingDate);
-				const diffDays = Math.abs((targetDate.getTime() - existing.getTime()) / (1000 * 60 * 60 * 24));
+				const diffDays = Math.abs(
+					(targetDate.getTime() - existing.getTime()) / (1000 * 60 * 60 * 24)
+				);
 
 				if (diffDays <= 1) {
 					return key;
@@ -147,21 +152,30 @@ async function createDeduplicatedEvents(
 	// Update events with multiple contracts or dates
 	for (const [_key, event] of eventsByKey.entries()) {
 		if (event.contractIds.length > 1 || event.dates.length > 1) {
-			const dateRange = event.dates.length > 1
-				? `${event.dates.sort()[0]} to ${event.dates.sort()[event.dates.length - 1]}`
-				: event.dates[0];
+			const dateRange =
+				event.dates.length > 1
+					? `${event.dates.sort()[0]} to ${event.dates.sort()[event.dates.length - 1]}`
+					: event.dates[0];
 
 			if (dryRun) {
-				console.log(`\nEvent "${event.name}" (${dateRange}) has ${event.contractIds.length} contracts:`);
+				console.log(
+					`\nEvent "${event.name}" (${dateRange}) has ${event.contractIds.length} contracts:`
+				);
 				console.log(`  → Contracts: ${event.contractIds.join(', ')}`);
 			} else {
 				// Update event with all contract IDs
 				const eventRef = doc(db, 'events', event.eventId);
-				await setDoc(eventRef, {
-					contractIds: event.contractIds,
-					updatedAt: serverTimestamp()
-				}, { merge: true });
-				console.log(`✓ Updated event "${event.name}" (${dateRange}) with ${event.contractIds.length} contracts`);
+				await setDoc(
+					eventRef,
+					{
+						contractIds: event.contractIds,
+						updatedAt: serverTimestamp()
+					},
+					{ merge: true }
+				);
+				console.log(
+					`✓ Updated event "${event.name}" (${dateRange}) with ${event.contractIds.length} contracts`
+				);
 			}
 		}
 	}
@@ -267,7 +281,7 @@ export async function createInitialEvents(dryRun: boolean = true): Promise<{
 	const eventPlanningEventMap = new Map<string, string>();
 
 	const serviceSnapshot = await getDocs(collection(db, 'service-contracts'));
-	const serviceIds = new Set(serviceSnapshot.docs.map(d => d.id));
+	const serviceIds = new Set(serviceSnapshot.docs.map((d) => d.id));
 
 	for (const [contractId, eventId] of eventMap.entries()) {
 		if (serviceIds.has(contractId)) {

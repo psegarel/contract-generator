@@ -1,4 +1,5 @@
 import type { EventPlanningContract, ClientCounterparty, Event } from '$lib/types/v2';
+import { SvelteDate } from 'svelte/reactivity';
 
 /**
  * Form state class for Event Planning Contract forms
@@ -219,7 +220,7 @@ export class EventPlanningContractFormState {
 	 * Generate a unique contract number for new contracts
 	 */
 	private generateContractNumber() {
-		const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+		const dateStr = new SvelteDate().toISOString().slice(0, 10).replace(/-/g, '');
 		const timestamp = Date.now().toString().slice(-4);
 		this.contractNumber = `EVT-${dateStr}-${timestamp}`;
 	}

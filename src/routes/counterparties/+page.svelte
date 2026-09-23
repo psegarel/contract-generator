@@ -30,12 +30,6 @@
 		return data.counterparties;
 	});
 
-	function getTypeLabel(type: string): string {
-		if (type === 'client') return 'Client';
-		if (type === 'contractor') return 'Contractor';
-		return type;
-	}
-
 	function getSubtypeLabel(counterparty: (typeof data.counterparties)[number]): string {
 		if (counterparty.type === 'client') return 'Client';
 		if (counterparty.type === 'contractor' && 'contractorType' in counterparty) {
@@ -54,16 +48,14 @@
 		{#snippet icon()}
 			<Building2 class="size-5" />
 		{/snippet}
-		{#snippet children()}
-			<Button href="/counterparties/new/client" variant="outline">
-				<Plus class="size-4" />
-				New Client
-			</Button>
-			<Button href="/counterparties/new/contractor">
-				<Plus class="size-4" />
-				New Contractor
-			</Button>
-		{/snippet}
+		<Button href="/counterparties/new/client" variant="outline">
+			<Plus class="size-4" />
+			New Client
+		</Button>
+		<Button href="/counterparties/new/contractor">
+			<Plus class="size-4" />
+			New Contractor
+		</Button>
 	</PageHeader>
 
 	<!-- Type Filter -->

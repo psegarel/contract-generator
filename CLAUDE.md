@@ -87,6 +87,7 @@ When working on this codebase:
 **When the user makes suggestions or asks follow-up questions, do not automatically agree.**
 
 The user is not always right. Your role is to:
+
 - **Challenge suggestions** when they contradict best practices
 - **Propose better alternatives** when you see them
 - **Explain why** a different approach is superior
@@ -95,36 +96,42 @@ The user is not always right. Your role is to:
 **Examples:**
 
 **Bad (automatic agreement):**
+
 ```
 User: "Let's use `any` types here to make it faster"
 Agent: "Sure, I'll use `any` types"
 ```
 
 **Good (constructive challenge):**
+
 ```
 User: "Let's use `any` types here to make it faster"
 Agent: "I'd recommend against that. Using `any` defeats TypeScript's purpose and can hide bugs. Instead, let's define a proper interface - it only takes a minute and makes the code much safer."
 ```
 
 **Bad (deferential):**
+
 ```
 User: "Maybe we should add a `<style>` block for this component?"
 Agent: "If you prefer, I can add a style block"
 ```
 
 **Good (explains best practice):**
+
 ```
 User: "Maybe we should add a `<style>` block for this component?"
 Agent: "Actually, this project uses Tailwind utilities to avoid scattered styles. Using utility classes keeps the CSS bundle smaller and styles more maintainable. Let me use Tailwind classes instead."
 ```
 
 **When to push back:**
+
 - User suggests violating established patterns in CLAUDE.md
 - User proposes shortcuts that create technical debt
 - User's suggestion would introduce bugs or security issues
 - A better solution exists that the user might not be aware of
 
 **How to push back:**
+
 - Be respectful but direct
 - Explain the reasoning based on best practices
 - Offer a better alternative
@@ -140,6 +147,7 @@ This project uses:
 - **Type checking** - Code must pass `pnpm check` with **ZERO errors AND ZERO warnings**
 
 **CRITICAL: Zero-Tolerance for Warnings**
+
 - Warnings are not acceptable, even if the code "works"
 - Warnings indicate poor logic or non-adherence to best practices
 - NEVER dismiss warnings as "expected" or "safe to ignore"
@@ -193,12 +201,14 @@ This is a common anti-pattern that breaks reactivity and creates unnecessary com
 ```
 
 **Why this is wrong:**
+
 - `$effect` is for side effects (DOM manipulation, logging, external APIs)
 - Syncing props to state creates two sources of truth
 - It breaks Svelte's reactivity model
 - It can cause infinite loops and race conditions
 
 **When you need to use prop values:**
+
 1. **Read-only display**: Use `$derived` or access props directly in template
 2. **Initialize once**: Set state from props in initial declaration (not reactive)
 3. **Two-way binding**: Use `bind:` directive or event callbacks, not effects
@@ -213,65 +223,70 @@ This pattern avoids the `$effect` anti-pattern by extracting state management in
 // ✅ GOOD: Form State Class Pattern
 // src/lib/state/v2/serviceProviderFormState.svelte.ts
 export class ServiceProviderFormState {
-  name = $state('');
-  email = $state('');
-  // ... all form fields as $state properties
+	name = $state('');
+	email = $state('');
+	// ... all form fields as $state properties
 
-  /**
-   * Initialize form state from a service provider
-   */
-  init(serviceProvider: ServiceProviderCounterparty | null) {
-    if (!serviceProvider) {
-      this.reset();
-      return;
-    }
-    this.name = serviceProvider.name;
-    this.email = serviceProvider.email || '';
-    // ... initialize all fields
-  }
+	/**
+	 * Initialize form state from a service provider
+	 */
+	init(serviceProvider: ServiceProviderCounterparty | null) {
+		if (!serviceProvider) {
+			this.reset();
+			return;
+		}
+		this.name = serviceProvider.name;
+		this.email = serviceProvider.email || '';
+		// ... initialize all fields
+	}
 
-  /**
-   * Reset form to empty state
-   */
-  reset() {
-    this.name = '';
-    this.email = '';
-    // ... reset all fields
-  }
+	/**
+	 * Reset form to empty state
+	 */
+	reset() {
+		this.name = '';
+		this.email = '';
+		// ... reset all fields
+	}
 
-  // Helper methods for form operations
-  addDeliverable() { /* ... */ }
-  removeDeliverable(index: number) { /* ... */ }
+	// Helper methods for form operations
+	addDeliverable() {
+		/* ... */
+	}
+	removeDeliverable(index: number) {
+		/* ... */
+	}
 }
 ```
 
 ```svelte
 <!-- ✅ GOOD: Component uses state class -->
 <script lang="ts">
-  import { ServiceProviderFormState } from '$lib/state/v2/serviceProviderFormState.svelte';
-  import { onMount } from 'svelte';
-  
-  let { serviceProvider = null }: Props = $props();
-  
-  // Create form state instance
-  const formState = new ServiceProviderFormState();
-  
-  // Initialize form state from prop (one-time initialization on mount)
-  // Use onMount instead of $effect since data is available at mount time
-  // and we don't need reactive updates to the prop
-  onMount(() => {
-    formState.init(serviceProvider);
-  });
+	import { ServiceProviderFormState } from '$lib/state/v2/serviceProviderFormState.svelte';
+	import { onMount } from 'svelte';
+
+	let { serviceProvider = null }: Props = $props();
+
+	// Create form state instance
+	const formState = new ServiceProviderFormState();
+
+	// Initialize form state from prop (one-time initialization on mount)
+	// Use onMount instead of $effect since data is available at mount time
+	// and we don't need reactive updates to the prop
+	onMount(() => {
+		formState.init(serviceProvider);
+	});
 </script>
 
 <form>
-  <input bind:value={formState.name} />
-  <input bind:value={formState.email} />
-  <!-- ... -->
+	<input bind:value={formState.name} />
+	<input bind:value={formState.email} />
+	<!-- ... -->
 </form>
 ```
 
 **Why this pattern works:**
+
 - ✅ **Separation of concerns**: State management is in the class, component is just the view
 - ✅ **No direct state assignments in `$effect`**: Component only calls `init()` method in `onMount`
 - ✅ **One-time initialization**: Using `onMount` is appropriate since data from load functions is available at mount time
@@ -280,6 +295,7 @@ export class ServiceProviderFormState {
 - ✅ **Clean component**: Component focuses on rendering, not state management
 
 **Why `onMount` instead of `$effect`:**
+
 - `onMount` is for one-time initialization when the component mounts
 - `$effect` is for reactive side effects that need to re-run when dependencies change
 - When data comes from SvelteKit load functions, it's available synchronously at mount time
@@ -287,16 +303,19 @@ export class ServiceProviderFormState {
 - On route navigation, components unmount/remount, so `onMount` will run again with new data
 
 **When to use this pattern:**
+
 - Form components that need to sync props to editable state
 - Forms with complex state management (arrays, nested objects)
 - Forms that need helper methods for state manipulation
 
 **When NOT to use this pattern:**
+
 - Simple read-only displays (use `$derived` or direct prop access)
 - Forms that don't need to sync from props (just initialize state directly)
 - Very simple forms with 1-2 fields (may be overkill)
 
 **Example implementation:**
+
 - `ServiceProviderFormState` in `src/lib/state/v2/serviceProviderFormState.svelte.ts`
 - Used by `ServiceProviderForm.svelte`
 
@@ -418,45 +437,46 @@ This ensures data integrity and prevents runtime errors from undefined or malfor
 ```typescript
 // ✅ GOOD: Validate when writing
 export async function saveCounterparty(counterpartyData: CounterpartyInput): Promise<string> {
-  // Validate complete data (timestamps from form are present)
-  const validationResult = counterpartySchema.safeParse(counterpartyData);
-  if (!validationResult.success) {
-    throw new Error('Invalid counterparty data: ' + validationResult.error.message);
-  }
-  
-  // Write to Firestore, replacing form timestamps with serverTimestamp() (server is source of truth)
-  const toWrite = {
-    ...validationResult.data,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  };
-  
-  await addDoc(collection(db, COLLECTION_NAME), toWrite);
+	// Validate complete data (timestamps from form are present)
+	const validationResult = counterpartySchema.safeParse(counterpartyData);
+	if (!validationResult.success) {
+		throw new Error('Invalid counterparty data: ' + validationResult.error.message);
+	}
+
+	// Write to Firestore, replacing form timestamps with serverTimestamp() (server is source of truth)
+	const toWrite = {
+		...validationResult.data,
+		createdAt: serverTimestamp(),
+		updatedAt: serverTimestamp()
+	};
+
+	await addDoc(collection(db, COLLECTION_NAME), toWrite);
 }
 
 // ✅ GOOD: Validate when reading
 export async function getCounterpartyById(id: string): Promise<Counterparty | null> {
-  const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-  if (!docSnap.exists()) return null;
-  
-  const data = docSnap.data();
-  
-  // Validate with full schema (includes timestamps from Firestore)
-  const result = counterpartySchema.safeParse(data);
-  
-  if (!result.success) {
-    console.error('Invalid counterparty data:', result.error, id);
-    throw new Error('Invalid counterparty data: ' + result.error.message);
-  }
-  
-  return {
-    id: docSnap.id,
-    ...result.data // Use validated data
-  } as Counterparty;
+	const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
+	if (!docSnap.exists()) return null;
+
+	const data = docSnap.data();
+
+	// Validate with full schema (includes timestamps from Firestore)
+	const result = counterpartySchema.safeParse(data);
+
+	if (!result.success) {
+		console.error('Invalid counterparty data:', result.error, id);
+		throw new Error('Invalid counterparty data: ' + result.error.message);
+	}
+
+	return {
+		id: docSnap.id,
+		...result.data // Use validated data
+	} as Counterparty;
 }
 ```
 
 **Why validate on read:**
+
 - ✅ **Data integrity**: Firestore data might be outdated or malformed
 - ✅ **Type safety**: Ensures arrays are always defined (via `.default([])`)
 - ✅ **Runtime safety**: Prevents "Cannot read property 'length' of undefined" errors
@@ -464,6 +484,7 @@ export async function getCounterpartyById(id: string): Promise<Counterparty | nu
 - ✅ **Consistency**: All data conforms to current schema before use
 
 **Timestamp handling:**
+
 - **Required fields**: `createdAt` and `updatedAt` are required `Timestamp` fields in all schemas
 - **Forms**: Include timestamps using `Timestamp.now()` for validation
   - When creating: Set both `createdAt` and `updatedAt` to `Timestamp.now()`
@@ -473,28 +494,31 @@ export async function getCounterpartyById(id: string): Promise<Counterparty | nu
 - **Simple approach**: No complex validation logic - validate complete data, then overwrite timestamps when writing
 
 **Schema patterns:**
+
 - Use `.default([])` for array fields to ensure they're never undefined
 - Use `.nullable().optional()` for optional fields
 - Use `.strict()` to catch unexpected fields
 - Include `createdAt: z.custom<Timestamp>()` and `updatedAt: z.custom<Timestamp>()` as required fields in base schemas
 
 **Example schema:**
+
 ```typescript
 export const serviceProviderCounterpartySchema = baseCounterpartySchema
-  .extend({
-    type: z.literal('service-provider'),
-    serviceType: z.string().min(1, 'Service type is required'),
-    // Arrays always default to empty array
-    typicalDeliverables: z.array(z.string()).default([]),
-    equipmentProvided: z.array(z.string()).default([]),
-    // Optional fields
-    companyName: z.string().nullable().optional(),
-    businessLicense: z.string().nullable().optional()
-  })
-  .strict();
+	.extend({
+		type: z.literal('service-provider'),
+		serviceType: z.string().min(1, 'Service type is required'),
+		// Arrays always default to empty array
+		typicalDeliverables: z.array(z.string()).default([]),
+		equipmentProvided: z.array(z.string()).default([]),
+		// Optional fields
+		companyName: z.string().nullable().optional(),
+		businessLicense: z.string().nullable().optional()
+	})
+	.strict();
 ```
 
 **When reading fails validation:**
+
 - Log the error with document ID for debugging
 - Filter out invalid documents in list queries
 - Throw error for single document queries (data corruption)
@@ -506,10 +530,12 @@ export const serviceProviderCounterpartySchema = baseCounterpartySchema
 ### Current State (Temporary Normalization Approach)
 
 We currently have **separate contract types** for different contract kinds:
+
 - `SavedServiceContract` (service contracts)
 - `SavedEventPlanningContract` (event planning contracts)
 
 To display them together, we use a **normalization pattern**:
+
 - `UnifiedContract` interface (common display fields)
 - `mergeContracts()` utility (converts specific types → unified format)
 
@@ -522,35 +548,35 @@ To display them together, we use a **normalization pattern**:
 ```typescript
 // Future: Base interface with all common fields
 interface BaseContract {
-  id: string;
-  type: 'service' | 'event-planning';
-  contractNumber: string;
-  createdAt: Timestamp;
-  ownerUid: string;
-  locationId: string;
-  paymentStatus: 'unpaid' | 'paid';
-  paidAt: Timestamp | null;
-  paidBy: string | null;
+	id: string;
+	type: 'service' | 'event-planning';
+	contractNumber: string;
+	createdAt: Timestamp;
+	ownerUid: string;
+	locationId: string;
+	paymentStatus: 'unpaid' | 'paid';
+	paidAt: Timestamp | null;
+	paidBy: string | null;
 
-  // Common display fields (enforced at type level)
-  eventName: string;
-  clientName: string;
-  location: string;
-  date: string;
-  contractValue: number;
+	// Common display fields (enforced at type level)
+	eventName: string;
+	clientName: string;
+	location: string;
+	date: string;
+	contractValue: number;
 }
 
 // Specific types extend the base
 interface ServiceContract extends BaseContract {
-  type: 'service';
-  contractData: ContractData;
-  status: 'draft' | 'generated';
+	type: 'service';
+	contractData: ContractData;
+	status: 'draft' | 'generated';
 }
 
 interface EventPlanningContract extends BaseContract {
-  type: 'event-planning';
-  contractData: EventPlanningContractData;
-  paymentDirection: 'receivable' | 'payable';
+	type: 'event-planning';
+	contractData: EventPlanningContractData;
+	paymentDirection: 'receivable' | 'payable';
 }
 ```
 
@@ -577,11 +603,13 @@ interface EventPlanningContract extends BaseContract {
    - Prefer polymorphism through the unified interface
 
 **When We Refactor:**
+
 - Restructure Firebase schemas to conform to `BaseContract` shape
 - Remove normalization functions (`mergeContracts.ts` becomes obsolete)
 - Components already work - no changes needed!
 
 **Why This Matters:**
+
 - Prevents technical debt from growing
 - Makes eventual refactor much easier
 - New features align with target architecture
@@ -596,16 +624,19 @@ interface EventPlanningContract extends BaseContract {
 The contracts list uses a responsive design pattern that should be applied consistently across similar list views:
 
 **Breakpoint Strategy:**
+
 - **Mobile** (`< md`): Single column card layout, full page scroll
 - **Tablet** (`md` to `xl`): 2-column card grid, full page scroll
 - **Desktop** (`xl` and up): 18-column grid layout, scrolling container (max-h-96)
 
 **Key Components:**
+
 - `ContractCard.svelte` - Used for mobile and tablet card views
 - `ContractListItem.svelte` - Handles all three layouts (mobile card, tablet card, desktop grid)
 - `ContractsList.svelte` - Manages grid structure and scrolling behavior
 
 **Design Principles:**
+
 - Cards prioritize counterparty name over contract number
 - All action buttons on single line in card view
 - Desktop grid uses scrolling container to keep stats visible

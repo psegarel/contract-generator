@@ -19,7 +19,9 @@
 
 		const route = routes[type];
 		if (route) {
-			goto(route);
+			// Contract types are mapped dynamically, including legacy types without route files.
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			goto(new URL(route, window.location.origin));
 		}
 	}
 </script>

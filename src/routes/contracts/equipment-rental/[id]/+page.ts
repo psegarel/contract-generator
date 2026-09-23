@@ -34,9 +34,17 @@ export const load: PageLoad = async ({ params }) => {
 
 		// Stage 2: Pre-HTML Generation
 		logger.info('[Stage 2] Validating contract data before HTML generation');
-		const requiredFields = ['counterpartyId', 'equipment', 'rentalStartDate', 'rentalEndDate', 'contractValue'];
-		const missingFields = requiredFields.filter(field => !(field in contract) || contract[field as keyof typeof contract] === undefined);
-		
+		const requiredFields = [
+			'counterpartyId',
+			'equipment',
+			'rentalStartDate',
+			'rentalEndDate',
+			'contractValue'
+		];
+		const missingFields = requiredFields.filter(
+			(field) => !(field in contract) || contract[field as keyof typeof contract] === undefined
+		);
+
 		if (missingFields.length > 0) {
 			logger.error('[Stage 2] Missing required fields', { missingFields });
 			throw new Error(`Contract missing required fields: ${missingFields.join(', ')}`);

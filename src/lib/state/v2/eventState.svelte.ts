@@ -1,6 +1,7 @@
 import { subscribeToEvents } from '$lib/utils/v2/events';
 import type { Event } from '$lib/types/v2';
 import type { Unsubscribe } from 'firebase/firestore';
+import { SvelteDate } from 'svelte/reactivity';
 
 export class EventState {
 	events = $state<Event[]>([]);
@@ -49,7 +50,7 @@ export class EventState {
 	 * Get upcoming events
 	 */
 	get upcoming(): Event[] {
-		const now = new Date().toISOString().split('T')[0];
+		const now = new SvelteDate().toISOString().split('T')[0];
 		return this.events.filter((e) => e.eventDate >= now && e.status !== 'cancelled');
 	}
 
@@ -57,7 +58,7 @@ export class EventState {
 	 * Get past events
 	 */
 	get past(): Event[] {
-		const now = new Date().toISOString().split('T')[0];
+		const now = new SvelteDate().toISOString().split('T')[0];
 		return this.events.filter((e) => e.eventDate < now);
 	}
 

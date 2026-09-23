@@ -76,12 +76,8 @@ export async function runFullMigration(dryRun: boolean = true): Promise<void> {
 		console.log('│ STEP 3: Create Events                  │');
 		console.log('└────────────────────────────────────────┘');
 
-		const {
-			serviceEventMap,
-			eventPlanningEventMap,
-			serviceResult,
-			eventPlanningResult
-		} = await createInitialEvents(dryRun);
+		const { serviceEventMap, eventPlanningEventMap, serviceResult, eventPlanningResult } =
+			await createInitialEvents(dryRun);
 
 		const eventsFailedCount = serviceResult.failed + eventPlanningResult.failed;
 		if (eventsFailedCount > 0) {
@@ -214,7 +210,11 @@ export async function runFullMigration(dryRun: boolean = true): Promise<void> {
 
 // Allow running directly from command line (Node.js only)
 // Usage: npx tsx src/lib/migration/runMigration.ts [--live]
-if (typeof process !== 'undefined' && process.argv && import.meta.url === `file://${process.argv[1]}`) {
+if (
+	typeof process !== 'undefined' &&
+	process.argv &&
+	import.meta.url === `file://${process.argv[1]}`
+) {
 	const dryRun = !process.argv.includes('--live');
 
 	runFullMigration(dryRun)

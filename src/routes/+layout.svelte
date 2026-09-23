@@ -38,4 +38,3 @@
 	{/if}
 	<Toaster richColors position="top-center" />
 </div>
-

@@ -128,7 +128,7 @@
 		try {
 			await deletePerformanceAndSync(contract.id, performanceId, contract.performanceFeeVND);
 			toast.success('Performance deleted');
-		} catch (error) {
+		} catch {
 			toast.error('Failed to delete performance');
 		}
 	}

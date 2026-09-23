@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import type { PageData } from './$types';
 	import EquipmentRentalOneOffForm from '$lib/components/v2/contracts/EquipmentRentalOneOffForm.svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	function handleSuccess() {
-		goto(`/contracts/equipment-rental-oneoff/${data.contract.id}`);
+		goto(resolve(`/contracts/equipment-rental-oneoff/${data.contract.id}`));
 	}
 
 	function handleCancel() {
-		goto(`/contracts/equipment-rental-oneoff/${data.contract.id}`);
+		goto(resolve(`/contracts/equipment-rental-oneoff/${data.contract.id}`));
 	}
 </script>
 

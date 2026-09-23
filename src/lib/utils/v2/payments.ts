@@ -104,7 +104,11 @@ export async function createPayment(data: PaymentInput): Promise<string> {
  * Create recurring (monthly) payment records for an equipment rental contract
  */
 export async function createRecurringPayments(
-	contract: PaymentContractInput & { rentalStartDate: string; rentalEndDate: string; monthlyRent: number },
+	contract: PaymentContractInput & {
+		rentalStartDate: string;
+		rentalEndDate: string;
+		monthlyRent: number;
+	},
 	installments: { label: string; dueDate: Date; amount: number }[]
 ): Promise<string[]> {
 	const ids: string[] = [];
@@ -283,8 +287,7 @@ export async function syncContractPaymentStatus(
 	if (payments.length === 0) {
 		// Auto-create a one-time payment record
 		// Use paymentDueDate if available, otherwise fallback to today's date
-		const dueDate =
-			contract.paymentDueDate || new Date().toISOString().split('T')[0];
+		const dueDate = contract.paymentDueDate || new Date().toISOString().split('T')[0];
 		await createOneTimePayment(
 			{
 				...contract,
@@ -395,9 +398,7 @@ export async function migratePaymentDueDates(payments: Payment[]): Promise<Migra
  * - service-provision: startDate
  * - Other types: uses contract createdAt as fallback
  */
-export async function migrateOneTimePaymentDueDates(
-	payments: Payment[]
-): Promise<MigrationResult> {
+export async function migrateOneTimePaymentDueDates(payments: Payment[]): Promise<MigrationResult> {
 	const result: MigrationResult = {
 		total: 0,
 		migrated: 0,
@@ -406,9 +407,7 @@ export async function migrateOneTimePaymentDueDates(
 	};
 
 	// Filter one-time payments needing migration (no dueDate)
-	const paymentsToMigrate = payments.filter(
-		(p) => p.paymentType === 'one-time' && !p.dueDate
-	);
+	const paymentsToMigrate = payments.filter((p) => p.paymentType === 'one-time' && !p.dueDate);
 	result.total = paymentsToMigrate.length;
 
 	if (paymentsToMigrate.length === 0) {
@@ -437,9 +436,7 @@ export async function migrateOneTimePaymentDueDates(
 			if (!dateStr) {
 				const createdAtDate = payment.createdAt.toDate();
 				dateStr = createdAtDate.toISOString().split('T')[0];
-				logger.warn(
-					`Payment ${payment.id}: Using createdAt as fallback for dueDate`
-				);
+				logger.warn(`Payment ${payment.id}: Using createdAt as fallback for dueDate`);
 			}
 
 			const docRef = doc(db, COLLECTION_NAME, payment.id);

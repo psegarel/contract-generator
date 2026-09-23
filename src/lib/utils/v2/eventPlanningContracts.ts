@@ -15,10 +15,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '$lib/config/firebase';
 import type { EventPlanningContract } from '$lib/types/v2';
-import {
-	eventPlanningContractInputSchema,
-	type EventPlanningContractInput
-} from '$lib/schemas/v2';
+import { eventPlanningContractInputSchema, type EventPlanningContractInput } from '$lib/schemas/v2';
 import { logger } from '../logger';
 
 const COLLECTION_NAME = 'event-planning-contracts';

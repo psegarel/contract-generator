@@ -1,5 +1,11 @@
 import type { BaseContract, ClientCounterparty } from '$lib/types/v2';
-import type { ServiceProvisionContract, EventPlanningContract, EquipmentRentalContract, EquipmentRentalOneOffContract, DjResidencyContract } from '$lib/types/v2/contracts';
+import type {
+	ServiceProvisionContract,
+	EventPlanningContract,
+	EquipmentRentalContract,
+	EquipmentRentalOneOffContract,
+	DjResidencyContract
+} from '$lib/types/v2/contracts';
 import { getCounterpartyById } from './counterparties';
 import { toast } from 'svelte-sonner';
 import { deleteServiceProvisionContract } from './serviceProvisionContracts';
@@ -21,8 +27,16 @@ import { injectRepublicHeaderIntoDocx } from '../contractHeader';
  * Supports service-provision, event-planning, and equipment-rental contracts
  */
 export async function downloadContract(contract: BaseContract): Promise<void> {
-	if (contract.type !== 'service-provision' && contract.type !== 'event-planning' && contract.type !== 'equipment-rental' && contract.type !== 'equipment-rental-oneoff' && contract.type !== 'dj-residency') {
-		toast.error('Download is only available for service-provision, event-planning, equipment-rental, equipment-rental-oneoff, and dj-residency contracts');
+	if (
+		contract.type !== 'service-provision' &&
+		contract.type !== 'event-planning' &&
+		contract.type !== 'equipment-rental' &&
+		contract.type !== 'equipment-rental-oneoff' &&
+		contract.type !== 'dj-residency'
+	) {
+		toast.error(
+			'Download is only available for service-provision, event-planning, equipment-rental, equipment-rental-oneoff, and dj-residency contracts'
+		);
 		return;
 	}
 
@@ -133,7 +147,10 @@ export async function downloadContract(contract: BaseContract): Promise<void> {
 				toast.error('Counterparty not found for this contract');
 				return;
 			}
-			const blob = await generateDjResidencyContract(djResidencyContract, venueCounterparty as ClientCounterparty);
+			const blob = await generateDjResidencyContract(
+				djResidencyContract,
+				venueCounterparty as ClientCounterparty
+			);
 			const filename = `DJ-Residency-Contract-${djResidencyContract.contractNumber}.docx`;
 			await saveFile(blob, filename);
 			toast.success('Contract downloaded successfully!');
@@ -212,16 +229,22 @@ export async function deleteContract(
 		return;
 	}
 
-	if (contract.type !== 'service-provision' && contract.type !== 'event-planning' && contract.type !== 'equipment-rental' && contract.type !== 'equipment-rental-oneoff' && contract.type !== 'dj-residency') {
-		toast.error('Delete is only available for service-provision, event-planning, equipment-rental, equipment-rental-oneoff, and dj-residency contracts');
+	if (
+		contract.type !== 'service-provision' &&
+		contract.type !== 'event-planning' &&
+		contract.type !== 'equipment-rental' &&
+		contract.type !== 'equipment-rental-oneoff' &&
+		contract.type !== 'dj-residency'
+	) {
+		toast.error(
+			'Delete is only available for service-provision, event-planning, equipment-rental, equipment-rental-oneoff, and dj-residency contracts'
+		);
 		return;
 	}
 
 	const contractName = contract.eventName || contract.contractNumber;
 	if (
-		!confirm(
-			`Are you sure you want to delete "${contractName}"? This action cannot be undone.`
-		)
+		!confirm(`Are you sure you want to delete "${contractName}"? This action cannot be undone.`)
 	) {
 		return;
 	}

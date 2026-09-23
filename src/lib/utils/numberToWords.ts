@@ -5,18 +5,7 @@
 export function numberToVietnameseWords(num: number): string {
 	if (num === 0) return 'không';
 
-	const ones = [
-		'',
-		'một',
-		'hai',
-		'ba',
-		'bốn',
-		'năm',
-		'sáu',
-		'bảy',
-		'tám',
-		'chín'
-	];
+	const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
 
 	const tens = [
 		'',
@@ -117,18 +106,7 @@ export function numberToVietnameseWords(num: number): string {
 export function numberToEnglishWords(num: number): string {
 	if (num === 0) return 'zero';
 
-	const ones = [
-		'',
-		'one',
-		'two',
-		'three',
-		'four',
-		'five',
-		'six',
-		'seven',
-		'eight',
-		'nine'
-	];
+	const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 
 	const teens = [
 		'ten',

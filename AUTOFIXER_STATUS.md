@@ -11,6 +11,7 @@ This document tracks which Svelte components have been validated with the Svelte
 Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) and should **NOT** be checked with autofixer unless specific issues arise. They are maintained by the shadcn/ui project and follow their own conventions.
 
 ## Status Legend
+
 - ✅ **Checked** - Component passed autofixer with 0 issues
 - ⚠️ **Needs Review** - Component has autofixer suggestions that need to be addressed
 - ❌ **Not Checked** - Component hasn't been validated yet
@@ -22,62 +23,62 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 
 ### V2 Contract Components (`src/lib/components/v2/contracts/`)
 
-| Component | Status | Last Checked | Notes |
-|-----------|--------|--------------|-------|
-| ContractsList.svelte | ✅ | 2026-01-05 | Clean - no issues |
-| ContractListItem.svelte | ✅ | 2026-02-03 | Refactored: removed payment toggle, added link badge |
-| ContractCard.svelte | ✅ | 2026-02-03 | Refactored: removed toggle props, added link badge |
-| EquipmentRentalLogisticsSection.svelte | ✅ | 2026-02-01 | Clean - split venue fields to match template placeholders |
+| Component                              | Status | Last Checked | Notes                                                     |
+| -------------------------------------- | ------ | ------------ | --------------------------------------------------------- |
+| ContractsList.svelte                   | ✅     | 2026-01-05   | Clean - no issues                                         |
+| ContractListItem.svelte                | ✅     | 2026-02-03   | Refactored: removed payment toggle, added link badge      |
+| ContractCard.svelte                    | ✅     | 2026-02-03   | Refactored: removed toggle props, added link badge        |
+| EquipmentRentalLogisticsSection.svelte | ✅     | 2026-02-01   | Clean - split venue fields to match template placeholders |
 
 ### Core Components (`src/lib/components/`)
 
-| Component | Status | Last Checked | Notes |
-|-----------|--------|--------------|-------|
-| AuthGuard.svelte | ✅ | 2026-01-02 | Clean - no issues |
-| ClientForm.svelte | ✅ | 2026-01-02 | Recent refactor, no $effect issues |
-| ContractPageHeader.svelte | ✅ | 2026-01-02 | Fixed deprecated slot usage |
-| DashboardCard.svelte | ❌ | - | - |
-| ContractValue.svelte | ❌ | - | - |
-| EventPlanningContractForm.svelte | ✅ | 2026-01-02 | Clean - orchestrator pattern |
-| FileUpload.svelte | ✅ | 2026-01-02 | Updated to use bind:this |
-| Header.svelte | ✅ | 2026-01-02 | Clean - no issues |
-| LatestContractsList.svelte | ✅ | 2026-01-03 | Subscription pattern - see Known Issues |
-| ContractListItem.svelte | ✅ | 2026-01-03 | Renamed from LatestContractsListItem, generic component for all contract lists |
-| LocationForm.svelte | ❌ | - | - |
-| LoginForm.svelte | ❌ | - | - |
-| ServiceContractForm.svelte | ✅ | 2026-01-02 | Recent refactor, no $effect issues |
-| ServiceContractList.svelte | ✅ | 2026-01-02 | Clean - no issues |
-| ServiceContractListItem.svelte | ✅ | 2026-01-03 | Dashboard grid layout, Titillium Web typography |
-| TextField.svelte | ✅ | 2026-01-02 | Updated to handle nullable values |
-| TextareaField.svelte | ✅ | 2026-01-02 | Updated to handle nullable values |
+| Component                        | Status | Last Checked | Notes                                                                          |
+| -------------------------------- | ------ | ------------ | ------------------------------------------------------------------------------ |
+| AuthGuard.svelte                 | ✅     | 2026-01-02   | Clean - no issues                                                              |
+| ClientForm.svelte                | ✅     | 2026-01-02   | Recent refactor, no $effect issues                                             |
+| ContractPageHeader.svelte        | ✅     | 2026-01-02   | Fixed deprecated slot usage                                                    |
+| DashboardCard.svelte             | ❌     | -            | -                                                                              |
+| ContractValue.svelte             | ❌     | -            | -                                                                              |
+| EventPlanningContractForm.svelte | ✅     | 2026-01-02   | Clean - orchestrator pattern                                                   |
+| FileUpload.svelte                | ✅     | 2026-01-02   | Updated to use bind:this                                                       |
+| Header.svelte                    | ✅     | 2026-01-02   | Clean - no issues                                                              |
+| LatestContractsList.svelte       | ✅     | 2026-01-03   | Subscription pattern - see Known Issues                                        |
+| ContractListItem.svelte          | ✅     | 2026-01-03   | Renamed from LatestContractsListItem, generic component for all contract lists |
+| LocationForm.svelte              | ❌     | -            | -                                                                              |
+| LoginForm.svelte                 | ❌     | -            | -                                                                              |
+| ServiceContractForm.svelte       | ✅     | 2026-01-02   | Recent refactor, no $effect issues                                             |
+| ServiceContractList.svelte       | ✅     | 2026-01-02   | Clean - no issues                                                              |
+| ServiceContractListItem.svelte   | ✅     | 2026-01-03   | Dashboard grid layout, Titillium Web typography                                |
+| TextField.svelte                 | ✅     | 2026-01-02   | Updated to handle nullable values                                              |
+| TextareaField.svelte             | ✅     | 2026-01-02   | Updated to handle nullable values                                              |
 
 ### Event Planning Components (`src/lib/components/event-planning/`)
 
-| Component | Status | Last Checked | Notes |
-|-----------|--------|--------------|-------|
-| ClientInfoSection.svelte | ✅ | 2026-01-02 | Removed unnecessary fields |
-| ContractInfoSection.svelte | ❌ | - | - |
-| EventDetailsSection.svelte | ❌ | - | - |
-| FinancialTermsSection.svelte | ❌ | - | - |
-| LegalTermsSection.svelte | ❌ | - | - |
-| TimelineSection.svelte | ❌ | - | - |
+| Component                    | Status | Last Checked | Notes                      |
+| ---------------------------- | ------ | ------------ | -------------------------- |
+| ClientInfoSection.svelte     | ✅     | 2026-01-02   | Removed unnecessary fields |
+| ContractInfoSection.svelte   | ❌     | -            | -                          |
+| EventDetailsSection.svelte   | ❌     | -            | -                          |
+| FinancialTermsSection.svelte | ❌     | -            | -                          |
+| LegalTermsSection.svelte     | ❌     | -            | -                          |
+| TimelineSection.svelte       | ❌     | -            | -                          |
 
 ### Route Components (`src/routes/`)
 
-| Component | Status | Last Checked | Notes |
-|-----------|--------|--------------|-------|
-| +layout.svelte | ❌ | - | - |
-| +page.svelte (root) | ✅ | 2026-02-03 | Removed migration UI |
-| payments/+page.svelte | ✅ | 2026-02-03 | New — admin payments management route |
-| contacts/+page.svelte | ❌ | - | - |
-| contracts/+page.svelte | ❌ | - | - |
-| contracts/event-planning/+page.svelte | ❌ | - | - |
-| contracts/event-planning/list/+page.svelte | ✅ | 2026-01-03 | Refactored to use generic ContractListItem |
-| contracts/service/+page.svelte | ❌ | - | - |
-| contracts/service/list/+page.svelte | ❌ | - | - |
-| design-system/+layout.svelte | ✅ | 2026-01-02 | Clean - no issues |
-| design-system/+page.svelte | ✅ | 2026-01-02 | Fixed missing keys in each blocks |
-| login/+page.svelte | ❌ | - | - |
+| Component                                  | Status | Last Checked | Notes                                      |
+| ------------------------------------------ | ------ | ------------ | ------------------------------------------ |
+| +layout.svelte                             | ❌     | -            | -                                          |
+| +page.svelte (root)                        | ✅     | 2026-02-03   | Removed migration UI                       |
+| payments/+page.svelte                      | ✅     | 2026-02-03   | New — admin payments management route      |
+| contacts/+page.svelte                      | ❌     | -            | -                                          |
+| contracts/+page.svelte                     | ❌     | -            | -                                          |
+| contracts/event-planning/+page.svelte      | ❌     | -            | -                                          |
+| contracts/event-planning/list/+page.svelte | ✅     | 2026-01-03   | Refactored to use generic ContractListItem |
+| contracts/service/+page.svelte             | ❌     | -            | -                                          |
+| contracts/service/list/+page.svelte        | ❌     | -            | -                                          |
+| design-system/+layout.svelte               | ✅     | 2026-01-02   | Clean - no issues                          |
+| design-system/+page.svelte                 | ✅     | 2026-01-02   | Fixed missing keys in each blocks          |
+| login/+page.svelte                         | ❌     | -            | -                                          |
 
 ---
 
@@ -86,6 +87,7 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 When checking a component:
 
 1. **Run the autofixer:**
+
    ```bash
    # Use the Svelte MCP autofixer tool via Claude Code
    ```
@@ -113,23 +115,27 @@ When checking a component:
 ### Subscription Pattern Warnings
 
 **Components Affected:**
+
 - LatestContractsList.svelte
 - +page.svelte (Dashboard root)
 
 **Issue:**
 Autofixer gives 2 suggestions about calling `.init()` and `.destroy()` methods inside `$effect`:
+
 ```
 "You are calling a function inside an $effect. Please check if the function
 is reassigning a stateful variable because that's considered malpractice..."
 ```
 
 **Context:**
+
 - This is the established pattern for managing Firestore subscriptions via state classes
 - Same pattern used in `ContractState` and `ServiceContractState`
 - The autofixer suggests to ignore if we're sure the functions are managing side effects
 - This is legitimate use of `$effect` for external API subscriptions (Firestore)
 
 **Decision:**
+
 - Accepted as valid pattern for now
 - Consider refactoring subscription management pattern in future to eliminate warnings
 - Not blocking since autofixer says to ignore if certain about side effects
@@ -159,12 +165,14 @@ Based on CLAUDE.md guidelines:
 **Not Checked:** ~3 (5%)
 
 **Recently Checked (2026-02-03):**
+
 - ContractListItem.svelte (v2) ✅ (removed payment toggle, added link badge)
 - ContractCard.svelte (v2) ✅ (removed toggle props, added link badge)
 - payments/+page.svelte ✅ (new admin payments management route)
 - +page.svelte (root) ✅ (removed migration UI)
 
 **Previously Checked (2026-02-01):**
+
 - EquipmentRentalLogisticsSection.svelte ✅ (updated venueAddress split to Vietnamese/English)
 - EventForm.svelte ✅ (fixed $effect anti-pattern)
 - Route components: +layout.svelte, +page.svelte, events/+page.svelte, counterparties/+page.svelte, login/+page.svelte ✅ (legitimate $effect usage for lifecycle)
@@ -185,6 +193,7 @@ Based on CLAUDE.md guidelines:
 - CreateProviderInline.svelte ✅
 
 **Previously Checked (2026-02-01):**
+
 - EventPlanningForm.svelte ✅
 - EventPlanningContractBasicsSection.svelte ✅
 - EventPlanningCompanyInfoSection.svelte ✅
@@ -207,16 +216,19 @@ Based on CLAUDE.md guidelines:
 - BankingSection.svelte ✅
 
 **Previously Checked (2026-01-05):**
+
 - ContractsList.svelte (v2) ✅
 - ContractListItem.svelte (v2) ✅
 
 **Previously Checked (2026-01-03):**
+
 - LatestContractsList.svelte ✅
 - ContractListItem.svelte ✅ (renamed from LatestContractsListItem)
 - ServiceContractListItem.svelte ✅
 - contracts/event-planning/list/+page.svelte ✅ (refactored to use generic component)
 
 **Previously Checked (2026-01-02):**
+
 - AuthGuard.svelte ✅
 - ClientForm.svelte ✅
 - ContractPageHeader.svelte ✅

@@ -34,7 +34,9 @@ export async function addTimestampsToCounterpartiesBrowser(
 	};
 
 	try {
-		console.log(dryRun ? '🔍 DRY RUN: Checking counterparties...' : '🔄 Migrating counterparties...\n');
+		console.log(
+			dryRun ? '🔍 DRY RUN: Checking counterparties...' : '🔄 Migrating counterparties...\n'
+		);
 
 		const counterpartiesRef = collection(db, 'counterparties');
 		const snapshot = await getDocs(counterpartiesRef);
@@ -112,10 +114,3 @@ export async function addTimestampsToCounterpartiesBrowser(
 		return result;
 	}
 }
-
-
-
-
-
-
-

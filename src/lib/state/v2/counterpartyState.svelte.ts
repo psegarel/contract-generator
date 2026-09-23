@@ -48,18 +48,14 @@ export class CounterpartyState {
 	 * Get clients
 	 */
 	get clients(): ClientCounterparty[] {
-		return this.counterparties.filter(
-			(c): c is ClientCounterparty => c.type === 'client'
-		);
+		return this.counterparties.filter((c): c is ClientCounterparty => c.type === 'client');
 	}
 
 	/**
 	 * Get all contractors
 	 */
 	get contractors(): ContractorCounterparty[] {
-		return this.counterparties.filter(
-			(c): c is ContractorCounterparty => c.type === 'contractor'
-		);
+		return this.counterparties.filter((c): c is ContractorCounterparty => c.type === 'contractor');
 	}
 
 	/**

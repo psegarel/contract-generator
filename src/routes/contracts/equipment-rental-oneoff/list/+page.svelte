@@ -11,5 +11,5 @@
 </script>
 
 <div class="container mx-auto py-8">
-	<ContractsList contracts={contracts} title="Equipment Rental (One-Off) Contracts" />
+	<ContractsList {contracts} title="Equipment Rental (One-Off) Contracts" />
 </div>

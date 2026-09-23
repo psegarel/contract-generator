@@ -57,13 +57,7 @@
 			required
 		/>
 
-		<TextField
-			id="endDate"
-			label="End Date"
-			type="date"
-			bind:value={formState.endDate}
-			required
-		/>
+		<TextField id="endDate" label="End Date" type="date" bind:value={formState.endDate} required />
 
 		<TextField
 			class="col-span-full"

@@ -1,5 +1,5 @@
 import type { EquipmentRentalContract, EquipmentItem, Counterparty } from '$lib/types/v2';
-import { generateContractNumber } from '$lib/utils/contractHelpers';
+import { SvelteDate } from 'svelte/reactivity';
 
 /**
  * Form state class for Equipment Rental Contract forms
@@ -138,7 +138,7 @@ export class EquipmentRentalContractFormState {
 	 */
 	private generateContractNumber() {
 		// Use generic format for equipment rental
-		const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+		const dateStr = new SvelteDate().toISOString().slice(0, 10).replace(/-/g, '');
 		const timestamp = Date.now().toString().slice(-4);
 		this.contractNumber = `EQP-${dateStr}-${timestamp}`;
 	}
@@ -202,8 +202,8 @@ export class EquipmentRentalContractFormState {
 	 */
 	get rentalMonths(): number {
 		if (!this.rentalStartDate || !this.rentalEndDate) return 0;
-		const start = new Date(this.rentalStartDate);
-		const end = new Date(this.rentalEndDate);
+		const start = new SvelteDate(this.rentalStartDate);
+		const end = new SvelteDate(this.rentalEndDate);
 		if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
 		const months =
 			(end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());

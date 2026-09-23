@@ -1,3 +1,5 @@
+<!-- The HTML is generated from the application's trusted contract templates. -->
+<!-- eslint-disable svelte/no-at-html-tags -->
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
@@ -12,7 +14,7 @@
 		isDownloading = true;
 		try {
 			await downloadContract(data.contract);
-		} catch (error) {
+		} catch {
 			// Error already handled in downloadContract with toast
 		} finally {
 			isDownloading = false;
@@ -46,6 +48,7 @@
 	<!-- Contract Preview - HTML from Word template -->
 	<div class="bg-card p-8 print:p-0">
 		<div class="contract-html-preview">
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html data.html}
 		</div>
 	</div>

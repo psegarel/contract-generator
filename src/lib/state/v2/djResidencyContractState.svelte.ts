@@ -5,6 +5,7 @@ import {
 import type { DjResidencyContract } from '$lib/types/v2';
 import type { Unsubscribe } from 'firebase/firestore';
 import { logger } from '$lib/utils/logger';
+import { SvelteSet } from 'svelte/reactivity';
 
 export class DjResidencyContractState {
 	contracts = $state<DjResidencyContract[]>([]);
@@ -12,7 +13,7 @@ export class DjResidencyContractState {
 	error = $state<string | null>(null);
 	private unsubscribe: Unsubscribe | null = null;
 	// Tracks contract IDs currently being synced to avoid duplicate concurrent syncs.
-	private syncingIds = new Set<string>();
+	private syncingIds = new SvelteSet<string>();
 
 	init() {
 		if (this.unsubscribe) return;

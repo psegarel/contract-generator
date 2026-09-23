@@ -5,7 +5,3 @@ export const load: PageLoad = ({ url }) => {
 		eventId: url.searchParams.get('eventId') || null
 	};
 };
-
-
-
-

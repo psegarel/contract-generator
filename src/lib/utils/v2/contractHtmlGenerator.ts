@@ -45,11 +45,30 @@ async function convertDocxToHtml(docxArrayBuffer: ArrayBuffer): Promise<string> 
 	const sanitizedHtml = DOMPurify.sanitize(result.value, {
 		USE_PROFILES: { html: true },
 		ALLOWED_TAGS: [
-			'p', 'br', 'strong', 'b', 'em', 'i', 'u',
-			'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-			'ul', 'ol', 'li',
-			'table', 'tr', 'td', 'th', 'tbody', 'thead',
-			'span', 'div'
+			'p',
+			'br',
+			'strong',
+			'b',
+			'em',
+			'i',
+			'u',
+			'h1',
+			'h2',
+			'h3',
+			'h4',
+			'h5',
+			'h6',
+			'ul',
+			'ol',
+			'li',
+			'table',
+			'tr',
+			'td',
+			'th',
+			'tbody',
+			'thead',
+			'span',
+			'div'
 		],
 		ALLOWED_ATTR: ['style', 'class', 'colspan', 'rowspan', 'align']
 	});
@@ -244,18 +263,24 @@ export async function generateEquipmentRentalContractHtml(
 		logger.info('[Stage 3] Fetching template file: /_aVEquipmentRentalTemplate.docx');
 		const response = await fetch('/_aVEquipmentRentalTemplate.docx');
 		if (!response.ok) {
-			logger.error('[Stage 3] Template fetch failed', { status: response.status, statusText: response.statusText });
+			logger.error('[Stage 3] Template fetch failed', {
+				status: response.status,
+				statusText: response.statusText
+			});
 			throw new Error(`Failed to load template: ${response.statusText}`);
 		}
 		const templateArrayBuffer = await response.arrayBuffer();
-		logger.info('[Stage 3] Template loaded', { size: templateArrayBuffer.byteLength, sizeKB: Math.round(templateArrayBuffer.byteLength / 1024) });
+		logger.info('[Stage 3] Template loaded', {
+			size: templateArrayBuffer.byteLength,
+			sizeKB: Math.round(templateArrayBuffer.byteLength / 1024)
+		});
 		if (templateArrayBuffer.byteLength === 0) {
 			logger.error('[Stage 3] Template file is empty');
 			throw new Error('Template file is empty');
 		}
 
 		const zip = new PizZip(templateArrayBuffer);
-		
+
 		// Stage 6: Template Parsing
 		logger.info('[Stage 6] Initializing Docxtemplater');
 		let doc: Docxtemplater;
@@ -275,15 +300,15 @@ export async function generateEquipmentRentalContractHtml(
 			if (error.properties?.errors) {
 				const errors = error.properties.errors;
 				logger.error(`[Stage 6] Template has ${errors.length} errors`);
-				
+
 				// Group errors by type
 				const splitPlaceholders = new Set<string>();
 				const errorTypes = new Map<string, number>();
-				
+
 				errors.forEach((err: any) => {
 					const errorType = err.id || 'unknown';
 					errorTypes.set(errorType, (errorTypes.get(errorType) || 0) + 1);
-					
+
 					if (err.id === 'duplicate_open_tag' || err.id === 'duplicate_close_tag') {
 						const xtag = err.properties?.xtag || '';
 						if (xtag.startsWith('{{')) {
@@ -292,7 +317,7 @@ export async function generateEquipmentRentalContractHtml(
 							splitPlaceholders.add(xtag);
 						}
 					}
-					
+
 					logger.error(`[Stage 6] Error: ${err.name} - ${err.message}`, {
 						id: err.id,
 						xtag: err.properties?.xtag,
@@ -309,12 +334,18 @@ export async function generateEquipmentRentalContractHtml(
 				});
 
 				if (splitPlaceholders.size > 0) {
-					throw new Error(`Template has ${errors.length} errors. Placeholders are split across XML nodes (likely due to formatting in Word). Split placeholders found: ${Array.from(splitPlaceholders).join(', ')}. To fix: 1) Open the template in Word, 2) Find each placeholder, 3) Select the ENTIRE placeholder (including {{ and }}), 4) Remove ALL formatting (bold/italic/underline), 5) If still broken, delete and retype as one continuous string.`);
+					throw new Error(
+						`Template has ${errors.length} errors. Placeholders are split across XML nodes (likely due to formatting in Word). Split placeholders found: ${Array.from(splitPlaceholders).join(', ')}. To fix: 1) Open the template in Word, 2) Find each placeholder, 3) Select the ENTIRE placeholder (including {{ and }}), 4) Remove ALL formatting (bold/italic/underline), 5) If still broken, delete and retype as one continuous string.`
+					);
 				}
-				
-				throw new Error(`Template parsing failed with ${errors.length} errors. Check that all placeholders are unbroken (not split by formatting).`);
+
+				throw new Error(
+					`Template parsing failed with ${errors.length} errors. Check that all placeholders are unbroken (not split by formatting).`
+				);
 			}
-			throw new Error(`Template parsing failed: ${error.message}. Check that all placeholders are unbroken (not split by formatting).`);
+			throw new Error(
+				`Template parsing failed: ${error.message}. Check that all placeholders are unbroken (not split by formatting).`
+			);
 		}
 
 		// Helper functions (same as document generator)
@@ -346,7 +377,8 @@ export async function generateEquipmentRentalContractHtml(
 		function formatEquipmentListText(equipment: typeof contract.equipment): string {
 			return equipment
 				.map((item, index) => {
-					const serials = item.serialNumbers.length > 0 ? ` (SN: ${item.serialNumbers.join(', ')})` : '';
+					const serials =
+						item.serialNumbers.length > 0 ? ` (SN: ${item.serialNumbers.join(', ')})` : '';
 					return `${index + 1}. ${item.quantity} x ${item.name}${serials}`;
 				})
 				.join('\n');
@@ -355,11 +387,14 @@ export async function generateEquipmentRentalContractHtml(
 		// Monthly rent is a user-entered value (not derived from equipment value)
 		const monthlyRent = contract.monthlyRent || 0;
 
-
 		// Stage 4: Counterparty Fetch
-		logger.info('[Stage 4] Fetching counterparty data', { counterpartyId: contract.counterpartyId });
-		const counterparty = contract.counterpartyId ? await getCounterpartyById(contract.counterpartyId) : null;
-		
+		logger.info('[Stage 4] Fetching counterparty data', {
+			counterpartyId: contract.counterpartyId
+		});
+		const counterparty = contract.counterpartyId
+			? await getCounterpartyById(contract.counterpartyId)
+			: null;
+
 		if (!counterparty) {
 			logger.warn('[Stage 4] Counterparty not found', { counterpartyId: contract.counterpartyId });
 		} else {
@@ -373,7 +408,7 @@ export async function generateEquipmentRentalContractHtml(
 				hasPhone: !!counterparty.phone
 			});
 		}
-		
+
 		const clientCounterparty = counterparty?.type === 'client' ? (counterparty as any) : null;
 		if (clientCounterparty) {
 			logger.info('[Stage 4] Client counterparty details', {
@@ -405,15 +440,18 @@ export async function generateEquipmentRentalContractHtml(
 		logger.info('[Stage 5] Starting data transformation');
 		logger.info('[Stage 5] Contract data before transformation', {
 			equipmentCount: contract.equipment.length,
-			equipmentItems: contract.equipment.map(e => ({ name: e.name, quantity: e.quantity })),
-			totalEquipmentValue: contract.equipment.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0),
+			equipmentItems: contract.equipment.map((e) => ({ name: e.name, quantity: e.quantity })),
+			totalEquipmentValue: contract.equipment.reduce(
+				(sum, item) => sum + item.quantity * item.unitPrice,
+				0
+			),
 			deliveryFee: contract.deliveryFee,
 			securityDeposit: contract.securityDeposit,
 			contractValue: contract.contractValue
 		});
-		
+
 		const viewData = await transformEquipmentRentalContractData(contract);
-		
+
 		logger.info('[Stage 5] Data transformation complete', {
 			contractNumber: viewData.contractNumber,
 			counterpartyName: viewData.counterpartyName,
@@ -424,7 +462,8 @@ export async function generateEquipmentRentalContractHtml(
 
 		// Compute totals
 		const totalEquipmentValue = contract.equipment.reduce(
-			(sum, item) => sum + item.quantity * item.unitPrice, 0
+			(sum, item) => sum + item.quantity * item.unitPrice,
+			0
 		);
 
 		// Number to words
@@ -442,97 +481,103 @@ export async function generateEquipmentRentalContractHtml(
 
 		// Stage 7: Template Rendering
 		logger.info('[Stage 7] Preparing render data');
-		
+
 		// Calculate values for logging
 		const renderDataKeys = [
-			'contractNumber', 'contractDateVietnamese', 'contractDateEnglish',
-			'partyACompanyVietnamese', 'partyACompanyEnglish',
-			'partyBCompanyVietnamese', 'partyBCompanyEnglish',
-			'rentalStartDateVietnamese', 'rentalEndDateVietnamese',
-			'monthlyRentVND', 'depositVND',
+			'contractNumber',
+			'contractDateVietnamese',
+			'contractDateEnglish',
+			'partyACompanyVietnamese',
+			'partyACompanyEnglish',
+			'partyBCompanyVietnamese',
+			'partyBCompanyEnglish',
+			'rentalStartDateVietnamese',
+			'rentalEndDateVietnamese',
+			'monthlyRentVND',
+			'depositVND',
 			'equipmentList'
 		];
-		
+
 		logger.info('[Stage 7] Render data summary', {
 			placeholderCount: renderDataKeys.length,
 			contractNumber: viewData.contractNumber,
 			hasPartyBData: !!(clientCounterparty || counterparty),
 			equipmentListLength: equipmentListText.length
 		});
-		
+
 		logger.info('[Stage 7] Calling doc.render()');
 		try {
 			doc.render({
-			// Contract Information
-			contractNumber: viewData.contractNumber,
-			contractDateVietnamese: contractDateVietnamese,
-			contractDateEnglish: contractDateEnglish,
+				// Contract Information
+				contractNumber: viewData.contractNumber,
+				contractDateVietnamese: contractDateVietnamese,
+				contractDateEnglish: contractDateEnglish,
 
-			// Party A (Insense) Information
-			partyACompanyVietnamese: companyConfig.nameVietnamese,
-			partyACompanyEnglish: companyConfig.name,
-			partyARepresentative: companyConfig.representative,
-			partyAEmail: companyConfig.representativeEmail,
-			partyAPhone: companyConfig.representativePhone,
-			partyAAddressLine1: companyConfig.addressLine1,
-			partyAAddressLine2: companyConfig.addressLine2,
-			companyWard: companyConfig.ward || '',
-			partyACity: companyConfig.city,
-			partyATaxCode: companyConfig.taxCode,
-			partyABankName: companyConfig.bankName || '',
-			partyAAccountNumber: companyConfig.bankAccountNumber || '',
+				// Party A (Insense) Information
+				partyACompanyVietnamese: companyConfig.nameVietnamese,
+				partyACompanyEnglish: companyConfig.name,
+				partyARepresentative: companyConfig.representative,
+				partyAEmail: companyConfig.representativeEmail,
+				partyAPhone: companyConfig.representativePhone,
+				partyAAddressLine1: companyConfig.addressLine1,
+				partyAAddressLine2: companyConfig.addressLine2,
+				companyWard: companyConfig.ward || '',
+				partyACity: companyConfig.city,
+				partyATaxCode: companyConfig.taxCode,
+				partyABankName: companyConfig.bankName || '',
+				partyAAccountNumber: companyConfig.bankAccountNumber || '',
 
-			// Party B Information - use counterparty data directly
-			// Company name should be the same in both languages (not translated)
-			partyBCompanyVietnamese: clientCounterparty?.companyName || contract.counterpartyName,
-			partyBCompanyEnglish: clientCounterparty?.companyName || contract.counterpartyName,
-			partyBAddressLine1: partyBAddress.line1,
-			partyBAddressLine2: partyBAddress.line2,
-			partyBCity: partyBAddress.city,
-			partyBAddressVietnamese: counterpartyAddressVN || '',
-			partyBAddressEnglish: counterparty?.address || '',
-			partyBTaxCode: clientCounterparty?.taxId || '',
-			partyBAccountNumber: clientCounterparty?.bankAccountNumber || '',
-			partyBBankName: clientCounterparty?.bankName || '',
-			partyBBankBranch: partyBBankBranch,
-			partyBRepresentative: clientCounterparty?.representativeName || '',
-			partyBPosition: clientCounterparty?.representativePosition || '',
-			partyBEmail: counterparty?.email || '',
-			partyBPhone: counterparty?.phone || '',
+				// Party B Information - use counterparty data directly
+				// Company name should be the same in both languages (not translated)
+				partyBCompanyVietnamese: clientCounterparty?.companyName || contract.counterpartyName,
+				partyBCompanyEnglish: clientCounterparty?.companyName || contract.counterpartyName,
+				partyBAddressLine1: partyBAddress.line1,
+				partyBAddressLine2: partyBAddress.line2,
+				partyBCity: partyBAddress.city,
+				partyBAddressVietnamese: counterpartyAddressVN || '',
+				partyBAddressEnglish: counterparty?.address || '',
+				partyBTaxCode: clientCounterparty?.taxId || '',
+				partyBAccountNumber: clientCounterparty?.bankAccountNumber || '',
+				partyBBankName: clientCounterparty?.bankName || '',
+				partyBBankBranch: partyBBankBranch,
+				partyBRepresentative: clientCounterparty?.representativeName || '',
+				partyBPosition: clientCounterparty?.representativePosition || '',
+				partyBEmail: counterparty?.email || '',
+				partyBPhone: counterparty?.phone || '',
 
-			// Venue Information
-			venueName,
-			venueNameEnglish,
-			venueAddress,
-			venueAddressEnglish,
+				// Venue Information
+				venueName,
+				venueNameEnglish,
+				venueAddress,
+				venueAddressEnglish,
 
-			// Rental Period
-			rentalStartDateVietnamese: viewData.rentalStartDateVietnamese,
-			rentalStartDateEnglish: viewData.rentalStartDateEnglish,
-			rentalEndDateVietnamese: viewData.rentalEndDateVietnamese,
-			rentalEndDateEnglish: viewData.rentalEndDateEnglish,
+				// Rental Period
+				rentalStartDateVietnamese: viewData.rentalStartDateVietnamese,
+				rentalStartDateEnglish: viewData.rentalStartDateEnglish,
+				rentalEndDateVietnamese: viewData.rentalEndDateVietnamese,
+				rentalEndDateEnglish: viewData.rentalEndDateEnglish,
 
-			// Financial Terms
-			monthlyRentVND: formatCurrency(monthlyRent),
-			monthlyRentInWords: monthlyRentInWordsVN,
-			monthlyRentInWordsEnglish: monthlyRentInWordsEN,
-			depositVND: formatCurrency(contract.securityDeposit),
-			depositInWords: depositInWordsVN,
-			depositInWordsEnglish: depositInWordsEN,
+				// Financial Terms
+				monthlyRentVND: formatCurrency(monthlyRent),
+				monthlyRentInWords: monthlyRentInWordsVN,
+				monthlyRentInWordsEnglish: monthlyRentInWordsEN,
+				depositVND: formatCurrency(contract.securityDeposit),
+				depositInWords: depositInWordsVN,
+				depositInWordsEnglish: depositInWordsEN,
 
-			// Residual Value (total equipment value)
-			residualValueAmount: formatCurrency(totalEquipmentValue),
-			residualValueCurrency: 'VND',
-			residualValueInWords: numberToVietnameseWords(totalEquipmentValue) + ' đồng',
-			residualValueInWordsEnglish: numberToEnglishWords(totalEquipmentValue) + ' VND',
+				// Residual Value (total equipment value)
+				residualValueAmount: formatCurrency(totalEquipmentValue),
+				residualValueCurrency: 'VND',
+				residualValueInWords: numberToVietnameseWords(totalEquipmentValue) + ' đồng',
+				residualValueInWordsEnglish: numberToEnglishWords(totalEquipmentValue) + ' VND',
 
-			// Termination Terms (default 30 days)
-			terminationNoticeDays: 30,
-			terminationNoticeDaysInWords: daysToVietnameseWords(30),
-			terminationNoticeDaysInWordsEnglish: daysToEnglishWords(30),
+				// Termination Terms (default 30 days)
+				terminationNoticeDays: 30,
+				terminationNoticeDaysInWords: daysToVietnameseWords(30),
+				terminationNoticeDaysInWordsEnglish: daysToEnglishWords(30),
 
-			// Equipment
-			equipmentList: equipmentListText
+				// Equipment
+				equipmentList: equipmentListText
 			});
 			logger.info('[Stage 7] Template rendered successfully');
 		} catch (renderError: any) {
@@ -550,7 +595,9 @@ export async function generateEquipmentRentalContractHtml(
 					});
 				});
 			}
-			throw new Error(`Template rendering failed: ${renderError.message}. The error "Duplicate open tag" for {{contractNumber}} usually means the placeholder in the footer is split by formatting. To fix: 1) Go to the footer, 2) Select the entire {{contractNumber}} placeholder (including {{ and }}), 3) Remove any formatting (bold/italic), 4) If it's still split, delete it and retype it as one continuous string.`);
+			throw new Error(
+				`Template rendering failed: ${renderError.message}. The error "Duplicate open tag" for {{contractNumber}} usually means the placeholder in the footer is split by formatting. To fix: 1) Go to the footer, 2) Select the entire {{contractNumber}} placeholder (including {{ and }}), 3) Remove any formatting (bold/italic), 4) If it's still split, delete it and retype it as one continuous string.`
+			);
 		}
 
 		logger.info('[Stage 7] Generating DOCX array buffer');
@@ -605,8 +652,7 @@ export async function generateEquipmentRentalOneOffContractHtml(
 		const counterparty = contract.counterpartyId
 			? await getCounterpartyById(contract.counterpartyId)
 			: null;
-		const clientCounterparty =
-			counterparty?.type === 'client' ? (counterparty as any) : null;
+		const clientCounterparty = counterparty?.type === 'client' ? (counterparty as any) : null;
 
 		// Import and use the shared render data builder
 		const { buildRenderData } = await import('../equipmentRentalOneOffContractGenerator');

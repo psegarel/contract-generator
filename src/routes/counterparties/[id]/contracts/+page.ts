@@ -26,4 +26,3 @@ export const load: PageLoad = async ({ params }) => {
 		throw error(500, `Failed to load counterparty: ${errorMessage}`);
 	}
 };
-

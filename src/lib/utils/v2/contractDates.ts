@@ -21,10 +21,11 @@ export function getContractDate(contract: BaseContract): string | null {
 			return (contract as EventPlanningContract).eventDate;
 		case 'service-provision':
 			return (contract as ServiceProvisionContract).startDate;
-		case 'venue-rental':
+		case 'venue-rental': {
 			// rentalStartDateTime is ISO datetime, extract date part
 			const venueDate = (contract as VenueRentalContract).rentalStartDateTime;
 			return venueDate ? venueDate.split('T')[0] : null;
+		}
 		case 'equipment-rental':
 			return (contract as EquipmentRentalContract).rentalStartDate;
 		case 'equipment-rental-oneoff':

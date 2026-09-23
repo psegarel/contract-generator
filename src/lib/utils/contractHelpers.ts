@@ -16,10 +16,7 @@
  * generateContractNumber('Nguyen Van A', 3) // "20260109-NVA-123"
  * generateContractNumber('ABC Company Limited', 3) // "20260109-ACL-123"
  */
-export function generateContractNumber(
-	clientName: string,
-	maxInitials?: number
-): string {
+export function generateContractNumber(clientName: string, maxInitials?: number): string {
 	const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 	const initials = clientName
 		.split(' ')

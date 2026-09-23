@@ -1,16 +1,14 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import EquipmentRentalForm from '$lib/components/v2/contracts/EquipmentRentalForm.svelte';
 
-	let { data }: { data: PageData } = $props();
-
 	function handleSuccess(contractId: string) {
-		goto(`/contracts/equipment-rental/${contractId}`);
+		goto(resolve(`/contracts/equipment-rental/${contractId}`));
 	}
 
 	function handleCancel() {
-		goto('/contracts');
+		goto(resolve('/contracts'));
 	}
 </script>
 

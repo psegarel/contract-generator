@@ -64,4 +64,3 @@ export class ClientFormState {
 		this.error = null;
 	}
 }
-

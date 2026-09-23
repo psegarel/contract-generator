@@ -63,7 +63,20 @@ function formatNumberWithLeadingZero(num: number): string {
  */
 function formatDateBodyEnglish(dateString: string): string {
 	const [year, month, day] = dateString.split('-').map(Number);
-	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	const months = [
+		'Jan',
+		'Feb',
+		'Mar',
+		'Apr',
+		'May',
+		'Jun',
+		'Jul',
+		'Aug',
+		'Sep',
+		'Oct',
+		'Nov',
+		'Dec'
+	];
 	return `${formatNumberWithLeadingZero(day)} ${months[month - 1]} ${year}`;
 }
 
@@ -108,7 +121,10 @@ export const generateDjResidencyContract = async (
 				}
 			});
 		} catch (error: unknown) {
-			const err = error as { properties?: { errors?: Array<{ id: string; properties?: { xtag?: string } }> }; message?: string };
+			const err = error as {
+				properties?: { errors?: Array<{ id: string; properties?: { xtag?: string } }> };
+				message?: string;
+			};
 			if (err.properties?.errors) {
 				const errors = err.properties.errors;
 				logger.error(`Template has ${errors.length} errors. Common issues:`);
@@ -176,8 +192,7 @@ export const generateDjResidencyContract = async (
 		const slotFeeVND = contract.performanceFeeVND * contract.performanceHoursPerSet;
 		const performanceFeeVND = formatCurrency(slotFeeVND);
 		const performanceFeeInWords = numberToEnglishWords(slotFeeVND) + ' Vietnamese Dong';
-		const performanceFeeInWordsVietnamese =
-			numberToVietnameseWords(slotFeeVND) + ' đồng Việt Nam';
+		const performanceFeeInWordsVietnamese = numberToVietnameseWords(slotFeeVND) + ' đồng Việt Nam';
 
 		// ===== DERIVE PARTY B VALUES FROM COUNTERPARTY =====
 		const partyBCompanyName = venueCounterparty.companyName || venueCounterparty.name;
@@ -242,7 +257,16 @@ export const generateDjResidencyContract = async (
 				terminationNoticeDays: contract.terminationNoticeDays.toString()
 			});
 		} catch (renderError: unknown) {
-			const err = renderError as { properties?: { errors?: Array<{ name: string; message: string; properties?: { xtag?: string; context?: string; file?: string } }> }; message?: string };
+			const err = renderError as {
+				properties?: {
+					errors?: Array<{
+						name: string;
+						message: string;
+						properties?: { xtag?: string; context?: string; file?: string };
+					}>;
+				};
+				message?: string;
+			};
 			if (err.properties?.errors) {
 				logger.error('Docxtemplater render errors:', err.properties.errors);
 				err.properties.errors.forEach((e) => {

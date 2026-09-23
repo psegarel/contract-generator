@@ -38,11 +38,7 @@ export async function migrateCounterpartyTypes(
 		dryRun?: boolean;
 	} = {}
 ): Promise<MigrationResult> {
-	const {
-		deleteVenueAndSupplier = false,
-		convertVenuesToClients = true,
-		dryRun = false
-	} = options;
+	const { deleteVenueAndSupplier = false, convertVenuesToClients = true, dryRun = false } = options;
 
 	const prefix = dryRun ? '[DRY RUN] ' : '';
 

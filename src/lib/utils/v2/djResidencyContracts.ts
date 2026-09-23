@@ -18,7 +18,12 @@ import {
 import { db } from '$lib/config/firebase';
 import type { DjResidencyContract, PerformanceLog, PerformerContractor } from '$lib/types/v2';
 import type { ClientCounterparty } from '$lib/types/v2';
-import { createPayment, getPaymentsByContract, deletePayment, deletePaymentsByContract } from './payments';
+import {
+	createPayment,
+	getPaymentsByContract,
+	deletePayment,
+	deletePaymentsByContract
+} from './payments';
 import { getCounterpartyById } from './counterparties';
 import {
 	saveServiceProvisionContract,
@@ -381,13 +386,7 @@ export async function updatePerformance(
 	updates: Partial<PerformanceLogInput>
 ): Promise<void> {
 	try {
-		const docRef = doc(
-			db,
-			COLLECTION_NAME,
-			contractId,
-			PERFORMANCES_SUBCOLLECTION,
-			performanceId
-		);
+		const docRef = doc(db, COLLECTION_NAME, contractId, PERFORMANCES_SUBCOLLECTION, performanceId);
 
 		await updateDoc(docRef, {
 			...updates,
@@ -404,13 +403,7 @@ export async function updatePerformance(
  */
 export async function deletePerformance(contractId: string, performanceId: string): Promise<void> {
 	try {
-		const docRef = doc(
-			db,
-			COLLECTION_NAME,
-			contractId,
-			PERFORMANCES_SUBCOLLECTION,
-			performanceId
-		);
+		const docRef = doc(db, COLLECTION_NAME, contractId, PERFORMANCES_SUBCOLLECTION, performanceId);
 		await deleteDoc(docRef);
 	} catch (error) {
 		logger.error('Error deleting performance:', error);
@@ -431,10 +424,7 @@ export interface PerformanceFormData {
 	performerPayVND: number;
 }
 
-function resolvePerformerName(
-	performerId: string,
-	performers: PerformerContractor[]
-): string {
+function resolvePerformerName(performerId: string, performers: PerformerContractor[]): string {
 	const performer = performers.find((p) => p.id === performerId);
 	if (!performer) {
 		throw new Error('Performer not found');

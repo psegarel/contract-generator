@@ -106,7 +106,9 @@ export async function migrateLocations(dryRun: boolean = true): Promise<Migratio
 
 				if (dryRun) {
 					// Log what would be created
-					console.log(`[${index + 1}/${total}] Would migrate location "${v1Location.name}" (${locationId})`);
+					console.log(
+						`[${index + 1}/${total}] Would migrate location "${v1Location.name}" (${locationId})`
+					);
 					console.log(`  → Type: venue`);
 					console.log(`  → Address: ${v2Counterparty.address}`);
 					console.log(`  → Contact: ${v2Counterparty.representativeName || 'none'}\n`);
@@ -115,19 +117,26 @@ export async function migrateLocations(dryRun: boolean = true): Promise<Migratio
 					const counterpartyRef = doc(db, 'counterparties', locationId);
 					await setDoc(counterpartyRef, v2Counterparty);
 
-					console.log(`[${index + 1}/${total}] ✓ Migrated location "${v1Location.name}" (${locationId})`);
+					console.log(
+						`[${index + 1}/${total}] ✓ Migrated location "${v1Location.name}" (${locationId})`
+					);
 				}
 
 				successful++;
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
 				errors.push({ id: locationId, error: errorMessage });
-				console.error(`[${index + 1}/${total}] ✗ ERROR migrating location ${locationId}:`, errorMessage);
+				console.error(
+					`[${index + 1}/${total}] ✗ ERROR migrating location ${locationId}:`,
+					errorMessage
+				);
 			}
 
 			// Progress indicator every 10 documents
 			if ((index + 1) % 10 === 0 && index + 1 < total) {
-				console.log(`--- Progress: ${index + 1}/${total} (${Math.round(((index + 1) / total) * 100)}%) ---\n`);
+				console.log(
+					`--- Progress: ${index + 1}/${total} (${Math.round(((index + 1) / total) * 100)}%) ---\n`
+				);
 			}
 		}
 

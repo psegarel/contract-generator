@@ -35,31 +35,30 @@ export const eventInfoSchema = z.object({
 });
 
 // ===== SECTION 4: FINANCIAL TERMS =====
-export const financialTermsSchema = z.object({
-	contractValueVND: z.number().min(0, 'Contract value must be a positive number'),
-	vatRate: z
-		.number()
-		.min(0, 'VAT rate must be at least 0%')
-		.max(100, 'VAT rate cannot exceed 100%'),
-	depositPercentage: z
-		.number()
-		.min(0, 'Deposit percentage must be at least 0%')
-		.max(100, 'Deposit percentage cannot exceed 100%'),
-	finalPaymentPercentage: z
-		.number()
-		.min(0, 'Final payment percentage must be at least 0%')
-		.max(100, 'Final payment percentage cannot exceed 100%'),
-	professionalIndemnityAmount: z
-		.number()
-		.min(0, 'Professional indemnity amount must be a positive number'),
-	publicLiabilityAmount: z.number().min(0, 'Public liability amount must be a positive number')
-}).refine(
-	(data) => data.depositPercentage + data.finalPaymentPercentage === 100,
-	{
+export const financialTermsSchema = z
+	.object({
+		contractValueVND: z.number().min(0, 'Contract value must be a positive number'),
+		vatRate: z
+			.number()
+			.min(0, 'VAT rate must be at least 0%')
+			.max(100, 'VAT rate cannot exceed 100%'),
+		depositPercentage: z
+			.number()
+			.min(0, 'Deposit percentage must be at least 0%')
+			.max(100, 'Deposit percentage cannot exceed 100%'),
+		finalPaymentPercentage: z
+			.number()
+			.min(0, 'Final payment percentage must be at least 0%')
+			.max(100, 'Final payment percentage cannot exceed 100%'),
+		professionalIndemnityAmount: z
+			.number()
+			.min(0, 'Professional indemnity amount must be a positive number'),
+		publicLiabilityAmount: z.number().min(0, 'Public liability amount must be a positive number')
+	})
+	.refine((data) => data.depositPercentage + data.finalPaymentPercentage === 100, {
 		message: 'Deposit and final payment percentages must sum to 100%',
 		path: ['finalPaymentPercentage']
-	}
-);
+	});
 
 // ===== SECTION 5: TIMELINE =====
 export const timelineSchema = z.object({

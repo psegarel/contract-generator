@@ -49,10 +49,7 @@ export async function injectRepublicHeaderIntoDocx(blob: Blob): Promise<Blob> {
 	const xml = documentXml.asText();
 
 	// Insert header paragraphs right after <w:body> (with or without attributes)
-	const modifiedXml = xml.replace(
-		/(<w:body[^>]*>)/,
-		`$1${REPUBLIC_HEADER_OOXML}`
-	);
+	const modifiedXml = xml.replace(/(<w:body[^>]*>)/, `$1${REPUBLIC_HEADER_OOXML}`);
 
 	zip.file('word/document.xml', modifiedXml);
 

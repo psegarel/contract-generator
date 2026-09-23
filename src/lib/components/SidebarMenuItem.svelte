@@ -38,7 +38,7 @@
 
 	// Action for sub-menu animations
 	function submenuAnimation(node: HTMLElement, isOpen: boolean) {
-		let controls: any;
+		let controls: ReturnType<typeof animate> | undefined;
 		let currentTarget = isOpen;
 
 		const ITEM_HEIGHT = 32; // Defined by h-8

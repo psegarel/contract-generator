@@ -56,10 +56,7 @@ async function findContractsToFix(): Promise<ContractToFix[]> {
 	const contractsToFix: ContractToFix[] = [];
 
 	// Collections to check
-	const collections = [
-		'service-provision-contracts',
-		'event-planning-contracts'
-	];
+	const collections = ['service-provision-contracts', 'event-planning-contracts'];
 
 	for (const collectionName of collections) {
 		console.log(`\nScanning ${collectionName}...`);
@@ -118,17 +115,25 @@ export async function fixCounterpartyNames(dryRun: boolean = true): Promise<void
 			const updates: Record<string, string | null> = {};
 
 			// Fix counterparty name if needed
-			if (contract.currentCounterpartyName === 'Unknown Client' || !contract.currentCounterpartyName) {
+			if (
+				contract.currentCounterpartyName === 'Unknown Client' ||
+				!contract.currentCounterpartyName
+			) {
 				const counterpartyName = await getCounterpartyName(contract.counterpartyId);
 				if (counterpartyName) {
 					updates.counterpartyName = counterpartyName;
 				} else {
-					console.warn(`  ⚠️  Counterparty ${contract.counterpartyId} not found for contract ${contract.id}`);
+					console.warn(
+						`  ⚠️  Counterparty ${contract.counterpartyId} not found for contract ${contract.id}`
+					);
 				}
 			}
 
 			// Fix event name if needed
-			if (contract.eventId && (contract.currentEventName === 'Unknown Event' || !contract.currentEventName)) {
+			if (
+				contract.eventId &&
+				(contract.currentEventName === 'Unknown Event' || !contract.currentEventName)
+			) {
 				const eventName = await getEventName(contract.eventId);
 				if (eventName) {
 					updates.eventName = eventName;
@@ -139,20 +144,27 @@ export async function fixCounterpartyNames(dryRun: boolean = true): Promise<void
 
 			if (Object.keys(updates).length > 0) {
 				if (dryRun) {
-					console.log(`[${index + 1}/${contractsToFix.length}] Would update ${contract.collectionName}/${contract.id}:`);
+					console.log(
+						`[${index + 1}/${contractsToFix.length}] Would update ${contract.collectionName}/${contract.id}:`
+					);
 					Object.entries(updates).forEach(([key, value]) => {
 						console.log(`  → ${key}: "${value}"`);
 					});
 				} else {
 					const docRef = doc(db, contract.collectionName, contract.id);
 					await updateDoc(docRef, updates);
-					console.log(`[${index + 1}/${contractsToFix.length}] ✓ Updated ${contract.collectionName}/${contract.id}`);
+					console.log(
+						`[${index + 1}/${contractsToFix.length}] ✓ Updated ${contract.collectionName}/${contract.id}`
+					);
 				}
 				fixed++;
 			}
 		} catch (error) {
 			failed++;
-			console.error(`[${index + 1}/${contractsToFix.length}] ✗ ERROR updating ${contract.collectionName}/${contract.id}:`, error);
+			console.error(
+				`[${index + 1}/${contractsToFix.length}] ✗ ERROR updating ${contract.collectionName}/${contract.id}:`,
+				error
+			);
 		}
 	}
 

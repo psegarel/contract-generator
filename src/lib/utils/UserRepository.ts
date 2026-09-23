@@ -1,5 +1,5 @@
 import { db } from '$lib/config/firebase';
-import { doc, getDoc, setDoc, serverTimestamp, type Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import type { UserProfile } from '$lib/types/user';
 
 /**

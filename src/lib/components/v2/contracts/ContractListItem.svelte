@@ -67,7 +67,7 @@
 		isDownloading = true;
 		try {
 			await downloadContract(contract);
-		} catch (error) {
+		} catch {
 			// Error already handled in downloadContract with toast
 		} finally {
 			isDownloading = false;
@@ -86,7 +86,7 @@
 				userUid: authState.user?.uid ?? null,
 				onDelete
 			});
-		} catch (error) {
+		} catch {
 			// Error already handled in deleteContract with toast
 		} finally {
 			isDeleting = false;

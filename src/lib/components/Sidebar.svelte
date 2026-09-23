@@ -7,7 +7,6 @@
 		FileText,
 		CalendarCheck,
 		FileCode,
-		Palette,
 		PanelLeft,
 		Package,
 		PackageOpen,

@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import EventPlanningForm from '$lib/components/v2/contracts/EventPlanningForm.svelte';
 
-	function handleSuccess(contractId: string) {
-		goto('/contracts/event-planning/list');
+	function handleSuccess() {
+		goto(resolve('/contracts/event-planning/list'));
 	}
 
 	function handleCancel() {
-		goto('/contracts/event-planning/list');
+		goto(resolve('/contracts/event-planning/list'));
 	}
 </script>
 

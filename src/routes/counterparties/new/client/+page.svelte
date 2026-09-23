@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import ClientForm from '$lib/components/v2/counterparties/ClientForm.svelte';
 
 	function handleSuccess(clientId: string) {
-		goto(`/counterparties/${clientId}`);
+		goto(resolve(`/counterparties/${clientId}`));
 	}
 
 	function handleCancel() {
-		goto('/counterparties');
+		goto(resolve('/counterparties'));
 	}
 </script>
 

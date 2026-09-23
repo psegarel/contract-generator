@@ -71,7 +71,10 @@ async function migrateContracts() {
 	// Preview contracts
 	console.log('📋 Contracts to migrate:');
 	contracts.forEach((contract, index) => {
-		const data = contract.data as any;
+		const data = contract.data as {
+			contractData?: { clientName?: string };
+			contractNumber?: string;
+		};
 		console.log(
 			`  ${index + 1}. ${contract.id} - ${data.contractData?.clientName || 'Unknown'} (${data.contractNumber || 'No number'})`
 		);
@@ -101,7 +104,8 @@ async function migrateContracts() {
 			const newDocRef = doc(newCollection, contract.id);
 
 			// Remove the 'type' field since we're in a service-specific collection now
-			const { type, ...dataWithoutType } = contract.data as any;
+			const dataWithoutType = { ...contract.data } as Record<string, unknown>;
+			delete dataWithoutType.type;
 
 			batch.set(newDocRef, dataWithoutType);
 

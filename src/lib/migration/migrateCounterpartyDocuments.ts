@@ -1,12 +1,20 @@
 import { storage } from '$lib/config/firebase';
-import { ref, listAll, getDownloadURL, uploadBytes, deleteObject, getBytes, getMetadata } from 'firebase/storage';
+import {
+	ref,
+	listAll,
+	getDownloadURL,
+	uploadBytes,
+	deleteObject,
+	getBytes,
+	getMetadata
+} from 'firebase/storage';
 
 /**
  * Migration script to move documents from client-documents/ to counterparty-documents/
- * 
+ *
  * Usage:
  *   npx tsx src/lib/migration/migrateCounterpartyDocuments.ts [--live]
- * 
+ *
  * Without --live flag, runs in dry-run mode (no actual changes)
  */
 async function migrateCounterpartyDocuments(dryRun: boolean = true) {
@@ -47,7 +55,9 @@ async function migrateCounterpartyDocuments(dryRun: boolean = true) {
 							await getDownloadURL(newPathRef);
 							console.log(`  ✓ ${fileName} - Would skip (already exists in new location)`);
 						} catch {
-							console.log(`  ✓ ${fileName} - Would migrate to counterparty-documents/${counterpartyId}/`);
+							console.log(
+								`  ✓ ${fileName} - Would migrate to counterparty-documents/${counterpartyId}/`
+							);
 						}
 					} else {
 						// Download file from old location

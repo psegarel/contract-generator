@@ -28,12 +28,10 @@
 		{#snippet icon()}
 			<Calendar class="size-5" />
 		{/snippet}
-		{#snippet children()}
-			<Button href="/events/new">
-				<Plus class="size-4" />
-				New Event
-			</Button>
-		{/snippet}
+		<Button href="/events/new">
+			<Plus class="size-4" />
+			New Event
+		</Button>
 	</PageHeader>
 
 	<!-- Events List -->

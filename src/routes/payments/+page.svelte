@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { onMount, onDestroy } from 'svelte';
 	import { authState } from '$lib/state/auth.svelte';
 	import { paymentState } from '$lib/state/v2/paymentState.svelte';
@@ -35,7 +36,7 @@
 
 	onMount(() => {
 		if (!authState.isAdmin) {
-			goto('/');
+			goto(resolve('/'));
 			return;
 		}
 		paymentState.init();
@@ -159,6 +160,8 @@
 		contractIdFilter = null;
 		const url = new URL($page.url);
 		url.searchParams.delete('contract');
+		// The current pathname is already a same-origin, runtime-resolved URL.
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
 		goto(url.pathname, { replaceState: true });
 	}
 

@@ -22,6 +22,7 @@
 	import { saveCounterparty } from '$lib/utils/v2/counterparties';
 	import { clientCounterpartySchema, type ClientCounterpartyInput } from '$lib/schemas/v2';
 	import { Timestamp } from 'firebase/firestore';
+	import { SvelteDate } from 'svelte/reactivity';
 	import EquipmentRentalContractBasicsSection from './sections/EquipmentRentalContractBasicsSection.svelte';
 	import EquipmentRentalPeriodSection from './sections/EquipmentRentalPeriodSection.svelte';
 	import EquipmentRentalListSection from './sections/EquipmentRentalListSection.svelte';
@@ -214,10 +215,10 @@
 				if (contract) {
 					await deletePaymentsByContract(contractId);
 				}
-				const startDate = new Date(formState.rentalStartDate);
-				const endDate = new Date(formState.rentalEndDate);
+				const startDate = new SvelteDate(formState.rentalStartDate);
+				const endDate = new SvelteDate(formState.rentalEndDate);
 				const installments: { label: string; dueDate: Date; amount: number }[] = [];
-				const current = new Date(startDate);
+				const current = new SvelteDate(startDate);
 				while (current <= endDate) {
 					const label = current.toLocaleDateString('en-US', {
 						month: 'long',
@@ -225,7 +226,7 @@
 					});
 					installments.push({
 						label,
-						dueDate: new Date(current),
+						dueDate: new SvelteDate(current),
 						amount: formState.monthlyRent
 					});
 					current.setMonth(current.getMonth() + 1);

@@ -30,9 +30,7 @@ export interface MigrationResult {
  * @param dryRun - If true, log what would happen without writing to database
  * @returns Migration result with stats and errors
  */
-export async function fixCounterpartyNullValues(
-	dryRun: boolean = true
-): Promise<MigrationResult> {
+export async function fixCounterpartyNullValues(dryRun: boolean = true): Promise<MigrationResult> {
 	const startTime = Date.now();
 	const result: MigrationResult = {
 		total: 0,
@@ -65,41 +63,57 @@ export async function fixCounterpartyNullValues(
 			// Debug: Log service provider data structure
 			if (data.type === 'service-provider') {
 				console.log(`\nChecking service provider ${docId}:`);
-				console.log(`  serviceType: ${JSON.stringify(data.serviceType)} (type: ${typeof data.serviceType})`);
-				console.log(`  typicalDeliverables: ${JSON.stringify(data.typicalDeliverables)} (type: ${Array.isArray(data.typicalDeliverables) ? 'array' : typeof data.typicalDeliverables})`);
-				console.log(`  equipmentProvided: ${JSON.stringify(data.equipmentProvided)} (type: ${Array.isArray(data.equipmentProvided) ? 'array' : typeof data.equipmentProvided})`);
+				console.log(
+					`  serviceType: ${JSON.stringify(data.serviceType)} (type: ${typeof data.serviceType})`
+				);
+				console.log(
+					`  typicalDeliverables: ${JSON.stringify(data.typicalDeliverables)} (type: ${Array.isArray(data.typicalDeliverables) ? 'array' : typeof data.typicalDeliverables})`
+				);
+				console.log(
+					`  equipmentProvided: ${JSON.stringify(data.equipmentProvided)} (type: ${Array.isArray(data.equipmentProvided) ? 'array' : typeof data.equipmentProvided})`
+				);
 			}
 
 			// Check for null arrays (all types) - check both null and undefined
 			if (data.typicalDeliverables === null || data.typicalDeliverables === undefined) {
 				updates.typicalDeliverables = [];
 				needsUpdate = true;
-				console.log(`  ${docId}: typicalDeliverables is ${data.typicalDeliverables === null ? 'null' : 'undefined'} → []`);
+				console.log(
+					`  ${docId}: typicalDeliverables is ${data.typicalDeliverables === null ? 'null' : 'undefined'} → []`
+				);
 			}
 
 			if (data.equipmentProvided === null || data.equipmentProvided === undefined) {
 				updates.equipmentProvided = [];
 				needsUpdate = true;
-				console.log(`  ${docId}: equipmentProvided is ${data.equipmentProvided === null ? 'null' : 'undefined'} → []`);
+				console.log(
+					`  ${docId}: equipmentProvided is ${data.equipmentProvided === null ? 'null' : 'undefined'} → []`
+				);
 			}
 
 			// Check for null arrays in other types
 			if (data.amenities === null || data.amenities === undefined) {
 				updates.amenities = [];
 				needsUpdate = true;
-				console.log(`  ${docId}: amenities is ${data.amenities === null ? 'null' : 'undefined'} → []`);
+				console.log(
+					`  ${docId}: amenities is ${data.amenities === null ? 'null' : 'undefined'} → []`
+				);
 			}
 
 			if (data.productCategories === null || data.productCategories === undefined) {
 				updates.productCategories = [];
 				needsUpdate = true;
-				console.log(`  ${docId}: productCategories is ${data.productCategories === null ? 'null' : 'undefined'} → []`);
+				console.log(
+					`  ${docId}: productCategories is ${data.productCategories === null ? 'null' : 'undefined'} → []`
+				);
 			}
 
 			if (data.deliveryOptions === null || data.deliveryOptions === undefined) {
 				updates.deliveryOptions = [];
 				needsUpdate = true;
-				console.log(`  ${docId}: deliveryOptions is ${data.deliveryOptions === null ? 'null' : 'undefined'} → []`);
+				console.log(
+					`  ${docId}: deliveryOptions is ${data.deliveryOptions === null ? 'null' : 'undefined'} → []`
+				);
 			}
 
 			// Check for null/empty serviceType (service-provider only)
@@ -172,4 +186,3 @@ export async function fixCounterpartyNullValues(
 		return result;
 	}
 }
-

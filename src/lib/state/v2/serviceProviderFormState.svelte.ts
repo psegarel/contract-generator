@@ -1,4 +1,8 @@
-import type { ServiceProviderContractor, CounterpartyDocuments, DocumentMetadata } from '$lib/types/v2';
+import type {
+	ServiceProviderContractor,
+	CounterpartyDocuments,
+	DocumentMetadata
+} from '$lib/types/v2';
 
 export class ServiceProviderFormState {
 	name = $state('');
@@ -133,8 +137,7 @@ export class ServiceProviderFormState {
 	 */
 	getDocument(imageNumber: 1 | 2 | 3 | 4 | 5): DocumentMetadata | undefined {
 		return this.documents[`image${imageNumber}` as keyof CounterpartyDocuments] as
-			| DocumentMetadata
-			| undefined;
+			DocumentMetadata | undefined;
 	}
 
 	/**
@@ -169,4 +172,3 @@ export class ServiceProviderFormState {
 		return null;
 	}
 }
-

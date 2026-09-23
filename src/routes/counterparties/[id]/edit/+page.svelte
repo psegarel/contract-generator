@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import type { PageData } from './$types';
 	import type { Counterparty, PerformerContractor, ServiceProviderContractor } from '$lib/types/v2';
 	import ClientForm from '$lib/components/v2/counterparties/ClientForm.svelte';
@@ -36,11 +37,11 @@
 	let badgeClass = $derived(getTypeBadgeClass(counterparty));
 
 	function handleSuccess() {
-		goto(`/counterparties/${counterparty.id}`);
+		goto(resolve(`/counterparties/${counterparty.id}`));
 	}
 
 	function handleCancel() {
-		goto(`/counterparties/${counterparty.id}`);
+		goto(resolve(`/counterparties/${counterparty.id}`));
 	}
 </script>
 
@@ -55,9 +56,7 @@
 		{#snippet icon()}
 			<FileText class="size-5" />
 		{/snippet}
-		{#snippet children()}
-			<Badge variant="default" class={badgeClass}>{displayType}</Badge>
-		{/snippet}
+		<Badge variant="default" class={badgeClass}>{displayType}</Badge>
 	</PageHeader>
 
 	<!-- Edit Forms -->

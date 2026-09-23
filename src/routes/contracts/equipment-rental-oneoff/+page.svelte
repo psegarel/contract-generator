@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import EquipmentRentalOneOffForm from '$lib/components/v2/contracts/EquipmentRentalOneOffForm.svelte';
 
 	function handleSuccess(contractId: string) {
-		goto(`/contracts/equipment-rental-oneoff/${contractId}`);
+		goto(resolve(`/contracts/equipment-rental-oneoff/${contractId}`));
 	}
 
 	function handleCancel() {
-		goto('/contracts');
+		goto(resolve('/contracts'));
 	}
 </script>
 

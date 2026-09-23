@@ -1,10 +1,10 @@
 /**
  * Company configuration (Party A information)
- * 
+ *
  * Reads from environment variables with fallbacks to default values.
  * This allows Party A (our company) information to be configured via env vars
  * while maintaining backward compatibility with hardcoded defaults.
- * 
+ *
  * Environment Variables (all optional, with fallbacks):
  * - VITE_COMPANY_NAME - Company name in English
  * - VITE_COMPANY_NAME_VIETNAMESE - Company name in Vietnamese
@@ -57,6 +57,7 @@ export const companyConfig = {
 	bankName: import.meta.env.VITE_COMPANY_BANK_NAME || '',
 	bankAccountNumber: import.meta.env.VITE_COMPANY_BANK_ACCOUNT_NUMBER || '',
 	defaultPerformerPitRate: Number(import.meta.env.VITE_DEFAULT_PERFORMER_PIT_RATE) || 10,
-	defaultPerformerPitRatePolicy: import.meta.env.VITE_DEFAULT_PERFORMER_PIT_RATE_POLICY || 'standard',
-	performerPitRatePolicies: parseRatePolicies(import.meta.env.VITE_PERFORMER_PIT_RATE_POLICIES),
+	defaultPerformerPitRatePolicy:
+		import.meta.env.VITE_DEFAULT_PERFORMER_PIT_RATE_POLICY || 'standard',
+	performerPitRatePolicies: parseRatePolicies(import.meta.env.VITE_PERFORMER_PIT_RATE_POLICIES)
 };

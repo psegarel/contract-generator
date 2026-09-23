@@ -95,6 +95,8 @@
 					</div>
 				</div>
 				<div class="flex items-center gap-2">
+					<!-- External storage URL; it must not be passed through SvelteKit's resolve(). -->
+					<!-- eslint-disable svelte/no-navigation-without-resolve -->
 					<a
 						href={document.url}
 						target="_blank"
@@ -103,6 +105,7 @@
 					>
 						View
 					</a>
+					<!-- eslint-enable svelte/no-navigation-without-resolve -->
 					<Button
 						type="button"
 						variant="ghost"

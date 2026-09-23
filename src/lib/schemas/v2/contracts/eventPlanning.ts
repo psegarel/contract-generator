@@ -17,9 +17,7 @@ const eventPlanningFields = {
 	clientAddress: z.string().min(1, 'Client address is required'),
 	clientTaxCode: z.string().min(1, 'Client tax code is required'),
 	clientRepresentativeName: z.string().min(1, 'Client representative name is required'),
-	clientRepresentativePosition: z
-		.string()
-		.min(1, 'Client representative position is required'),
+	clientRepresentativePosition: z.string().min(1, 'Client representative position is required'),
 
 	// Section 3: Event Info
 	eventTheme: z.string().nullable().optional(),
@@ -32,7 +30,10 @@ const eventPlanningFields = {
 
 	// Section 4: Financial Terms
 	contractValueVND: z.number().min(0, 'Contract value must be positive'),
-	vatRate: z.number().min(0, 'VAT rate must be at least 0%').max(100, 'VAT rate cannot exceed 100%'),
+	vatRate: z
+		.number()
+		.min(0, 'VAT rate must be at least 0%')
+		.max(100, 'VAT rate cannot exceed 100%'),
 	depositPercentage: z
 		.number()
 		.min(0, 'Deposit percentage must be at least 0%')
@@ -41,9 +42,7 @@ const eventPlanningFields = {
 		.number()
 		.min(0, 'Final payment percentage must be at least 0%')
 		.max(100, 'Final payment percentage cannot exceed 100%'),
-	professionalIndemnityAmount: z
-		.number()
-		.min(0, 'Professional indemnity amount must be positive'),
+	professionalIndemnityAmount: z.number().min(0, 'Professional indemnity amount must be positive'),
 	publicLiabilityAmount: z.number().min(0, 'Public liability amount must be positive'),
 
 	// Section 5: Timeline
@@ -56,9 +55,7 @@ const eventPlanningFields = {
 	eventExecutionDate: z.string().min(1, 'Event execution date is required'),
 	setupCommencementTime: z.string().min(1, 'Setup commencement time is required'),
 	eventExecutionDuration: z.string().min(1, 'Event execution duration is required'),
-	breakdownCompletionDateTime: z
-		.string()
-		.min(1, 'Breakdown completion date/time is required'),
+	breakdownCompletionDateTime: z.string().min(1, 'Breakdown completion date/time is required'),
 
 	// Section 6: Legal Terms
 	paymentGracePeriodDays: z

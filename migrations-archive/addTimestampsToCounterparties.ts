@@ -1,5 +1,12 @@
 import { db } from './firebase-node';
-import { collection, getDocs, doc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import {
+	collection,
+	getDocs,
+	doc,
+	updateDoc,
+	serverTimestamp,
+	Timestamp
+} from 'firebase/firestore';
 
 /**
  * Migration result type
@@ -33,7 +40,9 @@ export async function addTimestampsToCounterparties(
 	};
 
 	try {
-		console.log(dryRun ? '🔍 DRY RUN: Checking counterparties...' : '🔄 Migrating counterparties...\n');
+		console.log(
+			dryRun ? '🔍 DRY RUN: Checking counterparties...' : '🔄 Migrating counterparties...\n'
+		);
 
 		const counterpartiesRef = collection(db, 'counterparties');
 		const snapshot = await getDocs(counterpartiesRef);
@@ -111,10 +120,3 @@ export async function addTimestampsToCounterparties(
 		return result;
 	}
 }
-
-
-
-
-
-
-

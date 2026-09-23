@@ -1,4 +1,5 @@
 import type { DjResidencyContract } from '$lib/types/v2';
+import { SvelteDate } from 'svelte/reactivity';
 
 /**
  * Form state class for DJ Residency Contract forms
@@ -101,7 +102,7 @@ export class DjResidencyContractFormState {
 		this.notes = '';
 
 		// Contract Duration - default to 3 months starting today
-		this.contractStartDate = new Date().toISOString().split('T')[0];
+		this.contractStartDate = new SvelteDate().toISOString().split('T')[0];
 		this.contractDurationMonths = 3;
 		this.updateEndDateFromDuration();
 
@@ -144,7 +145,7 @@ export class DjResidencyContractFormState {
 	 * Generate a unique contract number for new contracts
 	 */
 	private generateContractNumber() {
-		const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+		const dateStr = new SvelteDate().toISOString().slice(0, 10).replace(/-/g, '');
 		const timestamp = Date.now().toString().slice(-4);
 		this.contractNumber = `DJR-${dateStr}-${timestamp}`;
 	}
@@ -155,10 +156,10 @@ export class DjResidencyContractFormState {
 	updateEndDateFromDuration() {
 		if (!this.contractStartDate) return;
 
-		const startDate = new Date(this.contractStartDate);
+		const startDate = new SvelteDate(this.contractStartDate);
 		if (isNaN(startDate.getTime())) return;
 
-		const endDate = new Date(startDate);
+		const endDate = new SvelteDate(startDate);
 		endDate.setMonth(endDate.getMonth() + this.contractDurationMonths);
 		this.contractEndDate = endDate.toISOString().split('T')[0];
 	}
@@ -169,8 +170,8 @@ export class DjResidencyContractFormState {
 	updateDurationFromDates() {
 		if (!this.contractStartDate || !this.contractEndDate) return;
 
-		const start = new Date(this.contractStartDate);
-		const end = new Date(this.contractEndDate);
+		const start = new SvelteDate(this.contractStartDate);
+		const end = new SvelteDate(this.contractEndDate);
 
 		if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
 

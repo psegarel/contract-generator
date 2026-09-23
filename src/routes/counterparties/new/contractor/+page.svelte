@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
 	import ServiceProviderForm from '$lib/components/v2/counterparties/ServiceProviderForm.svelte';
 	import PerformerForm from '$lib/components/v2/counterparties/PerformerForm.svelte';
@@ -17,11 +18,11 @@
 	});
 
 	function handleSuccess(id: string) {
-		goto(`/counterparties/${id}`);
+		goto(resolve(`/counterparties/${id}`));
 	}
 
 	function handleCancel() {
-		goto('/counterparties');
+		goto(resolve('/counterparties'));
 	}
 
 	function selectType(type: ContractorType) {

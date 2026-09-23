@@ -1,7 +1,6 @@
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import type { EventPlanningContractData } from '../schemas/eventPlanningContract';
-import { companyConfig } from '../config/company';
 import { translateToVietnamese } from './translate';
 import { formatCurrency, formatDateVietnamese, formatDateEnglish } from './formatting';
 import { generateContractNumber } from './contractHelpers';

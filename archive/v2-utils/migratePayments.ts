@@ -29,9 +29,7 @@ async function getContractIdsWithPayments(): Promise<Set<string>> {
 /**
  * Fetch all documents from a Firestore collection as typed contracts.
  */
-async function fetchAllContracts<T extends BaseContract>(
-	collectionName: string
-): Promise<T[]> {
+async function fetchAllContracts<T extends BaseContract>(collectionName: string): Promise<T[]> {
 	const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'));
 	const snapshot = await getDocs(q);
 	return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as T);

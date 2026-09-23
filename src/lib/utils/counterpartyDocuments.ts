@@ -13,7 +13,12 @@ import type { DocumentMetadata } from '$lib/types/v2/counterparty';
  */
 export class CounterpartyDocumentManager {
 	private static readonly MAX_FILE_SIZE = 500 * 1024; // 500KB
-	private static readonly ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+	private static readonly ALLOWED_TYPES = [
+		'image/jpeg',
+		'image/png',
+		'image/jpg',
+		'application/pdf'
+	];
 	private static readonly EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf'];
 
 	constructor(private readonly counterpartyId: string) {}
@@ -95,7 +100,7 @@ export class CounterpartyDocumentManager {
 				await deleteObject(storageRef);
 				// If successful, we found and deleted the file
 				return;
-			} catch (error) {
+			} catch {
 				// File doesn't exist with this extension, try next one
 				continue;
 			}

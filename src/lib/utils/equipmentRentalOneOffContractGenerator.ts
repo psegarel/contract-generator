@@ -6,7 +6,6 @@ import { formatCurrency, formatDateVietnamese, formatDateEnglish } from './forma
 import { numberToVietnameseWords, numberToEnglishWords } from './numberToWords';
 import { getCounterpartyById } from './v2/counterparties';
 import type { ClientCounterparty } from '$lib/types/v2';
-import { logger } from './logger';
 
 /**
  * Format an ISO datetime-local string to a human-readable Vietnamese format
@@ -182,14 +181,12 @@ export function buildRenderData(
 		// Replacement value — NET
 		replacementValueNetVND: formatCurrency(contract.replacementValue),
 		replacementValueNetInWords: numberToVietnameseWords(contract.replacementValue) + ' đồng',
-		replacementValueNetInWordsEnglish:
-			numberToEnglishWords(contract.replacementValue) + ' VND',
+		replacementValueNetInWordsEnglish: numberToEnglishWords(contract.replacementValue) + ' VND',
 
 		// Replacement value — GROSS
 		replacementValueGrossVND: formatCurrency(replacementValueGross),
 		replacementValueGrossInWords: numberToVietnameseWords(replacementValueGross) + ' đồng',
-		replacementValueGrossInWordsEnglish:
-			numberToEnglishWords(replacementValueGross) + ' VND',
+		replacementValueGrossInWordsEnglish: numberToEnglishWords(replacementValueGross) + ' VND',
 
 		// Payment terms
 		balancePaymentDays: contract.balancePaymentDays,

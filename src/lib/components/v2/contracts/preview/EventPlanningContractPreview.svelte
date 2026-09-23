@@ -17,7 +17,9 @@
 		<p class="text-sm">
 			Date: {data.contractDateEnglish} / {data.contractDateVietnamese}
 		</p>
-		<p class="text-sm mt-1">Location: {data.contractLocationEnglish} / {data.contractLocationVietnamese}</p>
+		<p class="text-sm mt-1">
+			Location: {data.contractLocationEnglish} / {data.contractLocationVietnamese}
+		</p>
 	</div>
 
 	<!-- Client Information (Party A) - Bilingual -->
@@ -25,17 +27,21 @@
 		<h2 class="text-lg font-semibold mb-3">PARTY A (CLIENT)</h2>
 		<div class="space-y-1 text-sm leading-relaxed">
 			<p>
-				<strong>Company:</strong> {data.clientCompanyEnglish} / {data.clientCompanyVietnamese}
+				<strong>Company:</strong>
+				{data.clientCompanyEnglish} / {data.clientCompanyVietnamese}
 			</p>
 			<p>
-				<strong>Address:</strong> {data.clientAddressEnglish} / {data.clientAddressVietnamese}
+				<strong>Address:</strong>
+				{data.clientAddressEnglish} / {data.clientAddressVietnamese}
 			</p>
 			<p><strong>Tax Code:</strong> {data.clientTaxCode}</p>
 			<p>
-				<strong>Representative:</strong> {data.clientRepresentativeName}
+				<strong>Representative:</strong>
+				{data.clientRepresentativeName}
 			</p>
 			<p>
-				<strong>Position:</strong> {data.clientRepresentativePositionEnglish} / {data.clientRepresentativePositionVietnamese}
+				<strong>Position:</strong>
+				{data.clientRepresentativePositionEnglish} / {data.clientRepresentativePositionVietnamese}
 			</p>
 		</div>
 	</div>
@@ -46,7 +52,8 @@
 		<div class="space-y-1 text-sm leading-relaxed">
 			{#if data.eventThemeEnglish}
 				<p>
-					<strong>Theme:</strong> {data.eventThemeEnglish} / {data.eventThemeVietnamese}
+					<strong>Theme:</strong>
+					{data.eventThemeEnglish} / {data.eventThemeVietnamese}
 				</p>
 			{/if}
 			{#if data.eventName}
@@ -54,7 +61,8 @@
 			{/if}
 			{#if data.eventTypeEnglish}
 				<p>
-					<strong>Type:</strong> {data.eventTypeEnglish} / {data.eventTypeVietnamese}
+					<strong>Type:</strong>
+					{data.eventTypeEnglish} / {data.eventTypeVietnamese}
 				</p>
 			{/if}
 			{#if data.eventDescriptionEnglish}
@@ -62,19 +70,24 @@
 					<p><strong>Description:</strong></p>
 					<div class="pl-4 border-l-2 border-gray-300">
 						<p class="whitespace-pre-wrap">{data.eventDescriptionEnglish}</p>
-						<p class="whitespace-pre-wrap text-gray-700 italic mt-2">{data.eventDescriptionVietnamese}</p>
+						<p class="whitespace-pre-wrap text-gray-700 italic mt-2">
+							{data.eventDescriptionVietnamese}
+						</p>
 					</div>
 				</div>
 			{/if}
 			<p>
-				<strong>Venue:</strong> {data.eventVenueEnglish} / {data.eventVenueVietnamese}
+				<strong>Venue:</strong>
+				{data.eventVenueEnglish} / {data.eventVenueVietnamese}
 			</p>
 			<p>
-				<strong>Date:</strong> {data.eventDateEnglish} / {data.eventDateVietnamese}
+				<strong>Date:</strong>
+				{data.eventDateEnglish} / {data.eventDateVietnamese}
 			</p>
 			{#if data.eventDurationEnglish}
 				<p>
-					<strong>Duration:</strong> {data.eventDurationEnglish} / {data.eventDurationVietnamese}
+					<strong>Duration:</strong>
+					{data.eventDurationEnglish} / {data.eventDurationVietnamese}
 				</p>
 			{/if}
 			{#if data.expectedAttendance}
@@ -118,7 +131,8 @@
 			<p><strong>Termination Notice:</strong> {data.terminationNoticeDays} days</p>
 			<p><strong>Negotiation Period:</strong> {data.negotiationPeriodDays} days</p>
 			<p>
-				<strong>Arbitration Location:</strong> {data.arbitrationLocationEnglish} / {data.arbitrationLocationVietnamese}
+				<strong>Arbitration Location:</strong>
+				{data.arbitrationLocationEnglish} / {data.arbitrationLocationVietnamese}
 			</p>
 			<p><strong>Arbitration Language:</strong> {data.arbitrationLanguage}</p>
 		</div>
@@ -142,4 +156,3 @@
 		</div>
 	</div>
 </div>
-

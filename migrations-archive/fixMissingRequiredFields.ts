@@ -1,11 +1,5 @@
 import { db } from '$lib/config/firebase';
-import {
-	collection,
-	getDocs,
-	doc,
-	updateDoc,
-	serverTimestamp
-} from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 /**
  * Migration result type
@@ -51,9 +45,7 @@ const REQUIRED_FIELDS_BY_TYPE: Record<string, Record<string, string | number | s
  * @param dryRun - If true, log what would happen without writing to database
  * @returns Migration result with stats and errors
  */
-export async function fixMissingRequiredFields(
-	dryRun: boolean = true
-): Promise<MigrationResult> {
+export async function fixMissingRequiredFields(dryRun: boolean = true): Promise<MigrationResult> {
 	const startTime = Date.now();
 	const result: MigrationResult = {
 		total: 0,
@@ -100,9 +92,7 @@ export async function fixMissingRequiredFields(
 				if (!(field in data) || currentValue === null || currentValue === undefined) {
 					updates[field] = defaultValue;
 					needsUpdate = true;
-					console.log(
-						`  ${docId} (${type}): Missing ${field} → ${JSON.stringify(defaultValue)}`
-					);
+					console.log(`  ${docId} (${type}): Missing ${field} → ${JSON.stringify(defaultValue)}`);
 				} else if (Array.isArray(defaultValue)) {
 					// For array fields, check if it's an array and non-empty
 					if (!Array.isArray(currentValue) || currentValue.length === 0) {
@@ -177,4 +167,3 @@ export async function fixMissingRequiredFields(
 		return result;
 	}
 }
-

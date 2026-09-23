@@ -49,13 +49,11 @@
 			{#snippet icon()}
 				<FileText class="size-5" />
 			{/snippet}
-			{#snippet children()}
-				<Badge variant="default" class={badgeClass}>{displayType}</Badge>
-				<Button href={`/counterparties/${counterparty.id}/edit`}>
-					<Edit class="size-4" />
-					Edit
-				</Button>
-			{/snippet}
+			<Badge variant="default" class={badgeClass}>{displayType}</Badge>
+			<Button href={`/counterparties/${counterparty.id}/edit`}>
+				<Edit class="size-4" />
+				Edit
+			</Button>
 		</PageHeader>
 
 		<!-- View-only content -->
@@ -188,7 +186,7 @@
 							<div>
 								<div class="text-xs text-muted-foreground mb-1">Typical Deliverables</div>
 								<div class="flex flex-wrap gap-2">
-									{#each provider.typicalDeliverables as deliverable}
+									{#each provider.typicalDeliverables as deliverable (deliverable)}
 										<span
 											class="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs"
 										>
@@ -203,7 +201,7 @@
 							<div>
 								<div class="text-xs text-muted-foreground mb-1">Equipment Provided</div>
 								<div class="flex flex-wrap gap-2">
-									{#each provider.equipmentProvided as equipment}
+									{#each provider.equipmentProvided as equipment (equipment)}
 										<span
 											class="inline-flex items-center px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs"
 										>

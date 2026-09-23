@@ -204,10 +204,7 @@ export async function removeInvalidCounterpartyFields(
 			updates.updatedAt = serverTimestamp();
 
 			if (dryRun) {
-				console.log(
-					`[DRY RUN] Would remove from ${docId} (${type}):`,
-					fieldsToRemove.join(', ')
-				);
+				console.log(`[DRY RUN] Would remove from ${docId} (${type}):`, fieldsToRemove.join(', '));
 				result.updated++;
 			} else {
 				try {
@@ -257,4 +254,3 @@ export async function removeInvalidCounterpartyFields(
 		return result;
 	}
 }
-

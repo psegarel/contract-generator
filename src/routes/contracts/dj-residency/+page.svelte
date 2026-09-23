@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import DjResidencyForm from '$lib/components/v2/contracts/DjResidencyForm.svelte';
 
 	function handleSuccess(contractId: string) {
-		goto(`/contracts/dj-residency/${contractId}`);
+		goto(resolve(`/contracts/dj-residency/${contractId}`));
 	}
 
 	function handleCancel() {
-		goto('/contracts');
+		goto(resolve('/contracts'));
 	}
 </script>
 

@@ -22,11 +22,13 @@
 		<div class="space-y-1 text-sm leading-relaxed">
 			<p><strong>Company Name:</strong> {data.companyName}</p>
 			<p>
-				<strong>Address:</strong> {data.companyAddressLine1}, {data.companyAddressLine2}, {data.companyWard}, {data.companyCity}
+				<strong>Address:</strong>
+				{data.companyAddressLine1}, {data.companyAddressLine2}, {data.companyWard}, {data.companyCity}
 			</p>
 			<p><strong>Tax Code:</strong> {data.companyTaxCode}</p>
 			<p>
-				<strong>Representative:</strong> {data.companyRepresentative} - {data.companyFunction}
+				<strong>Representative:</strong>
+				{data.companyRepresentative} - {data.companyFunction}
 			</p>
 			<p><strong>Phone:</strong> {data.companyRepresentativePhone}</p>
 			<p><strong>Email:</strong> {data.companyRepresentativeEmail}</p>
@@ -113,4 +115,3 @@
 		</div>
 	</div>
 </div>
-

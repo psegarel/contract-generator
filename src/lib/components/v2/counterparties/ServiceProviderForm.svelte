@@ -368,7 +368,7 @@
 			/>
 		{:else}
 			<div class="space-y-4">
-				{#each [1, 2, 3, 4, 5] as imageNum}
+				{#each [1, 2, 3, 4, 5] as imageNum (imageNum)}
 					{@const imageNumber = imageNum as 1 | 2 | 3 | 4 | 5}
 					{@const document = formState.getDocument(imageNumber)}
 					{@const isUploading = formState.isUploading(imageNumber)}

@@ -130,7 +130,7 @@ export async function transformServiceProvisionContractData(
 	const contractNumber = generateContractNumber(contract.counterpartyName);
 
 	// Calculate financial values
-	const { netFee, taxRate, grossFee, taxAmount } = calculateServiceProvisionFinancials(
+	const { netFee, grossFee, taxAmount } = calculateServiceProvisionFinancials(
 		contract.netFee,
 		contract.taxRate
 	);
@@ -141,10 +141,10 @@ export async function transformServiceProvisionContractData(
 	const grossFeeFormatted = formatCurrency(grossFee);
 
 	// Translate fields to Vietnamese
-	const [jobNameVN, jobContentVN] = await Promise.all([
+	const [jobNameVN, jobContentVN] = (await Promise.all([
 		translateToVietnamese(contract.jobName),
 		translateToVietnamese(contract.jobContent)
-	]) as [string, string];
+	])) as [string, string];
 
 	const result: ServiceProvisionContractViewData = {
 		contractNumber,
@@ -346,9 +346,7 @@ export async function transformEventPlanningContractData(
 
 	// Format currency values
 	const contractValueVNDFormatted = formatCurrency(contract.contractValueVND);
-	const professionalIndemnityAmountFormatted = formatCurrency(
-		contract.professionalIndemnityAmount
-	);
+	const professionalIndemnityAmountFormatted = formatCurrency(contract.professionalIndemnityAmount);
 	const publicLiabilityAmountFormatted = formatCurrency(contract.publicLiabilityAmount);
 
 	// Percentage values — template already has the % suffix
@@ -546,8 +544,7 @@ export async function transformEquipmentRentalContractData(
 	// Format equipment list
 	const equipmentList = contract.equipment.map((item) => {
 		const totalPrice = item.quantity * item.unitPrice;
-		const serialNumbersText =
-			item.serialNumbers.length > 0 ? item.serialNumbers.join(', ') : 'N/A';
+		const serialNumbersText = item.serialNumbers.length > 0 ? item.serialNumbers.join(', ') : 'N/A';
 
 		return {
 			name: item.name,
@@ -576,8 +573,8 @@ export async function transformEquipmentRentalContractData(
 	const totalEquipmentValueFormatted = formatCurrency(totalEquipmentValue);
 
 	const result: EquipmentRentalContractViewData = {
-		contractNumber: contract.contractNumber ?? "",
-		eventName: contract.eventName ?? "", // Empty string if no event (standalone contract)
+		contractNumber: contract.contractNumber ?? '',
+		eventName: contract.eventName ?? '', // Empty string if no event (standalone contract)
 		companyName: companyConfig.name,
 		companyNameVietnamese: companyConfig.nameVietnamese,
 		companyAddressLine1: companyConfig.addressLine1,

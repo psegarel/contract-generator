@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import type { PageData } from './$types';
 	import ServiceProvisionForm from '$lib/components/v2/contracts/ServiceProvisionForm.svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	function handleSuccess() {
-		goto('/contracts/service-provision/list');
+		goto(resolve('/contracts/service-provision/list'));
 	}
 
 	function handleCancel() {
-		goto('/contracts/service-provision/list');
+		goto(resolve('/contracts/service-provision/list'));
 	}
 </script>
 

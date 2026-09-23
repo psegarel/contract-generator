@@ -120,7 +120,9 @@ export async function migrateClients(dryRun: boolean = true): Promise<MigrationR
 
 				if (dryRun) {
 					// Log what would be created
-					console.log(`[${index + 1}/${total}] Would migrate client "${v1Client.name}" (${clientId})`);
+					console.log(
+						`[${index + 1}/${total}] Would migrate client "${v1Client.name}" (${clientId})`
+					);
 					console.log(`  → Type: client/${v2Counterparty.clientType}`);
 					console.log(`  → Email: ${v2Counterparty.email}`);
 					console.log(`  → Tax ID: ${v2Counterparty.taxId || 'none'}\n`);
@@ -136,12 +138,17 @@ export async function migrateClients(dryRun: boolean = true): Promise<MigrationR
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
 				errors.push({ id: clientId, error: errorMessage });
-				console.error(`[${index + 1}/${total}] ✗ ERROR migrating client ${clientId}:`, errorMessage);
+				console.error(
+					`[${index + 1}/${total}] ✗ ERROR migrating client ${clientId}:`,
+					errorMessage
+				);
 			}
 
 			// Progress indicator every 10 documents
 			if ((index + 1) % 10 === 0 && index + 1 < total) {
-				console.log(`--- Progress: ${index + 1}/${total} (${Math.round(((index + 1) / total) * 100)}%) ---\n`);
+				console.log(
+					`--- Progress: ${index + 1}/${total} (${Math.round(((index + 1) / total) * 100)}%) ---\n`
+				);
 			}
 		}
 

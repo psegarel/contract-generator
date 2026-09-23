@@ -20,6 +20,7 @@ This migration converts the existing v1 contract system to the new v2 architectu
 **Type:** ClientCounterparty
 
 **Field Mapping:**
+
 ```typescript
 // V1 Client
 {
@@ -62,6 +63,7 @@ This migration converts the existing v1 contract system to the new v2 architectu
 ```
 
 **Default Values:**
+
 - `clientType`: All clients default to 'individual' (manually update to 'company' post-migration if needed)
 - Note: Tax ID presence doesn't reliably indicate company vs individual (individuals can have personal tax IDs)
 
@@ -69,6 +71,7 @@ This migration converts the existing v1 contract system to the new v2 architectu
 
 **Source:** `service-contracts` collection
 **Destination:**
+
 - `events` collection (new Event entities)
 - `service-provision-contracts` collection (migrated contracts)
 
@@ -79,53 +82,53 @@ For each service contract, create an Event:
 ```typescript
 // V1 SavedServiceContract
 {
-  id: string;
-  type: 'service';
-  contractData: {
-    jobName: string;
-    jobContent: string;
-    eventLocation: string;
-    startDate: string;
-    endDate: string;
-    // ... more fields
-  };
-  contractNumber: string;
-  locationId: string;  // References client
-  // ...
+	id: string;
+	type: 'service';
+	contractData: {
+		jobName: string;
+		jobContent: string;
+		eventLocation: string;
+		startDate: string;
+		endDate: string;
+		// ... more fields
+	}
+	contractNumber: string;
+	locationId: string; // References client
+	// ...
 }
 
 // V2 Event
 {
-  id: string;  // NEW: generate new ID
-  ownerUid: string;  // contract.ownerUid
-  createdAt: Timestamp;  // contract.createdAt
-  updatedAt: Timestamp;  // contract.createdAt
+	id: string; // NEW: generate new ID
+	ownerUid: string; // contract.ownerUid
+	createdAt: Timestamp; // contract.createdAt
+	updatedAt: Timestamp; // contract.createdAt
 
-  name: string;  // contractData.jobName
-  eventType: 'Service Provision';  // NEW
-  description: string | null;  // contractData.jobContent
+	name: string; // contractData.jobName
+	eventType: 'Service Provision'; // NEW
+	description: string | null; // contractData.jobContent
 
-  locationAddress: string;  // contractData.eventLocation
-  locationName: string | null;  // null
-  venueCounterpartyId: string | null;  // null
+	locationAddress: string; // contractData.eventLocation
+	locationName: string | null; // null
+	venueCounterpartyId: string | null; // null
 
-  eventDate: string;  // contractData.startDate
-  startTime: string | null;  // contractData.firstPerformanceTime
-  endTime: string | null;  // null
-  setupDateTime: string | null;  // null
-  teardownDateTime: string | null;  // null
+	eventDate: string; // contractData.startDate
+	startTime: string | null; // contractData.firstPerformanceTime
+	endTime: string | null; // null
+	setupDateTime: string | null; // null
+	teardownDateTime: string | null; // null
 
-  expectedAttendance: number | null;  // null
+	expectedAttendance: number | null; // null
 
-  status: 'completed';  // NEW: assume past events are completed
+	status: 'completed'; // NEW: assume past events are completed
 
-  contractIds: [contract.id];  // Link to contract
+	contractIds: [contract.id]; // Link to contract
 
-  totalReceivable: number;  // contract.contractData.fee (with tax)
-  totalPayable: 0;
-  netRevenue: number;  // totalReceivable
+	totalReceivable: number; // contract.contractData.fee (with tax)
+	totalPayable: 0;
+	netRevenue: number; // totalReceivable
 
-  internalNotes: string | null;  // null
+	internalNotes: string | null; // null
 }
 ```
 
@@ -137,42 +140,42 @@ For each service contract, create an Event:
 
 // V2 ServiceProvisionContract
 {
-  id: string;  // SAME ID (preserve)
-  type: 'service-provision';
+	id: string; // SAME ID (preserve)
+	type: 'service-provision';
 
-  eventId: string;  // NEW: ID of created event
-  counterpartyId: string;  // locationId (client reference)
+	eventId: string; // NEW: ID of created event
+	counterpartyId: string; // locationId (client reference)
 
-  contractNumber: string;  // contractNumber
-  contractValue: number;  // contractData.fee (with tax)
-  paymentDirection: 'receivable';  // NEW
+	contractNumber: string; // contractNumber
+	contractValue: number; // contractData.fee (with tax)
+	paymentDirection: 'receivable'; // NEW
 
-  paymentStatus: 'unpaid' | 'paid';  // paymentStatus
-  paidAt: Timestamp | null;  // paidAt
-  paidBy: string | null;  // paidBy
+	paymentStatus: 'unpaid' | 'paid'; // paymentStatus
+	paidAt: Timestamp | null; // paidAt
+	paidBy: string | null; // paidBy
 
-  createdAt: Timestamp;  // createdAt
-  updatedAt: Timestamp;  // createdAt
-  ownerUid: string;  // ownerUid
+	createdAt: Timestamp; // createdAt
+	updatedAt: Timestamp; // createdAt
+	ownerUid: string; // ownerUid
 
-  // Service-specific fields from contractData
-  jobName: string;
-  jobContent: string;
-  numberOfPerformances: number;
-  firstPerformanceTime: string;
-  startDate: string;
-  endDate: string;
-  taxRate: number;
-  netFee: number;
-  status: 'draft' | 'generated';
-  bankName: string;
-  accountNumber: string;
-  clientEmail: string;
-  clientAddress: string;
-  clientPhone: string;
-  clientIdDocument: string;
-  clientTaxId: string | null;
-  eventLocation: string;
+	// Service-specific fields from contractData
+	jobName: string;
+	jobContent: string;
+	numberOfPerformances: number;
+	firstPerformanceTime: string;
+	startDate: string;
+	endDate: string;
+	taxRate: number;
+	netFee: number;
+	status: 'draft' | 'generated';
+	bankName: string;
+	accountNumber: string;
+	clientEmail: string;
+	clientAddress: string;
+	clientPhone: string;
+	clientIdDocument: string;
+	clientTaxId: string | null;
+	eventLocation: string;
 }
 ```
 
@@ -180,6 +183,7 @@ For each service contract, create an Event:
 
 **Source:** `event-planning-contracts` collection
 **Destination:**
+
 - `events` collection (new Event entities)
 - `event-planning-contracts` collection (update in-place with new fields)
 
@@ -188,51 +192,51 @@ For each service contract, create an Event:
 ```typescript
 // V1 SavedEventPlanningContract
 {
-  id: string;
-  type: 'event-planning';
-  contractData: {
-    eventName: string;
-    eventVenue: string;
-    eventDate: string;
-    // ...
-  };
-  contractNumber: string;
-  locationId: string;  // References client
-  // ...
+	id: string;
+	type: 'event-planning';
+	contractData: {
+		eventName: string;
+		eventVenue: string;
+		eventDate: string;
+		// ...
+	}
+	contractNumber: string;
+	locationId: string; // References client
+	// ...
 }
 
 // V2 Event
 {
-  id: string;  // NEW: generate new ID
-  ownerUid: string;  // contract.ownerUid
-  createdAt: Timestamp;  // contract.createdAt
-  updatedAt: Timestamp;  // contract.createdAt
+	id: string; // NEW: generate new ID
+	ownerUid: string; // contract.ownerUid
+	createdAt: Timestamp; // contract.createdAt
+	updatedAt: Timestamp; // contract.createdAt
 
-  name: string;  // contractData.eventName || contractData.eventType || 'Event Planning'
-  eventType: string | null;  // contractData.eventType
-  description: string | null;  // contractData.eventDescription
+	name: string; // contractData.eventName || contractData.eventType || 'Event Planning'
+	eventType: string | null; // contractData.eventType
+	description: string | null; // contractData.eventDescription
 
-  locationAddress: string;  // contractData.eventVenue
-  locationName: string | null;  // contractData.eventVenue
-  venueCounterpartyId: string | null;  // null
+	locationAddress: string; // contractData.eventVenue
+	locationName: string | null; // contractData.eventVenue
+	venueCounterpartyId: string | null; // null
 
-  eventDate: string;  // contractData.eventDate
-  startTime: string | null;  // extract from setupCommencementTime
-  endTime: string | null;  // null
-  setupDateTime: string | null;  // contractData.technicalSetupDate
-  teardownDateTime: string | null;  // contractData.breakdownCompletionDateTime
+	eventDate: string; // contractData.eventDate
+	startTime: string | null; // extract from setupCommencementTime
+	endTime: string | null; // null
+	setupDateTime: string | null; // contractData.technicalSetupDate
+	teardownDateTime: string | null; // contractData.breakdownCompletionDateTime
 
-  expectedAttendance: number | null;  // parse contractData.expectedAttendance
+	expectedAttendance: number | null; // parse contractData.expectedAttendance
 
-  status: 'completed';  // NEW: assume past events are completed
+	status: 'completed'; // NEW: assume past events are completed
 
-  contractIds: [contract.id];  // Link to contract
+	contractIds: [contract.id]; // Link to contract
 
-  totalReceivable: number;  // contractData.contractValueVND (if receivable)
-  totalPayable: number;  // contractData.contractValueVND (if payable)
-  netRevenue: number;  // calculate based on direction
+	totalReceivable: number; // contractData.contractValueVND (if receivable)
+	totalPayable: number; // contractData.contractValueVND (if payable)
+	netRevenue: number; // calculate based on direction
 
-  internalNotes: string | null;  // null
+	internalNotes: string | null; // null
 }
 ```
 
@@ -243,11 +247,11 @@ Add new fields to existing documents (in-place update):
 ```typescript
 // Add these fields to existing event-planning-contracts documents
 {
-  eventId: string;  // NEW: ID of created event
-  counterpartyId: string;  // NEW: locationId (client reference)
-  updatedAt: Timestamp;  // NEW: serverTimestamp()
+	eventId: string; // NEW: ID of created event
+	counterpartyId: string; // NEW: locationId (client reference)
+	updatedAt: Timestamp; // NEW: serverTimestamp()
 
-  // All other fields remain unchanged
+	// All other fields remain unchanged
 }
 ```
 
@@ -280,12 +284,14 @@ Add new fields to existing documents (in-place update):
 ### 1. Dry-Run Mode
 
 All migration scripts accept `dryRun: boolean` parameter:
+
 - `true`: Log what WOULD happen, no database writes
 - `false`: Execute migration and write to database
 
 ### 2. Read-Only Source Collections
 
 Migration scripts only READ from v1 collections:
+
 - `clients` - read only
 - `service-contracts` - read only
 - `event-planning-contracts` - read only (except in-place updates for new fields)
@@ -293,6 +299,7 @@ Migration scripts only READ from v1 collections:
 ### 3. Write-Only Destination Collections
 
 Migration scripts only WRITE to v2 collections:
+
 - `counterparties` - write only (create new docs)
 - `events` - write only (create new docs)
 - `service-provision-contracts` - write only (create new docs)
@@ -309,6 +316,7 @@ Exception: `event-planning-contracts` gets in-place field additions.
 ### 5. Logging
 
 All migration scripts log:
+
 - Total documents to migrate
 - Progress (every 10 documents)
 - Errors (with document ID and details)
@@ -357,33 +365,33 @@ If migration fails or v2 has critical issues:
 ### 1. migrateClients.ts
 
 ```typescript
-export async function migrateClients(dryRun: boolean = true): Promise<MigrationResult>
+export async function migrateClients(dryRun: boolean = true): Promise<MigrationResult>;
 ```
 
 ### 2. createInitialEvents.ts
 
 ```typescript
 export async function createEventsFromContracts(
-  dryRun: boolean = true
-): Promise<{ serviceEventMap: Map<string, string>, eventPlanningEventMap: Map<string, string> }>
+	dryRun: boolean = true
+): Promise<{ serviceEventMap: Map<string, string>; eventPlanningEventMap: Map<string, string> }>;
 ```
 
 ### 3. migrateServiceContracts.ts
 
 ```typescript
 export async function migrateServiceContracts(
-  serviceEventMap: Map<string, string>,
-  dryRun: boolean = true
-): Promise<MigrationResult>
+	serviceEventMap: Map<string, string>,
+	dryRun: boolean = true
+): Promise<MigrationResult>;
 ```
 
 ### 4. migrateEventPlanningContracts.ts
 
 ```typescript
 export async function migrateEventPlanningContracts(
-  eventPlanningEventMap: Map<string, string>,
-  dryRun: boolean = true
-): Promise<MigrationResult>
+	eventPlanningEventMap: Map<string, string>,
+	dryRun: boolean = true
+): Promise<MigrationResult>;
 ```
 
 ### 5. runMigration.ts
@@ -391,7 +399,7 @@ export async function migrateEventPlanningContracts(
 Orchestrator script that runs all migrations in order:
 
 ```typescript
-export async function runFullMigration(dryRun: boolean = true): Promise<void>
+export async function runFullMigration(dryRun: boolean = true): Promise<void>;
 ```
 
 ## Expected Results

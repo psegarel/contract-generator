@@ -11,6 +11,9 @@ const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
+	{
+		ignores: ['archive/**', 'migrations-archive/**']
+	},
 	js.configs.recommended,
 	...ts.configs.recommended,
 	...svelte.configs.recommended,
@@ -36,8 +39,25 @@ export default defineConfig(
 		}
 	},
 	{
+		// Dynamic Firestore/template payloads cross typed boundaries in these legacy generators.
+		files: [
+			'src/lib/utils/equipmentRentalContractGenerator.ts',
+			'src/lib/utils/v2/contractHtmlGenerator.ts',
+			'src/lib/utils/v2/equipmentRentalContracts.ts'
+		],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'off'
+		}
+	},
+	{
 		// Reusable UI components may receive external URLs as props
-		files: ['**/ui/**/*.svelte'],
+		files: [
+			'**/ui/**/*.svelte',
+			'src/lib/components/SidebarMenuItem.svelte',
+			'src/lib/components/SidebarSubMenuItem.svelte',
+			'src/lib/components/v2/contracts/ContractCard.svelte',
+			'src/lib/components/v2/contracts/ContractListItem.svelte'
+		],
 		rules: {
 			'svelte/no-navigation-without-resolve': 'off'
 		}

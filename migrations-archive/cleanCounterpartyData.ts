@@ -45,11 +45,11 @@ const SCHEMAS_BY_TYPE: Record<string, z.ZodSchema> = {
  */
 function getSchemaFields(schema: z.ZodSchema): Set<string> {
 	const fields = new Set<string>();
-	
+
 	function traverse(s: z.ZodTypeAny): void {
 		const def = s._def as any;
 		const typeName = def.typeName;
-		
+
 		if (typeName === 'ZodObject') {
 			const shape = def.shape();
 			for (const key of Object.keys(shape)) {
@@ -67,7 +67,7 @@ function getSchemaFields(schema: z.ZodSchema): Set<string> {
 			traverse(def.getter());
 		}
 	}
-	
+
 	traverse(schema);
 	return fields;
 }
@@ -83,9 +83,7 @@ function getSchemaFields(schema: z.ZodSchema): Set<string> {
  * @param dryRun - If true, log what would happen without writing to database
  * @returns Migration result with stats and errors
  */
-export async function cleanCounterpartyData(
-	dryRun: boolean = true
-): Promise<MigrationResult> {
+export async function cleanCounterpartyData(dryRun: boolean = true): Promise<MigrationResult> {
 	const startTime = Date.now();
 	const result: MigrationResult = {
 		total: 0,
@@ -98,9 +96,7 @@ export async function cleanCounterpartyData(
 
 	try {
 		console.log(
-			dryRun
-				? '🔍 DRY RUN: Cleaning counterparty data...'
-				: '🔄 Cleaning counterparty data...\n'
+			dryRun ? '🔍 DRY RUN: Cleaning counterparty data...' : '🔄 Cleaning counterparty data...\n'
 		);
 
 		const counterpartiesRef = collection(db, 'counterparties');
@@ -128,7 +124,7 @@ export async function cleanCounterpartyData(
 			if (validationResult.success) {
 				// Data is valid - use the validated data to determine valid fields
 				const validFields = new Set(Object.keys(validationResult.data as Record<string, unknown>));
-				
+
 				// Check for extra fields (shouldn't happen with strict, but verify)
 				// Data is valid - check for extra fields (shouldn't happen with strict, but verify)
 				const fieldsToRemove: string[] = [];
@@ -154,10 +150,7 @@ export async function cleanCounterpartyData(
 				updates.updatedAt = serverTimestamp();
 
 				if (dryRun) {
-					console.log(
-						`[DRY RUN] Would remove from ${docId} (${type}):`,
-						fieldsToRemove.join(', ')
-					);
+					console.log(`[DRY RUN] Would remove from ${docId} (${type}):`, fieldsToRemove.join(', '));
 					result.updated++;
 				} else {
 					try {
@@ -175,22 +168,22 @@ export async function cleanCounterpartyData(
 			} else {
 				// Data is invalid - fix it
 				console.log(`\n🔧 ${docId} (${type}): Needs cleaning`);
-				
+
 				// Get valid fields from schema
 				const validFields = getSchemaFields(schema);
-				
+
 				// If we can't extract fields, use a different approach: remove fields mentioned in errors
 				if (validFields.size === 0) {
 					console.log(`  ⚠ Could not extract fields from schema, using error-based approach`);
 				}
-				
+
 				const fieldsToRemove: string[] = [];
 				const fieldsToAdd: Record<string, unknown> = {};
 
 				// Step 1: Remove all fields not in schema (or mentioned in unrecognized_keys errors)
 				const errorIssues = validationResult.error.issues || [];
 				const unrecognizedKeys = new Set<string>();
-				
+
 				for (const error of errorIssues) {
 					if (error.code === 'unrecognized_keys' && error.keys) {
 						for (const key of error.keys) {
@@ -198,13 +191,13 @@ export async function cleanCounterpartyData(
 						}
 					}
 				}
-				
+
 				// Remove unrecognized keys
 				for (const field of unrecognizedKeys) {
 					fieldsToRemove.push(field);
 					console.log(`  - Remove invalid field: ${field}`);
 				}
-				
+
 				// Also remove fields not in validFields if we have them
 				if (validFields.size > 0) {
 					for (const field in data) {
@@ -219,7 +212,7 @@ export async function cleanCounterpartyData(
 				// Step 2: Analyze validation errors to fix missing/invalid fields
 				for (const error of errorIssues) {
 					const fieldPath = error.path[0] as string;
-					
+
 					if (error.code === 'unrecognized_keys') {
 						// Already handled above
 						continue;
@@ -264,7 +257,10 @@ export async function cleanCounterpartyData(
 				}
 
 				// Step 3: Handle special cases for enums
-				if (type === 'client' && (!data.clientType || !['individual', 'company'].includes(data.clientType))) {
+				if (
+					type === 'client' &&
+					(!data.clientType || !['individual', 'company'].includes(data.clientType))
+				) {
 					fieldsToAdd.clientType = 'individual';
 					console.log(`  - Fix clientType: clientType = "individual"`);
 				}
@@ -291,21 +287,25 @@ export async function cleanCounterpartyData(
 						console.log(`  Remove: ${fieldsToRemove.join(', ')}`);
 					}
 					if (Object.keys(fieldsToAdd).length > 0) {
-						console.log(`  Add: ${Object.entries(fieldsToAdd).map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(', ')}`);
+						console.log(
+							`  Add: ${Object.entries(fieldsToAdd)
+								.map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+								.join(', ')}`
+						);
 					}
 					result.updated++;
 				} else {
 					try {
 						const docRef = doc(db, 'counterparties', docId);
 						await updateDoc(docRef, updates);
-						
+
 						// Re-validate after update
 						const updatedData = { ...data };
 						for (const field of fieldsToRemove) {
 							delete updatedData[field];
 						}
 						Object.assign(updatedData, fieldsToAdd);
-						
+
 						const revalidation = schema.safeParse(updatedData);
 						if (revalidation.success) {
 							console.log(`✓ Cleaned ${docId} (${type}): Now valid`);
@@ -313,10 +313,13 @@ export async function cleanCounterpartyData(
 						} else {
 							console.error(`⚠ ${docId} (${type}): Still invalid after update`);
 							const revalidationIssues = revalidation.error.issues || [];
-							console.error(`  Errors:`, revalidationIssues.map(e => `${e.path.join('.')}: ${e.message}`).join(', '));
-							result.errors.push({ 
-								id: docId, 
-								error: `Still invalid: ${revalidationIssues.map(e => e.message).join(', ')}` 
+							console.error(
+								`  Errors:`,
+								revalidationIssues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')
+							);
+							result.errors.push({
+								id: docId,
+								error: `Still invalid: ${revalidationIssues.map((e) => e.message).join(', ')}`
 							});
 							result.failed++;
 						}

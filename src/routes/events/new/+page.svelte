@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import EventForm from '$lib/components/v2/events/EventForm.svelte';
 
 	function handleSuccess(eventId: string) {
 		// Navigate to the event detail page
-		goto(`/events/${eventId}`);
+		goto(resolve(`/events/${eventId}`));
 	}
 
 	function handleCancel() {
 		// Navigate back to events list
-		goto('/events');
+		goto(resolve('/events'));
 	}
 </script>
 

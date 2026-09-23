@@ -1,4 +1,5 @@
 import type { ServiceProvisionContract, ContractorCounterparty } from '$lib/types/v2';
+import { SvelteDate } from 'svelte/reactivity';
 
 /**
  * Form state class for Service Provision Contract forms
@@ -122,7 +123,7 @@ export class ServiceProvisionContractFormState {
 	 * Generate a unique contract number for new contracts
 	 */
 	private generateContractNumber() {
-		const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+		const dateStr = new SvelteDate().toISOString().slice(0, 10).replace(/-/g, '');
 		const timestamp = Date.now().toString().slice(-4);
 		this.contractNumber = `SVC-${dateStr}-${timestamp}`;
 	}

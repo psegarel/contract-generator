@@ -35,10 +35,7 @@ const replacements = [
 		'for {{contractDurationMonths}} ({{contractDurationMonthsNumber}}) months from {{contractStartDateEnglish}} to {{contractEndDateEnglish}}'
 	],
 	// Performance days
-	[
-		'i.e. on Saturday and Sunday',
-		'i.e. on {{performanceDays}}'
-	],
+	['i.e. on Saturday and Sunday', 'i.e. on {{performanceDays}}'],
 	// Performance hours + sets (EN uses "(04)" in the template, signed uses "(4)")
 	[
 		'four (04) hours, split into two (2) sets',
@@ -113,7 +110,9 @@ writeFileSync(templatePath, output);
 console.log('\n' + '─'.repeat(60));
 console.log(`Applied: ${successCount} / ${replacements.length} replacements`);
 if (missingCount > 0) {
-	console.warn(`⚠  ${missingCount} strings not found — check for formatting changes in the template`);
+	console.warn(
+		`⚠  ${missingCount} strings not found — check for formatting changes in the template`
+	);
 } else {
 	console.log('✅  Template patched successfully →', templatePath);
 }

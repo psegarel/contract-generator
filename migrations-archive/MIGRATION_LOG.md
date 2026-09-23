@@ -9,6 +9,7 @@
 ## Completed Migrations
 
 ### 1. Add Timestamps to Counterparties
+
 **Script:** `addTimestampsToCounterparties.ts` / `addTimestampsToCounterpartiesBrowser.ts`
 **Date Completed:** ~2024-12-XX
 **Status:** ✅ Completed
@@ -19,12 +20,14 @@
 ---
 
 ### 2. Clean Counterparty Data
+
 **Script:** `cleanCounterpartyData.ts`
 **Date Completed:** ~2025-01-08
 **Status:** ✅ Completed
 **Description:** Cleaned up invalid and extraneous fields in counterparty documents to conform to the v2 schema.
 
 **Changes:**
+
 - Removed invalid fields that don't exist in schema
 - Added missing required fields with default values
 - Fixed non-array fields that should be arrays
@@ -35,6 +38,7 @@
 ---
 
 ### 3. Fix Counterparty ID Issues
+
 **Script:** `fixCounterpartyId.ts`
 **Date Completed:** ~2025-01-08
 **Status:** ✅ Completed
@@ -45,6 +49,7 @@
 ---
 
 ### 4. Fix Counterparty Names
+
 **Script:** `fixCounterpartyNames.ts`
 **Date Completed:** ~2024-12-XX
 **Status:** ✅ Completed
@@ -55,6 +60,7 @@
 ---
 
 ### 5. Fix Counterparty Null Values
+
 **Script:** `fixCounterpartyNullValues.ts`
 **Date Completed:** ~2025-01-08
 **Status:** ✅ Completed
@@ -65,6 +71,7 @@
 ---
 
 ### 6. Fix Missing Required Fields
+
 **Script:** `fixMissingRequiredFields.ts`
 **Date Completed:** ~2025-01-08
 **Status:** ✅ Completed
@@ -75,6 +82,7 @@
 ---
 
 ### 7. Remove Invalid Counterparty Fields
+
 **Script:** `removeInvalidCounterpartyFields.ts`
 **Date Completed:** ~2025-01-08
 **Status:** ✅ Completed
@@ -85,12 +93,14 @@
 ---
 
 ### 8. Migrate Clients to Counterparties
+
 **Script:** `migrateClients.ts`
 **Date Completed:** ~2024-12-XX
 **Status:** ✅ Completed
 **Description:** Migrated data from legacy `clients` collection to new `counterparties` collection with type discrimination.
 
 **Changes:**
+
 - Copied client data to counterparties collection
 - Set type to 'client' for all migrated records
 - Defaulted clientType to 'individual' (requires manual review)
@@ -99,18 +109,21 @@
 **Impact:** Successfully migrated all clients to the new v2 architecture.
 
 **Post-Migration Tasks:**
+
 - ✅ Review migrated counterparties in Firestore
 - ⚠️ Update clientType to "company" for event-planning clients if needed (manual task)
 
 ---
 
 ### 9. Migrate Event Planning Contracts
+
 **Script:** `migrateEventPlanningContracts.ts`
 **Date Completed:** ~2024-12-XX
 **Status:** ✅ Completed
 **Description:** Migrated event planning contracts from v1 to v2 schema structure.
 
 **Changes:**
+
 - Updated field names to match v2 schema
 - Added new required fields
 - Migrated nested data structures
@@ -121,12 +134,14 @@
 ---
 
 ### 10. Migrate Service Contracts
+
 **Script:** `migrateServiceContracts.ts`
 **Date Completed:** ~2024-12-XX
 **Status:** ✅ Completed
 **Description:** Migrated service provision contracts from v1 to v2 schema structure.
 
 **Changes:**
+
 - Updated field names to match v2 schema
 - Calculated and added derived fields
 - Preserved all financial data
@@ -137,6 +152,7 @@
 ---
 
 ### 11. Migrate Locations
+
 **Script:** `migrateLocations.ts`
 **Date Completed:** ~2024-12-XX
 **Status:** ✅ Completed
@@ -147,12 +163,14 @@
 ---
 
 ### 12. Create Initial Events
+
 **Script:** `createInitialEvents.ts`
 **Date Completed:** ~2024-12-XX
 **Status:** ✅ Completed
 **Description:** Created initial event records from existing contract data.
 
 **Changes:**
+
 - Extracted event information from contracts
 - Created event documents in events collection
 - Linked contracts to events via eventId
@@ -184,6 +202,7 @@ Detailed migration plan and strategy documentation for v1 → v2 schema migratio
 ### ⚠️ **WARNING: DO NOT run these scripts on production unless you know what you're doing!**
 
 These migrations have already been completed. They are archived for:
+
 1. **Reference** - Understanding how data was migrated
 2. **Rollback** - In case we need to reverse a migration
 3. **Testing** - Running against test databases
@@ -200,6 +219,7 @@ These migrations have already been completed. They are archived for:
 7. **Move script back** to archive after completion
 
 ### Example (dry-run):
+
 ```bash
 # Copy script to temp location
 cp migrations-archive/migrateClients.ts temp/
@@ -248,6 +268,7 @@ If you need to create a new migration:
 ## Questions?
 
 If you have questions about these migrations or need to run one:
+
 1. Review the script code and comments
 2. Check this log for context
 3. Test on development database first

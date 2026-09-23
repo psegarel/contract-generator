@@ -197,10 +197,7 @@ export async function getCounterpartiesByType(
 	contractorType?: ContractorType
 ): Promise<Counterparty[]> {
 	try {
-		const constraints = [
-			where('type', '==', type),
-			orderBy('name', 'asc')
-		];
+		const constraints = [where('type', '==', type), orderBy('name', 'asc')];
 
 		if (contractorType) {
 			constraints.splice(1, 0, where('contractorType', '==', contractorType));
