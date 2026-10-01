@@ -17,6 +17,8 @@ The V2 model separates the main business entities:
 - **Event** — an event that can group related contracts
 - **Contract** — a typed contract stored in its own Firestore collection
 - **Payment** — payment records associated with contracts
+- **Quotation** — a versioned commercial offer with immutable equipment snapshots
+- **Lead** — a prospective customer tracked separately from counterparties
 
 All contract interfaces extend `BaseContract` for shared list and payment fields. The supported contract discriminators are:
 
@@ -45,6 +47,9 @@ The principal Firestore collections include:
 - `counterparties`
 - `events`
 - `payments`
+- `quotations`
+- `leads`
+- `sequences/quotations`
 - `service-provision-contracts`
 - `event-planning-contracts`
 - `equipment-rental-contracts`
@@ -52,6 +57,8 @@ The principal Firestore collections include:
 - `dj-residency-contracts`
 
 Legacy collections and migration scripts remain in the repository for historical reference. They should not be treated as the active application architecture.
+
+Quotation equipment is read from the Insense Packages catalogue through a narrow integration boundary. The selected name, manufacturer, rental price, and image URL are copied into each quotation line item; Contract Generator does not connect directly to the Packages Neon database or maintain a second catalogue.
 
 ## Authorization
 

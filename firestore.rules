@@ -232,6 +232,32 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Quotation and lead records
+    match /quotations/{quotationId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && ('ownerUid' in request.resource.data)
+        && ('quotationNumber' in request.resource.data && request.resource.data.quotationNumber is string)
+        && ('lineItems' in request.resource.data && request.resource.data.lineItems is list)
+        && ('totalVnd' in request.resource.data && request.resource.data.totalVnd is int);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /leads/{leadId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && ('ownerUid' in request.resource.data)
+        && ('name' in request.resource.data && request.resource.data.name is string)
+        && ('email' in request.resource.data && request.resource.data.email is string);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /sequences/{sequenceId} {
+      allow read, write: if isAdmin();
+    }
+
     // Service Provision Contracts (v2) - migrated from service-contracts
     match /service-provision-contracts/{contractId} {
       // Only the owner/admin account can access application data

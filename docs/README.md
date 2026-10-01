@@ -7,6 +7,7 @@ This directory contains current project documentation. Historical plans and supe
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) — current application structure, domain model, and Firebase collections
 - [`DEVELOPMENT.md`](DEVELOPMENT.md) — local development, verification, and documentation workflow
 - [`CODEBASE_REVIEW_2026-09-22.md`](CODEBASE_REVIEW_2026-09-22.md) — current cleanup findings and recommended priorities
+- [`quotation-and-lead-management-plan.md`](quotation-and-lead-management-plan.md) — quotation, Firestore lead, catalogue integration, and PDF workflow
 - [`reference/`](reference/) — contract template and placeholder references
 
 The repository root also contains:

@@ -7,6 +7,8 @@ Contract Generator is a SvelteKit/Svelte 5 application for creating bilingual En
 - Service provision, event planning, equipment rental, one-off rental, and DJ residency contracts
 - Client and contractor counterparties
 - Events and payment tracking
+- Client quotations and Firestore lead tracking
+- Quotation PDF downloads with equipment snapshots and thumbnails
 - Firebase Authentication, Firestore, and Storage integration
 - Shared Svelte form and design-system components
 
@@ -20,6 +22,8 @@ pnpm dev
 ```
 
 Configure the `VITE_FIREBASE_*` variables in a local `.env` file before using Firebase-backed features. Do not commit local credentials.
+
+Quotation creation also requires `VITE_EQUIPMENT_CATALOGUE_URL`, pointing to the protected `/api/quotation-catalogue` feed from Insense Packages. Contract Generator forwards the signed-in Firebase ID token; it validates the feed but never connects directly to Neon.
 
 ## Verification commands
 
@@ -39,6 +43,8 @@ pnpm lint                  # Prettier check and ESLint
 - `/counterparties/...` — client and contractor management
 - `/events/...` — event management
 - `/payments` — payment management
+- `/quotations/...` — quotation creation, tracking, and PDF downloads
+- `/leads` — Firestore lead pipeline
 - `/login` — authentication
 
 ## Documentation

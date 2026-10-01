@@ -2,7 +2,7 @@
 
 This document tracks which Svelte components have been validated with the Svelte autofixer tool.
 
-**Last Updated:** 2026-09-23
+**Last Updated:** 2026-09-30
 
 ## ⚠️ Important Note
 
@@ -88,7 +88,23 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 | EventBasicsSection.svelte   | ✅     | 2026-09-23   | Clean - no issues |
 | EventLocationSection.svelte | ✅     | 2026-09-23   | Clean - no issues |
 | EventScheduleSection.svelte | ✅     | 2026-09-23   | Clean - no issues |
-| EventNotesSection.svelte    | ✅     | 2026-09-23   | Clean - no issues |
+
+### Quotation Components (`src/lib/components/v2/quotations/`)
+
+| Component            | Status | Last Checked | Notes                       |
+| -------------------- | ------ | ------------ | --------------------------- |
+| QuotationForm.svelte | ✅     | 2026-09-30   | Clean - no autofixer issues |
+
+### Quotation and Lead Routes
+
+| Component                         | Status | Last Checked | Notes                       |
+| --------------------------------- | ------ | ------------ | --------------------------- |
+| leads/+page.svelte                | ✅     | 2026-09-30   | Clean - no autofixer issues |
+| quotations/+page.svelte           | ✅     | 2026-09-30   | Clean - no autofixer issues |
+| quotations/new/+page.svelte       | ✅     | 2026-09-30   | Clean - no autofixer issues |
+| quotations/[id]/+page.svelte      | ✅     | 2026-09-30   | Clean - no autofixer issues |
+| quotations/[id]/edit/+page.svelte | ✅     | 2026-09-30   | Clean - no autofixer issues |
+| EventNotesSection.svelte          | ✅     | 2026-09-23   | Clean - no issues           |
 
 ### Core Components (`src/lib/components/`)
 

@@ -40,6 +40,8 @@
 	const menuItems: MenuItem[] = [
 		{ icon: LayoutDashboard, label: 'Dashboard', href: resolve('/') },
 		{ icon: FilePlus, label: 'New Contract', href: resolve('/contracts') },
+		{ icon: FileText, label: 'Quotations', href: resolve('/quotations') },
+		{ icon: Users, label: 'Leads', href: resolve('/leads') },
 		{
 			icon: FileText,
 			label: 'Service Contracts',

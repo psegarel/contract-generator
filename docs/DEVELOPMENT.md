@@ -10,6 +10,8 @@ pnpm install
 
 Create a local `.env` file containing the `VITE_FIREBASE_*` values required by `src/lib/config/firebase.ts`. Keep it untracked.
 
+To use quotation creation, also configure `VITE_EQUIPMENT_CATALOGUE_URL` with the approved read-only Insense Packages feed. The feed must return the contract described in [the quotation plan](quotation-and-lead-management-plan.md); no catalogue records should be copied into Firestore.
+
 The application is currently owner-only. The Firebase user profile for the active owner must have `isAdmin: true`; newly created profiles default to `false`.
 
 Start the development server with:
