@@ -2,7 +2,7 @@
 
 ## Setup
 
-Install dependencies and configure Firebase environment variables:
+Use Node.js 22.18.0 (pinned in `.nvmrc`), then install dependencies and configure Firebase environment variables:
 
 ```sh
 pnpm install

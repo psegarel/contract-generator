@@ -36,14 +36,12 @@ The design-system cleanup plan is mostly complete. Type checking and production 
 - Ran `pnpm check` after the migration: 0 errors and 0 warnings.
 - Configured Svelte MCP in the user-level Codex configuration. The next session must be restarted before the MCP tools are available.
 
-### Next step
+### Cleanup status update — 2026-10-04
 
-Remove the unused avatar wrapper files:
-
-- `src/lib/components/ui/avatar/avatar-image.svelte`
-- `src/lib/components/ui/avatar/avatar-fallback.svelte`
-
-After that deletion, run `pnpm check` and pause for user confirmation before moving to the remaining hardcoded-color review.
+- The avatar cleanup is complete. `src/lib/components/ui/avatar/` contains only `avatar.svelte` and `index.ts`; `AppShell.svelte` imports the consolidated component.
+- The generic hardcoded-color migration is complete. A source scan found remaining generic gray and white classes only in `ServiceProvisionContractPreview.svelte` and `EventPlanningContractPreview.svelte`. Those classes preserve fixed white-page, black-text contract previews for printing.
+- The manual visual spot-check and dark-mode review listed in the archived cleanup plan have not been verified, so those remain follow-up work.
+- The project is pinned to Node 22.18.0 in `.nvmrc`, and login shells select the NVM project version automatically. The separate Homebrew OpenCode 1.2.0 and Node 25.6.1 installations were removed; Homebrew showed OpenCode was the only installed formula depending on Node.
 
 ## Previous cleanup plan status
 
@@ -51,9 +49,9 @@ The plan in `plans/steady-jingling-lecun.md` is mostly implemented. The codebase
 
 Remaining plan-related work:
 
-1. Remove the unused `ui/avatar/avatar-image.svelte` and `ui/avatar/avatar-fallback.svelte` files.
-2. Finish or explicitly scope the remaining hardcoded colors. Many are intentional status colors or print-preview styles and should be reviewed deliberately.
-3. Complete the planned visual and dark-mode checks.
+1. Complete the planned visual and dark-mode checks.
+
+The avatar consolidation and generic hardcoded-color review are complete. The only remaining generic gray and white classes are in the two print-oriented contract previews, where fixed colors are intentional. Status, financial, warning, and category colors also remain explicit where they communicate meaning.
 
 ## Recommended next work
 
@@ -81,13 +79,19 @@ Review authorization rules in `firestore.rules` and `storage.rules`. Most V2 rec
 
 The stale status/context documents and the component README should be consolidated or archived. The root `README.md` has now been replaced with project-specific documentation. `pnpm lint` still needs cleanup: Prettier reports many files needing formatting, although the invalid illustrative snippets from the component README are now archived.
 
-## Verification performed
+## Verification performed at review time
 
 - `pnpm check` — passed with 0 errors and 0 warnings
 - `pnpm build` — passed
 - `pnpm vitest run --project server` — passed, 1 test
 - `pnpm lint` — failed at the Prettier stage due to formatting/documentation issues
 - Full browser test execution was not completed in the sandbox because Vitest was denied permission to bind to `::1`
+
+### Follow-up verification — 2026-10-04
+
+- Before the NVM shell fix, default `pnpm check` selected the broken Node 25 binary; using Node 22.23.2 manually passed with 0 errors and 0 warnings.
+- After the fix and Homebrew cleanup, a new tool login shell selected Node 22.18.0 via `.nvmrc`; `pnpm check` passed with 0 errors and 0 warnings. `brew list --versions node opencode` returned no installed versions.
+- Source scan — remaining generic gray and white color classes are limited to the two contract preview components described above.
 
 ## Suggested sequence
 

@@ -14,7 +14,7 @@ Contract Generator is a SvelteKit/Svelte 5 application for creating bilingual En
 
 ## Local development
 
-Requirements: Node.js and pnpm.
+Requirements: Node.js 22.18.0 and pnpm. The repository pins Node in `.nvmrc`; NVM-enabled shells select it automatically when opened in the project.
 
 ```sh
 pnpm install

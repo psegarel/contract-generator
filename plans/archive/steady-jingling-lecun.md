@@ -207,15 +207,19 @@ Search-and-replace remaining generic hardcoded colors across non-form files:
 
 1. `pnpm check` → 0 errors, 0 warnings √
 2. `pnpm build` → successful production build √
-3. Visual spot-check of key pages (manual follow-up):
+3. Visual spot-check of key pages (manual follow-up; not verified):
    - Login page
    - Contracts list
    - Each contract form (service, event planning, equipment rental, DJ residency)
    - Counterparties list + forms
    - Events list + form
    - Payments page
-4. Verify dark mode still works on all pages (manual follow-up)
+4. Verify dark mode still works on all pages (manual follow-up; not verified)
 5. Clean up `src/lib/utils.ts` — audited; the remaining type helpers are still used by bits-ui wrappers, so none should be removed
+
+### Follow-up status — 2026-10-04
+
+Phases 0–6 are complete, including the single-file avatar consolidation and the generic color-token migration. A source scan found only fixed white and gray classes in the service-provision and event-planning contract previews; these preserve the documents' print appearance. The manual visual spot-checks and dark-mode review above remain unverified. The default Node 25 binary could not load `libllhttp.9.3.dylib`, but `pnpm check` passed with Node 22.23.2 (0 errors, 0 warnings).
 
 ---
 
