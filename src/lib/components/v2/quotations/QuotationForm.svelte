@@ -10,8 +10,7 @@
 		Quotation,
 		QuotationInput,
 		QuotationLineItem,
-		QuotationCustomerSnapshot,
-		EquipmentCategory
+		QuotationCustomerSnapshot
 	} from '$lib/types/v2';
 	import { saveLead } from '$lib/utils/v2/leads';
 	import { saveQuotation, updateQuotation } from '$lib/utils/v2/quotations';
@@ -47,8 +46,6 @@
 	let leadPhone = $state('');
 	let leadAddress = $state('');
 	let selectedCatalogueId = $state('');
-	let catalogueSearch = $state('');
-	let catalogueCategory = $state<'all' | EquipmentCategory>('all');
 	let lineItems = $state<QuotationLineItem[]>([]);
 	let discountPercent = $state('0');
 	let transportVnd = $state('0');
@@ -107,20 +104,6 @@
 		addVat ? calculateQuotationVat(totals.totalVnd, parseAmount(vatRatePercent)) : 0
 	);
 	const quotationTotalVnd = $derived(totals.totalVnd + vatAmountVnd);
-	const filteredCatalogueItems = $derived.by(() => {
-		const search = catalogueSearch.trim().toLocaleLowerCase();
-		return catalogueItems.filter((item) => {
-			const matchesCategory = catalogueCategory === 'all' || item.category === catalogueCategory;
-			const searchableText = [item.name, item.category, item.manufacturer, item.description]
-				.filter(Boolean)
-				.join(' ')
-				.toLocaleLowerCase();
-			return matchesCategory && (!search || searchableText.includes(search));
-		});
-	});
-	const selectedCatalogueItemIsVisible = $derived(
-		filteredCatalogueItems.some((item) => item.id === selectedCatalogueId)
-	);
 	const selectedCatalogueItem = $derived(
 		catalogueItems.find((item) => item.id === selectedCatalogueId) ?? null
 	);
@@ -146,7 +129,7 @@
 	}
 
 	function addEquipment() {
-		const item = filteredCatalogueItems.find((candidate) => candidate.id === selectedCatalogueId);
+		const item = catalogueItems.find((candidate) => candidate.id === selectedCatalogueId);
 		if (!item) return;
 
 		const existing = lineItems.findIndex((lineItem) => lineItem.catalogItemId === item.id);
@@ -168,17 +151,6 @@
 				}
 			];
 		}
-		selectedCatalogueId = '';
-	}
-
-	function updateCatalogueSearch(event: Event) {
-		catalogueSearch = (event.currentTarget as HTMLInputElement).value;
-		selectedCatalogueId = '';
-	}
-
-	function updateCatalogueCategory(event: Event) {
-		catalogueCategory = (event.currentTarget as HTMLSelectElement).value as
-			'all' | EquipmentCategory;
 		selectedCatalogueId = '';
 	}
 
@@ -344,29 +316,6 @@
 				first.
 			</p>
 		{:else}
-			<div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px]">
-				<label for="catalogueSearch" class="sr-only">Search equipment</label>
-				<input
-					id="catalogueSearch"
-					type="search"
-					placeholder="Search by name, manufacturer, or description"
-					value={catalogueSearch}
-					oninput={updateCatalogueSearch}
-					class="w-full rounded-sm bg-muted/50 px-3.5 py-2.5 text-sm"
-				/>
-				<label for="catalogueCategory" class="sr-only">Filter by category</label>
-				<select
-					id="catalogueCategory"
-					value={catalogueCategory}
-					onchange={updateCatalogueCategory}
-					class="w-full rounded-sm bg-muted/50 px-3.5 py-2.5 text-sm"
-				>
-					<option value="all">All categories</option>
-					<option value="audio">Audio</option>
-					<option value="lighting">Lighting</option>
-					<option value="dj">DJ</option>
-				</select>
-			</div>
 			<div class="mt-3 flex gap-2">
 				<select
 					aria-label="Select equipment"
@@ -374,7 +323,7 @@
 					class="min-w-0 flex-1 rounded-sm bg-muted/50 px-3.5 py-2.5 text-sm"
 				>
 					<option value="">Select equipment</option>
-					{#each filteredCatalogueItems as item (item.id)}
+					{#each catalogueItems as item (item.id)}
 						<option value={item.id}>{item.category.toUpperCase()} — {item.name}</option>
 					{/each}
 				</select>
@@ -382,7 +331,7 @@
 					type="button"
 					variant="outline"
 					onclick={addEquipment}
-					disabled={!selectedCatalogueId || !selectedCatalogueItemIsVisible}
+					disabled={!selectedCatalogueId}
 				>
 					<Plus class="size-4" /> Add
 				</Button>
@@ -419,13 +368,6 @@
 					</div>
 				</div>
 			{/if}
-			<p class="mt-2 text-xs text-muted-foreground">
-				Showing {filteredCatalogueItems.length} of {catalogueItems.length} equipment items.
-			</p>
-			{#if filteredCatalogueItems.length === 0}
-				<p class="mt-2 text-sm text-muted-foreground">No equipment matches these filters.</p>
-			{/if}
-
 			{#if lineItems.length > 0}
 				<div class="mt-4 space-y-3">
 					{#each lineItems as item, index (item.catalogItemId)}

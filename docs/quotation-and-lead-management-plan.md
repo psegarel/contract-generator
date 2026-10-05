@@ -1,6 +1,6 @@
 # Quotation and Lead Management Plan
 
-## Implementation status — 2026-10-05
+## Implementation status — 2026-10-06
 
 The quotation MVP is implemented through most of Phase 4. Phase 5, quotation-to-rental-contract integration, is deferred. The plan below remains the source for product decisions and detailed requirements; this snapshot records what the current code does.
 
@@ -10,16 +10,16 @@ The quotation MVP is implemented through most of Phase 4. Phase 5, quotation-to-
 - Integer-VND calculations with equipment-only discounts, transport, handling, and validity checks.
 - A 14-day default validity period. Transport and handling are stored and displayed separately. VAT is off by default and can be added per quotation. Its 8% shared default is stored in Firestore `app-config/quotation-settings` (`defaultVatRatePercent`), editable without a client rebuild. The form allows a quotation-specific rate and saves the applied rate and amount with the quote. VAT applies after the equipment-only discount to the full pre-VAT total, including transport and handling. The detail view and PDF show VAT only when enabled.
 - Protected catalogue-feed loading using the signed-in Firebase ID token, response validation, and an unavailable-feed message. Contract Generator does not connect directly to Neon.
-- Quotation list, create, detail, and draft-edit routes; customer snapshots for existing clients and leads; lead creation/deduplication by normalized email; manual status updates; and a lead status list.
+- Quotation list, create, detail, and draft-edit routes; customer snapshots for existing clients and leads; lead creation/deduplication by normalized email; manual status updates; and a lead status list. Saving a new quotation opens its detail view; saving a draft edit returns to that view, where it can be reviewed and downloaded.
 - Sent quotations can be revised into a new draft record with the same quotation number and incremented revision. The prior sent record is marked superseded while its issued content is retained. A revision chain is visible from each quotation detail page.
-- Equipment picker supports text search across names, categories, manufacturers, and descriptions, with category filtering. Selecting an item previews its catalogue image; selected quotation lines retain a thumbnail. ImageKit URLs use a direct optimized URL transformation without requiring the ImageKit SDK, and fall back to the original image URL if that request fails.
-- PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, embedded Vietnamese-capable text fonts, compact pricing rows, wrapped bottom-aligned notes with clear footer spacing, and page numbers on multi-page documents. Legal name, tax code, address, representative phone, and email come from the shared environment-backed `companyConfig` used by contract generation. Catalogue `imageUrl` values are used directly; ImageKit thumbnails are requested as optimized JPEGs cropped to the PDF thumbnail box, then retried at the original URL. `docs/samples/quotation-sample-equipment-images.pdf` contains three real catalogue images from the public Essential package, fetched and embedded successfully.
+- Equipment selection uses a single catalogue dropdown with category and item name. Selecting an item previews its catalogue image; selected quotation lines retain a thumbnail. ImageKit URLs use a direct optimized URL transformation without requiring the ImageKit SDK, and fall back to the original image URL if that request fails.
+- PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, embedded Vietnamese-capable text fonts, compact pricing rows, wrapped bottom-aligned notes with clear footer spacing, and page numbers on multi-page documents. Legal name, tax code, address, representative phone, and email come from the shared environment-backed `companyConfig` used by contract generation. Catalogue `imageUrl` values are used directly; ImageKit thumbnails are requested as optimized JPEGs cropped to the PDF thumbnail box, then retried at the original URL.
 - Focused tests for calculations, expiry dates, email normalization, catalogue response parsing, and PDF generation with and without images, including ImageKit URL fallback and unsupported-image handling.
 
 ### Remaining work
 
 - Add coverage for lead deduplication, customer validation, Firestore serialization/read validation, catalogue failure behavior, and multi-page PDFs.
-- Review the protected catalogue feed and quotation PDF together in an authenticated browser session. The sample verifies live ImageKit fetching and PDF embedding; it does not replace a full browser flow check against a signed-in catalogue response.
+- Review the protected catalogue feed and quotation PDF together in an authenticated browser session. The PDF generator has embedded live ImageKit catalogue images, but the full signed-in feed-to-PDF browser flow remains to review.
 - Add a deliberate lead-to-client conversion flow if needed. The current lead page only changes the lead's pipeline status to `converted`.
 - Implement Phase 5 only if accepted quotations should populate one-off rental contracts. That integration is not in the current application.
 
