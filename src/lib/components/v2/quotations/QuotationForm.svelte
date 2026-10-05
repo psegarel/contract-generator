@@ -21,6 +21,7 @@
 		calculateQuotationVat
 	} from '$lib/utils/v2/quotationCalculations';
 	import { formatCurrency } from '$lib/utils/formatting';
+	import { catalogueImageUrlForDisplay } from '$lib/utils/v2/catalogueImage';
 	import { Button } from '$lib/components/ui/button';
 	import FormSection from '$lib/components/FormSection.svelte';
 	import TextField from '$lib/components/TextField.svelte';
@@ -120,6 +121,9 @@
 	const selectedCatalogueItemIsVisible = $derived(
 		filteredCatalogueItems.some((item) => item.id === selectedCatalogueId)
 	);
+	const selectedCatalogueItem = $derived(
+		catalogueItems.find((item) => item.id === selectedCatalogueId) ?? null
+	);
 
 	function defaultValidUntil(): string {
 		const date = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
@@ -176,6 +180,17 @@
 		catalogueCategory = (event.currentTarget as HTMLSelectElement).value as
 			'all' | EquipmentCategory;
 		selectedCatalogueId = '';
+	}
+
+	function fallbackCatalogueImage(event: Event, originalUrl: string | null) {
+		const image = event.currentTarget as HTMLImageElement;
+		if (originalUrl && image.dataset.originalFallbackFor !== originalUrl) {
+			image.dataset.originalFallbackFor = originalUrl;
+			image.src = originalUrl;
+			return;
+		}
+		image.hidden = true;
+		image.nextElementSibling?.classList.remove('hidden');
 	}
 
 	function removeEquipment(index: number) {
@@ -372,6 +387,38 @@
 					<Plus class="size-4" /> Add
 				</Button>
 			</div>
+			{#if selectedCatalogueItem}
+				<div class="mt-3 flex items-center gap-3 rounded-sm border border-border p-3">
+					<div
+						class="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted"
+					>
+						{#if selectedCatalogueItem.imageUrl}
+							<img
+								src={catalogueImageUrlForDisplay(selectedCatalogueItem.imageUrl, 240)}
+								alt={selectedCatalogueItem.name}
+								class="size-full object-contain"
+								onerror={(event) => fallbackCatalogueImage(event, selectedCatalogueItem.imageUrl)}
+							/>
+							<span class="hidden px-2 text-center text-xs text-muted-foreground">
+								Image unavailable
+							</span>
+						{:else}
+							<span class="px-2 text-center text-xs text-muted-foreground">No image</span>
+						{/if}
+					</div>
+					<div class="min-w-0">
+						<div class="font-medium">{selectedCatalogueItem.name}</div>
+						<div class="text-xs text-muted-foreground">
+							{selectedCatalogueItem.manufacturer || selectedCatalogueItem.category}
+						</div>
+						{#if selectedCatalogueItem.description}
+							<p class="mt-1 line-clamp-2 text-xs text-muted-foreground">
+								{selectedCatalogueItem.description}
+							</p>
+						{/if}
+					</div>
+				</div>
+			{/if}
 			<p class="mt-2 text-xs text-muted-foreground">
 				Showing {filteredCatalogueItems.length} of {catalogueItems.length} equipment items.
 			</p>
@@ -388,11 +435,19 @@
 							<div
 								class="flex size-16 items-center justify-center overflow-hidden rounded-sm bg-muted"
 							>
-								{#if item.imageUrl}<img
-										src={item.imageUrl}
+								{#if item.imageUrl}
+									<img
+										src={catalogueImageUrlForDisplay(item.imageUrl, 240)}
 										alt={item.name}
 										class="size-full object-contain"
-									/>{:else}<span class="text-xs text-muted-foreground">No image</span>{/if}
+										onerror={(event) => fallbackCatalogueImage(event, item.imageUrl)}
+									/>
+									<span class="hidden px-1 text-center text-xs text-muted-foreground">
+										Image unavailable
+									</span>
+								{:else}
+									<span class="text-xs text-muted-foreground">No image</span>
+								{/if}
 							</div>
 							<div>
 								<div class="font-medium">{item.name}</div>

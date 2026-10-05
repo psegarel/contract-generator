@@ -2,6 +2,7 @@ import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, PageSizes, StandardFonts, rgb, type PDFImage, type PDFPage } from 'pdf-lib';
 import { companyConfig } from '$lib/config/company';
 import type { Quotation, QuotationLineItem } from '$lib/types/v2';
+import { catalogueImageUrlForDisplay } from './catalogueImage';
 
 const margin = 40;
 const insenseLogoUrl = '/insense-logo.png';
@@ -72,22 +73,46 @@ function wrapText(text: string, font: Font, size: number, width: number): string
 	return lines;
 }
 
+function imageUrlsForPdf(url: string): string[] {
+	return [...new Set([catalogueImageUrlForDisplay(url, 240, 216), url])];
+}
+
 async function embedImage(
 	pdf: PDFDocument,
 	item: QuotationLineItem
 ): Promise<PDFImage | undefined> {
 	if (!item.imageUrl) return undefined;
-	try {
-		const response = await fetch(item.imageUrl);
-		if (!response.ok) return undefined;
-		const bytes = new Uint8Array(await response.arrayBuffer());
-		const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
-		const isPng = contentType.includes('png') || (bytes[0] === 0x89 && bytes[1] === 0x50);
-		const isJpeg = contentType.includes('jpeg') || (bytes[0] === 0xff && bytes[1] === 0xd8);
-		if (isPng) return await pdf.embedPng(bytes);
-		if (isJpeg) return await pdf.embedJpg(bytes);
-	} catch {
-		// Missing or unsupported images should not prevent quotation download.
+
+	for (const url of imageUrlsForPdf(item.imageUrl)) {
+		try {
+			const response = await fetch(url);
+			if (!response.ok) continue;
+			const bytes = new Uint8Array(await response.arrayBuffer());
+			const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
+			const originalUrl = item.imageUrl.toLowerCase();
+			const hasPngSignature =
+				bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+			const hasJpegSignature = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+			let imageType: 'png' | 'jpeg' | null = null;
+			if (hasPngSignature) {
+				imageType = 'png';
+			} else if (hasJpegSignature) {
+				imageType = 'jpeg';
+			} else if (contentType.includes('png') || /\.png(\?|$)/i.test(originalUrl)) {
+				imageType = 'png';
+			} else if (
+				contentType.includes('jpeg') ||
+				contentType.includes('jpg') ||
+				/\.(jpe?g)(\?|$)/i.test(originalUrl)
+			) {
+				imageType = 'jpeg';
+			}
+
+			if (imageType === 'png') return await pdf.embedPng(bytes);
+			if (imageType === 'jpeg') return await pdf.embedJpg(bytes);
+		} catch {
+			// Try the original URL after a transformation failure. Omit unsupported images.
+		}
 	}
 	return undefined;
 }
@@ -288,7 +313,7 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 	y = Math.min(customerY, detailsY) - 28;
 	drawText(page, 'EQUIPMENT', margin, y, 11, bold, ink);
 	y -= 18;
-	drawText(page, 'ITEM', margin + 54, y - 9, 8, bold, ink);
+	drawText(page, 'ITEM', margin + 94, y - 9, 8, bold, ink);
 	drawText(page, 'QTY', width - margin - 190, y - 9, 8, bold, ink);
 	drawRight(page, 'UNIT PRICE', width - margin - 80, y - 9, 8, bold, ink);
 	drawRight(page, 'TOTAL', width - margin - 8, y - 9, 8, bold, ink);
@@ -305,38 +330,46 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 			y -= 28;
 		}
 
-		const rowHeight = 48;
+		const thumbnailWidth = 80;
+		const thumbnailHeight = 72;
+		const rowHeight = 84;
 		const image = images.get(item.catalogItemId);
 		if (image) {
-			const dimensions = image.scaleToFit(40, 36);
+			const dimensions = image.scaleToFit(thumbnailWidth, thumbnailHeight);
 			page.drawImage(image, {
-				x: margin + 5 + (40 - dimensions.width) / 2,
-				y: y - 31 + (36 - dimensions.height) / 2,
+				x: margin + 5 + (thumbnailWidth - dimensions.width) / 2,
+				y: y - 70 + (thumbnailHeight - dimensions.height) / 2,
 				width: dimensions.width,
 				height: dimensions.height
 			});
 		} else {
-			page.drawRectangle({ x: margin + 5, y: y - 30, width: 40, height: 32, color: soft });
-			drawText(page, 'AV', margin + 16, y - 14, 8, bold, muted);
+			page.drawRectangle({
+				x: margin + 5,
+				y: y - 70,
+				width: thumbnailWidth,
+				height: thumbnailHeight,
+				color: soft
+			});
+			drawText(page, 'AV', margin + 40, y - 36, 8, bold, muted);
 		}
-		drawText(page, truncate(item.name, regular, 9, 190), margin + 54, y - 12, 9, regular);
+		drawText(page, truncate(item.name, regular, 9, 190), margin + 94, y - 32, 9, regular);
 		if (item.manufacturer)
 			drawText(
 				page,
 				truncate(item.manufacturer, regular, 7, 190),
-				margin + 54,
-				y - 25,
+				margin + 94,
+				y - 45,
 				7,
 				regular,
 				muted
 			);
-		drawText(page, String(item.quantity), width - margin - 190, y - 16, 9, regular);
-		drawRight(page, formatVnd(item.unitPriceVnd), width - margin - 80, y - 16, 8, regular);
+		drawText(page, String(item.quantity), width - margin - 190, y - 36, 9, regular);
+		drawRight(page, formatVnd(item.unitPriceVnd), width - margin - 80, y - 36, 8, regular);
 		drawRight(
 			page,
 			formatVnd(item.quantity * item.unitPriceVnd),
 			width - margin - 8,
-			y - 16,
+			y - 36,
 			8,
 			regular
 		);

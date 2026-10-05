@@ -12,14 +12,14 @@ The quotation MVP is implemented through most of Phase 4. Phase 5, quotation-to-
 - Protected catalogue-feed loading using the signed-in Firebase ID token, response validation, and an unavailable-feed message. Contract Generator does not connect directly to Neon.
 - Quotation list, create, detail, and draft-edit routes; customer snapshots for existing clients and leads; lead creation/deduplication by normalized email; manual status updates; and a lead status list.
 - Sent quotations can be revised into a new draft record with the same quotation number and incremented revision. The prior sent record is marked superseded while its issued content is retained. A revision chain is visible from each quotation detail page.
-- Equipment picker supports text search across names, categories, manufacturers, and descriptions, with category filtering.
-- PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, embedded Vietnamese-capable text fonts, compact pricing rows, wrapped bottom-aligned notes with clear footer spacing, and page numbers on multi-page documents. Legal name, tax code, address, representative phone, and email come from the shared environment-backed `companyConfig` used by contract generation.
-- Focused tests for calculations, expiry dates, email normalization, catalogue response parsing, and PDF generation without images.
+- Equipment picker supports text search across names, categories, manufacturers, and descriptions, with category filtering. Selecting an item previews its catalogue image; selected quotation lines retain a thumbnail. ImageKit URLs use a direct optimized URL transformation without requiring the ImageKit SDK, and fall back to the original image URL if that request fails.
+- PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, embedded Vietnamese-capable text fonts, compact pricing rows, wrapped bottom-aligned notes with clear footer spacing, and page numbers on multi-page documents. Legal name, tax code, address, representative phone, and email come from the shared environment-backed `companyConfig` used by contract generation. Catalogue `imageUrl` values are used directly; ImageKit thumbnails are requested as optimized JPEGs cropped to the PDF thumbnail box, then retried at the original URL. `docs/samples/quotation-sample-equipment-images.pdf` contains three real catalogue images from the public Essential package, fetched and embedded successfully.
+- Focused tests for calculations, expiry dates, email normalization, catalogue response parsing, and PDF generation with and without images, including ImageKit URL fallback and unsupported-image handling.
 
 ### Remaining work
 
-- Finish the PDF layout by visually reviewing long quotations, multiple pages, valid images, and mobile/detail-page layouts.
-- Add coverage for lead deduplication, customer validation, Firestore serialization/read validation, catalogue failure behavior, image embedding and fallback, and multi-page PDFs.
+- Add coverage for lead deduplication, customer validation, Firestore serialization/read validation, catalogue failure behavior, and multi-page PDFs.
+- Review the protected catalogue feed and quotation PDF together in an authenticated browser session. The sample verifies live ImageKit fetching and PDF embedding; it does not replace a full browser flow check against a signed-in catalogue response.
 - Add a deliberate lead-to-client conversion flow if needed. The current lead page only changes the lead's pipeline status to `converted`.
 - Implement Phase 5 only if accepted quotations should populate one-off rental contracts. That integration is not in the current application.
 
@@ -202,14 +202,9 @@ imageUrl
 outsourced
 ```
 
-Contract Generator accesses the protected endpoint with the signed-in Firebase ID token. Insense Packages validates that token against its configured Firebase project and quotation-user allow-list before querying Neon. No Neon credentials or integration secret are exposed to the browser. The catalogue response is small, cacheable, and suitable for search/filtering in the quotation form; the adapter validates it and deliberately fails closed when the feed is not configured.
+Contract Generator accesses the protected endpoint with the signed-in Firebase ID token. Insense Packages validates that token against its configured Firebase project and quotation-user allow-list before querying Neon. No Neon credentials or integration secret are exposed to the browser. The catalogue response is small, cacheable, and suitable for search/filtering in the quotation form; the adapter validates it and deliberately fails closed when the feed is not configured. The feed returns each equipment record's stored `imageUrl` unchanged.
 
-Before implementation, confirm:
-
-- which Firebase users are allowed to consume the integration and which origin is allowed;
-- whether ImageKit image URLs are fetchable by the PDF renderer;
-- whether a server-side proxy is needed for image fetching; and
-- whether the catalogue endpoint should expose all equipment or only quoteable equipment.
+For PDF generation, ImageKit URLs use optimized JPEG transformations sized and center-cropped to the thumbnail box before the original image URL is tried. The PDF generator handles PNG and JPEG data and falls back to the placeholder if both requests fail or the format is unsupported. Live browser access to the protected feed is still needed to verify the complete signed-in quotation flow.
 
 If a live endpoint cannot be deployed safely, implement a controlled, authenticated catalogue sync instead. Do not introduce a direct Neon dependency in Contract Generator.
 
@@ -361,7 +356,7 @@ pnpm build
 pnpm lint
 ```
 
-Browser and PDF output also require manual checks at desktop and mobile widths, including long equipment names, many line items, missing images, and expired quotations.
+Review browser pages at desktop and mobile widths. Review PDF output for long equipment names, multiple pages, valid images, missing images, and expired quotations; PDFs do not require a mobile layout.
 
 ## Initial MVP boundary
 
