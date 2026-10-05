@@ -13,7 +13,7 @@ The quotation MVP is implemented through most of Phase 4. Phase 5, quotation-to-
 - Quotation list, create, detail, and draft-edit routes; customer snapshots for existing clients and leads; lead creation/deduplication by normalized email; manual status updates; and a lead status list.
 - Sent quotations can be revised into a new draft record with the same quotation number and incremented revision. The prior sent record is marked superseded while its issued content is retained. A revision chain is visible from each quotation detail page.
 - Equipment picker supports text search across names, categories, manufacturers, and descriptions, with category filtering.
-- PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, embedded Vietnamese-capable text fonts, compact pricing rows, wrapped bottom-aligned notes, and page numbers on multi-page documents. Legal name, tax code, address, representative phone, and email come from the shared environment-backed `companyConfig` used by contract generation.
+- PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, embedded Vietnamese-capable text fonts, compact pricing rows, wrapped bottom-aligned notes with clear footer spacing, and page numbers on multi-page documents. Legal name, tax code, address, representative phone, and email come from the shared environment-backed `companyConfig` used by contract generation.
 - Focused tests for calculations, expiry dates, email normalization, catalogue response parsing, and PDF generation without images.
 
 ### Remaining work

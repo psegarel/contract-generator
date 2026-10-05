@@ -396,7 +396,7 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 	if (quotation.notes?.trim()) {
 		const noteSize = 8;
 		const noteLines = wrapText(quotation.notes, regular, noteSize, width - margin * 2);
-		const notesFirstBaseline = 48 + (noteLines.length - 1) * 10;
+		const notesFirstBaseline = 68 + (noteLines.length - 1) * 10;
 		const notesHeadingY = notesFirstBaseline + 15;
 		if (summaryBottom < notesHeadingY + 18) {
 			drawFooter(page, pageNumber, regular, true);
