@@ -13,6 +13,7 @@ import {
 	serverTimestamp,
 	Timestamp,
 	updateDoc,
+	where,
 	writeBatch,
 	type Unsubscribe
 } from 'firebase/firestore';
@@ -53,7 +54,9 @@ function createQuotationWriteData(
 	input: QuotationInput,
 	ownerUid: string,
 	quotationNumber: string,
-	revision: number
+	revision: number,
+	rootQuotationId: string,
+	revisionOfId: string | null
 ) {
 	const validationResult = quotationInputSchema.safeParse(input);
 	if (!validationResult.success) {
@@ -73,6 +76,9 @@ function createQuotationWriteData(
 	return {
 		quotationNumber,
 		revision,
+		rootQuotationId,
+		revisionOfId,
+		...(revisionOfId === null ? { latestRevisionId: rootQuotationId, latestRevision: 1 } : {}),
 		status: data.status,
 		ownerUid,
 		customer: {
@@ -115,8 +121,8 @@ function createQuotationWriteData(
 export async function saveQuotation(input: QuotationInput): Promise<string> {
 	const ownerUid = requireCurrentUserUid();
 	const quotationNumber = await nextQuotationNumber();
-	const data = createQuotationWriteData(input, ownerUid, quotationNumber, 1);
 	const quotationRef = doc(collection(db, COLLECTION_NAME));
+	const data = createQuotationWriteData(input, ownerUid, quotationNumber, 1, quotationRef.id, null);
 	const batch = writeBatch(db);
 	batch.set(quotationRef, data);
 	if (data.customer.leadId) {
@@ -134,6 +140,18 @@ export async function getQuotationById(quotationId: string): Promise<Quotation |
 	const snapshot = await getDoc(doc(db, COLLECTION_NAME, quotationId));
 	if (!snapshot.exists()) return null;
 	return { id: snapshot.id, ...snapshot.data() } as Quotation;
+}
+
+export async function getQuotationRevisionHistory(quotation: Quotation): Promise<Quotation[]> {
+	const snapshots = await getDocs(
+		query(
+			collection(db, COLLECTION_NAME),
+			where('quotationNumber', '==', quotation.quotationNumber)
+		)
+	);
+	return snapshots.docs
+		.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }) as Quotation)
+		.sort((a, b) => a.revision - b.revision);
 }
 
 export async function getQuotations(): Promise<Quotation[]> {
@@ -169,7 +187,9 @@ export async function updateQuotation(quotationId: string, input: QuotationInput
 		{ ...input, status: 'draft' },
 		ownerUid,
 		existing.quotationNumber,
-		existing.revision
+		existing.revision,
+		existing.rootQuotationId ?? existing.id,
+		existing.revisionOfId ?? null
 	);
 	const batch = writeBatch(db);
 	batch.update(doc(db, COLLECTION_NAME, quotationId), data);
@@ -190,9 +210,79 @@ export async function updateQuotation(quotationId: string, input: QuotationInput
 	await batch.commit();
 }
 
+export async function createQuotationRevision(quotationId: string): Promise<string> {
+	const ownerUid = requireCurrentUserUid();
+	const sourceRef = doc(db, COLLECTION_NAME, quotationId);
+	const newRevisionRef = doc(collection(db, COLLECTION_NAME));
+	const newRevisionId = await runTransaction(db, async (transaction) => {
+		const sourceSnapshot = await transaction.get(sourceRef);
+		if (!sourceSnapshot.exists()) throw new Error('Quotation not found');
+		const source = { id: sourceSnapshot.id, ...sourceSnapshot.data() } as Quotation;
+		if (source.status !== 'sent') throw new Error('Only sent quotations can be revised');
+		if (source.ownerUid !== ownerUid) throw new Error('You can only revise your own quotations');
+
+		const rootQuotationId = source.rootQuotationId ?? source.id;
+		const rootRef = doc(db, COLLECTION_NAME, rootQuotationId);
+		const rootSnapshot = await transaction.get(rootRef);
+		if (!rootSnapshot.exists()) throw new Error('Quotation history root not found');
+		const latestRevisionId = rootSnapshot.data().latestRevisionId ?? rootQuotationId;
+		const latestRevision = Number(rootSnapshot.data().latestRevision ?? 1);
+		if (source.id !== latestRevisionId || source.revision !== latestRevision) {
+			throw new Error('A newer revision already exists for this quotation');
+		}
+
+		const input: QuotationInput = {
+			status: 'draft',
+			customer: source.customer,
+			lineItems: source.lineItems,
+			equipmentDiscountPercent: source.equipmentDiscountPercent,
+			transportVnd: source.transportVnd,
+			handlingVnd: source.handlingVnd,
+			vatRatePercent: source.vatRatePercent,
+			validUntil: source.validUntil,
+			eventName: source.eventName,
+			eventDate: source.eventDate,
+			venue: source.venue,
+			notes: source.notes
+		};
+		const data = createQuotationWriteData(
+			input,
+			ownerUid,
+			source.quotationNumber,
+			latestRevision + 1,
+			rootQuotationId,
+			source.id
+		);
+		if (sourceRef.id === rootRef.id) {
+			transaction.update(sourceRef, {
+				status: 'superseded',
+				latestRevisionId: newRevisionRef.id,
+				latestRevision: latestRevision + 1,
+				updatedAt: serverTimestamp()
+			});
+		} else {
+			transaction.update(sourceRef, { status: 'superseded', updatedAt: serverTimestamp() });
+			transaction.update(rootRef, {
+				latestRevisionId: newRevisionRef.id,
+				latestRevision: latestRevision + 1,
+				updatedAt: serverTimestamp()
+			});
+		}
+		transaction.set(newRevisionRef, data);
+		if (source.customer.leadId) {
+			transaction.update(doc(db, 'leads', source.customer.leadId), {
+				quotationIds: arrayUnion(newRevisionRef.id),
+				updatedAt: serverTimestamp()
+			});
+		}
+		return newRevisionRef.id;
+	});
+	return newRevisionId;
+}
+
 export async function updateQuotationStatus(
 	quotationId: string,
-	status: Exclude<QuotationStatus, 'draft'>
+	status: Extract<QuotationStatus, 'sent' | 'accepted' | 'declined' | 'expired'>
 ): Promise<void> {
 	const existing = await getQuotationById(quotationId);
 	if (!existing) throw new Error('Quotation not found');
@@ -202,7 +292,8 @@ export async function updateQuotationStatus(
 		sent: ['accepted', 'declined', 'expired'],
 		accepted: [],
 		declined: [],
-		expired: []
+		expired: [],
+		superseded: []
 	};
 	if (!allowedTransitions[existing.status].includes(status)) {
 		throw new Error(`Cannot change quotation status from ${existing.status} to ${status}`);

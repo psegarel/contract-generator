@@ -1,20 +1,21 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { ArrowLeft, Download, Pencil } from '@lucide/svelte';
+	import { ArrowLeft, Download, Pencil, RotateCcw } from '@lucide/svelte';
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { formatCurrency, formatDateString } from '$lib/utils/formatting';
 	import { isQuotationExpired } from '$lib/utils/v2/quotationCalculations';
 	import { downloadQuotationPdf } from '$lib/utils/v2/quotationPdfActions';
-	import { updateQuotationStatus } from '$lib/utils/v2/quotations';
+	import { createQuotationRevision, updateQuotationStatus } from '$lib/utils/v2/quotations';
 	import { toast } from 'svelte-sonner';
 
 	let { data }: { data: PageData } = $props();
 	let quotation = $derived(data.quotation);
 	let isDownloading = $state(false);
 	let isUpdatingStatus = $state(false);
+	let isCreatingRevision = $state(false);
 
 	async function handleDownload() {
 		isDownloading = true;
@@ -25,6 +26,19 @@
 			toast.error(error instanceof Error ? error.message : 'Failed to download quotation PDF');
 		} finally {
 			isDownloading = false;
+		}
+	}
+
+	async function handleCreateRevision() {
+		isCreatingRevision = true;
+		try {
+			const revisionId = await createQuotationRevision(quotation.id);
+			toast.success(`Revision ${quotation.revision + 1} created as a draft`);
+			await goto(resolve(`/quotations/${revisionId}/edit`));
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to create revision');
+		} finally {
+			isCreatingRevision = false;
 		}
 	}
 
@@ -49,6 +63,7 @@
 				<ArrowLeft class="size-4" /> Back to quotations
 			</Button>
 			<h1 class="text-3xl font-bold">{quotation.quotationNumber}</h1>
+			<p class="mt-1 text-sm text-muted-foreground">Revision {quotation.revision}</p>
 			<p class="mt-2 text-sm text-muted-foreground">
 				{quotation.customer.companyName || quotation.customer.name} · Valid until {formatDateString(
 					quotation.validUntil
@@ -65,6 +80,10 @@
 					>Mark as sent</Button
 				>
 			{:else if quotation.status === 'sent'}
+				<Button variant="outline" onclick={handleCreateRevision} disabled={isCreatingRevision}
+					><RotateCcw class="size-4" />
+					{isCreatingRevision ? 'Creating…' : 'Create revision'}</Button
+				>
 				<Button
 					variant="outline"
 					onclick={() => handleStatus('accepted')}
@@ -88,6 +107,22 @@
 			>
 		</div>
 	</div>
+
+	{#if data.revisionHistory.length > 1}
+		<section class="mb-6 rounded-sm border border-border bg-card p-5">
+			<h2 class="mb-3 text-lg font-semibold">Revision history</h2>
+			<ol class="space-y-2">
+				{#each data.revisionHistory as revision (revision.id)}
+					<li class="flex flex-wrap items-center justify-between gap-3 text-sm">
+						<a class="underline" href={resolve(`/quotations/${revision.id}`)}
+							>Revision {revision.revision}</a
+						>
+						<span class="text-muted-foreground">{revision.status}</span>
+					</li>
+				{/each}
+			</ol>
+		</section>
+	{/if}
 
 	<div class="grid gap-6 lg:grid-cols-[1fr_320px]">
 		<section class="rounded-sm border border-border bg-card p-5">

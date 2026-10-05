@@ -224,6 +224,7 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 	}
 	drawRight(page, 'QUOTATION', width - margin, height - 57, 21, bold);
 	drawRight(page, quotation.quotationNumber, width - margin, height - 80, 9, regular, muted);
+	drawRight(page, `Revision ${quotation.revision}`, width - margin, height - 94, 8, regular, muted);
 
 	const columnWidth = (width - margin * 2 - 24) / 2;
 	let customerY = drawLabel(page, 'Prepared for', margin, y, bold);

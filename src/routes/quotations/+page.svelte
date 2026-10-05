@@ -19,7 +19,8 @@
 		sent: 'default',
 		accepted: 'default',
 		declined: 'destructive',
-		expired: 'secondary'
+		expired: 'secondary',
+		superseded: 'secondary'
 	};
 
 	function customerLabel(quotation: PageData['quotations'][number]): string {
@@ -80,7 +81,11 @@
 							}}
 							tabindex="0"
 						>
-							<td class="px-4 py-4 font-medium">{quotation.quotationNumber}</td>
+							<td class="px-4 py-4 font-medium">
+								{quotation.quotationNumber}<span class="ml-2 text-xs text-muted-foreground"
+									>Rev. {quotation.revision}</span
+								>
+							</td>
 							<td class="px-4 py-4">
 								<div>{customerLabel(quotation)}</div>
 								<div class="text-xs text-muted-foreground">

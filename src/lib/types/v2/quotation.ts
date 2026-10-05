@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'declined' | 'expired';
+export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'declined' | 'expired' | 'superseded';
 export type QuotationCustomerType = 'existing-client' | 'lead';
 export type LeadSource = 'quotation' | 'catalogue' | 'manual' | 'other';
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'converted' | 'lost';
@@ -33,6 +33,10 @@ export interface Quotation {
 	id: string;
 	quotationNumber: string;
 	revision: number;
+	rootQuotationId: string;
+	revisionOfId: string | null;
+	latestRevisionId?: string;
+	latestRevision?: number;
 	status: QuotationStatus;
 	ownerUid: string;
 	customer: QuotationCustomerSnapshot;
@@ -63,6 +67,8 @@ export type QuotationInput = Omit<
 	| 'id'
 	| 'quotationNumber'
 	| 'revision'
+	| 'rootQuotationId'
+	| 'revisionOfId'
 	| 'ownerUid'
 	| 'equipmentSubtotalVnd'
 	| 'equipmentDiscountVnd'
@@ -75,7 +81,7 @@ export type QuotationInput = Omit<
 	| 'declinedAt'
 	| 'expiredAt'
 > & {
-	status?: QuotationStatus;
+	status?: Exclude<QuotationStatus, 'superseded'>;
 };
 
 export interface Lead {
