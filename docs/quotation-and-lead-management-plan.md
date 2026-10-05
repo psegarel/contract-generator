@@ -12,12 +12,12 @@ The quotation MVP is implemented through most of Phase 4. Phase 5, quotation-to-
 - Protected catalogue-feed loading using the signed-in Firebase ID token, response validation, and an unavailable-feed message. Contract Generator does not connect directly to Neon.
 - Quotation list, create, detail, and draft-edit routes; customer snapshots for existing clients and leads; lead creation/deduplication by normalized email; manual status updates; and a lead status list.
 - Sent quotations can be revised into a new draft record with the same quotation number and incremented revision. The prior sent record is marked superseded while its issued content is retained. A revision chain is visible from each quotation detail page.
+- Equipment picker supports text search across names, categories, manufacturers, and descriptions, with category filtering.
 - PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, embedded Vietnamese-capable text fonts, compact pricing rows, wrapped bottom-aligned notes, and page numbers on multi-page documents. Legal name, tax code, address, representative phone, and email come from the shared environment-backed `companyConfig` used by contract generation.
 - Focused tests for calculations, expiry dates, email normalization, catalogue response parsing, and PDF generation without images.
 
 ### Remaining work
 
-- Add search and category filtering to the equipment picker. It currently uses a native select over the full catalogue.
 - Finish the PDF layout by visually reviewing long quotations, multiple pages, valid images, and mobile/detail-page layouts.
 - Add coverage for lead deduplication, customer validation, Firestore serialization/read validation, catalogue failure behavior, image embedding and fallback, and multi-page PDFs.
 - Add a deliberate lead-to-client conversion flow if needed. The current lead page only changes the lead's pipeline status to `converted`.
