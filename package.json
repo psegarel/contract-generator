@@ -59,6 +59,7 @@
 	},
 	"dependencies": {
 		"@fontsource/titillium-web": "^5.3.0",
+		"@pdf-lib/fontkit": "^1.1.1",
 		"docx": "^9.7.1",
 		"docxtemplater": "^3.69.3",
 		"dompurify": "^3.4.15",

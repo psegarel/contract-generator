@@ -1,8 +1,12 @@
+import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, PageSizes, StandardFonts, rgb, type PDFImage, type PDFPage } from 'pdf-lib';
+import { companyConfig } from '$lib/config/company';
 import type { Quotation, QuotationLineItem } from '$lib/types/v2';
 
 const margin = 40;
 const insenseLogoUrl = '/insense-logo.png';
+const regularFontUrl = '/fonts/BeVietnamPro-Regular.ttf';
+const boldFontUrl = '/fonts/BeVietnamPro-Bold.ttf';
 const ink = rgb(0, 0, 0);
 const muted = rgb(0.35, 0.35, 0.35);
 const soft = rgb(0.96, 0.96, 0.96);
@@ -10,11 +14,7 @@ const soft = rgb(0.96, 0.96, 0.96);
 type Font = { widthOfTextAtSize(text: string, size: number): number };
 
 function printable(value: string): string {
-	return value
-		.replace(/–|—/g, '-')
-		.replace(/×/g, 'x')
-		.replace(/[’‘]/g, "'")
-		.replace(/[^\x20-\x7e]/g, '');
+	return value.replace(/–|—/g, '-').replace(/×/g, 'x').replace(/[’‘]/g, "'");
 }
 
 function formatVnd(value: number): string {
@@ -102,14 +102,76 @@ async function embedInsenseLogo(pdf: PDFDocument): Promise<PDFImage | undefined>
 	}
 }
 
+async function embedTextFonts(pdf: PDFDocument): Promise<{ regular: Font; bold: Font }> {
+	try {
+		const [regularResponse, boldResponse] = await Promise.all([
+			fetch(regularFontUrl),
+			fetch(boldFontUrl)
+		]);
+		if (!regularResponse.ok || !boldResponse.ok) {
+			throw new Error('Quotation fonts could not be loaded');
+		}
+		const [regularBytes, boldBytes] = await Promise.all([
+			regularResponse.arrayBuffer(),
+			boldResponse.arrayBuffer()
+		]);
+		pdf.registerFontkit(fontkit);
+		const regular = await pdf.embedFont(new Uint8Array(regularBytes), { subset: true });
+		const bold = await pdf.embedFont(new Uint8Array(boldBytes), { subset: true });
+		return { regular, bold };
+	} catch (error) {
+		// The server-side PDF unit tests use ASCII fixtures and do not serve static font assets.
+		if (typeof window === 'undefined') {
+			return {
+				regular: await pdf.embedFont(StandardFonts.Helvetica),
+				bold: await pdf.embedFont(StandardFonts.HelveticaBold)
+			};
+		}
+		throw error;
+	}
+}
+
 function addPage(pdf: PDFDocument): PDFPage {
 	return pdf.addPage(PageSizes.A4);
 }
 
 function drawFooter(page: PDFPage, pageNumber: number, regular: Font, showPageNumber: boolean) {
-	drawText(page, 'INSENSE COMPANY LIMITED', margin, 20, 7, regular, muted);
+	const address = [
+		companyConfig.addressLine1,
+		companyConfig.addressLine2,
+		companyConfig.ward,
+		companyConfig.city
+	]
+		.filter(Boolean)
+		.join(', ');
+	const companyLine = `${companyConfig.name} | Tax code: ${companyConfig.taxCode}`;
+	const contactLine = [
+		address,
+		companyConfig.representativePhone,
+		companyConfig.representativeEmail
+	]
+		.filter(Boolean)
+		.join(' | ');
+	drawText(
+		page,
+		truncate(companyLine, regular, 6, PageSizes.A4[0] - margin * 2 - (showPageNumber ? 64 : 0)),
+		margin,
+		30,
+		6,
+		regular,
+		muted
+	);
+	drawText(
+		page,
+		truncate(contactLine, regular, 6, PageSizes.A4[0] - margin * 2),
+		margin,
+		18,
+		6,
+		regular,
+		muted
+	);
 	if (showPageNumber) {
-		drawRight(page, `Page ${pageNumber}`, PageSizes.A4[0] - margin, 20, 7, regular, muted);
+		drawRight(page, `Page ${pageNumber}`, PageSizes.A4[0] - margin, 30, 7, regular, muted);
 	}
 }
 
@@ -134,8 +196,7 @@ function drawSummaryRow(
 
 export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8Array> {
 	const pdf = await PDFDocument.create();
-	const regular = await pdf.embedFont(StandardFonts.Helvetica);
-	const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+	const { regular, bold } = await embedTextFonts(pdf);
 	const images = new Map<string, PDFImage | undefined>();
 	const logo = await embedInsenseLogo(pdf);
 
