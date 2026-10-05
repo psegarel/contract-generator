@@ -20,7 +20,7 @@ import { db } from '$lib/config/firebase';
 import { getCurrentUser } from '../auth';
 import type { Quotation, QuotationInput, QuotationStatus } from '$lib/types/v2';
 import { quotationInputSchema } from '$lib/schemas/v2';
-import { calculateQuotationTotals } from './quotationCalculations';
+import { calculateQuotationTotals, calculateQuotationVat } from './quotationCalculations';
 import { logger } from '../logger';
 
 const COLLECTION_NAME = 'quotations';
@@ -68,6 +68,7 @@ function createQuotationWriteData(
 		data.transportVnd,
 		data.handlingVnd
 	);
+	const vatAmountVnd = calculateQuotationVat(totals.totalVnd, data.vatRatePercent);
 
 	return {
 		quotationNumber,
@@ -94,7 +95,9 @@ function createQuotationWriteData(
 		equipmentDiscountVnd: totals.equipmentDiscountVnd,
 		transportVnd: data.transportVnd,
 		handlingVnd: data.handlingVnd,
-		totalVnd: totals.totalVnd,
+		vatRatePercent: data.vatRatePercent,
+		vatAmountVnd,
+		totalVnd: totals.totalVnd + vatAmountVnd,
 		validUntil: data.validUntil,
 		eventName: data.eventName ?? null,
 		eventDate: data.eventDate ?? null,

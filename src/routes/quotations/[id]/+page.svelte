@@ -133,8 +133,17 @@
 				<div class="flex justify-between">
 					<span>Handling</span><span>{formatCurrency(quotation.handlingVnd)}</span>
 				</div>
+				{#if quotation.vatRatePercent != null}
+					<div class="flex justify-between">
+						<span>VAT ({quotation.vatRatePercent}%)</span><span
+							>{formatCurrency(quotation.vatAmountVnd ?? 0)}</span
+						>
+					</div>
+				{/if}
 				<div class="mt-4 flex justify-between border-t border-border pt-4 text-lg font-semibold">
-					<span>Total</span><span>{formatCurrency(quotation.totalVnd)}</span>
+					<span>{quotation.vatRatePercent != null ? 'Total including VAT' : 'Total'}</span><span
+						>{formatCurrency(quotation.totalVnd)}</span
+					>
 				</div>
 			</div>
 		</aside>

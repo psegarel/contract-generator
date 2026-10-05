@@ -91,9 +91,9 @@ Components in `src/lib/components/ui/` are from shadcn/ui (third-party library) 
 
 ### Quotation Components (`src/lib/components/v2/quotations/`)
 
-| Component            | Status | Last Checked | Notes                       |
-| -------------------- | ------ | ------------ | --------------------------- |
-| QuotationForm.svelte | ✅     | 2026-09-30   | Clean - no autofixer issues |
+| Component            | Status | Last Checked | Notes                                                           |
+| -------------------- | ------ | ------------ | --------------------------------------------------------------- |
+| QuotationForm.svelte | ✅     | 2026-10-04   | Clean after optional VAT rate and default configuration updates |
 
 ### Quotation and Lead Routes
 

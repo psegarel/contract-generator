@@ -26,6 +26,15 @@ export function calculateQuotationTotals(
 	};
 }
 
+/** Calculate optional VAT over the complete pre-VAT quotation total. */
+export function calculateQuotationVat(
+	totalBeforeVatVnd: number,
+	ratePercent: number | null
+): number {
+	if (ratePercent === null) return 0;
+	return Math.round((totalBeforeVatVnd * ratePercent) / 100);
+}
+
 export function normalizeEmail(email: string): string {
 	return email.trim().toLowerCase();
 }

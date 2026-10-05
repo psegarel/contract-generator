@@ -14,7 +14,11 @@
 	} from '$lib/types/v2';
 	import { saveLead } from '$lib/utils/v2/leads';
 	import { saveQuotation, updateQuotation } from '$lib/utils/v2/quotations';
-	import { calculateQuotationTotals } from '$lib/utils/v2/quotationCalculations';
+	import { getQuotationSettings } from '$lib/utils/v2/appConfig';
+	import {
+		calculateQuotationTotals,
+		calculateQuotationVat
+	} from '$lib/utils/v2/quotationCalculations';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import { Button } from '$lib/components/ui/button';
 	import FormSection from '$lib/components/FormSection.svelte';
@@ -45,6 +49,9 @@
 	let discountPercent = $state('0');
 	let transportVnd = $state('0');
 	let handlingVnd = $state('0');
+	let addVat = $state(false);
+	let vatRatePercent = $state('');
+	let defaultVatRatePercent = $state(8);
 	let validUntil = $state(defaultValidUntil());
 	let eventName = $state('');
 	let eventDate = $state('');
@@ -53,7 +60,15 @@
 	let isSubmitting = $state(false);
 	let errorMessage = $state('');
 
-	onMount(() => {
+	onMount(async () => {
+		try {
+			const settings = await getQuotationSettings();
+			defaultVatRatePercent = settings.defaultVatRatePercent;
+			if (!quotation) vatRatePercent = String(defaultVatRatePercent);
+		} catch (error) {
+			console.error('Failed to load quotation settings:', error);
+			if (!quotation) vatRatePercent = '8';
+		}
 		if (!quotation) return;
 		customerType = quotation.customer.type;
 		clientId = quotation.customer.clientId ?? '';
@@ -67,6 +82,8 @@
 		discountPercent = String(quotation.equipmentDiscountPercent);
 		transportVnd = String(quotation.transportVnd);
 		handlingVnd = String(quotation.handlingVnd);
+		addVat = quotation.vatRatePercent != null;
+		vatRatePercent = quotation.vatRatePercent == null ? '' : String(quotation.vatRatePercent);
 		validUntil = quotation.validUntil;
 		eventName = quotation.eventName ?? '';
 		eventDate = quotation.eventDate ?? '';
@@ -82,6 +99,10 @@
 			parseAmount(handlingVnd)
 		)
 	);
+	const vatAmountVnd = $derived(
+		addVat ? calculateQuotationVat(totals.totalVnd, parseAmount(vatRatePercent)) : 0
+	);
+	const quotationTotalVnd = $derived(totals.totalVnd + vatAmountVnd);
 
 	function defaultValidUntil(): string {
 		const date = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
@@ -170,6 +191,10 @@
 			errorMessage = 'Add at least one equipment item.';
 			return;
 		}
+		if (addVat && !vatRatePercent.trim()) {
+			errorMessage = 'Enter the VAT rate for this quotation.';
+			return;
+		}
 
 		let customer = customerSnapshot();
 		if (customerType === 'lead' && !customer) {
@@ -201,6 +226,7 @@
 				equipmentDiscountPercent: parseAmount(discountPercent),
 				transportVnd: parseAmount(transportVnd),
 				handlingVnd: parseAmount(handlingVnd),
+				vatRatePercent: addVat ? parseAmount(vatRatePercent) : null,
 				validUntil,
 				eventName: eventName.trim() || null,
 				eventDate: eventDate || null,
@@ -378,6 +404,27 @@
 			/>
 			<TextField id="validUntil" label="Valid until" type="date" bind:value={validUntil} required />
 		</div>
+		<label class="mt-4 flex items-center gap-2 text-sm font-medium" for="addVat">
+			<input id="addVat" type="checkbox" bind:checked={addVat} class="size-4 accent-primary" />
+			Add VAT to this quotation
+		</label>
+		<p class="mt-1 text-xs text-muted-foreground">
+			Default rate: {defaultVatRatePercent}%. The rate can be changed for this quotation.
+		</p>
+		{#if addVat}
+			<div class="mt-4 max-w-xs">
+				<TextField
+					id="vatRatePercent"
+					label="VAT rate (%)"
+					type="number"
+					min="0"
+					max="100"
+					step="0.01"
+					bind:value={vatRatePercent}
+					required
+				/>
+			</div>
+		{/if}
 	</FormSection>
 
 	<FormSection title="Event details (optional)">
@@ -403,8 +450,15 @@
 				>{formatCurrency(parseAmount(transportVnd) + parseAmount(handlingVnd))}</span
 			>
 		</div>
+		{#if addVat}
+			<div class="mt-2 flex justify-between text-sm">
+				<span>VAT ({parseAmount(vatRatePercent)}%)</span><span>{formatCurrency(vatAmountVnd)}</span>
+			</div>
+		{/if}
 		<div class="mt-4 flex justify-between border-t border-border pt-4 text-lg font-semibold">
-			<span>Total</span><span>{formatCurrency(totals.totalVnd)}</span>
+			<span>{addVat ? 'Total including VAT' : 'Total'}</span><span
+				>{formatCurrency(quotationTotalVnd)}</span
+			>
 		</div>
 	</div>
 

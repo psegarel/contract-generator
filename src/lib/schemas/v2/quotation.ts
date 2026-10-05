@@ -45,6 +45,11 @@ export const quotationInputSchema = z.object({
 		.max(100, 'Discount cannot exceed 100'),
 	transportVnd: z.number().int().min(0, 'Transport cost cannot be negative'),
 	handlingVnd: z.number().int().min(0, 'Handling cost cannot be negative'),
+	vatRatePercent: z
+		.number()
+		.min(0, 'VAT rate cannot be negative')
+		.max(100, 'VAT rate cannot exceed 100')
+		.nullable(),
 	validUntil: z.iso.date('Quotation expiry date must be a valid date'),
 	eventName: nullableString,
 	eventDate: z.iso.date().nullable().optional(),

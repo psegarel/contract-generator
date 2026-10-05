@@ -42,6 +42,8 @@ export interface Quotation {
 	equipmentDiscountVnd: number;
 	transportVnd: number;
 	handlingVnd: number;
+	vatRatePercent: number | null;
+	vatAmountVnd: number;
 	totalVnd: number;
 	validUntil: string;
 	eventName: string | null;
@@ -64,6 +66,7 @@ export type QuotationInput = Omit<
 	| 'ownerUid'
 	| 'equipmentSubtotalVnd'
 	| 'equipmentDiscountVnd'
+	| 'vatAmountVnd'
 	| 'totalVnd'
 	| 'createdAt'
 	| 'updatedAt'

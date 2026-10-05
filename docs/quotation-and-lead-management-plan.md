@@ -1,5 +1,30 @@
 # Quotation and Lead Management Plan
 
+## Implementation status — 2026-10-05
+
+The quotation MVP is implemented through most of Phase 4. Phase 5, quotation-to-rental-contract integration, is deferred. The plan below remains the source for product decisions and detailed requirements; this snapshot records what the current code does.
+
+### Implemented
+
+- Firestore quotation and lead types, Zod input schemas, repositories, admin-only rules, and sequential quotation numbers.
+- Integer-VND calculations with equipment-only discounts, transport, handling, and validity checks.
+- A 14-day default validity period. Transport and handling are stored and displayed separately. VAT is off by default and can be added per quotation. Its 8% shared default is stored in Firestore `app-config/quotation-settings` (`defaultVatRatePercent`), editable without a client rebuild. The form allows a quotation-specific rate and saves the applied rate and amount with the quote. VAT applies after the equipment-only discount to the full pre-VAT total, including transport and handling. The detail view and PDF show VAT only when enabled.
+- Protected catalogue-feed loading using the signed-in Firebase ID token, response validation, and an unavailable-feed message. Contract Generator does not connect directly to Neon.
+- Quotation list, create, detail, and draft-edit routes; customer snapshots for existing clients and leads; lead creation/deduplication by normalized email; manual status updates; and a lead status list.
+- PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, compact pricing rows, wrapped bottom-aligned notes, and page numbers on multi-page documents.
+- Focused tests for calculations, expiry dates, email normalization, catalogue response parsing, and PDF generation without images.
+
+### Remaining work
+
+- Decide the issued-quotation revision policy. New quotations start at revision 1; draft edits update that same record, and sent quotations cannot be edited. There is no revision creation or history UI.
+- Add search and category filtering to the equipment picker. It currently uses a native select over the full catalogue.
+- Finish the PDF layout: the current PDF does not print the revision or full company contact details. Visually review long quotations, multiple pages, valid images, and mobile/detail-page layouts.
+- Add coverage for lead deduplication, customer validation, Firestore serialization/read validation, catalogue failure behavior, image embedding and fallback, and multi-page PDFs.
+- Add a deliberate lead-to-client conversion flow if needed. The current lead page only changes the lead's pipeline status to `converted`.
+- Implement Phase 5 only if accepted quotations should populate one-off rental contracts. That integration is not in the current application.
+
+Email delivery, public acceptance links, payment collection, automatic expiry jobs, lead scoring, and automated lead-to-client conversion remain outside the initial MVP scope.
+
 ## Objective
 
 Add client quotations to Contract Generator. An administrator should be able to:
@@ -105,6 +130,8 @@ equipmentDiscountPercent
 equipmentDiscountVnd
 transportVnd
 handlingVnd
+vatRatePercent  // null when VAT is not requested
+vatAmountVnd    // 0 when VAT is not requested
 totalVnd
 
 validUntil
@@ -129,7 +156,9 @@ equipment subtotal
 - equipment discount
 + transport
 + handling
-= quotation total
+= pre-VAT total
+optional VAT (default rate 8%, configured in `app-config/quotation-settings`)
+= total including VAT when enabled; otherwise pre-VAT total
 ```
 
 The discount must never reduce transport or handling costs.
@@ -227,7 +256,8 @@ The PDF should include:
 - quantity, unit price, and line totals;
 - equipment subtotal and discount;
 - transport and handling costs;
-- final total;
+- VAT rate and amount when enabled, followed by the VAT-inclusive final total;
+- final total without a VAT line when VAT is disabled;
 - terms, notes, and contact information; and
 - page numbers or a consistent footer.
 
@@ -249,7 +279,7 @@ This integration should be a later phase, not a prerequisite for creating and do
 ### Phase 0 — confirm decisions and integration constraints
 
 - Confirm default quotation validity period.
-- Confirm whether VAT is included or shown separately.
+- Resolved: VAT is optional per quotation, with a configurable 8% default. Apply it to the full pre-VAT total, after the equipment-only discount and including transport and handling.
 - Confirm whether transport and handling remain separate lines.
 - Confirm quotation statuses and whether issued revisions are required immediately.
 - Confirm event and venue fields.

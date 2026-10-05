@@ -53,3 +53,39 @@ export async function refreshBankList(): Promise<{
 	await setDoc(bankConfigDocRef(), { banks, lastRefreshed: serverTimestamp() });
 	return { banks, lastRefreshed: Timestamp.now() };
 }
+
+const DEFAULT_QUOTATION_VAT_RATE = 8;
+
+interface QuotationSettings {
+	defaultVatRatePercent: number;
+}
+
+function quotationSettingsDocRef() {
+	return doc(db, 'app-config', 'quotation-settings');
+}
+
+/** Gets the shared VAT default, creating the current 8% setting on first use. */
+export async function getQuotationSettings(): Promise<QuotationSettings> {
+	const ref = quotationSettingsDocRef();
+	const snap = await getDoc(ref);
+	if (!snap.exists()) {
+		await setDoc(ref, { defaultVatRatePercent: DEFAULT_QUOTATION_VAT_RATE });
+		return { defaultVatRatePercent: DEFAULT_QUOTATION_VAT_RATE };
+	}
+
+	const rate = snap.data().defaultVatRatePercent;
+	return {
+		defaultVatRatePercent:
+			typeof rate === 'number' && Number.isFinite(rate) && rate >= 0 && rate <= 100
+				? rate
+				: DEFAULT_QUOTATION_VAT_RATE
+	};
+}
+
+/** Updates the shared default used to prefill VAT on new quotations. */
+export async function setDefaultQuotationVatRate(ratePercent: number): Promise<void> {
+	if (!Number.isFinite(ratePercent) || ratePercent < 0 || ratePercent > 100) {
+		throw new Error('VAT rate must be between 0 and 100 percent');
+	}
+	await setDoc(quotationSettingsDocRef(), { defaultVatRatePercent: ratePercent }, { merge: true });
+}

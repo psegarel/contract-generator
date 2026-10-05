@@ -2,11 +2,10 @@ import { PDFDocument, PageSizes, StandardFonts, rgb, type PDFImage, type PDFPage
 import type { Quotation, QuotationLineItem } from '$lib/types/v2';
 
 const margin = 40;
-const ink = rgb(0.08, 0.1, 0.13);
-const muted = rgb(0.38, 0.42, 0.47);
-const accent = rgb(0.08, 0.32, 0.45);
-const soft = rgb(0.94, 0.96, 0.97);
-const border = rgb(0.82, 0.85, 0.87);
+const insenseLogoUrl = '/insense-logo.png';
+const ink = rgb(0, 0, 0);
+const muted = rgb(0.35, 0.35, 0.35);
+const soft = rgb(0.96, 0.96, 0.96);
 
 type Font = { widthOfTextAtSize(text: string, size: number): number };
 
@@ -55,6 +54,24 @@ function truncate(text: string, font: Font, size: number, width: number): string
 	return result;
 }
 
+function wrapText(text: string, font: Font, size: number, width: number): string[] {
+	const words = printable(text).trim().split(/\s+/).filter(Boolean);
+	const lines: string[] = [];
+	let line = '';
+
+	for (const word of words) {
+		const candidate = line ? `${line} ${word}` : word;
+		if (line && font.widthOfTextAtSize(candidate, size) > width) {
+			lines.push(line);
+			line = word;
+		} else {
+			line = candidate;
+		}
+	}
+	if (line) lines.push(line);
+	return lines;
+}
+
 async function embedImage(
 	pdf: PDFDocument,
 	item: QuotationLineItem
@@ -75,26 +92,30 @@ async function embedImage(
 	return undefined;
 }
 
+async function embedInsenseLogo(pdf: PDFDocument): Promise<PDFImage | undefined> {
+	try {
+		const response = await fetch(insenseLogoUrl);
+		if (!response.ok) return undefined;
+		return await pdf.embedPng(new Uint8Array(await response.arrayBuffer()));
+	} catch {
+		return undefined;
+	}
+}
+
 function addPage(pdf: PDFDocument): PDFPage {
 	return pdf.addPage(PageSizes.A4);
 }
 
-function drawFooter(page: PDFPage, pageNumber: number, regular: Font) {
-	const [, height] = PageSizes.A4;
-	page.drawLine({
-		start: { x: margin, y: 32 },
-		end: { x: PageSizes.A4[0] - margin, y: 32 },
-		thickness: 0.6,
-		color: border
-	});
-	drawText(page, 'INSENSE AUDIO-VISUAL', margin, 20, 7, regular, muted);
-	drawRight(page, `Page ${pageNumber}`, PageSizes.A4[0] - margin, 20, 7, regular, muted);
-	void height;
+function drawFooter(page: PDFPage, pageNumber: number, regular: Font, showPageNumber: boolean) {
+	drawText(page, 'INSENSE COMPANY LIMITED', margin, 20, 7, regular, muted);
+	if (showPageNumber) {
+		drawRight(page, `Page ${pageNumber}`, PageSizes.A4[0] - margin, 20, 7, regular, muted);
+	}
 }
 
 function drawLabel(page: PDFPage, label: string, x: number, y: number, bold: Font): number {
-	drawText(page, label.toUpperCase(), x, y, 7, bold, muted);
-	return y - 16;
+	drawText(page, label.toUpperCase(), x, y, 8, bold, ink);
+	return y - 18;
 }
 
 function drawSummaryRow(
@@ -103,10 +124,12 @@ function drawSummaryRow(
 	value: string,
 	y: number,
 	regular: Font,
-	bold?: Font
+	bold?: Font,
+	size = 8,
+	color = muted
 ) {
-	drawText(page, label, margin + 12, y, 9, regular, muted);
-	drawRight(page, value, PageSizes.A4[0] - margin - 12, y, 9, bold ?? regular);
+	drawText(page, label, margin + 12, y, size, regular, color);
+	drawRight(page, value, PageSizes.A4[0] - margin - 12, y, size, bold ?? regular, color);
 }
 
 export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8Array> {
@@ -114,6 +137,7 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 	const regular = await pdf.embedFont(StandardFonts.Helvetica);
 	const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 	const images = new Map<string, PDFImage | undefined>();
+	const logo = await embedInsenseLogo(pdf);
 
 	await Promise.all(
 		quotation.lineItems.map(async (item) =>
@@ -124,20 +148,21 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 	let pageNumber = 1;
 	let page = addPage(pdf);
 	const [width, height] = PageSizes.A4;
-	let y = height - 48;
+	let y = height - 162;
 
-	drawText(page, 'INSENSE', margin, y, 24, bold, accent);
-	drawText(page, 'AUDIO-VISUAL', margin, y - 14, 7, bold, muted);
-	drawRight(page, 'QUOTATION', width - margin, y - 2, 20, bold);
-	drawRight(page, quotation.quotationNumber, width - margin, y - 23, 9, regular, muted);
-	y -= 66;
-	page.drawLine({
-		start: { x: margin, y },
-		end: { x: width - margin, y },
-		thickness: 1,
-		color: accent
-	});
-	y -= 28;
+	if (logo) {
+		const dimensions = logo.scaleToFit(88, 88);
+		page.drawImage(logo, {
+			x: margin,
+			y: height - 132 + (88 - dimensions.height) / 2,
+			width: dimensions.width,
+			height: dimensions.height
+		});
+	} else {
+		drawText(page, 'Insense', margin, height - 96, 21, bold);
+	}
+	drawRight(page, 'QUOTATION', width - margin, height - 57, 21, bold);
+	drawRight(page, quotation.quotationNumber, width - margin, height - 80, 9, regular, muted);
 
 	const columnWidth = (width - margin * 2 - 24) / 2;
 	let customerY = drawLabel(page, 'Prepared for', margin, y, bold);
@@ -146,13 +171,13 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 		quotation.customer.companyName || quotation.customer.name,
 		margin,
 		customerY,
-		13,
+		10,
 		bold
 	);
-	customerY -= 16;
+	customerY -= 13;
 	if (quotation.customer.companyName) {
-		drawText(page, quotation.customer.name, margin, customerY, 9, regular, muted);
-		customerY -= 14;
+		drawText(page, quotation.customer.name, margin, customerY, 8, regular, muted);
+		customerY -= 12;
 	}
 	for (const line of [
 		quotation.customer.email,
@@ -160,8 +185,8 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 		quotation.customer.address
 	]) {
 		if (line) {
-			drawText(page, line, margin, customerY, 9, regular, muted);
-			customerY -= 13;
+			drawText(page, line, margin, customerY, 8, regular, muted);
+			customerY -= 11;
 		}
 	}
 
@@ -171,7 +196,7 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 		`Issued: ${new Date().toLocaleDateString('en-GB')}`,
 		margin + columnWidth + 24,
 		detailsY,
-		9,
+		8,
 		regular
 	);
 	detailsY -= 14;
@@ -180,7 +205,7 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 		`Valid until: ${quotation.validUntil}`,
 		margin + columnWidth + 24,
 		detailsY,
-		9,
+		8,
 		regular
 	);
 	detailsY -= 14;
@@ -190,42 +215,35 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 			`Event: ${quotation.eventName}`,
 			margin + columnWidth + 24,
 			detailsY,
-			9,
+			8,
 			regular
 		);
 		detailsY -= 14;
 	}
 	if (quotation.venue)
-		drawText(page, `Venue: ${quotation.venue}`, margin + columnWidth + 24, detailsY, 9, regular);
+		drawText(page, `Venue: ${quotation.venue}`, margin + columnWidth + 24, detailsY, 8, regular);
 
 	y = Math.min(customerY, detailsY) - 28;
-	drawText(page, 'EQUIPMENT', margin, y, 10, bold, accent);
+	drawText(page, 'EQUIPMENT', margin, y, 11, bold, ink);
 	y -= 18;
-	page.drawRectangle({ x: margin, y: y - 18, width: width - margin * 2, height: 24, color: soft });
-	drawText(page, 'ITEM', margin + 54, y - 9, 7, bold, muted);
-	drawText(page, 'QTY', width - margin - 190, y - 9, 7, bold, muted);
-	drawRight(page, 'UNIT PRICE', width - margin - 80, y - 9, 7, bold, muted);
-	drawRight(page, 'TOTAL', width - margin - 8, y - 9, 7, bold, muted);
+	drawText(page, 'ITEM', margin + 54, y - 9, 8, bold, ink);
+	drawText(page, 'QTY', width - margin - 190, y - 9, 8, bold, ink);
+	drawRight(page, 'UNIT PRICE', width - margin - 80, y - 9, 8, bold, ink);
+	drawRight(page, 'TOTAL', width - margin - 8, y - 9, 8, bold, ink);
 	y -= 34;
 
 	for (const item of quotation.lineItems) {
 		if (y < 92) {
-			drawFooter(page, pageNumber, regular);
+			drawFooter(page, pageNumber, regular, true);
 			page = addPage(pdf);
 			pageNumber += 1;
 			y = height - 54;
-			drawText(page, quotation.quotationNumber, margin, y, 10, bold, accent);
-			drawRight(page, 'EQUIPMENT', width - margin, y, 9, bold, muted);
+			drawText(page, quotation.quotationNumber, margin, y, 10, bold);
+			drawRight(page, 'EQUIPMENT', width - margin, y, 11, bold, muted);
 			y -= 28;
 		}
 
 		const rowHeight = 48;
-		page.drawLine({
-			start: { x: margin, y: y - rowHeight + 8 },
-			end: { x: width - margin, y: y - rowHeight + 8 },
-			thickness: 0.5,
-			color: border
-		});
 		const image = images.get(item.catalogItemId);
 		if (image) {
 			const dimensions = image.scaleToFit(40, 36);
@@ -264,51 +282,71 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 	}
 
 	y -= 16;
-	page.drawRectangle({ x: width - margin - 230, y: y - 112, width: 230, height: 124, color: soft });
+	const includesVat = quotation.vatRatePercent != null;
+	const summaryBottomOffset = includesVat ? 110 : 96;
+	let summaryBottom = y - summaryBottomOffset;
+	if (summaryBottom < 100) {
+		drawFooter(page, pageNumber, regular, true);
+		page = addPage(pdf);
+		pageNumber += 1;
+		y = height - 54;
+		drawText(page, quotation.quotationNumber, margin, y, 10, bold);
+		drawRight(page, 'SUMMARY', width - margin, y, 11, bold, muted);
+		y -= 40;
+		summaryBottom = y - summaryBottomOffset;
+	}
 	drawSummaryRow(
 		page,
 		'Equipment subtotal',
 		formatVnd(quotation.equipmentSubtotalVnd),
-		y - 20,
+		y - 18,
 		regular
 	);
 	drawSummaryRow(
 		page,
 		`Discount (${quotation.equipmentDiscountPercent}%)`,
 		`- ${formatVnd(quotation.equipmentDiscountVnd)}`,
-		y - 40,
+		y - 32,
 		regular
 	);
-	drawSummaryRow(page, 'Transport', formatVnd(quotation.transportVnd), y - 60, regular);
-	drawSummaryRow(page, 'Handling', formatVnd(quotation.handlingVnd), y - 80, regular);
-	page.drawLine({
-		start: { x: width - margin - 218, y: y - 91 },
-		end: { x: width - margin - 12, y: y - 91 },
-		thickness: 0.7,
-		color: border
-	});
-	drawSummaryRow(page, 'TOTAL', formatVnd(quotation.totalVnd), y - 108, regular, bold);
-
-	if (quotation.notes) {
-		y -= 148;
-		if (y < 80) {
-			drawFooter(page, pageNumber, regular);
-			page = addPage(pdf);
-			pageNumber += 1;
-			y = height - 54;
-		}
-		y = drawLabel(page, 'Notes and terms', margin, y, bold);
-		drawText(
+	drawSummaryRow(page, 'Transport', formatVnd(quotation.transportVnd), y - 46, regular);
+	drawSummaryRow(page, 'Handling', formatVnd(quotation.handlingVnd), y - 60, regular);
+	if (includesVat) {
+		drawSummaryRow(
 			page,
-			truncate(quotation.notes, regular, 9, width - margin * 2),
-			margin,
-			y,
-			9,
-			regular,
-			muted
+			`VAT (${quotation.vatRatePercent}%)`,
+			formatVnd(quotation.vatAmountVnd ?? 0),
+			y - 74,
+			regular
 		);
 	}
+	drawSummaryRow(
+		page,
+		includesVat ? 'TOTAL INCLUDING VAT' : 'TOTAL',
+		formatVnd(quotation.totalVnd),
+		y - (includesVat ? 98 : 84),
+		regular,
+		bold,
+		12,
+		ink
+	);
 
-	drawFooter(page, pageNumber, regular);
+	if (quotation.notes?.trim()) {
+		const noteSize = 8;
+		const noteLines = wrapText(quotation.notes, regular, noteSize, width - margin * 2);
+		const notesFirstBaseline = 48 + (noteLines.length - 1) * 10;
+		const notesHeadingY = notesFirstBaseline + 15;
+		if (summaryBottom < notesHeadingY + 18) {
+			drawFooter(page, pageNumber, regular, true);
+			page = addPage(pdf);
+			pageNumber += 1;
+		}
+		drawText(page, 'NOTES AND TERMS', margin, notesHeadingY, 7, bold, muted);
+		noteLines.forEach((line, index) => {
+			drawText(page, line, margin, notesFirstBaseline - index * 10, noteSize, regular, muted);
+		});
+	}
+
+	drawFooter(page, pageNumber, regular, pdf.getPageCount() > 1);
 	return pdf.save();
 }
