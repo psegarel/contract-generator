@@ -125,37 +125,96 @@
 	{/if}
 
 	<div class="grid gap-6 lg:grid-cols-[1fr_320px]">
-		<section class="rounded-sm border border-border bg-card p-5">
-			<h2 class="mb-4 text-lg font-semibold">Equipment</h2>
-			<div class="space-y-3">
-				{#each quotation.lineItems as item (item.catalogItemId)}
-					<div class="flex items-center gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
-						<div
-							class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted"
-						>
-							{#if item.imageUrl}<img
-									src={item.imageUrl}
-									alt={item.name}
-									class="size-full object-contain"
-								/>{:else}<span class="text-xs text-muted-foreground">No image</span>{/if}
+		<section class="space-y-6">
+			{#if quotation.packageSnapshot}
+				<div class="rounded-sm border border-border bg-card p-5">
+					<div class="flex flex-wrap items-start justify-between gap-3">
+						<div>
+							<h2 class="text-lg font-semibold">{quotation.packageSnapshot.name}</h2>
+							<p class="mt-1 text-sm text-muted-foreground">
+								{quotation.packageSnapshot.description}
+							</p>
 						</div>
-						<div class="min-w-0 flex-1">
-							<div class="font-medium">{item.name}</div>
-							<div class="text-xs text-muted-foreground">
-								{item.quantity} × {formatCurrency(item.unitPriceVnd)}
+						<div class="text-right text-sm">
+							<div>{quotation.packageSnapshot.expectedGuests} expected guests</div>
+							<div class="mt-1 font-semibold">
+								{formatCurrency(quotation.packageSnapshot.quotedPriceVnd)}
 							</div>
 						</div>
-						<div class="font-medium">{formatCurrency(item.quantity * item.unitPriceVnd)}</div>
 					</div>
-				{/each}
-			</div>
+					<div class="mt-5 grid gap-5 sm:grid-cols-2">
+						<div>
+							<h3 class="mb-2 text-sm font-medium">Included equipment</h3>
+							<ul class="space-y-1 text-sm">
+								{#each quotation.packageSnapshot.equipment as item, index (`${item.category}-${item.name}-${index}`)}
+									<li>{item.quantity} × {item.name}</li>
+								{/each}
+							</ul>
+						</div>
+						<div>
+							<h3 class="mb-2 text-sm font-medium">Included crew</h3>
+							<ul class="space-y-1 text-sm">
+								{#each quotation.packageSnapshot.crew as member (`${member.label}-${member.count}`)}
+									<li>{member.count} × {member.label}</li>
+								{/each}
+							</ul>
+						</div>
+					</div>
+				</div>
+			{/if}
+
+			{#if quotation.lineItems.length > 0}
+				<div class="rounded-sm border border-border bg-card p-5">
+					<h2 class="mb-4 text-lg font-semibold">Additional equipment</h2>
+					<div class="space-y-3">
+						{#each quotation.lineItems as item (item.catalogItemId)}
+							<div
+								class="flex items-center gap-3 border-b border-border pb-3 last:border-0 last:pb-0"
+							>
+								<div
+									class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted"
+								>
+									{#if item.imageUrl}<img
+											src={item.imageUrl}
+											alt={item.name}
+											class="size-full object-contain"
+										/>{:else}<span class="text-xs text-muted-foreground">No image</span>{/if}
+								</div>
+								<div class="min-w-0 flex-1">
+									<div class="font-medium">{item.name}</div>
+									<div class="text-xs text-muted-foreground">
+										{item.quantity} × {formatCurrency(item.unitPriceVnd)}
+									</div>
+								</div>
+								<div class="font-medium">{formatCurrency(item.quantity * item.unitPriceVnd)}</div>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</section>
 
 		<aside class="h-fit rounded-sm border border-border bg-card p-5">
 			<h2 class="mb-4 text-lg font-semibold">Summary</h2>
 			<div class="space-y-2 text-sm">
+				{#if quotation.packageSnapshot}
+					<div class="flex justify-between">
+						<span>{quotation.packageSnapshot.name}</span><span
+							>{formatCurrency(quotation.packageSnapshot.quotedPriceVnd)}</span
+						>
+					</div>
+					{#if (quotation.packageDiscountVnd ?? 0) > 0}
+						<div class="flex justify-between">
+							<span>Package discount ({quotation.packageDiscountPercent ?? 0}%)</span><span
+								>- {formatCurrency(quotation.packageDiscountVnd ?? 0)}</span
+							>
+						</div>
+					{/if}
+				{/if}
 				<div class="flex justify-between">
-					<span>Equipment</span><span>{formatCurrency(quotation.equipmentSubtotalVnd)}</span>
+					<span>Additional equipment</span><span
+						>{formatCurrency(quotation.equipmentSubtotalVnd)}</span
+					>
 				</div>
 				<div class="flex justify-between">
 					<span>Discount ({quotation.equipmentDiscountPercent}%)</span><span

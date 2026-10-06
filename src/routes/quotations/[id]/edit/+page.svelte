@@ -20,6 +20,9 @@
 			quotation={data.quotation}
 			clients={data.clients}
 			catalogueItems={data.catalogueItems}
+			cataloguePackages={data.cataloguePackages}
+			catalogueSupportsPackages={data.catalogueSupportsPackages}
+			catalogueError={data.catalogueError}
 			onSuccess={(id) => goto(resolve(`/quotations/${id}`))}
 			onCancel={() => goto(resolve(`/quotations/${data.quotation.id}`))}
 		/>

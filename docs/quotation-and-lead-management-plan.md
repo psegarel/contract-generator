@@ -8,13 +8,15 @@ The quotation MVP is implemented through most of Phase 4. Phase 5, quotation-to-
 
 - Firestore quotation and lead types, Zod input schemas, repositories, admin-only rules, and sequential quotation numbers.
 - Integer-VND calculations with equipment-only discounts, transport, handling, and validity checks.
+- Package selection through a dialog with expandable package titles and equipment previews. Missing package images use fixed dark placeholders. Each selected package is saved as a quotation snapshot, priced by guest-based interpolation, and receives a separate package discount. Prices interpolate linearly across the configured guest and price ranges; open-ended ranges use their minimum guest count through minimum plus 100 as their price anchors, then cap at the maximum package price. The usual equipment discount applies only to separately added equipment.
 - A 14-day default validity period. Transport and handling are stored and displayed separately. VAT is off by default and can be added per quotation. Its 8% shared default is stored in Firestore `app-config/quotation-settings` (`defaultVatRatePercent`), editable without a client rebuild. The form allows a quotation-specific rate and saves the applied rate and amount with the quote. VAT applies after the equipment-only discount to the full pre-VAT total, including transport and handling. The detail view and PDF show VAT only when enabled.
-- Protected catalogue-feed loading using the signed-in Firebase ID token, response validation, and an unavailable-feed message. Contract Generator does not connect directly to Neon.
+- Protected catalogue-feed loading using the signed-in Firebase ID token, response validation, and an unavailable-feed message. The feed provides equipment and active package quote data while omitting stock counts and crew rates. Contract Generator does not connect directly to Neon.
 - Quotation list, create, detail, and draft-edit routes; customer snapshots for existing clients and leads; lead creation/deduplication by normalized email; manual status updates; and a lead status list. Saving a new quotation opens its detail view; saving a draft edit returns to that view, where it can be reviewed and downloaded.
 - Sent quotations can be revised into a new draft record with the same quotation number and incremented revision. The prior sent record is marked superseded while its issued content is retained. A revision chain is visible from each quotation detail page.
-- Equipment selection uses a single catalogue dropdown with category and item name. Selecting an item previews its catalogue image; selected quotation lines retain a thumbnail. ImageKit URLs use a direct optimized URL transformation without requiring the ImageKit SDK, and fall back to the original image URL if that request fails.
+- Equipment selection opens a dialog showing the available catalogue items with checkboxes and quantity fields. Applying the selection updates the quotation lines while preserving custom unit prices and notes for existing items. Catalogue images appear in the picker and on selected quotation lines. ImageKit URLs use a direct optimized URL transformation without requiring the ImageKit SDK, and fall back to the original image URL if that request fails.
 - PDF download using the saved quotation snapshot, with the supplied Insense logo, grayscale styling, embedded Vietnamese-capable text fonts, compact pricing rows, wrapped bottom-aligned notes with clear footer spacing, and page numbers on multi-page documents. Legal name, tax code, address, representative phone, and email come from the shared environment-backed `companyConfig` used by contract generation. Catalogue `imageUrl` values are used directly; ImageKit thumbnails are requested as optimized JPEGs cropped to the PDF thumbnail box, then retried at the original URL.
-- Focused tests for calculations, expiry dates, email normalization, catalogue response parsing, and PDF generation with and without images, including ImageKit URL fallback and unsupported-image handling.
+- Package-only quotations, package inclusions and crew in the detail view and PDF, separately itemized package and additional-equipment prices, and package-only discounts. Editing a saved quotation retains its package snapshot and quoted price unless the package or expected guest count is changed.
+- Focused tests for calculations (including guest interpolation, the 400–500 open-ended pricing anchors, and independent discounts), expiry dates, email normalization, catalogue response parsing, package-only PDF generation, PDF generation with and without images, ImageKit URL fallback and unsupported-image handling, and browser interaction with both equipment and package selection dialogs.
 
 ### Remaining work
 
@@ -189,7 +191,7 @@ Lead deduplication should be based primarily on normalized email, with deliberat
 
 ## Equipment catalogue integration
 
-The preferred integration is a protected, read-only endpoint owned by Insense Packages. It should return only the fields required by the quotation picker:
+The protected, read-only endpoint owned by Insense Packages returns equipment fields and an optional `packages` array. Each package projection contains its slug, customer-facing description, guest and price ranges, equipment inclusions, crew labels/counts, and highlights. It excludes inventory counts and internal crew rates. The equipment entries contain only the fields required by the quotation picker:
 
 ```text
 id
@@ -239,7 +241,7 @@ The creation form should provide:
 - a live financial summary; and
 - draft save and PDF download actions.
 
-The summary should clearly separate equipment subtotal, discount, logistics costs, and final total. The detail page should show the quotation status, expiry, lead/client information, line-item snapshot, and available actions.
+The summary should clearly separate package price and discount, additional-equipment subtotal and discount, logistics costs, and final total. The detail page should show the quotation status, expiry, lead/client information, package and line-item snapshots, and available actions. A quotation may contain a package, additional equipment, or both, but not neither.
 
 ## PDF generation
 

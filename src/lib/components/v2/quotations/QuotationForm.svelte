@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { Plus, Trash2 } from '@lucide/svelte';
+	import { ChevronDown, Plus, Trash2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 	import type {
@@ -10,14 +10,17 @@
 		Quotation,
 		QuotationInput,
 		QuotationLineItem,
-		QuotationCustomerSnapshot
+		QuotationCustomerSnapshot,
+		QuotationPackageCatalogueItem,
+		QuotationPackageSnapshot
 	} from '$lib/types/v2';
 	import { saveLead } from '$lib/utils/v2/leads';
 	import { saveQuotation, updateQuotation } from '$lib/utils/v2/quotations';
 	import { getQuotationSettings } from '$lib/utils/v2/appConfig';
 	import {
 		calculateQuotationTotals,
-		calculateQuotationVat
+		calculateQuotationVat,
+		calculatePackageQuotePrice
 	} from '$lib/utils/v2/quotationCalculations';
 	import { formatCurrency } from '$lib/utils/formatting';
 	import { catalogueImageUrlForDisplay } from '$lib/utils/v2/catalogueImage';
@@ -30,12 +33,24 @@
 	interface Props {
 		clients: ClientCounterparty[];
 		catalogueItems: EquipmentCatalogueItem[];
+		cataloguePackages: QuotationPackageCatalogueItem[];
+		catalogueSupportsPackages: boolean;
+		catalogueError: string | null;
 		quotation?: Quotation;
 		onSuccess?: (quotationId: string) => void;
 		onCancel?: () => void;
 	}
 
-	let { clients, catalogueItems, quotation, onSuccess, onCancel }: Props = $props();
+	let {
+		clients,
+		catalogueItems,
+		cataloguePackages,
+		catalogueSupportsPackages,
+		catalogueError,
+		quotation,
+		onSuccess,
+		onCancel
+	}: Props = $props();
 
 	let customerType = $state<'existing-client' | 'lead'>('existing-client');
 	let clientId = $state('');
@@ -45,7 +60,14 @@
 	let leadEmail = $state('');
 	let leadPhone = $state('');
 	let leadAddress = $state('');
-	let selectedCatalogueId = $state('');
+	let selectedPackageSlug = $state('');
+	let expectedGuests = $state('');
+	let packageDiscountPercent = $state('0');
+	let packageSnapshot = $state<QuotationPackageSnapshot | null>(null);
+	let packageDialog = $state<HTMLDialogElement | null>(null);
+	let expandedPackageSlug = $state('');
+	let equipmentDialog = $state<HTMLDialogElement | null>(null);
+	let equipmentSelection = $state<Record<string, { checked: boolean; quantity: number }>>({});
 	let lineItems = $state<QuotationLineItem[]>([]);
 	let discountPercent = $state('0');
 	let transportVnd = $state('0');
@@ -60,6 +82,17 @@
 	let notes = $state('');
 	let isSubmitting = $state(false);
 	let errorMessage = $state('');
+	const selectedPackage = $derived(
+		cataloguePackages.find((item) => item.slug === selectedPackageSlug) ?? null
+	);
+	const packageForDisplay = $derived(packageSnapshot ?? selectedPackage);
+	const packageExpectedGuests = $derived(
+		Math.max(1, Math.floor(parseAmount(expectedGuests) || selectedPackage?.guestRange.min || 1))
+	);
+	const quotedPackagePriceVnd = $derived(
+		packageSnapshot?.quotedPriceVnd ??
+			(selectedPackage ? calculatePackageQuotePrice(selectedPackage, packageExpectedGuests) : 0)
+	);
 
 	onMount(async () => {
 		try {
@@ -79,6 +112,10 @@
 		leadEmail = quotation.customer.email ?? '';
 		leadPhone = quotation.customer.phone ?? '';
 		leadAddress = quotation.customer.address ?? '';
+		packageSnapshot = quotation.packageSnapshot ?? null;
+		selectedPackageSlug = packageSnapshot?.slug ?? '';
+		expectedGuests = packageSnapshot ? String(packageSnapshot.expectedGuests) : '';
+		packageDiscountPercent = String(quotation.packageDiscountPercent ?? 0);
 		lineItems = quotation.lineItems.map((item) => ({ ...item }));
 		discountPercent = String(quotation.equipmentDiscountPercent);
 		transportVnd = String(quotation.transportVnd);
@@ -97,16 +134,40 @@
 			lineItems,
 			parseAmount(discountPercent),
 			parseAmount(transportVnd),
-			parseAmount(handlingVnd)
+			parseAmount(handlingVnd),
+			quotedPackagePriceVnd,
+			parseAmount(packageDiscountPercent)
 		)
 	);
 	const vatAmountVnd = $derived(
 		addVat ? calculateQuotationVat(totals.totalVnd, parseAmount(vatRatePercent)) : 0
 	);
 	const quotationTotalVnd = $derived(totals.totalVnd + vatAmountVnd);
-	const selectedCatalogueItem = $derived(
-		catalogueItems.find((item) => item.id === selectedCatalogueId) ?? null
+	const selectedEquipmentCount = $derived(
+		Object.values(equipmentSelection).filter((selection) => selection.checked).length
 	);
+
+	function choosePackage(item: QuotationPackageCatalogueItem) {
+		const packageChanged = selectedPackageSlug !== item.slug;
+		selectedPackageSlug = item.slug;
+		packageSnapshot = null;
+		if (packageChanged || !expectedGuests) expectedGuests = String(item.guestRange.min);
+		packageDialog?.close();
+	}
+
+	function removePackage() {
+		selectedPackageSlug = '';
+		packageSnapshot = null;
+		expectedGuests = '';
+	}
+
+	function togglePackageDetails(slug: string) {
+		expandedPackageSlug = expandedPackageSlug === slug ? '' : slug;
+	}
+
+	function changeExpectedGuests() {
+		packageSnapshot = null;
+	}
 
 	function defaultValidUntil(): string {
 		const date = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
@@ -128,30 +189,43 @@
 		leadAddress = '';
 	}
 
-	function addEquipment() {
-		const item = catalogueItems.find((candidate) => candidate.id === selectedCatalogueId);
-		if (!item) return;
+	function openEquipmentDialog() {
+		const currentLines = new Map(lineItems.map((item) => [item.catalogItemId, item]));
+		equipmentSelection = Object.fromEntries(
+			catalogueItems.map((item) => {
+				const currentLine = currentLines.get(item.id);
+				return [item.id, { checked: Boolean(currentLine), quantity: currentLine?.quantity ?? 1 }];
+			})
+		);
+		equipmentDialog?.showModal();
+	}
 
-		const existing = lineItems.findIndex((lineItem) => lineItem.catalogItemId === item.id);
-		if (existing >= 0) {
-			lineItems[existing].quantity += 1;
-			lineItems = [...lineItems];
-		} else {
-			lineItems = [
-				...lineItems,
+	function applyEquipmentSelection() {
+		const currentLines = new Map(lineItems.map((item) => [item.catalogItemId, item]));
+		const catalogueIds = new Set(catalogueItems.map((item) => item.id));
+		const selectedLines = catalogueItems.flatMap((item) => {
+			const selection = equipmentSelection[item.id];
+			if (!selection?.checked) return [];
+
+			const currentLine = currentLines.get(item.id);
+			return [
 				{
 					catalogItemId: item.id,
 					name: item.name,
 					category: item.category,
 					manufacturer: item.manufacturer,
-					quantity: 1,
-					unitPriceVnd: item.rentalRateVnd ?? 0,
+					quantity: Math.max(1, Math.floor(selection.quantity || 1)),
+					unitPriceVnd: currentLine?.unitPriceVnd ?? item.rentalRateVnd ?? 0,
 					imageUrl: item.imageUrl,
-					note: null
+					note: currentLine?.note ?? null
 				}
 			];
-		}
-		selectedCatalogueId = '';
+		});
+		lineItems = [
+			...selectedLines,
+			...lineItems.filter((item) => !catalogueIds.has(item.catalogItemId))
+		];
+		equipmentDialog?.close();
 	}
 
 	function fallbackCatalogueImage(event: Event, originalUrl: string | null) {
@@ -202,9 +276,24 @@
 		event.preventDefault();
 		errorMessage = '';
 
-		if (lineItems.length === 0) {
-			errorMessage = 'Add at least one equipment item.';
+		if (lineItems.length === 0 && !selectedPackage && !packageSnapshot) {
+			errorMessage = 'Select a package or add at least one equipment item.';
 			return;
+		}
+		if (selectedPackage && (!String(expectedGuests).trim() || packageExpectedGuests < 1)) {
+			errorMessage = 'Enter the expected number of guests for the selected package.';
+			return;
+		}
+		if (selectedPackage) {
+			const guests = Number(expectedGuests);
+			if (!Number.isInteger(guests) || guests < selectedPackage.guestRange.min) {
+				errorMessage = `Expected guests must be at least ${selectedPackage.guestRange.min}.`;
+				return;
+			}
+			if (selectedPackage.guestRange.max !== null && guests > selectedPackage.guestRange.max) {
+				errorMessage = `Expected guests cannot exceed ${selectedPackage.guestRange.max} for this package.`;
+				return;
+			}
 		}
 		if (addVat && !vatRatePercent.trim()) {
 			errorMessage = 'Enter the VAT rate for this quotation.';
@@ -237,6 +326,15 @@
 			const quotationInput: QuotationInput = {
 				status: 'draft',
 				customer,
+				packageSnapshot:
+					selectedPackage && !packageSnapshot
+						? {
+								...selectedPackage,
+								expectedGuests: packageExpectedGuests,
+								quotedPriceVnd: quotedPackagePriceVnd
+							}
+						: packageSnapshot,
+				packageDiscountPercent: parseAmount(packageDiscountPercent),
 				lineItems,
 				equipmentDiscountPercent: parseAmount(discountPercent),
 				transportVnd: parseAmount(transportVnd),
@@ -309,65 +407,130 @@
 		{/if}
 	</FormSection>
 
-	<FormSection title="Equipment">
-		{#if catalogueItems.length === 0}
+	<FormSection title="Package">
+		{#if catalogueError}
+			<p class="text-sm text-destructive">Catalogue unavailable: {catalogueError}</p>
+		{:else if !catalogueSupportsPackages}
 			<p class="text-sm text-destructive">
-				No catalogue items are available. Configure the Insense Packages catalogue integration
-				first.
+				The connected catalogue API only returns equipment. Deploy the latest Insense Packages API
+				to enable package quotations.
+			</p>
+		{:else if cataloguePackages.length === 0}
+			<p class="text-sm text-muted-foreground">
+				No active packages were returned by the connected catalogue.
 			</p>
 		{:else}
-			<div class="mt-3 flex gap-2">
-				<select
-					aria-label="Select equipment"
-					bind:value={selectedCatalogueId}
-					class="min-w-0 flex-1 rounded-sm bg-muted/50 px-3.5 py-2.5 text-sm"
-				>
-					<option value="">Select equipment</option>
-					{#each catalogueItems as item (item.id)}
-						<option value={item.id}>{item.category.toUpperCase()} — {item.name}</option>
-					{/each}
-				</select>
-				<Button
-					type="button"
-					variant="outline"
-					onclick={addEquipment}
-					disabled={!selectedCatalogueId}
-				>
-					<Plus class="size-4" /> Add
-				</Button>
-			</div>
-			{#if selectedCatalogueItem}
-				<div class="mt-3 flex items-center gap-3 rounded-sm border border-border p-3">
-					<div
-						class="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted"
-					>
-						{#if selectedCatalogueItem.imageUrl}
-							<img
-								src={catalogueImageUrlForDisplay(selectedCatalogueItem.imageUrl, 240)}
-								alt={selectedCatalogueItem.name}
-								class="size-full object-contain"
-								onerror={(event) => fallbackCatalogueImage(event, selectedCatalogueItem.imageUrl)}
-							/>
-							<span class="hidden px-2 text-center text-xs text-muted-foreground">
-								Image unavailable
-							</span>
-						{:else}
-							<span class="px-2 text-center text-xs text-muted-foreground">No image</span>
-						{/if}
-					</div>
-					<div class="min-w-0">
-						<div class="font-medium">{selectedCatalogueItem.name}</div>
-						<div class="text-xs text-muted-foreground">
-							{selectedCatalogueItem.manufacturer || selectedCatalogueItem.category}
+			<Button type="button" variant="outline" onclick={() => packageDialog?.showModal()}>
+				{selectedPackage || packageSnapshot ? 'Change package' : 'Select a package'}
+			</Button>
+		{/if}
+
+		{#if packageForDisplay}
+			<div class="mt-4 space-y-4 rounded-sm border border-border p-4">
+				<div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
+					<div>
+						<div class="flex items-start justify-between gap-3">
+							<h3 class="font-semibold">{packageForDisplay.name}</h3>
+							<Button type="button" variant="ghost" size="sm" onclick={removePackage}>
+								Remove package
+							</Button>
 						</div>
-						{#if selectedCatalogueItem.description}
-							<p class="mt-1 line-clamp-2 text-xs text-muted-foreground">
-								{selectedCatalogueItem.description}
-							</p>
-						{/if}
+						<p class="mt-1 text-sm text-muted-foreground">{packageForDisplay.description}</p>
+						<p class="mt-2 text-xs text-muted-foreground">
+							Capacity: {packageForDisplay.guestRange.min}–{packageForDisplay.guestRange.max ??
+								`${packageForDisplay.guestRange.min}+`} guests. Price range: {formatCurrency(
+								packageForDisplay.priceRange.minVND
+							)}–{formatCurrency(packageForDisplay.priceRange.maxVND)}.
+						</p>
+					</div>
+					{#if selectedPackage}
+						<TextField
+							id="expectedGuests"
+							label="Expected guests"
+							type="number"
+							min={selectedPackage.guestRange.min}
+							max={selectedPackage.guestRange.max ?? undefined}
+							step="1"
+							bind:value={expectedGuests}
+							oninput={changeExpectedGuests}
+						/>
+					{:else}
+						<div class="text-sm">
+							<div class="text-xs text-muted-foreground">Expected guests</div>
+							<div class="mt-1 font-medium">{packageSnapshot?.expectedGuests}</div>
+						</div>
+					{/if}
+				</div>
+
+				<div class="flex flex-wrap items-end justify-between gap-4 border-t border-border pt-3">
+					<div>
+						<div class="text-xs text-muted-foreground">
+							Package price for {selectedPackage
+								? packageExpectedGuests
+								: (packageSnapshot?.expectedGuests ?? 0)} guests
+						</div>
+						<div class="text-lg font-semibold">{formatCurrency(quotedPackagePriceVnd)}</div>
+					</div>
+					{#if packageForDisplay}
+						<TextField
+							id="packageDiscountPercent"
+							label="Package discount (%)"
+							type="number"
+							min="0"
+							max="100"
+							step="0.01"
+							bind:value={packageDiscountPercent}
+						/>
+					{/if}
+				</div>
+				{#if packageDiscountPercent !== '0' && parseAmount(packageDiscountPercent) > 0}
+					<p class="text-sm text-muted-foreground">
+						Package discount: {formatCurrency(totals.packageDiscountVnd)}
+					</p>
+				{/if}
+
+				<div class="grid gap-4 md:grid-cols-2">
+					<div>
+						<h4 class="mb-2 text-sm font-medium">Included equipment</h4>
+						<ul class="space-y-2">
+							{#each packageForDisplay.equipment as item, index (`${item.category}-${item.name}-${index}`)}
+								<li class="flex items-center gap-2 text-sm">
+									<div class="size-16 shrink-0 overflow-hidden rounded-sm bg-neutral-900">
+										{#if item.imageUrl}
+											<img
+												src={catalogueImageUrlForDisplay(item.imageUrl, 160)}
+												alt=""
+												class="size-full object-cover"
+												onerror={(event) => fallbackCatalogueImage(event, item.imageUrl)}
+											/>
+											<span class="hidden size-full bg-neutral-900" aria-hidden="true"></span>
+										{/if}
+									</div>
+									<span>{item.quantity} × {item.name}</span>
+								</li>
+							{/each}
+						</ul>
+					</div>
+					<div>
+						<h4 class="mb-2 text-sm font-medium">Included crew</h4>
+						<ul class="space-y-1 text-sm">
+							{#each packageForDisplay.crew as member (`${member.label}-${member.count}`)}
+								<li>{member.count} × {member.label}</li>
+							{/each}
+						</ul>
 					</div>
 				</div>
-			{/if}
+			</div>
+		{/if}
+	</FormSection>
+
+	<FormSection title="Additional equipment">
+		{#if catalogueItems.length === 0}
+			<p class="text-sm text-muted-foreground">No additional equipment is available.</p>
+		{:else}
+			<Button type="button" variant="outline" onclick={openEquipmentDialog}>
+				<Plus class="size-4" /> Select Equipment
+			</Button>
 			{#if lineItems.length > 0}
 				<div class="mt-4 space-y-3">
 					{#each lineItems as item, index (item.catalogItemId)}
@@ -381,7 +544,7 @@
 									<img
 										src={catalogueImageUrlForDisplay(item.imageUrl, 240)}
 										alt={item.name}
-										class="size-full object-contain"
+										class="size-full object-cover"
 										onerror={(event) => fallbackCatalogueImage(event, item.imageUrl)}
 									/>
 									<span class="hidden px-1 text-center text-xs text-muted-foreground">
@@ -494,8 +657,20 @@
 	</FormSection>
 
 	<div class="rounded-sm border border-border bg-card p-4">
+		{#if totals.packageSubtotalVnd > 0}
+			<div class="flex justify-between text-sm">
+				<span>Package</span><span>{formatCurrency(totals.packageSubtotalVnd)}</span>
+			</div>
+			{#if totals.packageDiscountVnd > 0}
+				<div class="mt-2 flex justify-between text-sm">
+					<span>Package discount ({parseAmount(packageDiscountPercent)}%)</span><span
+						>- {formatCurrency(totals.packageDiscountVnd)}</span
+					>
+				</div>
+			{/if}
+		{/if}
 		<div class="flex justify-between text-sm">
-			<span>Equipment subtotal</span><span>{formatCurrency(totals.equipmentSubtotalVnd)}</span>
+			<span>Additional equipment</span><span>{formatCurrency(totals.equipmentSubtotalVnd)}</span>
 		</div>
 		<div class="mt-2 flex justify-between text-sm">
 			<span>Equipment discount</span><span>- {formatCurrency(totals.equipmentDiscountVnd)}</span>
@@ -523,8 +698,180 @@
 			variant="outline"
 			onclick={() => onCancel?.() ?? goto(resolve('/quotations'))}>Cancel</Button
 		>
-		<Button type="submit" disabled={isSubmitting || catalogueItems.length === 0}
+		<Button
+			type="submit"
+			disabled={isSubmitting || (catalogueItems.length === 0 && cataloguePackages.length === 0)}
 			>{isSubmitting ? 'Saving…' : 'Save quotation'}</Button
 		>
 	</div>
 </form>
+
+<dialog
+	bind:this={packageDialog}
+	aria-labelledby="package-dialog-title"
+	class="m-auto max-h-[85vh] w-[min(96vw,900px)] max-w-none overflow-hidden rounded-sm bg-background p-0 text-foreground shadow-xl backdrop:bg-black/50"
+>
+	<div class="flex max-h-[85vh] flex-col">
+		<header class="flex items-start justify-between border-b border-border px-5 py-4">
+			<div>
+				<h3 id="package-dialog-title" class="text-lg font-semibold">Select a package</h3>
+				<p class="mt-1 text-sm text-muted-foreground">
+					Expand a package to review its included equipment and crew.
+				</p>
+			</div>
+			<Button type="button" variant="outline" onclick={() => packageDialog?.close()}>Close</Button>
+		</header>
+		<div class="min-h-0 space-y-2 overflow-y-auto px-5 py-4">
+			{#each cataloguePackages as item (item.slug)}
+				<section class="overflow-hidden rounded-sm border border-border">
+					<button
+						type="button"
+						class="flex w-full items-center justify-between gap-4 px-4 py-3 text-left hover:bg-muted/50"
+						aria-expanded={expandedPackageSlug === item.slug}
+						aria-controls="package-details-{item.slug}"
+						onclick={() => togglePackageDetails(item.slug)}
+					>
+						<span class="min-w-0">
+							<span class="block font-medium">{item.name}</span>
+							<span class="mt-0.5 block truncate text-sm text-muted-foreground">{item.tagline}</span
+							>
+						</span>
+						<ChevronDown
+							class={`size-4 shrink-0 transition-transform ${expandedPackageSlug === item.slug ? 'rotate-180' : ''}`}
+						/>
+					</button>
+					{#if expandedPackageSlug === item.slug}
+						<div id="package-details-{item.slug}" class="border-t border-border p-4">
+							<p class="text-sm text-muted-foreground">{item.description}</p>
+							<p class="mt-2 text-xs text-muted-foreground">
+								{item.guestRange.min}{item.guestRange.max === null
+									? '+'
+									: `–${item.guestRange.max}`} guests · {formatCurrency(
+									item.priceRange.minVND
+								)}–{formatCurrency(item.priceRange.maxVND)}
+							</p>
+							<ul class="mt-4 space-y-2">
+								{#each item.equipment as equipment, index (`${equipment.category}-${equipment.name}-${index}`)}
+									<li class="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-3">
+										<div
+											class="size-16 shrink-0 overflow-hidden rounded-sm bg-neutral-900"
+											data-testid={!equipment.imageUrl ? 'package-image-placeholder' : undefined}
+											aria-hidden={!equipment.imageUrl}
+										>
+											{#if equipment.imageUrl}
+												<img
+													src={catalogueImageUrlForDisplay(equipment.imageUrl, 160)}
+													alt=""
+													class="size-full object-cover"
+													onerror={(event) => fallbackCatalogueImage(event, equipment.imageUrl)}
+												/>
+												<span class="hidden size-full bg-neutral-900" aria-hidden="true"></span>
+											{/if}
+										</div>
+										<div class="min-w-0">
+											<div class="font-medium">{equipment.quantity} × {equipment.name}</div>
+											<div class="text-xs text-muted-foreground">
+												{equipment.manufacturer || equipment.category}
+											</div>
+										</div>
+									</li>
+								{/each}
+							</ul>
+							{#if item.crew.length > 0}
+								<p class="mt-3 text-xs text-muted-foreground">
+									Crew: {item.crew.map((member) => `${member.count} × ${member.label}`).join(', ')}
+								</p>
+							{/if}
+							<div class="mt-4 flex justify-end">
+								<Button type="button" onclick={() => choosePackage(item)}>
+									Select this package
+								</Button>
+							</div>
+						</div>
+					{/if}
+				</section>
+			{/each}
+		</div>
+	</div>
+</dialog>
+
+<dialog
+	bind:this={equipmentDialog}
+	aria-labelledby="equipment-dialog-title"
+	class="m-auto max-h-[85vh] w-[min(96vw,900px)] max-w-none overflow-hidden rounded-sm bg-background p-0 text-foreground shadow-xl backdrop:bg-black/50"
+>
+	<div class="flex max-h-[85vh] flex-col">
+		<header class="flex items-start justify-between border-b border-border px-5 py-4">
+			<div>
+				<h3 id="equipment-dialog-title" class="text-lg font-semibold">Select Equipment</h3>
+				<p class="mt-1 text-sm text-muted-foreground">
+					Choose items and set the quantity for this quotation.
+				</p>
+			</div>
+			<Button type="button" variant="outline" onclick={() => equipmentDialog?.close()}>
+				Cancel
+			</Button>
+		</header>
+		<div class="min-h-0 overflow-y-auto px-5 py-3">
+			<div class="space-y-2">
+				{#each catalogueItems as item (item.id)}
+					{#if equipmentSelection[item.id]}
+						<div
+							class="grid grid-cols-[auto_64px_minmax(0,1fr)_100px] items-center gap-3 rounded-sm border border-border p-2.5"
+						>
+							<input
+								id="equipment-{item.id}"
+								aria-label="Select {item.name}"
+								type="checkbox"
+								bind:checked={equipmentSelection[item.id].checked}
+								class="size-4 accent-primary"
+							/>
+							<div
+								class="flex size-16 items-center justify-center overflow-hidden rounded-sm bg-muted"
+							>
+								{#if item.imageUrl}
+									<img
+										src={catalogueImageUrlForDisplay(item.imageUrl, 160)}
+										alt={item.name}
+										class="size-full object-cover"
+										onerror={(event) => fallbackCatalogueImage(event, item.imageUrl)}
+									/>
+									<span class="hidden px-1 text-center text-xs text-muted-foreground"
+										>Image unavailable</span
+									>
+								{:else}
+									<span class="px-1 text-center text-xs text-muted-foreground">No image</span>
+								{/if}
+							</div>
+							<div class="min-w-0">
+								<div class="text-xs font-medium uppercase text-muted-foreground">
+									{item.category}
+								</div>
+								<div class="truncate font-medium">{item.name}</div>
+								<div class="truncate text-xs text-muted-foreground">
+									{item.manufacturer || item.description || '—'}
+								</div>
+							</div>
+							<label for="quantity-{item.id}" class="text-xs text-muted-foreground">
+								Qty
+								<input
+									id="quantity-{item.id}"
+									aria-label="Quantity for {item.name}"
+									type="number"
+									min="1"
+									step="1"
+									bind:value={equipmentSelection[item.id].quantity}
+									class="mt-1 w-full rounded-sm bg-muted/50 px-2 py-2 text-sm text-foreground"
+								/>
+							</label>
+						</div>
+					{/if}
+				{/each}
+			</div>
+		</div>
+		<footer class="flex items-center justify-between border-t border-border px-5 py-4">
+			<span class="text-sm text-muted-foreground">{selectedEquipmentCount} selected</span>
+			<Button type="button" onclick={applyEquipmentSelection}>Apply Selection</Button>
+		</footer>
+	</div>
+</dialog>

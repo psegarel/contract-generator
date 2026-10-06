@@ -35,27 +35,78 @@ export const quotationLineItemSchema = z.object({
 	note: nullableString
 });
 
-export const quotationInputSchema = z.object({
-	status: z.enum(['draft', 'sent', 'accepted', 'declined', 'expired']).default('draft'),
-	customer: quotationCustomerSchema,
-	lineItems: z.array(quotationLineItemSchema).min(1, 'At least one equipment item is required'),
-	equipmentDiscountPercent: z
-		.number()
-		.min(0, 'Discount cannot be negative')
-		.max(100, 'Discount cannot exceed 100'),
-	transportVnd: z.number().int().min(0, 'Transport cost cannot be negative'),
-	handlingVnd: z.number().int().min(0, 'Handling cost cannot be negative'),
-	vatRatePercent: z
-		.number()
-		.min(0, 'VAT rate cannot be negative')
-		.max(100, 'VAT rate cannot exceed 100')
-		.nullable(),
-	validUntil: z.iso.date('Quotation expiry date must be a valid date'),
-	eventName: nullableString,
-	eventDate: z.iso.date().nullable().optional(),
-	venue: nullableString,
-	notes: nullableString
+export const quotationPackageCatalogueSchema = z.object({
+	slug: z.string().trim().min(1),
+	name: z.string().trim().min(1),
+	tagline: z.string(),
+	description: z.string(),
+	guestRange: z.object({
+		min: z.number().int().positive(),
+		max: z.number().int().positive().nullable()
+	}),
+	priceRange: z
+		.object({
+			minVND: z.number().int().nonnegative(),
+			maxVND: z.number().int().nonnegative(),
+			currency: z.literal('VND')
+		})
+		.refine(
+			(range) => range.maxVND >= range.minVND,
+			'Maximum package price must not be below minimum'
+		),
+	equipment: z.array(
+		z.object({
+			name: z.string().trim().min(1),
+			category: equipmentCategorySchema,
+			quantity: z.number().int().positive(),
+			outsourced: z.boolean(),
+			manufacturer: z.string().trim().nullable().default(null),
+			imageUrl: z.url().nullable().default(null),
+			note: z.string().trim().nullable().default(null)
+		})
+	),
+	crew: z.array(z.object({ label: z.string().trim().min(1), count: z.number().int().positive() })),
+	highlights: z.array(z.string())
 });
+
+export const quotationPackageSnapshotSchema = quotationPackageCatalogueSchema.extend({
+	expectedGuests: z.number().int().positive(),
+	quotedPriceVnd: z.number().int().nonnegative()
+});
+
+export const quotationInputSchema = z
+	.object({
+		status: z.enum(['draft', 'sent', 'accepted', 'declined', 'expired']).default('draft'),
+		customer: quotationCustomerSchema,
+		packageSnapshot: quotationPackageSnapshotSchema.nullable().optional(),
+		packageDiscountPercent: z.number().min(0).max(100).default(0),
+		lineItems: z.array(quotationLineItemSchema),
+		equipmentDiscountPercent: z
+			.number()
+			.min(0, 'Discount cannot be negative')
+			.max(100, 'Discount cannot exceed 100'),
+		transportVnd: z.number().int().min(0, 'Transport cost cannot be negative'),
+		handlingVnd: z.number().int().min(0, 'Handling cost cannot be negative'),
+		vatRatePercent: z
+			.number()
+			.min(0, 'VAT rate cannot be negative')
+			.max(100, 'VAT rate cannot exceed 100')
+			.nullable(),
+		validUntil: z.iso.date('Quotation expiry date must be a valid date'),
+		eventName: nullableString,
+		eventDate: z.iso.date().nullable().optional(),
+		venue: nullableString,
+		notes: nullableString
+	})
+	.superRefine((quotation, context) => {
+		if (!quotation.packageSnapshot && quotation.lineItems.length === 0) {
+			context.addIssue({
+				code: 'custom',
+				path: ['lineItems'],
+				message: 'Add a package or at least one equipment item'
+			});
+		}
+	});
 
 export const leadInputSchema = z.object({
 	name: z.string().trim().min(1, 'Lead name is required'),

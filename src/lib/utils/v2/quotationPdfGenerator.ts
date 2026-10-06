@@ -311,13 +311,63 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 		drawText(page, `Venue: ${quotation.venue}`, margin + columnWidth + 24, detailsY, 8, regular);
 
 	y = Math.min(customerY, detailsY) - 28;
-	drawText(page, 'EQUIPMENT', margin, y, 11, bold, ink);
-	y -= 18;
-	drawText(page, 'ITEM', margin + 94, y - 9, 8, bold, ink);
-	drawText(page, 'QTY', width - margin - 190, y - 9, 8, bold, ink);
-	drawRight(page, 'UNIT PRICE', width - margin - 80, y - 9, 8, bold, ink);
-	drawRight(page, 'TOTAL', width - margin - 8, y - 9, 8, bold, ink);
-	y -= 34;
+	const packageSnapshot = quotation.packageSnapshot;
+	if (packageSnapshot) {
+		const packageEquipment = packageSnapshot.equipment.map(
+			(item) => `${item.quantity} x ${item.name}`
+		);
+		const packageCrew = packageSnapshot.crew.map((member) => `${member.count} x ${member.label}`);
+		const packageLines = [
+			...wrapText(packageSnapshot.description, regular, 8, width - margin * 2 - 20),
+			`Capacity: ${packageSnapshot.guestRange.min}${packageSnapshot.guestRange.max === null ? '+' : `-${packageSnapshot.guestRange.max}`} guests | Quoted for ${packageSnapshot.expectedGuests} guests`,
+			...(packageSnapshot.guestRange.max === null
+				? [
+						`Open-ended price range: ${packageSnapshot.guestRange.min}-${packageSnapshot.guestRange.min + 100} guests.`
+					]
+				: []),
+			...wrapText(
+				`Includes: ${packageEquipment.join(', ') || 'Package equipment'}`,
+				regular,
+				7,
+				width - margin * 2 - 20
+			),
+			...wrapText(
+				`Crew: ${packageCrew.join(', ') || 'As listed'}`,
+				regular,
+				7,
+				width - margin * 2 - 20
+			)
+		];
+		const blockHeight = 48 + packageLines.length * 10;
+		if (y - blockHeight < 105) {
+			drawFooter(page, pageNumber, regular, true);
+			page = addPage(pdf);
+			pageNumber += 1;
+			y = height - 54;
+			drawText(page, quotation.quotationNumber, margin, y, 10, bold);
+			y -= 30;
+		}
+		drawText(page, 'PACKAGE', margin, y, 11, bold, ink);
+		drawRight(page, formatVnd(packageSnapshot.quotedPriceVnd), width - margin, y, 10, bold, ink);
+		y -= 16;
+		drawText(page, packageSnapshot.name, margin, y, 9, bold, ink);
+		y -= 14;
+		for (const line of packageLines) {
+			drawText(page, line, margin, y, 7, regular, muted);
+			y -= 10;
+		}
+		y -= 14;
+	}
+
+	if (quotation.lineItems.length > 0) {
+		drawText(page, 'ADDITIONAL EQUIPMENT', margin, y, 11, bold, ink);
+		y -= 18;
+		drawText(page, 'ITEM', margin + 94, y - 9, 8, bold, ink);
+		drawText(page, 'QTY', width - margin - 190, y - 9, 8, bold, ink);
+		drawRight(page, 'UNIT PRICE', width - margin - 80, y - 9, 8, bold, ink);
+		drawRight(page, 'TOTAL', width - margin - 8, y - 9, 8, bold, ink);
+		y -= 34;
+	}
 
 	for (const item of quotation.lineItems) {
 		if (y < 92) {
@@ -326,7 +376,7 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 			pageNumber += 1;
 			y = height - 54;
 			drawText(page, quotation.quotationNumber, margin, y, 10, bold);
-			drawRight(page, 'EQUIPMENT', width - margin, y, 11, bold, muted);
+			drawRight(page, 'ADDITIONAL EQUIPMENT', width - margin, y, 9, bold, muted);
 			y -= 28;
 		}
 
@@ -376,9 +426,37 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 		y -= rowHeight;
 	}
 
-	y -= 16;
 	const includesVat = quotation.vatRatePercent != null;
-	const summaryBottomOffset = includesVat ? 110 : 96;
+	y -= 16;
+	const summaryRows: Array<[string, string]> = [];
+	if (packageSnapshot) {
+		summaryRows.push(['Package', formatVnd(packageSnapshot.quotedPriceVnd)]);
+		if ((quotation.packageDiscountVnd ?? 0) > 0) {
+			summaryRows.push([
+				`Package discount (${quotation.packageDiscountPercent ?? 0}%)`,
+				`- ${formatVnd(quotation.packageDiscountVnd ?? 0)}`
+			]);
+		}
+	}
+	if (quotation.lineItems.length > 0) {
+		summaryRows.push(
+			['Additional equipment', formatVnd(quotation.equipmentSubtotalVnd)],
+			[
+				`Equipment discount (${quotation.equipmentDiscountPercent}%)`,
+				`- ${formatVnd(quotation.equipmentDiscountVnd)}`
+			]
+		);
+	}
+	summaryRows.push(
+		['Transport', formatVnd(quotation.transportVnd)],
+		['Handling', formatVnd(quotation.handlingVnd)]
+	);
+	if (includesVat)
+		summaryRows.push([
+			`VAT (${quotation.vatRatePercent}%)`,
+			formatVnd(quotation.vatAmountVnd ?? 0)
+		]);
+	const summaryBottomOffset = summaryRows.length * 14 + 32;
 	let summaryBottom = y - summaryBottomOffset;
 	if (summaryBottom < 100) {
 		drawFooter(page, pageNumber, regular, true);
@@ -390,36 +468,14 @@ export async function generateQuotationPdf(quotation: Quotation): Promise<Uint8A
 		y -= 40;
 		summaryBottom = y - summaryBottomOffset;
 	}
-	drawSummaryRow(
-		page,
-		'Equipment subtotal',
-		formatVnd(quotation.equipmentSubtotalVnd),
-		y - 18,
-		regular
+	summaryRows.forEach(([label, amount], index) =>
+		drawSummaryRow(page, label, amount, y - 18 - index * 14, regular)
 	);
-	drawSummaryRow(
-		page,
-		`Discount (${quotation.equipmentDiscountPercent}%)`,
-		`- ${formatVnd(quotation.equipmentDiscountVnd)}`,
-		y - 32,
-		regular
-	);
-	drawSummaryRow(page, 'Transport', formatVnd(quotation.transportVnd), y - 46, regular);
-	drawSummaryRow(page, 'Handling', formatVnd(quotation.handlingVnd), y - 60, regular);
-	if (includesVat) {
-		drawSummaryRow(
-			page,
-			`VAT (${quotation.vatRatePercent}%)`,
-			formatVnd(quotation.vatAmountVnd ?? 0),
-			y - 74,
-			regular
-		);
-	}
 	drawSummaryRow(
 		page,
 		includesVat ? 'TOTAL INCLUDING VAT' : 'TOTAL',
 		formatVnd(quotation.totalVnd),
-		y - (includesVat ? 98 : 84),
+		y - 24 - summaryRows.length * 14,
 		regular,
 		bold,
 		12,

@@ -29,6 +29,33 @@ export interface QuotationLineItem {
 	note: string | null;
 }
 
+export interface QuotationPackageEquipment {
+	name: string;
+	category: EquipmentCategory;
+	quantity: number;
+	outsourced: boolean;
+	manufacturer: string | null;
+	imageUrl: string | null;
+	note: string | null;
+}
+
+export interface QuotationPackageCatalogueItem {
+	slug: string;
+	name: string;
+	tagline: string;
+	description: string;
+	guestRange: { min: number; max: number | null };
+	priceRange: { minVND: number; maxVND: number; currency: 'VND' };
+	equipment: QuotationPackageEquipment[];
+	crew: { label: string; count: number }[];
+	highlights: string[];
+}
+
+export interface QuotationPackageSnapshot extends QuotationPackageCatalogueItem {
+	expectedGuests: number;
+	quotedPriceVnd: number;
+}
+
 export interface Quotation {
 	id: string;
 	quotationNumber: string;
@@ -40,6 +67,9 @@ export interface Quotation {
 	status: QuotationStatus;
 	ownerUid: string;
 	customer: QuotationCustomerSnapshot;
+	packageSnapshot?: QuotationPackageSnapshot | null;
+	packageDiscountPercent?: number;
+	packageDiscountVnd?: number;
 	lineItems: QuotationLineItem[];
 	equipmentSubtotalVnd: number;
 	equipmentDiscountPercent: number;

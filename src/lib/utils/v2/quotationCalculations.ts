@@ -1,10 +1,28 @@
-import type { QuotationLineItem } from '$lib/types/v2';
+import type { QuotationLineItem, QuotationPackageCatalogueItem } from '$lib/types/v2';
+
+export const OPEN_ENDED_PACKAGE_GUEST_SPAN = 100;
 
 export interface QuotationTotals {
 	equipmentSubtotalVnd: number;
 	equipmentDiscountVnd: number;
+	packageSubtotalVnd: number;
+	packageDiscountVnd: number;
 	totalVnd: number;
 	lineTotalsVnd: number[];
+}
+
+/** Select a package price by interpolating within its guest and price ranges. */
+export function calculatePackageQuotePrice(
+	pkg: Pick<QuotationPackageCatalogueItem, 'guestRange' | 'priceRange'>,
+	expectedGuests: number
+): number {
+	const minGuests = pkg.guestRange.min;
+	const maxGuests = pkg.guestRange.max ?? minGuests + OPEN_ENDED_PACKAGE_GUEST_SPAN;
+	const guests = Math.min(maxGuests, Math.max(minGuests, expectedGuests));
+	const progress = maxGuests === minGuests ? 0 : (guests - minGuests) / (maxGuests - minGuests);
+	return Math.round(
+		pkg.priceRange.minVND + progress * (pkg.priceRange.maxVND - pkg.priceRange.minVND)
+	);
 }
 
 /** Calculate all quotation totals using integer VND values. */
@@ -12,16 +30,28 @@ export function calculateQuotationTotals(
 	lineItems: Pick<QuotationLineItem, 'quantity' | 'unitPriceVnd'>[],
 	equipmentDiscountPercent: number,
 	transportVnd: number,
-	handlingVnd: number
+	handlingVnd: number,
+	packagePriceVnd = 0,
+	packageDiscountPercent = 0
 ): QuotationTotals {
 	const lineTotalsVnd = lineItems.map((item) => item.quantity * item.unitPriceVnd);
 	const equipmentSubtotalVnd = lineTotalsVnd.reduce((total, lineTotal) => total + lineTotal, 0);
 	const equipmentDiscountVnd = Math.round(equipmentSubtotalVnd * (equipmentDiscountPercent / 100));
+	const packageSubtotalVnd = packagePriceVnd;
+	const packageDiscountVnd = Math.round(packageSubtotalVnd * (packageDiscountPercent / 100));
 
 	return {
 		equipmentSubtotalVnd,
 		equipmentDiscountVnd,
-		totalVnd: equipmentSubtotalVnd - equipmentDiscountVnd + transportVnd + handlingVnd,
+		packageSubtotalVnd,
+		packageDiscountVnd,
+		totalVnd:
+			equipmentSubtotalVnd -
+			equipmentDiscountVnd +
+			packageSubtotalVnd -
+			packageDiscountVnd +
+			transportVnd +
+			handlingVnd,
 		lineTotalsVnd
 	};
 }

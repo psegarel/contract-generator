@@ -69,7 +69,9 @@ function createQuotationWriteData(
 		data.lineItems,
 		data.equipmentDiscountPercent,
 		data.transportVnd,
-		data.handlingVnd
+		data.handlingVnd,
+		data.packageSnapshot?.quotedPriceVnd ?? 0,
+		data.packageDiscountPercent
 	);
 	const vatAmountVnd = calculateQuotationVat(totals.totalVnd, data.vatRatePercent);
 
@@ -90,6 +92,9 @@ function createQuotationWriteData(
 			phone: data.customer.phone ?? null,
 			address: data.customer.address ?? null
 		},
+		packageSnapshot: data.packageSnapshot ?? null,
+		packageDiscountPercent: data.packageDiscountPercent,
+		packageDiscountVnd: totals.packageDiscountVnd,
 		lineItems: data.lineItems.map((item) => ({
 			...item,
 			manufacturer: item.manufacturer ?? null,
@@ -234,6 +239,8 @@ export async function createQuotationRevision(quotationId: string): Promise<stri
 		const input: QuotationInput = {
 			status: 'draft',
 			customer: source.customer,
+			packageSnapshot: source.packageSnapshot ?? null,
+			packageDiscountPercent: source.packageDiscountPercent ?? 0,
 			lineItems: source.lineItems,
 			equipmentDiscountPercent: source.equipmentDiscountPercent,
 			transportVnd: source.transportVnd,

@@ -22,6 +22,9 @@
 	<QuotationForm
 		clients={data.clients}
 		catalogueItems={data.catalogueItems}
+		cataloguePackages={data.cataloguePackages}
+		catalogueSupportsPackages={data.catalogueSupportsPackages}
+		catalogueError={data.catalogueError}
 		onSuccess={handleSuccess}
 		onCancel={() => goto(resolve('/quotations'))}
 	/>

@@ -88,6 +88,52 @@ describe('generateQuotationPdf', () => {
 		}
 	});
 
+	it('creates a package-only quotation PDF', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((input: RequestInfo | URL) => staticAssetResponse(String(input)))
+		);
+		try {
+			const bytes = await generateQuotationPdf({
+				...quotation,
+				lineItems: [],
+				equipmentSubtotalVnd: 0,
+				equipmentDiscountVnd: 0,
+				equipmentDiscountPercent: 0,
+				totalVnd: 12_000_000,
+				packageSnapshot: {
+					slug: 'essential',
+					name: 'Essential',
+					tagline: 'A clear sound setup',
+					description: 'A package for a small event.',
+					guestRange: { min: 50, max: 100 },
+					priceRange: { minVND: 10_000_000, maxVND: 15_000_000, currency: 'VND' },
+					equipment: [
+						{
+							name: 'L-Acoustics X8',
+							category: 'audio',
+							quantity: 2,
+							outsourced: false,
+							manufacturer: 'L-Acoustics',
+							imageUrl: null,
+							note: null
+						}
+					],
+					crew: [{ label: 'AV Technician', count: 1 }],
+					highlights: [],
+					expectedGuests: 75,
+					quotedPriceVnd: 12_000_000
+				}
+			});
+			const document = await PDFDocument.load(bytes);
+
+			expect(document.getPages()).toHaveLength(1);
+			expect(bytes.byteLength).toBeGreaterThan(1_000);
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
 	it('tries the ImageKit thumbnail URL and falls back to the catalogue image URL', async () => {
 		const imageBytes = new Uint8Array(
 			await readFile(new URL('../../../../static/insense-logo.png', import.meta.url))
