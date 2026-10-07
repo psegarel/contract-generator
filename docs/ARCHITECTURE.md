@@ -26,6 +26,8 @@ All contract interfaces extend `BaseContract` for shared list and payment fields
 
 Four contract types currently have backend types, schemas, utilities, and state but no dedicated creation UI: venue rental, performer booking, subcontractor, and client service. Their roadmap status is documented in the [codebase review](CODEBASE_REVIEW_2026-09-22.md).
 
+The contract type selector exposes only types with implemented creation routes. The four backend-only types remain out of the selector until their routes are built or their backend support is retired.
+
 ## Application structure
 
 ```text

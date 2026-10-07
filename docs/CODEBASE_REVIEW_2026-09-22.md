@@ -25,7 +25,7 @@ Svelte MCP is configured in `.mcp.json` for Codex sessions:
 
 ### Findings
 
-The design-system cleanup plan is mostly complete. Type checking and production build pass, but the repository still has small cleanup items, stale documentation, incomplete test coverage, several oversized forms, four backend-only contract types, and authorization rules that should be reviewed before further feature expansion.
+The design-system cleanup plan is mostly complete. Type checking and production build pass, but the repository still has incomplete test coverage, several oversized forms, four contract types with backend code but no creation routes, and a few smaller code-cleanup items.
 
 ### Work completed in this session
 
@@ -42,6 +42,8 @@ The design-system cleanup plan is mostly complete. Type checking and production 
 - The generic hardcoded-color migration is complete. A source scan found remaining generic gray and white classes only in `ServiceProvisionContractPreview.svelte` and `EventPlanningContractPreview.svelte`. Those classes preserve fixed white-page, black-text contract previews for printing.
 - The manual visual spot-check and dark-mode review listed in the archived cleanup plan have not been verified, so those remain follow-up work.
 - The project is pinned to Node 22.18.0 in `.nvmrc`, and login shells select the NVM project version automatically. The separate Homebrew OpenCode 1.2.0 and Node 25.6.1 installations were removed; Homebrew showed OpenCode was the only installed formula depending on Node.
+- Authorization review: all application data and uploaded documents in the current Firestore and Storage rules require an `isAdmin()` profile. User profiles cannot self-promote. This matches the documented single-owner model; no unrestricted signed-in-user access to application data was found. The rules do not have match blocks for venue-rental, performer-booking, subcontractor, or client-service collections, so those backend-only collection operations are denied by default.
+- The contract type selector no longer offers the four contract types without creation routes, avoiding links to 404s. Their backend code and payment integrations remain while roadmap status and any existing Firestore records are unverified.
 
 ## Previous cleanup plan status
 
@@ -57,16 +59,16 @@ The avatar consolidation and generic hardcoded-color review are complete. The on
 
 ### High priority
 
-Four contract types have backend schemas, CRUD utilities, and state management but no UI:
+Four contract types have backend schemas, CRUD utilities, and state management but no creation routes:
 
 - Venue rental
 - Performer booking
 - Subcontractor
 - Client service
 
-Decide whether these are real roadmap features. Either build their routes/forms or remove their unused backend stacks and payment integrations.
+Decide whether these are real roadmap features. Either build the routes/forms and add matching Firestore rules, or remove their unused backend stacks and payment integrations. Existing Firestore data has not been inspected, so verify whether records exist before deleting their support.
 
-Review authorization rules in `firestore.rules` and `storage.rules`. Most V2 records currently allow any authenticated user to read or write them. Confirm whether that is intentional; otherwise add ownership and/or role checks.
+The current rules match the single-owner `isAdmin` access model. If the app adds multiple administrators or ordinary users who need access to records, revisit whether collection-level admin access should be narrowed by `ownerUid`.
 
 ### Medium priority
 
@@ -95,8 +97,9 @@ The stale status/context documents and the component README should be consolidat
 
 ## Suggested sequence
 
-1. Finish the small remaining items from the cleanup plan.
-2. Decide the fate of the four backend-only contract types.
-3. Review authorization rules before adding more features.
+1. Decide the fate of the four backend-only contract types. Confirm whether Firestore records exist before removing any backend support.
+2. Complete the planned visual and dark-mode checks.
+3. Replace the remaining production `as any` counterparty casts and remove unused payment migration exports and `SERVICE_TYPES`.
 4. Improve test coverage and split the largest forms.
-5. Consolidate project documentation and restore a clean lint check.
+5. Revisit record-level ownership rules if the application moves beyond its current single-owner access model.
+6. Consolidate stale project documentation and restore a clean lint check.

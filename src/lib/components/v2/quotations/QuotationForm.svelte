@@ -4,6 +4,8 @@
 	import { ChevronDown, Plus, Trash2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
+	import { prefersReducedMotion } from 'svelte/motion';
+	import { slide } from 'svelte/transition';
 	import type {
 		ClientCounterparty,
 		EquipmentCatalogueItem,
@@ -737,11 +739,15 @@
 							>
 						</span>
 						<ChevronDown
-							class={`size-4 shrink-0 transition-transform ${expandedPackageSlug === item.slug ? 'rotate-180' : ''}`}
+							class={`size-4 shrink-0 transition-transform duration-[360ms] motion-reduce:transition-none ${expandedPackageSlug === item.slug ? 'rotate-180' : ''}`}
 						/>
 					</button>
 					{#if expandedPackageSlug === item.slug}
-						<div id="package-details-{item.slug}" class="border-t border-border p-4">
+						<div
+							id="package-details-{item.slug}"
+							class="border-t border-border p-4"
+							transition:slide={{ duration: prefersReducedMotion.current ? 0 : 360 }}
+						>
 							<p class="text-sm text-muted-foreground">{item.description}</p>
 							<p class="mt-2 text-xs text-muted-foreground">
 								{item.guestRange.min}{item.guestRange.max === null

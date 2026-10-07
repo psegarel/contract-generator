@@ -16,18 +16,6 @@
 		direction: 'receivable' | 'payable' | 'both';
 	}> = [
 		{
-			value: 'venue-rental',
-			label: 'Venue Rental',
-			description: 'We rent a venue from a venue owner',
-			direction: 'payable'
-		},
-		{
-			value: 'performer-booking',
-			label: 'Performer Booking',
-			description: 'We book a performer (hire them or provide them to client)',
-			direction: 'both'
-		},
-		{
 			value: 'equipment-rental',
 			label: 'Equipment Rental',
 			description: 'We rent equipment to/from someone',
@@ -49,18 +37,6 @@
 			value: 'event-planning',
 			label: 'Event Planning',
 			description: 'We organize a full event for a client',
-			direction: 'receivable'
-		},
-		{
-			value: 'subcontractor',
-			label: 'Subcontractor',
-			description: 'We hire an external service provider',
-			direction: 'payable'
-		},
-		{
-			value: 'client-service',
-			label: 'Client Service',
-			description: 'Generic client service contract',
 			direction: 'receivable'
 		},
 		{

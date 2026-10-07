@@ -272,7 +272,7 @@ Based on CLAUDE.md guidelines:
 - EventListItem.svelte ✅
 - EventsList.svelte ✅
 - ContractCard.svelte ✅
-- ContractTypeSelector.svelte ✅
+- ContractTypeSelector.svelte ✅ (2026-10-04: hid contract types whose creation routes are not implemented; autofixer clean)
 - CreateProviderInline.svelte ✅
 
 **Previously Checked (2026-02-01):**
